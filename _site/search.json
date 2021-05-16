@@ -25,8 +25,8 @@
     } ,
   
     {
-      "title"    : "Dense Index VS Sparse Index",
-      "title-lower"    : "dense index vs sparse index",
+      "title"    : "LSM Tree",
+      "title-lower"    : "lsm tree",
       "sub-titile" : "",
       "sub-titile-lower" : "",
       "categories" : "database",
