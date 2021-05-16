@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>Dense Index VS Sparse Index</title>
+<!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Dense Index VS Sparse Index | Find a needle in Hystack</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Dense Index VS Sparse Index" />
+<meta name="author" content="kkzhang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="介绍" />
+<meta property="og:description" content="介绍" />
+<meta property="og:site_name" content="Find a needle in Hystack" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-05-07T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Dense Index VS Sparse Index" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"kkzhang"},"@type":"BlogPosting","url":"/database/2021/05/07/LSM_Tree.html","description":"介绍","datePublished":"2021-05-07T00:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"/database/2021/05/07/LSM_Tree.html"},"headline":"Dense Index VS Sparse Index","dateModified":"2021-05-07T00:00:00+08:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+<script type="text/javascript" src="/assets/js/darkmode.js"></script>
+
+</head><body>
+  <main class="container">
+    <section class="about">
+      <div class="about-header condensed">
+      <div class="about-title">
+      <a href="/">
+        
+        <img src="/assets/portfolio.png" alt="KKZHANG" />
+        
+      </a>
+      <h2 id="title">
+        <a href="/">KKZHANG</a>
+      </h2>
+      </div><p class="tagline">Distributed-System. | Java. Golang. | Infrastructure.</p></div>
+      
+      <ul class="social about-footer condensed"><a href="https://github.com/kkzhang-tt" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://www.linkedin.com/in/k-z-23575b202/" target="_blank">
+          <li>
+            <i class="icon-linkedin-squared"></i>
+          </li>
+        </a><a href="https://instagram.com/kzhang29" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2021</p><div class="about-footer condensed">
+        <p>Dark Mode
+          <i class="icon-moon"></i>
+          <label class="switch">
+            <input type="checkbox" class="dark-mode-toggle">
+            <span class="slider round" onclick="toggleDarkMode()"></span>
+          </label>
+        </p>
+      </div>
+    </section>
+    <section class="content">
+      <div class="post-container">
+  <a class="post-link" href="/database/2021/05/07/LSM_Tree.html">
+    <h2 class="post-title">Dense Index VS Sparse Index</h2>
+  </a>
+  <div class="post-meta">
+    <div class="post-date"><i class="icon-calendar"></i>May 7, 2021</div><ul class="post-categories"><li>database</li></ul></div>
+  <div class="post">
+    <h2 id="介绍">介绍</h2>
+
+<ul>
+  <li>写操作友好，同时兼顾查询效率</li>
+  <li>多用于 key-value 型 or 日志型数据库</li>
+  <li>LSM Tree 性能高的原因：采用顺序读写，避免随机读写</li>
+  <li>不管是 Disk 还是 Memory，顺序读写都能比随机读写有较大的性能提好（甚至是几个数量级）</li>
+</ul>
+
+<h2 id="结构">结构</h2>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/lsm_1.png" alt="lsm_1" /></p>
+
+<p>维护 SSTable 持久化到磁盘</p>
+
+<ul>
+  <li>每个 SSTable 包含多个 Segment</li>
+  <li>每个 Segment 中有序存储 key-value 对（按 key 排序）</li>
+  <li>但是不同 Segment 之间不存在顺序关系</li>
+  <li>Segment 中的数据不可以修改 (<strong>immutable</strong>)</li>
+</ul>
+
+<h2 id="写入">写入</h2>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/lsm_2.png" alt="lsm_2" /></p>
+
+<p>为了避免随机写，同时保证每个 Segment 中的数据是有序的，LSM Tree 会在内存中维护一个有序结构 memtable（可以是红黑树），每次写入操作需要先写入 memtable 中，当内存中的数据达到某个阈值之后，会将 memtable 中的数据有序写入到 Segment 中（生成新的 Segment）。</p>
+
+<h2 id="查询">查询</h2>
+
+<ul>
+  <li>为了提高查询效率，写入操作除了将数据写入到 memtable 中，还会在内存中维护 Bloom Filter &amp; Sparse Index ：Bloom Filter 是为了避免无用的查询，Sparse Index 是为了减少查询的数据量与 IO 次数</li>
+  <li>依次扫描所有的 Segment：首先从最新的 Segment 中查询，如果当前 Segment 中不存在，则查询下一个</li>
+  <li>在某个特定的 Segment 中查询 key 时，首先利用维护的 Bloom Filter 判断该 key 是否存在当前 Segment 中，如果存在，则再利用 Sparse Index 找到 key 在 Segment 中所处的数据块，之后再将这段数据块加入到内存中进行二分查找</li>
+</ul>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/lsm_3.png" alt="lsm_3" /></p>
+
+<h2 id="压缩">压缩</h2>
+
+<p>每次查询时需要依次遍历所有的 Segment，如果 Segment 的数量很多的话，就会降低查询效率。因此，需要定期对所有的 Segment 进行合并，减小 Segment 的数量。</p>
+
+<p>合并是一个归并排序的过程，在合并过程中，对于相同的 key，只需要保存最新的即可。</p>
+
+<h2 id="删除">删除</h2>
+
+<p>Segment 中的数据不能被修改，为了实现删除，需要写入一条 value = {墓碑标志} 的数据。</p>
+
+<p>如果在查询时遇到该标志，则返回 null；同时，墓碑标志会在压缩过程中回收掉。</p>
+
+<ul>
+  <li>删除的本质是覆盖写，而不是清除数据</li>
+</ul>
+
+<h2 id="lsm-tree-vs-b-tree"><strong>LSM tree VS B-tree</strong></h2>
+
+<p>主流的关系型数据库均以 B/B+ tree 作为其构建索引的数据结构，这是因为 B tree 提供了理论上最高的查询效率 - O(log⁡n)。但对查询性能的追求也造成了 B tree 的相应缺点，即每次插入或删除一条数据时，均需要更新索引，从而造成一次磁盘 IO。这种特性决定了 B tree 只适用于频繁读、较少写的场景。如果在频繁写的场景下，将造成大量的磁盘 IO，从而导致性能骤降。这种应用场景在传统的关系型数据库中比较常见。</p>
+
+<p>而 LSM tree 则避免了频繁写场景下的磁盘 IO 开销，尽管其查询效率无法达到理想的 O(log⁡n)，但依然非常快，可以接受。所以从本质上来说，LSM tree 相当于牺牲了一部分查询性能，换取了可观的写入性能。这对于 key-value 型或日志型数据库是非常重要的。</p>
+
+  </div></div>
+
+    </section>
+    <footer class="condensed">
+      <ul class="social about-footer condensed"><a href="https://github.com/kkzhang-tt" target="_blank">
+          <li>
+            <i class="icon-github-circled"></i>
+          </li>
+        </a><a href="https://www.linkedin.com/in/k-z-23575b202/" target="_blank">
+          <li>
+            <i class="icon-linkedin-squared"></i>
+          </li>
+        </a><a href="https://instagram.com/kzhang29" target="_blank">
+          <li>
+            <i class="icon-instagram"></i>
+          </li>
+        </a></ul><p class="about-footer condensed">&copy;
+        2021</p><div class="about-footer condensed">
+        <p>Dark Mode
+          <i class="icon-moon"></i>
+          <label class="switch">
+            <input type="checkbox" class="dark-mode-toggle">
+            <span class="slider round" onclick="toggleDarkMode()"></span>
+          </label>
+        </p>
+      </div>
+    </footer>
+  </main>
+  
+  <script type="text/javascript" src="/assets/js/darkmode.js"></script>
+  
+  <script src="/assets/js/simple-jekyll-search.min.js"></script>
+  <script src="/assets/js/search.js"></script>
+  
+</body>
+
+</html>
