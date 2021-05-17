@@ -35,27 +35,27 @@ visitor_tracker.has_visited_before("user_d")  # False
 
 布隆过滤器是通过一个位数组（bit array）来实现的；同时会包含几个 Hash 函数，每个 Hash 函数以一个元素值作为参数，同时返回一个位数组（bit array）索引。通常来说，位数组会比较大（用于减少冲突的概率）。下面是一个长度为 20 的例子：
 
-![bloom_filter_1](https://github.com/kkzhang-tt/kkzhang-tt.github.io/blob/main/_images/bloom_filter_1.png?raw=true)
+<img src="https://github.com/kkzhang-tt/kkzhang-tt.github.io/blob/main/_images/bloom_filter_1.png?raw=true" alt="bloom_filter_1" style="zoom:50%;" />
 
 假设我们的布隆过滤器使用三个 Hash 函数（h1, h2, h3）。把元素值 a 分别传给这三个函数，会产生三个不同的位数组索引。那么，插入一个元素意味着将这三个索引位置的位由 0 翻转成 1。
 
-![bloom_filter_2](https://github.com/kkzhang-tt/kkzhang-tt.github.io/blob/main/_images/bloom_filter_2.png?raw=true)
+<img src="https://github.com/kkzhang-tt/kkzhang-tt.github.io/blob/main/_images/bloom_filter_2.png?raw=true" alt="bloom_filter_2" style="zoom:50%;" />
 
 同样，当我们插入其他值（b, c）后，布隆过滤器中的位数组可能看起来如下：
 
-![bloom_filter_3](https://github.com/kkzhang-tt/kkzhang-tt.github.io/blob/main/_images/bloom_filter_3.png?raw=true)
+<img src="https://github.com/kkzhang-tt/kkzhang-tt.github.io/blob/main/_images/bloom_filter_3.png?raw=true" alt="bloom_filter_3" style="zoom:50%;" />
 
 注意到，元素的插入产生了一些冲突（元素 a 与 b 在位数组中部有冲突，元素 b 与 c 在位数组的右侧有冲突）。这是正常现象，这就是布隆过滤器的部分概率性的原因。
 
 数据已经插入完成了，那么我们如何判断一个元素是否已经出现了呢？首先，我们的 Hash 函数是确定的，所以对于同样的元素值，Hash 函数总是能返回同样的索引位置。接下来我们使用刚才的布隆过滤器判断元素 b, d 是否出现。
 
-![bloom_filter_4](https://github.com/kkzhang-tt/kkzhang-tt.github.io/blob/main/_images/bloom_filter_4.png?raw=true)
+<img src="https://github.com/kkzhang-tt/kkzhang-tt.github.io/blob/main/_images/bloom_filter_4.png?raw=true" alt="bloom_filter_4" style="zoom:50%;" />
 
 元素 d 的索引有两个位置并没有被翻转成 1；正是因为元素 d 的索引位置中存在并没有置为 1 的情况，那么我们可以肯定元素 d 之前没有出现过。
 
 对于元素 b，其对应的三个索引位置均被翻转成 1，那么我们不能判断 b 一定出现过，只能说 b 可能出现过。至于为什么不能肯定 b 出现过，考虑一个新的元素 e.
 
-![bloom_filter_5](https://github.com/kkzhang-tt/kkzhang-tt.github.io/blob/main/_images/bloom_filter_5.png?raw=true)
+<img src="https://github.com/kkzhang-tt/kkzhang-tt.github.io/blob/main/_images/bloom_filter_5.png?raw=true" alt="bloom_filter_5" style="zoom:50%;" />
 
 我们之前并没有插入元素 e，但是其 Hash 索引对应的位置均被翻转了；这是因为 e 元素的索引与之前插入元素的索引位置产生了冲突。
 
