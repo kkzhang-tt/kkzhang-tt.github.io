@@ -33,7 +33,7 @@
       "tags"     : "",
       "url"      : "/database/2021/05/07/LSM_Tree.html",
       "date"     : "2021-05-07 00:00:00 +0800",
-      "content"     : "介绍  写操作友好，同时兼顾查询效率  多用于 key-value 型 or 日志型数据库  LSM Tree 性能高的原因：采用顺序读写，避免随机读写  不管是 Disk 还是 Memory，顺序读写都能比随机读写有较大的性能提好（甚至是几个数量级）结构维护 SSTable 持久化到磁盘  每个 SSTable 包含多个 Segment  每个 Segment 中有序存储 key-valu..."
+      "content"     : "介绍      写操作友好，同时兼顾查询效率        多用于 key-value 型 or 日志型数据库        LSM Tree 性能高的原因：采用顺序读写，避免随机读写          不管是 Disk 还是 Memory，顺序读写都能比随机读写有较大的性能提好（甚至是几个数量级）      结构维护 SSTable 持久化到磁盘  每个 SSTable 包含多个 Segm..."
     } ,
   
     {
