@@ -1,4 +1,4 @@
-I"�<h2 id="介绍">介绍</h2>
+I"�<h2 id="介绍">介绍</h2>
 
 <ul>
   <li>
@@ -57,9 +57,9 @@
 
 <p>如果在查询时遇到该标志，则返回 null；同时，墓碑标志会在压缩过程中回收掉。</p>
 
-<ul>
-  <li>删除的本质是覆盖写，而不是清除数据</li>
-</ul>
+<blockquote>
+  <p>删除的本质是覆盖写，而不是清除数据</p>
+</blockquote>
 
 <h2 id="lsm-tree-vs-b-tree"><strong>LSM tree VS B-tree</strong></h2>
 

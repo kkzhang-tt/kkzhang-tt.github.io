@@ -1,4 +1,4 @@
-I"�]<h2 id="定义">定义</h2>
+I"�]<h2 id="定义">定义</h2>
 
 <p>栈内元素保持单调有序状态的栈称为单调栈（monotonous stack）。</p>
 
@@ -8,7 +8,7 @@
 
 <p>按照从栈底到栈顶的元素状态，分为递增栈，递减栈；如下：</p>
 
-<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/mono_stack_1.png" /></p>
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/mono_stack_1.png" style="zoom:50%;" /></p>
 
 <h2 id="实现">实现</h2>
 
@@ -165,8 +165,6 @@
 </blockquote>
 
 <p>给定 n 个非负整数，用来表示柱状图中各个柱子的高度。每个柱子彼此相邻，且宽度为 1 。求在该柱状图中，能够勾勒出来的矩形的最大面积。</p>
-
-<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/mono_stack_2.png" /></p>
 
 <p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/mono_stack_3.png" /></p>
 

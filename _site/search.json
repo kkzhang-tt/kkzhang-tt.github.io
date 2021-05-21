@@ -1,8 +1,8 @@
 [
   
     {
-      "title"    : "Monotonous Stack",
-      "title-lower"    : "monotonous stack",
+      "title"    : "单调栈",
+      "title-lower"    : "单调栈",
       "sub-titile" : "",
       "sub-titile-lower" : "",
       "categories" : "algrithom",
@@ -25,8 +25,8 @@
     } ,
   
     {
-      "title"    : "Dense Index VS Sparse Index",
-      "title-lower"    : "dense index vs sparse index",
+      "title"    : "密集索引 VS 稀疏索引",
+      "title-lower"    : "密集索引 vs 稀疏索引",
       "sub-titile" : "",
       "sub-titile-lower" : "",
       "categories" : "database",

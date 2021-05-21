@@ -57,4 +57,5 @@ theme: plainwhite
 
 plugins:
   - jekyll-seo-tag
+encoding: utf-8
 #  - jekyll-feed
