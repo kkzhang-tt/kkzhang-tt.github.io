@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "Dense Index VS Sparse Index"
+title: "密集索引 VS 稀疏索引"
 author: "kkzhang"
 category: "database"
 ---

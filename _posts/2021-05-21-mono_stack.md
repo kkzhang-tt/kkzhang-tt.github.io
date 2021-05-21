@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "Monotonous Stack"
+title: "单调栈"
 category: "algrithom"
 author: "kkzhang"
 ---
