@@ -1,6 +1,18 @@
 [
   
     {
+      "title"    : "Raft: An Understandable Consensus Algorithm",
+      "title-lower"    : "raft: an understandable consensus algorithm",
+      "sub-titile" : "",
+      "sub-titile-lower" : "",
+      "categories" : "system-design",
+      "tags"     : "",
+      "url"      : "/system-design/2021/05/23/raft.html",
+      "date"     : "2021-05-23 00:00:00 +0800",
+      "content"     : ""
+    } ,
+  
+    {
       "title"    : "单调栈",
       "title-lower"    : "单调栈",
       "sub-titile" : "",
