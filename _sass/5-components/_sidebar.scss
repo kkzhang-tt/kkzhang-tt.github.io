@@ -19,7 +19,7 @@
 
 .c-sidebar-author {
   .c-author__cover {
-    width: 100px;
+    width: 150px;
     height: 200px;
     margin: 0 auto 10px;
     border-radius: 5%;
@@ -28,7 +28,7 @@
     img {
       width: 100%;
       height: 100%;
-      border-radius: 50%;
+      border-radius: 5%;
       transition: $global-transition;
       &:hover {
         transform: scale3d(0.90,0.90,1);
