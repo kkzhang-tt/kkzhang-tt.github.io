@@ -1,22 +1,22 @@
-title: Welcome to Flexton
-description: Flexton is a responsive and ultra-minimal theme for Jekyll.
+title: Find a needle in haystack
+description: Distributed-System | Java | Golang | Infrastructure | Operating System
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "flexton.netlify.com" # the base hostname & protocol for your site, e.g. http://example.com
+url: "kkzhang-tt.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 
 # Author
-author-name:    Clayton Hanson
+author-name:    kkzhang
 author-image:   1.jpg
-author-job:     Web Developer
-author-email:   your-email@domain.com # Add your email for contant form.
-author-twitter: artemsheludko_ # Add your twitter account
-about-author:   I am a web developer focusing on front-end development. Always hungry to keep learning.
+author-job:     Software Engineer
+author-email:   kkzhang1029@gmail.com # Add your email for contant form.
+author-twitter: # Add your twitter account
+about-author:   Distributed-System | Java | Golang | Infrastructure | Operating System
 
 # Social settings
-social-twitter:   artemsheludko_
+social-twitter:   
 social-facebook:
-social-github:    artemsheludko
-social-pinterest: artemsheludko
-social-instagram: artemsheludko_
+social-github:    kkzhang-tt
+social-pinterest: 
+social-instagram: 
 social-youtube:
 social-vk:   
 social-linkedin:
