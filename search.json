@@ -1,20 +1,14 @@
 ---
 layout: null
-sitemap:
-  exclude: 'yes'
 ---
 [
   {% for post in site.posts %}
     {
       "title"    : "{{ post.title | escape }}",
-      "title-lower"    : "{{ post.title | escape | downcase}}",
-      "sub-titile" : "{{ post.subtitle | escape }}",
-      "sub-titile-lower" : "{{ post.subtitle | escape | downcase}}",
-      "categories" : "{{ post.categories }}",
-      "tags"     : "{{ post.tags | join: ', ' }}",
+      "category" : "{{ post.category }}",
+      "tags"     : "{{ post.tags | array_to_sentence_string }}",
       "url"      : "{{ site.baseurl }}{{ post.url }}",
-      "date"     : "{{ post.date }}",
-      "content"     : "{{ post.content | strip_html | strip_newlines | remove_chars | escape | truncate:200 }}"
+      "date"     : "{{ post.date }}"
     } {% unless forloop.last %},{% endunless %}
   {% endfor %}
 ]

@@ -1,61 +1,53 @@
-title: Find a needle in Hystack
-author: kkzhang
-email: kkzhang1029@gmail.com
-description: > # this means to ignore newlines until "show_exerpts:"
-  This blog is used to record something about my work and study.
-show_excerpts: false # set to true to show excerpts on the homepage
+title: Welcome to Flexton
+description: Flexton is a responsive and ultra-minimal theme for Jekyll.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "flexton.netlify.com" # the base hostname & protocol for your site, e.g. http://example.com
 
-# Minima date format
-# refer to http://shopify.github.io/liquid/filters/date/ if you want to customize this
-sass:
-  sass_dir: _sass
-plainwhite:
-  name: KKZHANG
-  tagline: Distributed-System. | Java. Golang. | Infrastructure.
-  date_format: "%b %-d, %Y"
-  sitemap: true # set to true to generate sitemap.xml content
-  search: true # set to true to enable searchbar
-  dark_mode: true # set to true to add dark mode toggle
-  portfolio_image: "assets/portfolio.png" # the path from the base directory of the site to the image to display (no / at the start)
-  html_lang: "en" # set the lang attribute of the <html> tag for the pages. See here for a list of codes: https://www.w3schools.com/tags/ref_country_codes.asp
-  condensed_mobile:
-    #- home
-    - page
-    - post
-  # generate social links in footer
-  social_links:
-    github:  kkzhang-tt
-    linkedIn: in/k-z-23575b202/
-    instagram: kzhang29
-  sitemap: true
-    #rss: rss
-    #dribbble: jekyll
-    #flickr:   jekyll
-    #instagram: jekyll
-    #pinterest: jekyll
-    #youtube: jekyll
-    #facebook: jekyll
-    #soundcloud: jekyll
-    #telegram: jekyll
-    #gitlab: jekyll
-    #email: jekyll
+# Author
+author-name:    Clayton Hanson
+author-image:   1.jpg
+author-job:     Web Developer
+author-email:   your-email@domain.com # Add your email for contant form.
+author-twitter: artemsheludko_ # Add your twitter account
+about-author:   I am a web developer focusing on front-end development. Always hungry to keep learning.
 
-    # Mastodon instances
-    # mastodon:
-    # - username: jekyll
-    #   instance: example.com
-    # - username: jekyll2
-    #   instance: example.com
+# Social settings
+social-twitter:   artemsheludko_
+social-facebook:
+social-github:    artemsheludko
+social-pinterest: artemsheludko
+social-instagram: artemsheludko_
+social-youtube:
+social-vk:   
+social-linkedin:
 
-# If you want to link only specific pages in your header, uncomment
-# this and add the path to the pages in order as they should show up
-#header_pages:
-# - about.md
+# Newsletter
+mailchimp: # Add your MailChimp form identifier. For example - blogenjoyfreedom.us16.list-manage.com/subscribe/post?u=cd56155d76ddeeb4c0bc4d080&amp;id=7a526cd13e
+
+# Google Analytics
+google-analytics: # Add your identifier. For example UA-99631805-1
+
+# Comment Section (Disqus)
+disqus-identifier: mr-brown # Add your shortname for Disqus Comment. For example mr-brown
 
 # Build settings
-theme: plainwhite
-
+markdown: kramdown
+permalink: /:year/:month/:day/:title/
 plugins:
-  - jekyll-seo-tag
-encoding: utf-8
-#  - jekyll-feed
+  - jekyll-paginate
+
+paginate: 7
+paginate_path: "/page/:num/"
+
+include:
+  - _pages
+
+sass:
+  sass_dir: _sass
+  style: compressed
+
+# Exclude from processing.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
