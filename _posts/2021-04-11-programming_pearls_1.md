@@ -4,7 +4,6 @@ layout: post
 title: "编程珠玑（一）"
 author: "kkzhang"
 category: "algrithom"
-image: 2.jpg
 ---
 
 ## 问题引入

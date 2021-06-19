@@ -3,7 +3,6 @@
 layout: post
 title: "Bloom Filter"
 author: "kkzhang"
-image: 6.jpg
 ---
 
 布隆过滤器是一种概率性的数据结构，主要用于判断一个元素是否出现过。

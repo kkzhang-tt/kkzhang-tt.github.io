@@ -4,7 +4,6 @@ layout: post
 title: "编程珠玑（二）"
 author: "kkzhang"
 category: "algrithom"
-image: 3.jpg
 ---
 
 ## 三个问题
