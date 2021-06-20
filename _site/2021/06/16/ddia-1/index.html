@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <title>DDIA: 一致性与共识（一）</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/logo.ico" type="image/x-icon">
+  <meta name='description' content="在分布式系统中，比较重要的抽象概念是共识：所有节点就某一项提议达成一致。">
+  <link rel='canonical' href="kkzhang-tt.github.io/2021/06/16/ddia-1/">
+  <link rel='alternate' type='application/rss+xml' title='Find a needle in haystack' href="kkzhang-tt.github.io/feed.xml">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Volkhov:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+
+  <style>
+    
+    /*! normalize.css v7.0.0 | MIT License | github.com/necolas/normalize.css */html{line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,footer,header,nav,section{display:block}h1{font-size:2em;margin:0.67em 0}figcaption,figure,main{display:block}figure{margin:1em 40px}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace, monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:inherit}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace, monospace;font-size:1em}dfn{font-style:italic}mark{background-color:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-0.25em}sup{top:-0.5em}audio,video{display:inline-block}audio:not([controls]){display:none;height:0}img{border-style:none}svg:not(:root){overflow:hidden}button,input,optgroup,select,textarea{font-family:sans-serif;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}button,html [type="button"],[type="reset"],[type="submit"]{-webkit-appearance:button}button::-moz-focus-inner,[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner{border-style:none;padding:0}button:-moz-focusring,[type="button"]:-moz-focusring,[type="reset"]:-moz-focusring,[type="submit"]:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:0.35em 0.75em 0.625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{display:inline-block;vertical-align:baseline}textarea{overflow:auto}[type="checkbox"],[type="radio"]{box-sizing:border-box;padding:0}[type="number"]::-webkit-inner-spin-button,[type="number"]::-webkit-outer-spin-button{height:auto}[type="search"]{-webkit-appearance:textfield;outline-offset:-2px}[type="search"]::-webkit-search-cancel-button,[type="search"]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details,menu{display:block}summary{display:list-item}canvas{display:inline-block}template{display:none}[hidden]{display:none}body,h1,h2,h3,h4,h5,h6,p,blockquote,pre,dl,dd,ol,ul,fieldset,legend,figure,hr{margin:0;padding:0}li>ul,li>ol{margin-bottom:0}table{border-collapse:collapse;border-spacing:0}@-webkit-keyframes spin{100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes spin{100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}.icon{position:relative;display:inline-block;width:25px;height:25px;overflow:hidden;fill:currentColor}.icon__cnt{width:100%;height:100%;background:inherit;fill:inherit;pointer-events:none;transform:translateX(0);-ms-transform:translate(0.5px, -0.3px)}.icon--m{width:50px;height:50px}.icon--l{width:100px;height:100px}.icon--xl{width:150px;height:150px}.icon--xxl{width:200px;height:200px}.icon__spinner{position:absolute;top:0;left:0;width:100%;height:100%}.icon--ei-spinner .icon__spinner,.icon--ei-spinner-2 .icon__spinner{-webkit-animation:spin 1s steps(12) infinite;animation:spin 1s steps(12) infinite}.icon--ei-spinner-3 .icon__spinner{-webkit-animation:spin 1.5s linear infinite;animation:spin 1.5s linear infinite}.icon--ei-sc-facebook{fill:#3b5998}.icon--ei-sc-github{fill:#333}.icon--ei-sc-google-plus{fill:#dd4b39}.icon--ei-sc-instagram{fill:#3f729b}.icon--ei-sc-linkedin{fill:#0976b4}.icon--ei-sc-odnoklassniki{fill:#ed812b}.icon--ei-sc-skype{fill:#00aff0}.icon--ei-sc-soundcloud{fill:#f80}.icon--ei-sc-tumblr{fill:#35465c}.icon--ei-sc-twitter{fill:#55acee}.icon--ei-sc-vimeo{fill:#1ab7ea}.icon--ei-sc-vk{fill:#45668e}.icon--ei-sc-youtube{fill:#e52d27}.icon--ei-sc-pinterest{fill:#bd081c}.icon--ei-sc-telegram{fill:#0088cc}*,*::after,*::before{box-sizing:border-box}h1,h2,h3,h4,h5,h6,ul,ol,dl,blockquote,p,address,hr,table,fieldset,figure,pre{margin-bottom:15px}ul,ol,dd{margin-left:15px}.highlight{background:#f7f7f7}.highlighter-rouge .highlight{background:#eef}.highlight .c{color:#998;font-style:italic}.highlight .err{color:#a61717;background-color:#e3d2d2}.highlight .k{font-weight:bold}.highlight .o{font-weight:bold}.highlight .cm{color:#998;font-style:italic}.highlight .cp{color:#999;font-weight:bold}.highlight .c1{color:#998;font-style:italic}.highlight .cs{color:#999;font-weight:bold;font-style:italic}.highlight .gd{color:#000;background-color:#fdd}.highlight .gd .x{color:#000;background-color:#faa}.highlight .ge{font-style:italic}.highlight .gr{color:#a00}.highlight .gh{color:#999}.highlight .gi{color:#000;background-color:#dfd}.highlight .gi .x{color:#000;background-color:#afa}.highlight .go{color:#888}.highlight .gp{color:#555}.highlight .gs{font-weight:bold}.highlight .gu{color:#aaa}.highlight .gt{color:#a00}.highlight .kc{font-weight:bold}.highlight .kd{font-weight:bold}.highlight .kp{font-weight:bold}.highlight .kr{font-weight:bold}.highlight .kt{color:#458;font-weight:bold}.highlight .m{color:#099}.highlight .s{color:#d14}.highlight .na{color:#008080}.highlight .nb{color:#0086B3}.highlight .nc{color:#458;font-weight:bold}.highlight .no{color:#008080}.highlight .ni{color:#800080}.highlight .ne{color:#900;font-weight:bold}.highlight .nf{color:#900;font-weight:bold}.highlight .nn{color:#555}.highlight .nt{color:#000080}.highlight .nv{color:#008080}.highlight .ow{font-weight:bold}.highlight .w{color:#bbb}.highlight .mf{color:#099}.highlight .mh{color:#099}.highlight .mi{color:#099}.highlight .mo{color:#099}.highlight .sb{color:#d14}.highlight .sc{color:#d14}.highlight .sd{color:#d14}.highlight .s2{color:#d14}.highlight .se{color:#d14}.highlight .sh{color:#d14}.highlight .si{color:#d14}.highlight .sx{color:#d14}.highlight .sr{color:#009926}.highlight .s1{color:#d14}.highlight .ss{color:#990073}.highlight .bp{color:#999}.highlight .vc{color:#008080}.highlight .vg{color:#008080}.highlight .vi{color:#008080}.highlight .il{color:#099}body{font-family:"Open Sans",Helvetica Neue,Helvetica,Arial,sans-serif;font-size:15px;line-height:28px;color:#404040;background-color:#fbfbfb;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}*::selection{color:#fff;background-color:#3af}h1,h2,h3,h4,h5,h6{font-family:"Volkhov","Times New Roman",Times,serif;font-weight:400;line-height:initial}h1{font-size:32px}h2{font-size:28px}h3{font-size:24px}h4{font-size:20px}h5{font-size:18px}h6{font-size:16px}img{max-width:100%;height:auto;vertical-align:middle}a{text-decoration:none;color:#3af;transition:.35s}a:hover{color:#0086e6}blockquote{padding-left:15px;border-left:3px solid #3af;font-family:'Volkhov', 'Times New Roman', Times, serif;font-style:normal;font-size:18px;background-color:rgba(220,235,245,0.2)}blockquote p{padding:10px}hr{height:1px;margin:30px 0;border:0;background-color:#f0f0f0}pre{overflow:auto;padding:25px;font-size:14px;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;font-family:Courier, monospace}code{overflow:auto;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;font-family:Courier, monospace;font-size:14px;background-color:#f7f7f7}p code,li code{padding:3px 5px}.o-wrapper{max-width:1440px;position:relative}.o-opacity{animation-duration:0.7s;animation-delay:0.2s;animation-fill-mode:both;animation-name:opacity}@keyframes opacity{from{opacity:0}to{opacity:1}}.c-btn{display:inline-block;white-space:nowrap;vertical-align:middle;font-family:'Volkhov', serif;font-size:12px;text-align:center;padding:8px 15px;cursor:pointer;transition:.35s}.c-btn--primary{color:#fff;background-color:#3af;background:linear-gradient(135deg, #3af 0%, #62d5ff 100%)}.c-btn--secondary{color:#fff;background-color:#cfcfdd;background:linear-gradient(135deg, #a2a2bd 0%, #cfcfdd 100%)}.c-btn--round{border-radius:30px}.c-btn--shadow{box-shadow:8px 10px 20px 0 rgba(46,61,73,0.15)}.c-btn--shadow:hover{box-shadow:2px 4px 8px 0px rgba(46,61,73,0.2)}.c-btn--middle{display:block;width:300px;max-width:100%}.c-btn--big{display:block;width:100%}.c-btn:hover{color:#fff;transition:.35s}.c-btn:active{transform:translateY(2px)}.c-sidebar{display:flex;flex-direction:column;justify-content:space-between;position:fixed;top:0;left:0;bottom:0;width:360px;padding:40px 20px 20px;text-align:center;box-shadow:1px 1px 0 rgba(31,35,46,0.15);background-color:#fff}.c-sidebar-author .c-author__cover{width:150px;height:200px;margin:0 auto 10px;border-radius:5%;overflow:hidden;background-color:#cfcfdd}.c-sidebar-author .c-author__cover img{width:100%;height:100%;border-radius:5%;transition:.35s}.c-sidebar-author .c-contact-menu .c-btn{min-width:110px}.c-sidebar-author .c-contact-menu .c-btn .icon{width:18px;height:18px;vertical-align:text-bottom;fill:#fff}.c-sidebar-author .c-author__info{font-family:'Volkhov', serif}.c-sidebar-author .c-author__name{font-size:18px;font-weight:700;line-height:21px}.c-sidebar-author .c-author__job{font-size:12px;color:#a0a0a0;margin:5px 0 0}.c-sidebar-author .c-contact-menu{margin:30px 0}.c-sidebar-author .c-contact-menu .c-btn--secondary{margin-right:10px}.c-sidebar-author .c-author__about{max-width:400px;margin:5px 5px 5px 55px;font-size:13px}.c-sidebar-footer .c-social__title{position:relative;font-family:'Volkhov', serif;font-size:15px;font-weight:700;color:#444}.c-sidebar-footer .c-social__title::before{content:"";display:block;height:2px;width:calc(50% - 40px);transform:translateY(-50%);position:absolute;top:50%;left:0;background-color:#444}.c-sidebar-footer .c-social__title::after{content:"";display:block;height:2px;width:calc(50% - 40px);transform:translateY(-50%);position:absolute;top:50%;right:0;background-color:#444}.c-sidebar-footer .c-social__list{list-style-type:none;padding:0;margin:15px 0}.c-sidebar-footer .c-social__list .c-social__item{display:inline-block;width:27px;height:27px}.c-sidebar-footer .c-social__list .icon{width:27px;height:27px;fill:#444;vertical-align:middle;transition:.35s}.c-sidebar-footer .c-social__list .icon:hover{fill:#3af;transform:scale(1.2);transition:.35s}.c-sidebar-footer .c-copyright p{font-size:13px;margin:0}@media only screen and (max-width: 900px){.c-sidebar{position:relative;width:100%;padding:20px}.c-sidebar .c-contact-menu{margin:20px 0}.c-sidebar-footer .c-social .c-social__title{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px;word-wrap:normal !important}.c-sidebar-footer .c-social__list{margin:0}.c-sidebar-footer .c-copyright{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px;word-wrap:normal !important}}@media only screen and (max-width: 480px){.c-sidebar-author .c-author__cover{width:80px;height:80px}.c-sidebar-author .c-author__cover img{width:100%;height:100%}.c-sidebar-author .c-contact-menu{margin:15px 0}.c-sidebar-author .c-contact-menu .c-btn{min-width:80px;font-size:10px;padding:4px 15px;margin-right:5px}.c-sidebar-author .c-contact-menu .c-btn .icon{width:16px;height:16px}.c-sidebar-footer .c-social .c-social__title{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px;word-wrap:normal !important}.c-sidebar-footer .c-social__list{margin:0}.c-sidebar-footer .c-social__list .icon{width:25px;height:25px}.c-sidebar-footer .c-copyright{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px;word-wrap:normal !important}}.c-content{position:relative;display:flex;flex-direction:row;flex-wrap:wrap;align-items:stretch;padding:0 20px 0;margin-left:360px}@media only screen and (max-width: 900px){.c-content{position:static;padding:0 15px 0;margin-left:0}}.c-posts{width:100%;display:flex;flex-direction:row;flex-wrap:wrap}.c-post{width:100%;max-width:100%;margin-bottom:20px;display:flex;flex-direction:row;align-items:stretch;min-height:180px;border-radius:10px;overflow:hidden;transition:.35s;background-color:#fff;box-shadow:0 1px 1px 0 rgba(31,35,46,0.15)}.c-post:hover{transform:translate(0px, -2px);box-shadow:0 15px 45px -10px rgba(10,16,34,0.2)}.c-post .c-post-thumbnail{display:block;width:30%;max-width:100%;min-height:180px;border-radius:10px 0 0 10px;background-color:rgba(220,235,245,0.2);background-size:cover;background-position:50% 50%}.c-post .c-post-content{padding:15px;width:70%}.c-post .c-post-content .c-post-title{font-size:30px;font-weight:400;margin:0 0 15px}.c-post .c-post-content .c-post-title a{text-decoration:none;color:#263959}.c-post .c-post-content .c-post-date,.c-post .c-post-content .c-post-words{font-size:12px}.c-load-more{padding:20px;margin:20px auto 40px;font-size:13px;color:#fff;border:none;background-color:#3af;outline:none}.c-load-more:hover{background-color:#0086e6}@media only screen and (max-width: 1200px){.c-post{width:48%;max-width:100%;margin:0 1% 20px;flex-direction:column}.c-post .c-post-thumbnail{width:100%;border-radius:10px 10px 0 0}.c-post .c-post-content{width:100%}.c-post .c-post-content .c-post-title{font-size:21px;margin:15px 0}}@media only screen and (max-width: 480px){.c-post{width:100%;max-width:100%;margin:0 0 20px}.c-post .c-post-content{width:100%}.c-post .c-post-content .c-post-title{font-size:21px;margin:15px 0}}.c-article{width:100%;margin:20px 0}.c-wrap-content{padding:20px;background-color:#fff}.c-article__image{position:relative;background-color:rgba(220,235,245,0.2);background-position:center;background-size:cover;background-repeat:no-repeat}.c-article__image:after{content:"";display:block;padding-top:56%}.c-article__header{margin-bottom:20px;text-align:center}.c-article__header .c-article__title{margin-bottom:10px}.c-article__date span{font-size:13px;text-transform:uppercase;color:#a0a0a0}.c-article__footer{margin:30px 0 0;padding-bottom:30px;text-align:center;border-bottom:1px solid #f0f0f0}.c-article__footer .c-article__share{transition:.35s}.c-article__footer .c-article__share a .icon{vertical-align:middle;transition:.35s}.c-article__footer .c-article__share a .icon:hover{opacity:.7;transition:.35s}.c-article__footer .c-article__tag{margin-bottom:5px}.c-article__footer .c-article__tag a{display:inline-block;vertical-align:middle;padding:5px 10px;font-family:'Volkhov', 'Times New Roman', Times, serif;font-size:10px;line-height:10px;text-transform:uppercase;background-color:rgba(115,138,160,0.6);color:#fff}.c-article__footer .c-article__tag a:hover{background-color:rgba(80,100,118,0.6)}.c-article__footer .c-article__tag a:last-child{margin-right:0}.c-recent-post{padding:30px 0}.c-recent-post .c-recent__title{font-size:14px;text-align:center;text-transform:uppercase;margin-bottom:30px}.c-recent-post .c-recent__box{display:flex;flex-direction:row;flex-wrap:wrap}.c-recent-post .c-recent__item{max-width:23%;flex-basis:23%;margin:0 1% 20px;border-radius:10px;overflow:hidden;text-align:center;background-color:#fff;box-shadow:0 1px 1px 0 rgba(31,35,46,0.15);transition:.35s}.c-recent-post .c-recent__item h4{margin-bottom:5px;font-size:12px;text-transform:uppercase}.c-recent-post .c-recent__item h4 a{color:#444}.c-recent-post .c-recent__item:hover{box-shadow:2px 4px 8px 0px rgba(46,61,73,0.2)}.c-recent-post .c-recent__footer{padding:15px}.c-recent-post .c-recent__image{display:block;width:100%;min-height:180px;background-color:rgba(220,235,245,0.2);background-size:cover;background-position:center;background-repeat:no-repeat}.c-recent-post .c-recent__date{color:#a0a0a0;font-size:12px}@media only screen and (max-width: 1200px){.c-recent-post .c-recent__item{max-width:48%;flex-basis:48%}}@media only screen and (max-width: 900px){.c-article{margin:15px 0}}@media only screen and (max-width: 480px){.c-wrap-content{padding:15px}.c-article__header{margin-bottom:5px}.c-article__header .c-article__title{font-size:24px;margin-bottom:5px}.c-recent-post .c-recent__item{max-width:100%;flex-basis:100%;margin:0 0 20px}}.c-blog-tags{width:100%;padding:20px;margin:20px 0 40px;background-color:#fff}.c-blog-tags h1{text-align:center;margin-bottom:0}.c-blog-tags h2{font-size:18px;text-transform:uppercase;margin:30px 0;color:#757575}.c-tag__list{list-style:none;padding:0 0 40px;margin:40px 0 0;border-bottom:1px solid #f0f0f0}.c-tag__list li{display:inline-block;margin-right:15px}.c-tag__list li a{color:#404040;text-transform:uppercase;font-size:12px}.c-tag__list li a:hover{color:#000}.c-tag__item{margin-bottom:15px}.c-tag__image{width:50px;height:50px;border-radius:50%;margin-right:5px}@media only screen and (max-width: 480px){.c-blog-tags{padding:15px}.c-blog-tags h1{font-size:27px}.c-blog-tags h2{font-size:16px;margin:15px 0}.c-tag__list{padding:0 0 30px;margin:30px 0 0}.c-tag__item{margin-bottom:5px}.c-tag__image{display:none}}.c-header{position:relative;width:100%;margin:20px 0}.c-header__box{position:relative;display:flex;flex-direction:row;justify-content:space-between;align-items:center}.c-header__box .icon--ei-search{position:absolute;top:7px;left:15px;fill:#ccc}.c-search{width:80%}.c-search .c-search__box{display:flex;align-items:center}.c-search .c-search__text{position:relative;width:100%;padding:10px 10px 10px 40px;border:1px solid #dce4ea;border-radius:30px;outline:none;color:#a0a0a0}.c-search .c-search__text::placeholder{color:#ccc}.c-search .c-search__text:hover{box-shadow:0 1px 0px rgba(132,135,138,0.1);transition:.35s}.c-search .c-search-results-list{position:absolute;width:100%;margin:10px 0 0;list-style-type:none;background-color:#fff;z-index:1}.c-search .c-search-results-list li{display:flex;flex-wrap:wrap;align-items:center;margin:0;padding:20px 25px 0;background-color:#fff;line-height:1.4;border-left:solid 1px #edeeee;border-right:solid 1px #edeeee}.c-search .c-search-results-list li:first-child{border-top-left-radius:5px;border-top-right-radius:5px;border-top:solid 1px #edeeee}.c-search .c-search-results-list li:last-child{border-bottom-left-radius:5px;border-bottom-right-radius:5px;padding-bottom:25px;border-bottom:solid 1px #edeeee}.c-search .c-search-results-list li a{font-size:16px}.c-nav{flex-grow:1;padding-left:20px}.c-nav .c-nav__list{display:flex;justify-content:flex-end}.c-nav .c-nav__list .c-nav__item{display:flex;align-items:center;float:left;padding:4px 10px;font-size:10px;text-transform:uppercase;white-space:nowrap;border:1px solid #dce4ea;box-shadow:0 1px 0px rgba(132,135,138,0.4);will-change:transform;transform:translateY(0px);cursor:pointer}.c-nav .c-nav__list .c-nav__item:hover{color:#222;background-color:#fff}.c-nav .c-nav__list .c-nav__item.is-active{box-shadow:0 0 0 rgba(132,135,138,0.5);transform:translateY(1px);color:#cfcfdd}.c-nav .c-nav__list .c-nav__item.is-active:hover{background-color:#fbfbfb}.c-nav .c-nav__list .c-nav__item:first-child{border-radius:10px 0 0 10px}.c-nav .c-nav__list .c-nav__item:last-child{border-radius:0 10px 10px 0}.c-nav .c-nav__list .c-nav__item .icon{width:18px;height:18px;margin-right:3px}@media only screen and (max-width: 900px){.c-header{margin:15px 0}}@media only screen and (max-width: 480px){.c-header .c-header__box{flex-direction:column}.c-header .c-search{width:100%}.c-header .c-search .c-search__text{padding:8px 8px 8px 40px}.c-header .c-nav{margin-top:15px}.c-header .c-nav .c-nav__list{justify-content:center}.c-header .c-nav .c-nav__item{padding:4px 8px}}.c-categories{width:100%}.c-categories__list{width:100%;display:flex;flex-direction:row;flex-wrap:wrap}.c-categories__item{max-width:25%;flex-basis:25%;padding:0 10px 20px}.c-categories__link{height:100%;display:flex;flex-direction:column;align-items:center;padding:20px 10px;border-radius:5px;box-shadow:5px 5px 25px rgba(46,61,73,0.15);background-color:#fff;transition:.35s}.c-categories__link:hover{box-shadow:2px 4px 8px 0px rgba(46,61,73,0.2)}.c-categories__link:hover .c-categories__img .c-categories__more{opacity:1;transition:.35s}.c-categories__link .c-categories__container{width:100%;word-wrap:break-word}.c-categories__link .c-categories__container.c-empty-figure{display:flex;flex-direction:column;justify-content:center;flex-grow:1}.c-categories__img{position:relative;max-width:100%}.c-categories__img figure{position:relative;width:200px;max-width:100%;margin-bottom:20px;overflow:hidden;background-size:cover;background-repeat:no-repeat;background-position:center;border-radius:50%;box-shadow:inset 0 1px 3px rgba(141,165,185,0.3)}.c-categories__img figure:after{content:"";display:block;padding-top:100%}.c-categories__img figure:before{content:"";position:absolute;top:0;bottom:0;left:0;right:0;background-color:rgba(0,0,0,0.15)}.c-categories__img .c-categories__more{display:inline-block;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);font-weight:700;color:#fff;text-transform:uppercase;text-shadow:0 1px 0 rgba(104,172,191,0.3);opacity:0;transition:.35s}.c-categories__container{text-align:center}.c-categories__container .c-categories__header{font-size:13px;margin-bottom:10px;font-weight:normal;text-transform:uppercase;color:#404040}.c-categories__container .c-categories__count{font-family:'Volkhov', serif;font-size:12px;color:#404040;margin-bottom:0}.c-categories__container .c-categories__count span{display:inline-block;width:20px;height:20px;line-height:20px;vertical-align:baseline;margin-right:5px;border-radius:50%;color:#fff;background-color:#ee6c6c}@media only screen and (max-width: 1200px){.c-categories .c-categories__item{max-width:33.333%;flex-basis:33.333%}}@media only screen and (max-width: 1050px){.c-categories .c-categories__item{max-width:50%;flex-basis:50%}}@media only screen and (max-width: 480px){.c-categories .c-categories__item{max-width:100%;flex-basis:100%;padding:0 0 20px}}.c-form-box{position:absolute;top:0;width:calc(100% - 40px);min-height:100vh;padding:0 20px;background-color:#fff;z-index:1}.c-form-bnt__close{position:absolute;top:0px;left:0;width:30px;height:30px;cursor:pointer;transition:.35s}.c-form-bnt__close:hover{transform:scale(0.8);opacity:.8}.c-form{position:relative;width:750px;max-width:100%;margin:40px auto}.c-form .c-form__title{margin:0 0 40px;min-width:0;border:0;padding:0;font-family:"Volkhov","Times New Roman",Times,serif;text-transform:uppercase;text-align:center}.c-form a{color:#404040}.c-form__group{margin-bottom:20px}.c-form__group label{display:block;text-transform:uppercase;font-size:10px}.c-form__group input,.c-form__group textarea{width:100%;padding:10px 15px;color:#404040;border:1px solid #dce4ea;outline:none;transition:.35s}.c-form__group input:focus,.c-form__group textarea:focus{box-shadow:0 4px 25px rgba(132,135,138,0.1)}.c-form__group button{padding:20px;text-transform:uppercase;outline:none;border:none}.c-thank-you p{position:relative;padding:20px 40px;width:750px;max-width:100%;text-transform:uppercase;font-size:12px;line-height:18px;font-weight:700;margin:40px auto 0;text-align:center;color:#fff;background:linear-gradient(135deg, #55b5ad 0%, #5ec9c5 100%)}.c-thank-you p .c-form-bnt__close{width:25px;height:25px;background:transparent}.c-thank-you p a{color:#fff}@media only screen and (max-width: 900px){.c-form-box{width:100%;left:0;right:0}}@media only screen and (max-width: 480px){.c-form-bnt__close{width:25px;height:25px}}.c-newsletter{padding:30px 0 60px;margin:0 auto;border-bottom:1px solid #f0f0f0}.c-newsletter__header{text-align:center}.c-newsletter__header .c-newsletter__title{font-size:14px;text-transform:uppercase;text-align:center}.c-newsletter__header .c-newsletter__subtitle{margin-bottom:15px}.c-newsletter-form{width:100%;max-width:750px;margin:0 auto}.c-newsletter-form .c-newsletter-form__group{display:flex}.c-newsletter__email{width:70%;height:40px;padding:10px 15px;border:1px solid #ddd;border-right-color:transparent;outline:none;transition:.35s}.c-newsletter__email:focus{box-shadow:0 4px 25px rgba(132,135,138,0.1)}.c-newsletter__button{width:30%;height:40px;color:#fff;background-color:#3af;transition:.35s;border:none;outline:none;cursor:pointer}.c-newsletter__button:hover{background-color:#0086e6}@media only screen and (max-width: 480px){.c-newsletter__button{font-size:13px}}.c-comments{padding:30px 0;border-top:1px solid #f0f0f0}.c-top{position:fixed;width:40px;height:40px;bottom:20px;color:#757575;cursor:pointer;transition:.35s;right:-100px;z-index:10;opacity:.5}.c-top--active{right:15px}.c-top:hover{color:#757575;opacity:1}.u-text-left{text-align:left}.u-text-right{text-align:right}.u-text-center{text-align:center}.u-text-justify{text-align:justify}.u-block{display:block}.u-inline-block{display:inline-block}.u-inline{display:inline}.u-full-width{display:block;width:100%}.u-vertical-center{display:flex;align-items:center;justify-content:center}.u-responsive-image{max-width:100%;height:auto;vertical-align:middle}.u-show{display:block !important}.u-hide{display:none !important}.u-invisible{visibility:hidden}.u-float-left{float:left}.u-float-right{float:right}.u-no-padding-top{padding-top:0}.u-no-padding-bottom{padding-bottom:0}.u-no-padding-left{padding-left:0}.u-no-padding-right{padding-right:0}.u-no-padding{padding:0}.u-no-margin-top{margin-top:0}.u-no-margin-bottom{margin-bottom:0}.u-no-margin-left{margin-left:0}.u-no-margin-right{margin-right:0}.u-no-margin{margin:0}.u-lists-reset{list-style-type:none;margin:0;padding:0}.u-clearfix::before,.u-clearfix::after{content:"";display:table;clear:both}.u-screen-reader-text{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px;word-wrap:normal !important}
+
+  </style>
+</head>
+
+<body>
+  
+  <div class="o-wrapper">
+    <aside class="c-sidebar">
+  <div class="c-sidebar-author">
+    <div class="c-author__cover">
+      <a href="/">
+        <img src="/images/1.jpg" alt="KKZHANG">
+      </a>
+    </div>
+    <div class="c-author__info">
+      <div class="c-author__name">KKZHANG</div>
+      <span class="c-author__job">Software Engineer</span>
+    </div>
+    <div class="c-contact-menu">
+      
+      <a href="/contact" class="c-contact-btn c-btn c-btn--secondary c-btn--round c-btn--shadow"><span data-icon='ei-envelope' data-size='s'></span> Send me</a>
+      
+      
+      <a href="https://twitter.com/intent/user?screen_name=KZ25674171" class="c-btn c-btn--primary c-btn--round c-btn--shadow"><span data-icon='ei-sc-twitter' data-size='s'></span> Follow me</a>
+      
+    </div>
+    <!-- <p class="c-author__about">👋 Hi, I’m @kkzhang. 👍I am now working at @MeiTuan, engaged in middleware development. ✌️ I used to work at @ByteDance, develop software about Instant Messaging.  ☎️ I am interested in distributed-system & operating-system. 🧭 The main development language is java, and I also know little golang.</p> -->
+    <!-- <div class="c-author__about" align="left">👋 Hi, I’m @kkzhang.<br> 👍 I am now working at @MeiTuan, engaged in middleware development.<br> ✌️ I used to work at @ByteDance, develop software about Instant Messaging. <br> ☎️ I am interested in distributed-system & operating-system.<br> 🧭 The main development language is java, and I also know little golang.</div> -->
+    <div class="c-author__about" align="left">
+      <ul>
+        <li>👋 Hi, I’m @kkzhang</li>
+        <li>✌️ Email: kkzhang1029@gmail.com</li>
+        <li>🧭 Work experience:</li>
+          <ul>
+            <li>☎️ Meituan - Infrastructure</li>
+            <li>👍 ByteDance - Instant Messaging</li>
+          </ul>
+      </ul>
+    </div>
+  </div>
+
+  <div class="c-sidebar-footer">
+    <div class="c-social">
+      <div class="c-social__title">Social</div>
+      <ul class="c-social__list u-lists-reset">
+        
+          <li class="c-social__item"><a href="https://twitter.com/KZ25674171" target="_blank"><div data-icon='ei-sc-twitter' data-size='s'></div></a></li>
+        
+        
+        
+        
+          <li class="c-social__item"><a href="https://github.com/kkzhang-tt" target="_blank"><div data-icon='ei-sc-github' data-size='s'></div></a></li>
+        
+        
+        
+        
+          <li class="c-social__item"><a href="https://instagram.com/kzhang29" target="_blank"><div data-icon='ei-sc-instagram' data-size='s'></div></a></li>
+        
+        
+        
+        
+        
+        
+          <li class="c-social__item"><a href="https://in.linkedin.com/in/k-z-23575b202" target="_blank"><div data-icon='ei-sc-linkedin' data-size='s'></div></a></li>
+        
+      </ul>
+    </div>
+    <div class="c-copyright">
+      <p>2021 &copy; KKZHANG</p>
+    </div>
+  </div>
+</aside> <!-- /.c-sidebar -->
+
+<main class="c-content">
+  <article class="c-article">
+  <div class="c-article__content">
+    <header class="c-header u-hide u-no-margin-top">
+      <div class="c-header__box">
+        <div class="c-search u-full-width">
+          <div class="c-search__box">
+            <label for="js-search-input" class="u-screen-reader-text">Search for Blog</label>
+            <input type="text" id="js-search-input" class="c-search__text" autocomplete="off" placeholder="Type to search...">
+            <div data-icon='ei-search' data-size='s'></div>
+          </div>
+          <ul id="js-results-container" class="c-search-results-list"></ul>
+        </div>
+      </div>
+    </header>
+    
+    
+    <div class="c-wrap-content">
+      <header class="c-article__header">
+        <h1 class="c-article__title">DDIA: 一致性与共识（一）</h1>
+        <div class="c-article__date">
+          <span>2021, Jun 16</span>
+        </div>
+      </header>
+      <p>在分布式系统中，比较重要的抽象概念是<strong>共识</strong>：所有节点就某一项提议达成一致。</p>
+
+<p>共识在分布式系统中有许多应用场景：比如，对于一个主从复制的数据库集群，如果主节点发生失效，那么就需要切换到另一个节点，而新的主节点的选举就可以采用共识算法来实现。共识算法能够保证在某一时刻，只有一个主节点。</p>
+
+<blockquote>
+  <p>如果两个节点都认为自己是主节点，就会发生脑裂，导致数据丢失，而共识算法能够保证这种异常不会发生</p>
+</blockquote>
+
+<h1 id="一致性保证">一致性保证</h1>
+
+<p>在多副本数据库的复制中（主从复制，多主节点复制，无主节点复制），如果在同一时刻同时访问集群中的两个不同节点，可能会看到不一样的数据，造成这种现象的原因是写请求会在不同的时间到达不同的节点，导致同一时刻各个副本的数据存在不一致现象。</p>
+
+<p>不过，大多数系统都提供了最终一致性：在更新之后的一段时间（时间长度未知），最终所有的副本都会保持一致。也就是说这种副本间不一致的现象是短暂的，最终会收敛；但是，这种最终一致性是很弱的保证，无法告诉我们什么时候会收敛完成。</p>
+
+<p>对于这种只能提供弱一致性保证的系统来说，存在一定的局限性。因此，需要更强的一致性保证，不过相应的会导致性能降低等一些问题。</p>
+
+<blockquote>
+  <p>分布式一致性与事务隔离级别中有相似之处，但是还是存在明显的区别：事务隔离性是为了处理并发执行事务时的各种临界条件，而分布式一致性则主要针对延迟和故障等问题来协调副本之间的状态。</p>
+</blockquote>
+
+<h1 id="可线性化">可线性化</h1>
+
+<p>可线性化<strong>使得一个多副本系统看起来好像只有一个数据副本，并且对这个系统的所有操作都是原子的</strong>。（可线性化也被称为原子一致性，强一致性等）</p>
+
+<p>在一个可线性化的系统中，一旦某个客户端成功提交写请求，那么之后所有客户端的读请求一定都能看到这个刚刚写入的值。因此，<strong>可线性化能够保证读取最近最新的值</strong>，而不是过期的值。</p>
+
+<h2 id="如何达到可线性化">如何达到可线性化</h2>
+
+<blockquote>
+  <p>为了实现可线性化，需要对系统进行约束：一旦新值被写入或者读取，所有后续的读到看到的是新值</p>
+</blockquote>
+
+<p>可线性化背后的思想是：<strong>使得整个系统看起来好像只有一个数据副本</strong>。结合例子，逐步理解可线性化。</p>
+
+<p>下图展示三个客户端在<strong>线性化数据库</strong>中读写相同的记录 X（图中是客户端的视角，代表着客户端的请求与相应）。</p>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/ddia_1.png" /></p>
+
+<p>在读请求与写请求并发时，可能会读到旧值，即对于与写操作有时间重叠的读取操作可能返回 0/1。</p>
+
+<p>如果与写操作并发的读操作可能返回旧值，也可能返回新值，那么整个过程中，不同客户端会看到旧值与新值来回跳变的情况，这与我们期望的可线性化（单一数据副本）是不一致的。</p>
+
+<p>为了使系统满足线性化，我们需要添加一个约束：<strong>一旦某个读操作返回了新值，那么之后所有的读（包括相同/不同的客户端）都必须返回新值；即使对应的写操作尚未完全提交</strong>。</p>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/ddia_2.png" /></p>
+
+<p>在一个可线性化的系统中，在写操作的开始与结束之间，一定存在某个时间点，使得 X 的值从 0 变成了 1。在上图中，A 首先读到了新值 1，在 A 读取返回之后，B 开始读，由于 B 的读取在 A 之后发生（箭头表示时序），那么即使 C 的写入仍在进行中，也必须返回 1.</p>
+
+<p>下面对读写操作的生效时间进行细化，下图每个操作中的竖线都表示可能的执行时间点。</p>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/ddia_3.png" /></p>
+
+<p>可线性化要求，如果依次连接这些标记的竖线，它们总是按照时间箭头（从左到右）向前移动，而不能向后移动（客户端 B 的最后操作不满足可线性化）。这个要求保证了：<strong>一旦新值被写入或者读取，所有后续的读到看到的是新值</strong>。</p>
+
+<h3 id="可线性化与可串行化">可线性化与可串行化</h3>
+
+<p><strong>可串行化（Serializability）</strong>：事务的隔离属性，其中每个事务可以读写多个对象（记录）；用来确保事务执行的结果与串行执行（即每次执行一个事务）的结果完全相同，即使串行执行的顺序与事务世纪执行的顺序不同。</p>
+
+<p><strong>可线性化（Linearizability）</strong>：读写单个对象的最新值保证；并不要求将操作组合到事务中，因此无法避免写倾斜问题。</p>
+
+<p>数据库可以同时支持可线性化与可串行化，这种组合被称为严格的可串行化或者强的单副本可串行化。</p>
+
+<blockquote>
+  <p>快照隔离不支持可线性化</p>
+</blockquote>
+
+<h2 id="线性化的依赖条件">线性化的依赖条件</h2>
+
+<p>线性化能够保证总是能够读取到最新已经提交的数据，但是并不是所有的场景都需要实现可线性化，它们能够接收一些延迟同步，并且不会有实质性的损失。不过，存在一些场景，线性化对于保证系统正确工作至关重要。</p>
+
+<h3 id="加锁--主节点选举">加锁 &amp; 主节点选举</h3>
+
+<p>对于主从复制系统需要确保最多只有一个主节点，否则会产生脑裂。主节点的选举一般使用加锁机制：每个节点都尝试获取锁，其中只有一个节点可以成功获取锁并成为主节点。</p>
+
+<p>因此，对于<strong>锁的实现，必须满足可线性化</strong>：所有节点必须都同意哪个节点持有锁，否则会出现问题。</p>
+
+<h3 id="约束--唯一性保证">约束 &amp; 唯一性保证</h3>
+
+<p>唯一性约束在数据库中比较常见，例如用户名必须唯一。同时，在文件系统中，两个文件不能具有相同的路径和文件名。</p>
+
+<p>这些情况本质上与加锁行为非常相似：所有节点对某个最新值达成一致。</p>
+
+<h2 id="实现线性化系统">实现线性化系统</h2>
+
+<p>由于线性化本质上意味着“好像只有一个数据副本，并且对其所有操作都是原子性的”，所以<em>实现一个线性化系统最简单的方式是只用一个数据副本</em>。不过，单副本的实现在可用性与容错性方面较差：如果仅有的单副本节点发生故障，那么可能会导致数据丢失，或者无法对外提供服务。</p>
+
+<p>为了提高容错性，最常见的方式是采用复制机制；对于复制机制，有以下几种方案：</p>
+
+<ol>
+  <li>
+    <p><strong>主从复制（部分支持可线性化）</strong></p>
+
+    <p>在主从复制中，只有主节点承担数据写入功能，从节点则各自维护数据备份。在数据读取中，如果从主节点或者同步更新的从节点上读取，那么可以满足线性化。</p>
+
+    <p>然而对于一些场景可能不支持线性化：a. 主从复制中各节点数据库在实现时不支持线性化，那么整个系统就不支持线性化（如使用了快照隔离的设计）；b. 从主节点上读取数据的前提是明确知道哪个节点是主节点，但是可能会存在多个节点同时认为自己是主节点，从而违反线性化；c. 在主从复制中如果使用了异步复制，那么在故障切换中可能会丢失一些已经提交的写入，从而违反线性化与可持久性。</p>
+  </li>
+  <li>
+    <p><strong>共识算法（可线性化）</strong></p>
+
+    <p>与主从机制类似，不过在实现时通过一些措施来防止脑裂和过期的副本，从而可以安全地实现线性化存储；使用共识算法实现的系统包括 Zookeeper &amp; Etcd 等。</p>
+  </li>
+  <li>
+    <p><strong>多主复制（不可线性化）</strong></p>
+
+    <p>多主复制的系统通常无法实现线性化，主要是由于该系统同时在多个节点上执行并发写入，并将数据异步复制到其他节点。因此可能会产生冲突的写入，需要额外的解决方案。</p>
+  </li>
+  <li>
+    <p><strong>无主复制（可能不可线性化）</strong></p>
+
+    <p>直觉上对于 Dynamo 风格的复制模型（w + r &gt; n），如果遵守了严格的 quorum ，应该是可以满足线性化的；但是，仍然可能会出现不满足线性化的情况。</p>
+  </li>
+</ol>
+
+<h2 id="线性化的代价">线性化的代价</h2>
+
+<ul>
+  <li>如果系统要求线性化，但是由于网络方面的问题，某些副本与其他副本断开连接之后无法继续处理请求，就必须等待网络恢复，或者直接返回错误。无论何种方式，结果都是服务不可用。</li>
+  <li>如果系统不要求线性化，那么断开连接后，每个副本可以独立处理请求，例如写操作（多主复制）。此时，服务可用，但是结果行为不符合线性化。</li>
+</ul>
+
+<p>因此，不要求线性化的系统更能容忍网络故障，这种思路被称为 <strong>CAP 理论</strong>。</p>
+
+<p>CAP 理论：一致性，可用性，分区容忍性。在网络正常的时候，系统可以同时保证一致性（线性化）和可用性；而一旦发生了网络故障，必须要么选择一致性（CP），要么选择可用性（AP）。</p>
+
+<h3 id="可线性化与网络延迟">可线性化与网络延迟</h3>
+
+<p>虽然线性化是一个很有用的保证，但是实际上很少有系统真正满足线性化。虽然在 CAP 理论中强调在网络分区时，为了提高可用性而放弃一致性。但是更多<strong>系统放弃线性化的原因是性能，而不是为了容错</strong>。</p>
+
+<p>现代多核 CPU 上的内存就是非线性化的：如果某个 CPU 上运行的线程修改了内存，紧接着另一个 CPU 上的线程尝试读取，则系统无法保证能够读到刚刚写入的值，除非使用内存屏障或者 fence 指令。每个 CPU 都有自己独立的 cache 和寄存器，内存访问首先修改 cache，之后异步刷新到主存。由于 cache 访问比主存访问要快的多，因此这样的异步刷新特性能够提升整个系统的性能。多核 CPU 的架构与分布式中多数据副本架构类似。</p>
+
+<p>在计算机内部，我们不会假设某个 CPU 与其他核断开之后仍能正常工作；其放弃线性化的原因就是为了提升性能。<strong>许多分布式数据库也是类似，不支持线性化的原因是为了提高性能，而不是保住容错性。无论是否发生了网络故障，线性化对于性能的影响都是巨大的</strong>。</p>
+
+<blockquote>
+  <p>一个线性化系统的读写性能都比较差</p>
+</blockquote>
+
+      <div class="c-article__footer u-clearfix">
+        <div class="c-article__tag">
+          
+        </div>
+        <div class="c-article__share">
+          <a href="https://twitter.com/intent/tweet?text=DDIA:%20%E4%B8%80%E8%87%B4%E6%80%A7%E4%B8%8E%E5%85%B1%E8%AF%86(%E4%B8%80)&url=kkzhang-tt.github.io/2021/06/16/ddia-1/" title="Share
+          on Twitter" rel="nofollow" target="_blank"><div data-icon='ei-sc-twitter' data-size='s'></div></a>
+          <a href="https://facebook.com/sharer.php?u=kkzhang-tt.github.io/2021/06/16/ddia-1/" title="Share on Facebook" rel="nofollow" target="_blank"><div data-icon='ei-sc-facebook' data-size='s'></div></a>
+        </div>
+      </div>
+      <div class="c-newsletter">
+  <div class="c-newsletter__header">
+    <h4 class="c-newsletter__title">Newsletter</h4>
+    <div class="c-newsletter__subtitle">Subscribe to this blog and receive notifications of new posts by email.</div>
+  </div>
+  <form class="c-newsletter-form validate" action="#" method="POST" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank" novalidate>
+    <div class="c-newsletter-form__group">
+      <label class="u-screen-reader-text" for="mce-EMAIL">Email address</label>
+      <input class="c-newsletter__email required email" id="mce-EMAIL" type="email" name="EMAIL" placeholder="Your email address" autocomplete="on">
+      <input class="c-newsletter__button" id="mc-embedded-subscribe" type="submit" name="subscribe" value="Subscribe">
+    </div>
+  </form>
+</div> <!-- /.c-newsletter -->
+      <div class="c-recent-post">
+        <h4 class="c-recent__title">You might also enjoy</h4>
+        <div class="c-recent__box">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        </div>
+      </div> <!-- /.c-recent-post -->
+      
+    </div> <!-- /.c-wrap-content -->
+  </div> <!-- /.c-article__content -->
+</article> <!-- /.c-article-page -->
+
+</main> <!-- /.c-content -->
+  </div> <!-- /.o-wrapper -->
+  <div class="c-top" data-icon='ei-chevron-up' data-size='s' title="Scroll To Top"></div> <!-- /.c-top -->
+  <script src="/js/jquery-3.3.1.min.js"></script>
+<script src="/js/evil-icons.min.js"></script>
+<script src="/js/jquery.fitvids.js"></script>
+<script src="/js/simple-jekyll-search.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- /javascripts -->
+</body>
+</html>

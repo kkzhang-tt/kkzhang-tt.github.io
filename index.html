@@ -33,7 +33,7 @@ layout: home
 
 {% assign postCount = site.posts | size %}
 {% assign postsCovered = site.paginate | plus:offset %}
-<!-- {% if postsCovered < postCount %}
+{% if postsCovered < postCount %}
   <button class="c-load-more c-btn c-btn--middle">Load more posts</button>
-{% endif %} -->
+{% endif %}
 {% include categories.html %}

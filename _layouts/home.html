@@ -22,7 +22,19 @@ layout: default
       {% else %}
       {% endif %}
     </div>
-    <p class="c-author__about">{{site.about-author | strip_html | truncatewords: 50}}</p>
+    <!-- <p class="c-author__about">{{site.about-author | strip_html | truncatewords: 50}}</p> -->
+    <!-- <div class="c-author__about" align="left">👋 Hi, I’m @kkzhang.<br> 👍 I am now working at @MeiTuan, engaged in middleware development.<br> ✌️ I used to work at @ByteDance, develop software about Instant Messaging. <br> ☎️ I am interested in distributed-system & operating-system.<br> 🧭 The main development language is java, and I also know little golang.</div> -->
+    <div class="c-author__about" align="left">
+      <ul>
+        <li>👋 Hi, I’m @kkzhang</li>
+        <li>✌️ Email: kkzhang1029@gmail.com</li>
+        <li>🧭 Work experience:</li>
+          <ul>
+            <li>☎️ Meituan - Infrastructure</li>
+            <li>👍 ByteDance - Instant Messaging</li>
+          </ul>
+      </ul>
+    </div>
   </div>
 
   <div class="c-sidebar-footer">
