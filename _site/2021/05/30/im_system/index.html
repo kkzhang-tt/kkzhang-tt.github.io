@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <title>IM 系统设计与实现</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/logo.ico" type="image/x-icon">
+  <meta name='description' content="  该文档是从字节离职后在美团的技术分享">
+  <link rel='canonical' href="kkzhang-tt.github.io/2021/05/30/im_system/">
+  <link rel='alternate' type='application/rss+xml' title='Find a needle in haystack' href="kkzhang-tt.github.io/feed.xml">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Volkhov:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+
+  <style>
+    
+    /*! normalize.css v7.0.0 | MIT License | github.com/necolas/normalize.css */html{line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,footer,header,nav,section{display:block}h1{font-size:2em;margin:0.67em 0}figcaption,figure,main{display:block}figure{margin:1em 40px}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace, monospace;font-size:1em}a{background-color:transparent;-webkit-text-decoration-skip:objects}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:inherit}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace, monospace;font-size:1em}dfn{font-style:italic}mark{background-color:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-0.25em}sup{top:-0.5em}audio,video{display:inline-block}audio:not([controls]){display:none;height:0}img{border-style:none}svg:not(:root){overflow:hidden}button,input,optgroup,select,textarea{font-family:sans-serif;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}button,html [type="button"],[type="reset"],[type="submit"]{-webkit-appearance:button}button::-moz-focus-inner,[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner{border-style:none;padding:0}button:-moz-focusring,[type="button"]:-moz-focusring,[type="reset"]:-moz-focusring,[type="submit"]:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:0.35em 0.75em 0.625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{display:inline-block;vertical-align:baseline}textarea{overflow:auto}[type="checkbox"],[type="radio"]{box-sizing:border-box;padding:0}[type="number"]::-webkit-inner-spin-button,[type="number"]::-webkit-outer-spin-button{height:auto}[type="search"]{-webkit-appearance:textfield;outline-offset:-2px}[type="search"]::-webkit-search-cancel-button,[type="search"]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details,menu{display:block}summary{display:list-item}canvas{display:inline-block}template{display:none}[hidden]{display:none}body,h1,h2,h3,h4,h5,h6,p,blockquote,pre,dl,dd,ol,ul,fieldset,legend,figure,hr{margin:0;padding:0}li>ul,li>ol{margin-bottom:0}table{border-collapse:collapse;border-spacing:0}@-webkit-keyframes spin{100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes spin{100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}.icon{position:relative;display:inline-block;width:25px;height:25px;overflow:hidden;fill:currentColor}.icon__cnt{width:100%;height:100%;background:inherit;fill:inherit;pointer-events:none;transform:translateX(0);-ms-transform:translate(0.5px, -0.3px)}.icon--m{width:50px;height:50px}.icon--l{width:100px;height:100px}.icon--xl{width:150px;height:150px}.icon--xxl{width:200px;height:200px}.icon__spinner{position:absolute;top:0;left:0;width:100%;height:100%}.icon--ei-spinner .icon__spinner,.icon--ei-spinner-2 .icon__spinner{-webkit-animation:spin 1s steps(12) infinite;animation:spin 1s steps(12) infinite}.icon--ei-spinner-3 .icon__spinner{-webkit-animation:spin 1.5s linear infinite;animation:spin 1.5s linear infinite}.icon--ei-sc-facebook{fill:#3b5998}.icon--ei-sc-github{fill:#333}.icon--ei-sc-google-plus{fill:#dd4b39}.icon--ei-sc-instagram{fill:#3f729b}.icon--ei-sc-linkedin{fill:#0976b4}.icon--ei-sc-odnoklassniki{fill:#ed812b}.icon--ei-sc-skype{fill:#00aff0}.icon--ei-sc-soundcloud{fill:#f80}.icon--ei-sc-tumblr{fill:#35465c}.icon--ei-sc-twitter{fill:#55acee}.icon--ei-sc-vimeo{fill:#1ab7ea}.icon--ei-sc-vk{fill:#45668e}.icon--ei-sc-youtube{fill:#e52d27}.icon--ei-sc-pinterest{fill:#bd081c}.icon--ei-sc-telegram{fill:#0088cc}*,*::after,*::before{box-sizing:border-box}h1,h2,h3,h4,h5,h6,ul,ol,dl,blockquote,p,address,hr,table,fieldset,figure,pre{margin-bottom:15px}ul,ol,dd{margin-left:15px}.highlight{background:#f7f7f7}.highlighter-rouge .highlight{background:#eef}.highlight .c{color:#998;font-style:italic}.highlight .err{color:#a61717;background-color:#e3d2d2}.highlight .k{font-weight:bold}.highlight .o{font-weight:bold}.highlight .cm{color:#998;font-style:italic}.highlight .cp{color:#999;font-weight:bold}.highlight .c1{color:#998;font-style:italic}.highlight .cs{color:#999;font-weight:bold;font-style:italic}.highlight .gd{color:#000;background-color:#fdd}.highlight .gd .x{color:#000;background-color:#faa}.highlight .ge{font-style:italic}.highlight .gr{color:#a00}.highlight .gh{color:#999}.highlight .gi{color:#000;background-color:#dfd}.highlight .gi .x{color:#000;background-color:#afa}.highlight .go{color:#888}.highlight .gp{color:#555}.highlight .gs{font-weight:bold}.highlight .gu{color:#aaa}.highlight .gt{color:#a00}.highlight .kc{font-weight:bold}.highlight .kd{font-weight:bold}.highlight .kp{font-weight:bold}.highlight .kr{font-weight:bold}.highlight .kt{color:#458;font-weight:bold}.highlight .m{color:#099}.highlight .s{color:#d14}.highlight .na{color:#008080}.highlight .nb{color:#0086B3}.highlight .nc{color:#458;font-weight:bold}.highlight .no{color:#008080}.highlight .ni{color:#800080}.highlight .ne{color:#900;font-weight:bold}.highlight .nf{color:#900;font-weight:bold}.highlight .nn{color:#555}.highlight .nt{color:#000080}.highlight .nv{color:#008080}.highlight .ow{font-weight:bold}.highlight .w{color:#bbb}.highlight .mf{color:#099}.highlight .mh{color:#099}.highlight .mi{color:#099}.highlight .mo{color:#099}.highlight .sb{color:#d14}.highlight .sc{color:#d14}.highlight .sd{color:#d14}.highlight .s2{color:#d14}.highlight .se{color:#d14}.highlight .sh{color:#d14}.highlight .si{color:#d14}.highlight .sx{color:#d14}.highlight .sr{color:#009926}.highlight .s1{color:#d14}.highlight .ss{color:#990073}.highlight .bp{color:#999}.highlight .vc{color:#008080}.highlight .vg{color:#008080}.highlight .vi{color:#008080}.highlight .il{color:#099}body{font-family:"Open Sans",Helvetica Neue,Helvetica,Arial,sans-serif;font-size:15px;line-height:28px;color:#404040;background-color:#fbfbfb;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}*::selection{color:#fff;background-color:#3af}h1,h2,h3,h4,h5,h6{font-family:"Volkhov","Times New Roman",Times,serif;font-weight:400;line-height:initial}h1{font-size:32px}h2{font-size:28px}h3{font-size:24px}h4{font-size:20px}h5{font-size:18px}h6{font-size:16px}img{max-width:100%;height:auto;vertical-align:middle}a{text-decoration:none;color:#3af;transition:.35s}a:hover{color:#0086e6}blockquote{padding-left:15px;border-left:3px solid #3af;font-family:'Volkhov', 'Times New Roman', Times, serif;font-style:normal;font-size:18px;background-color:rgba(220,235,245,0.2)}blockquote p{padding:10px}hr{height:1px;margin:30px 0;border:0;background-color:#f0f0f0}pre{overflow:auto;padding:25px;font-size:14px;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;font-family:Courier, monospace}code{overflow:auto;white-space:pre-wrap;word-wrap:break-word;word-break:break-all;font-family:Courier, monospace;font-size:14px}p code,li code{padding:3px 5px}.o-wrapper{max-width:1440px;position:relative}.o-opacity{animation-duration:0.7s;animation-delay:0.2s;animation-fill-mode:both;animation-name:opacity}@keyframes opacity{from{opacity:0}to{opacity:1}}.c-btn{display:inline-block;white-space:nowrap;vertical-align:middle;font-family:'Volkhov', serif;font-size:12px;text-align:center;padding:8px 15px;cursor:pointer;transition:.35s}.c-btn--primary{color:#fff;background-color:#3af;background:linear-gradient(135deg, #3af 0%, #62d5ff 100%)}.c-btn--secondary{color:#fff;background-color:#cfcfdd;background:linear-gradient(135deg, #a2a2bd 0%, #cfcfdd 100%)}.c-btn--round{border-radius:30px}.c-btn--shadow{box-shadow:8px 10px 20px 0 rgba(46,61,73,0.15)}.c-btn--shadow:hover{box-shadow:2px 4px 8px 0px rgba(46,61,73,0.2)}.c-btn--middle{display:block;width:300px;max-width:100%}.c-btn--big{display:block;width:100%}.c-btn:hover{color:#fff;transition:.35s}.c-btn:active{transform:translateY(2px)}.c-sidebar{display:flex;flex-direction:column;justify-content:space-between;position:fixed;top:0;left:0;bottom:0;width:360px;padding:40px 20px 20px;text-align:center;box-shadow:1px 1px 0 rgba(31,35,46,0.15);background-color:#fff}.c-sidebar-author .c-author__cover{width:150px;height:200px;margin:0 auto 10px;border-radius:5%;overflow:hidden;background-color:#cfcfdd}.c-sidebar-author .c-author__cover img{width:100%;height:100%;border-radius:5%;transition:.35s}.c-sidebar-author .c-contact-menu .c-btn{min-width:110px}.c-sidebar-author .c-contact-menu .c-btn .icon{width:18px;height:18px;vertical-align:text-bottom;fill:#fff}.c-sidebar-author .c-author__info{font-family:'Volkhov', serif}.c-sidebar-author .c-author__name{font-size:18px;font-weight:700;line-height:21px}.c-sidebar-author .c-author__job{font-size:12px;color:#a0a0a0;margin:5px 0 0}.c-sidebar-author .c-contact-menu{margin:30px 0}.c-sidebar-author .c-contact-menu .c-btn--secondary{margin-right:10px}.c-sidebar-author .c-author__about{max-width:400px;margin:5px 5px 5px 55px;font-size:13px}.c-sidebar-footer .c-social__title{position:relative;font-family:'Volkhov', serif;font-size:15px;font-weight:700;color:#444}.c-sidebar-footer .c-social__title::before{content:"";display:block;height:2px;width:calc(50% - 40px);transform:translateY(-50%);position:absolute;top:50%;left:0;background-color:#444}.c-sidebar-footer .c-social__title::after{content:"";display:block;height:2px;width:calc(50% - 40px);transform:translateY(-50%);position:absolute;top:50%;right:0;background-color:#444}.c-sidebar-footer .c-social__list{list-style-type:none;padding:0;margin:15px 0}.c-sidebar-footer .c-social__list .c-social__item{display:inline-block;width:27px;height:27px}.c-sidebar-footer .c-social__list .icon{width:27px;height:27px;fill:#444;vertical-align:middle;transition:.35s}.c-sidebar-footer .c-social__list .icon:hover{fill:#3af;transform:scale(1.2);transition:.35s}.c-sidebar-footer .c-copyright p{font-size:13px;margin:0}@media only screen and (max-width: 900px){.c-sidebar{position:relative;width:100%;padding:20px}.c-sidebar .c-contact-menu{margin:20px 0}.c-sidebar-footer .c-social .c-social__title{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px;word-wrap:normal !important}.c-sidebar-footer .c-social__list{margin:0}.c-sidebar-footer .c-copyright{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px;word-wrap:normal !important}}@media only screen and (max-width: 480px){.c-sidebar-author .c-author__cover{width:80px;height:80px}.c-sidebar-author .c-author__cover img{width:100%;height:100%}.c-sidebar-author .c-contact-menu{margin:15px 0}.c-sidebar-author .c-contact-menu .c-btn{min-width:80px;font-size:10px;padding:4px 15px;margin-right:5px}.c-sidebar-author .c-contact-menu .c-btn .icon{width:16px;height:16px}.c-sidebar-footer .c-social .c-social__title{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px;word-wrap:normal !important}.c-sidebar-footer .c-social__list{margin:0}.c-sidebar-footer .c-social__list .icon{width:25px;height:25px}.c-sidebar-footer .c-copyright{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px;word-wrap:normal !important}}.c-content{position:relative;display:flex;flex-direction:row;flex-wrap:wrap;align-items:stretch;padding:0 20px 0;margin-left:360px}@media only screen and (max-width: 900px){.c-content{position:static;padding:0 15px 0;margin-left:0}}.c-posts{width:100%;display:flex;flex-direction:row;flex-wrap:wrap}.c-post{width:100%;max-width:100%;margin-bottom:20px;display:flex;flex-direction:row;align-items:stretch;min-height:90px;border-radius:10px;overflow:hidden;transition:.35s;background-color:#fff;box-shadow:0 1px 1px 0 rgba(31,35,46,0.15)}.c-post:hover{transform:translate(0px, -2px);box-shadow:0 15px 45px -10px rgba(10,16,34,0.2)}.c-post .c-post-thumbnail{display:block;width:30%;max-width:100%;min-height:180px;border-radius:10px 0 0 10px;background-color:rgba(220,235,245,0.2);background-size:cover;background-position:50% 50%}.c-post .c-post-content{padding:15px;width:70%}.c-post .c-post-content .c-post-title{font-size:30px;font-weight:400;margin:0 0 15px}.c-post .c-post-content .c-post-title a{text-decoration:none;color:#263959}.c-post .c-post-content .c-post-date,.c-post .c-post-content .c-post-words{font-size:12px}.c-load-more{padding:20px;margin:20px auto 40px;font-size:13px;color:#fff;border:none;background-color:#3af;outline:none}.c-load-more:hover{background-color:#0086e6}@media only screen and (max-width: 1200px){.c-post{width:48%;max-width:100%;margin:0 1% 20px;flex-direction:column}.c-post .c-post-thumbnail{width:100%;border-radius:10px 10px 0 0}.c-post .c-post-content{width:100%}.c-post .c-post-content .c-post-title{font-size:21px;margin:15px 0}}@media only screen and (max-width: 480px){.c-post{width:100%;max-width:100%;margin:0 0 20px}.c-post .c-post-content{width:100%}.c-post .c-post-content .c-post-title{font-size:21px;margin:15px 0}}.c-article{width:100%;margin:20px 0}.c-wrap-content{padding:20px;background-color:#fff}.c-article__image{position:relative;background-color:rgba(220,235,245,0.2);background-position:center;background-size:cover;background-repeat:no-repeat}.c-article__image:after{content:"";display:block;padding-top:56%}.c-article__header{margin-bottom:20px;text-align:center}.c-article__header .c-article__title{margin-bottom:10px}.c-article__date span{font-size:13px;text-transform:uppercase;color:#a0a0a0}.c-article__footer{margin:30px 0 0;padding-bottom:30px;text-align:center;border-bottom:1px solid #f0f0f0}.c-article__footer .c-article__share{transition:.35s}.c-article__footer .c-article__share a .icon{vertical-align:middle;transition:.35s}.c-article__footer .c-article__share a .icon:hover{opacity:.7;transition:.35s}.c-article__footer .c-article__tag{margin-bottom:5px}.c-article__footer .c-article__tag a{display:inline-block;vertical-align:middle;padding:5px 10px;font-family:'Volkhov', 'Times New Roman', Times, serif;font-size:10px;line-height:10px;text-transform:uppercase;background-color:rgba(115,138,160,0.6);color:#fff}.c-article__footer .c-article__tag a:hover{background-color:rgba(80,100,118,0.6)}.c-article__footer .c-article__tag a:last-child{margin-right:0}.c-recent-post{padding:30px 0}.c-recent-post .c-recent__title{font-size:14px;text-align:center;text-transform:uppercase;margin-bottom:30px}.c-recent-post .c-recent__box{display:flex;flex-direction:row;flex-wrap:wrap}.c-recent-post .c-recent__item{max-width:23%;flex-basis:23%;margin:0 1% 20px;border-radius:10px;overflow:hidden;text-align:center;background-color:#fff;box-shadow:0 1px 1px 0 rgba(31,35,46,0.15);transition:.35s}.c-recent-post .c-recent__item h4{margin-bottom:5px;font-size:12px;text-transform:uppercase}.c-recent-post .c-recent__item h4 a{color:#444}.c-recent-post .c-recent__item:hover{box-shadow:2px 4px 8px 0px rgba(46,61,73,0.2)}.c-recent-post .c-recent__footer{padding:15px}.c-recent-post .c-recent__image{display:block;width:100%;min-height:180px;background-color:rgba(220,235,245,0.2);background-size:cover;background-position:center;background-repeat:no-repeat}.c-recent-post .c-recent__date{color:#a0a0a0;font-size:12px}@media only screen and (max-width: 1200px){.c-recent-post .c-recent__item{max-width:48%;flex-basis:48%}}@media only screen and (max-width: 900px){.c-article{margin:15px 0}}@media only screen and (max-width: 480px){.c-wrap-content{padding:15px}.c-article__header{margin-bottom:5px}.c-article__header .c-article__title{font-size:24px;margin-bottom:5px}.c-recent-post .c-recent__item{max-width:100%;flex-basis:100%;margin:0 0 20px}}.c-blog-tags{width:100%;padding:20px;margin:20px 0 40px;background-color:#fff}.c-blog-tags h1{text-align:center;margin-bottom:0}.c-blog-tags h2{font-size:18px;text-transform:uppercase;margin:30px 0;color:#757575}.c-tag__list{list-style:none;padding:0 0 40px;margin:40px 0 0;border-bottom:1px solid #f0f0f0}.c-tag__list li{display:inline-block;margin-right:15px}.c-tag__list li a{color:#404040;text-transform:uppercase;font-size:12px}.c-tag__list li a:hover{color:#000}.c-tag__item{margin-bottom:15px}.c-tag__image{width:50px;height:50px;border-radius:50%;margin-right:5px}@media only screen and (max-width: 480px){.c-blog-tags{padding:15px}.c-blog-tags h1{font-size:27px}.c-blog-tags h2{font-size:16px;margin:15px 0}.c-tag__list{padding:0 0 30px;margin:30px 0 0}.c-tag__item{margin-bottom:5px}.c-tag__image{display:none}}.c-header{position:relative;width:100%;margin:20px 0}.c-header__box{position:relative;display:flex;flex-direction:row;justify-content:space-between;align-items:center}.c-header__box .icon--ei-search{position:absolute;top:7px;left:15px;fill:#ccc}.c-search{width:80%}.c-search .c-search__box{display:flex;align-items:center}.c-search .c-search__text{position:relative;width:100%;padding:10px 10px 10px 40px;border:1px solid #dce4ea;border-radius:30px;outline:none;color:#a0a0a0}.c-search .c-search__text::placeholder{color:#ccc}.c-search .c-search__text:hover{box-shadow:0 1px 0px rgba(132,135,138,0.1);transition:.35s}.c-search .c-search-results-list{position:absolute;width:100%;margin:10px 0 0;list-style-type:none;background-color:#fff;z-index:1}.c-search .c-search-results-list li{display:flex;flex-wrap:wrap;align-items:center;margin:0;padding:20px 25px 0;background-color:#fff;line-height:1.4;border-left:solid 1px #edeeee;border-right:solid 1px #edeeee}.c-search .c-search-results-list li:first-child{border-top-left-radius:5px;border-top-right-radius:5px;border-top:solid 1px #edeeee}.c-search .c-search-results-list li:last-child{border-bottom-left-radius:5px;border-bottom-right-radius:5px;padding-bottom:25px;border-bottom:solid 1px #edeeee}.c-search .c-search-results-list li a{font-size:16px}.c-nav{flex-grow:1;padding-left:20px}.c-nav .c-nav__list{display:flex;justify-content:flex-end}.c-nav .c-nav__list .c-nav__item{display:flex;align-items:center;float:left;padding:4px 10px;font-size:10px;text-transform:uppercase;white-space:nowrap;border:1px solid #dce4ea;box-shadow:0 1px 0px rgba(132,135,138,0.4);will-change:transform;transform:translateY(0px);cursor:pointer}.c-nav .c-nav__list .c-nav__item:hover{color:#222;background-color:#fff}.c-nav .c-nav__list .c-nav__item.is-active{box-shadow:0 0 0 rgba(132,135,138,0.5);transform:translateY(1px);color:#cfcfdd}.c-nav .c-nav__list .c-nav__item.is-active:hover{background-color:#fbfbfb}.c-nav .c-nav__list .c-nav__item:first-child{border-radius:10px 0 0 10px}.c-nav .c-nav__list .c-nav__item:last-child{border-radius:0 10px 10px 0}.c-nav .c-nav__list .c-nav__item .icon{width:18px;height:18px;margin-right:3px}@media only screen and (max-width: 900px){.c-header{margin:15px 0}}@media only screen and (max-width: 480px){.c-header .c-header__box{flex-direction:column}.c-header .c-search{width:100%}.c-header .c-search .c-search__text{padding:8px 8px 8px 40px}.c-header .c-nav{margin-top:15px}.c-header .c-nav .c-nav__list{justify-content:center}.c-header .c-nav .c-nav__item{padding:4px 8px}}.c-categories{width:100%}.c-categories__list{width:100%;display:flex;flex-direction:row;flex-wrap:wrap}.c-categories__item{max-width:25%;flex-basis:25%;padding:0 10px 20px}.c-categories__link{height:100%;display:flex;flex-direction:column;align-items:center;padding:20px 10px;border-radius:5px;box-shadow:5px 5px 25px rgba(46,61,73,0.15);background-color:#fff;transition:.35s}.c-categories__link:hover{box-shadow:2px 4px 8px 0px rgba(46,61,73,0.2)}.c-categories__link:hover .c-categories__img .c-categories__more{opacity:1;transition:.35s}.c-categories__link .c-categories__container{width:100%;word-wrap:break-word}.c-categories__link .c-categories__container.c-empty-figure{display:flex;flex-direction:column;justify-content:center;flex-grow:1}.c-categories__img{position:relative;max-width:100%}.c-categories__img figure{position:relative;width:200px;max-width:100%;margin-bottom:20px;overflow:hidden;background-size:cover;background-repeat:no-repeat;background-position:center;border-radius:50%;box-shadow:inset 0 1px 3px rgba(141,165,185,0.3)}.c-categories__img figure:after{content:"";display:block;padding-top:100%}.c-categories__img figure:before{content:"";position:absolute;top:0;bottom:0;left:0;right:0;background-color:rgba(0,0,0,0.15)}.c-categories__img .c-categories__more{display:inline-block;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);font-weight:700;color:#fff;text-transform:uppercase;text-shadow:0 1px 0 rgba(104,172,191,0.3);opacity:0;transition:.35s}.c-categories__container{text-align:center}.c-categories__container .c-categories__header{font-size:13px;margin-bottom:10px;font-weight:normal;text-transform:uppercase;color:#404040}.c-categories__container .c-categories__count{font-family:'Volkhov', serif;font-size:12px;color:#404040;margin-bottom:0}.c-categories__container .c-categories__count span{display:inline-block;width:20px;height:20px;line-height:20px;vertical-align:baseline;margin-right:5px;border-radius:50%;color:#fff;background-color:#ee6c6c}@media only screen and (max-width: 1200px){.c-categories .c-categories__item{max-width:33.333%;flex-basis:33.333%}}@media only screen and (max-width: 1050px){.c-categories .c-categories__item{max-width:50%;flex-basis:50%}}@media only screen and (max-width: 480px){.c-categories .c-categories__item{max-width:100%;flex-basis:100%;padding:0 0 20px}}.c-form-box{position:absolute;top:0;width:calc(100% - 40px);min-height:100vh;padding:0 20px;background-color:#fff;z-index:1}.c-form-bnt__close{position:absolute;top:0px;left:0;width:30px;height:30px;cursor:pointer;transition:.35s}.c-form-bnt__close:hover{transform:scale(0.8);opacity:.8}.c-form{position:relative;width:750px;max-width:100%;margin:40px auto}.c-form .c-form__title{margin:0 0 40px;min-width:0;border:0;padding:0;font-family:"Volkhov","Times New Roman",Times,serif;text-transform:uppercase;text-align:center}.c-form a{color:#404040}.c-form__group{margin-bottom:20px}.c-form__group label{display:block;text-transform:uppercase;font-size:10px}.c-form__group input,.c-form__group textarea{width:100%;padding:10px 15px;color:#404040;border:1px solid #dce4ea;outline:none;transition:.35s}.c-form__group input:focus,.c-form__group textarea:focus{box-shadow:0 4px 25px rgba(132,135,138,0.1)}.c-form__group button{padding:20px;text-transform:uppercase;outline:none;border:none}.c-thank-you p{position:relative;padding:20px 40px;width:750px;max-width:100%;text-transform:uppercase;font-size:12px;line-height:18px;font-weight:700;margin:40px auto 0;text-align:center;color:#fff;background:linear-gradient(135deg, #55b5ad 0%, #5ec9c5 100%)}.c-thank-you p .c-form-bnt__close{width:25px;height:25px;background:transparent}.c-thank-you p a{color:#fff}@media only screen and (max-width: 900px){.c-form-box{width:100%;left:0;right:0}}@media only screen and (max-width: 480px){.c-form-bnt__close{width:25px;height:25px}}.c-newsletter{padding:30px 0 60px;margin:0 auto;border-bottom:1px solid #f0f0f0}.c-newsletter__header{text-align:center}.c-newsletter__header .c-newsletter__title{font-size:14px;text-transform:uppercase;text-align:center}.c-newsletter__header .c-newsletter__subtitle{margin-bottom:15px}.c-newsletter-form{width:100%;max-width:750px;margin:0 auto}.c-newsletter-form .c-newsletter-form__group{display:flex}.c-newsletter__email{width:70%;height:40px;padding:10px 15px;border:1px solid #ddd;border-right-color:transparent;outline:none;transition:.35s}.c-newsletter__email:focus{box-shadow:0 4px 25px rgba(132,135,138,0.1)}.c-newsletter__button{width:30%;height:40px;color:#fff;background-color:#3af;transition:.35s;border:none;outline:none;cursor:pointer}.c-newsletter__button:hover{background-color:#0086e6}@media only screen and (max-width: 480px){.c-newsletter__button{font-size:13px}}.c-comments{padding:30px 0;border-top:1px solid #f0f0f0}.c-top{position:fixed;width:40px;height:40px;bottom:20px;color:#757575;cursor:pointer;transition:.35s;right:-100px;z-index:10;opacity:.5}.c-top--active{right:15px}.c-top:hover{color:#757575;opacity:1}.u-text-left{text-align:left}.u-text-right{text-align:right}.u-text-center{text-align:center}.u-text-justify{text-align:justify}.u-block{display:block}.u-inline-block{display:inline-block}.u-inline{display:inline}.u-full-width{display:block;width:100%}.u-vertical-center{display:flex;align-items:center;justify-content:center}.u-responsive-image{max-width:100%;height:auto;vertical-align:middle}.u-show{display:block !important}.u-hide{display:none !important}.u-invisible{visibility:hidden}.u-float-left{float:left}.u-float-right{float:right}.u-no-padding-top{padding-top:0}.u-no-padding-bottom{padding-bottom:0}.u-no-padding-left{padding-left:0}.u-no-padding-right{padding-right:0}.u-no-padding{padding:0}.u-no-margin-top{margin-top:0}.u-no-margin-bottom{margin-bottom:0}.u-no-margin-left{margin-left:0}.u-no-margin-right{margin-right:0}.u-no-margin{margin:0}.u-lists-reset{list-style-type:none;margin:0;padding:0}.u-clearfix::before,.u-clearfix::after{content:"";display:table;clear:both}.u-screen-reader-text{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px;word-wrap:normal !important}
+
+  </style>
+</head>
+
+<body>
+  
+  <div class="o-wrapper">
+    <aside class="c-sidebar">
+  <div class="c-sidebar-author">
+    <div class="c-author__cover">
+      <a href="/">
+        <img src="/images/1.jpg" alt="KKZHANG">
+      </a>
+    </div>
+    <div class="c-author__info">
+      <div class="c-author__name">KKZHANG</div>
+      <span class="c-author__job">Software Engineer</span>
+    </div>
+    <div class="c-contact-menu">
+      
+      <a href="/contact" class="c-contact-btn c-btn c-btn--secondary c-btn--round c-btn--shadow"><span data-icon='ei-envelope' data-size='s'></span> Send me</a>
+      
+      
+      <a href="https://twitter.com/intent/user?screen_name=KZ25674171" class="c-btn c-btn--primary c-btn--round c-btn--shadow"><span data-icon='ei-sc-twitter' data-size='s'></span> Follow me</a>
+      
+    </div>
+    <!-- <p class="c-author__about">👋 Hi, I’m @kkzhang. 👍I am now working at @MeiTuan, engaged in middleware development. ✌️ I used to work at @ByteDance, develop software about Instant Messaging.  ☎️ I am interested in distributed-system & operating-system. 🧭 The main development language is java, and I also know little golang.</p> -->
+    <!-- <div class="c-author__about" align="left">👋 Hi, I’m @kkzhang.<br> 👍 I am now working at @MeiTuan, engaged in middleware development.<br> ✌️ I used to work at @ByteDance, develop software about Instant Messaging. <br> ☎️ I am interested in distributed-system & operating-system.<br> 🧭 The main development language is java, and I also know little golang.</div> -->
+    <div class="c-author__about" align="left">
+      <ul>
+        <li>👋 Hi, I’m @kkzhang</li>
+        <li>✌️ Email: kkzhang1029@gmail.com</li>
+        <li>🧭 Work experience:</li>
+          <ul>
+            <li>☎️ Meituan - Infrastructure</li>
+            <li>👍 ByteDance - Instant Messaging</li>
+          </ul>
+      </ul>
+    </div>
+  </div>
+
+  <div class="c-sidebar-footer">
+    <div class="c-social">
+      <div class="c-social__title">Social</div>
+      <ul class="c-social__list u-lists-reset">
+        
+          <li class="c-social__item"><a href="https://twitter.com/KZ25674171" target="_blank"><div data-icon='ei-sc-twitter' data-size='s'></div></a></li>
+        
+        
+        
+        
+          <li class="c-social__item"><a href="https://github.com/kkzhang-tt" target="_blank"><div data-icon='ei-sc-github' data-size='s'></div></a></li>
+        
+        
+        
+        
+          <li class="c-social__item"><a href="https://instagram.com/kzhang29" target="_blank"><div data-icon='ei-sc-instagram' data-size='s'></div></a></li>
+        
+        
+        
+        
+        
+        
+          <li class="c-social__item"><a href="https://in.linkedin.com/in/k-z-23575b202" target="_blank"><div data-icon='ei-sc-linkedin' data-size='s'></div></a></li>
+        
+      </ul>
+    </div>
+    <div class="c-copyright">
+      <p>2021 &copy; KKZHANG</p>
+    </div>
+  </div>
+</aside> <!-- /.c-sidebar -->
+
+<main class="c-content">
+  <article class="c-article">
+  <div class="c-article__content">
+    <header class="c-header u-hide u-no-margin-top">
+      <div class="c-header__box">
+        <div class="c-search u-full-width">
+          <div class="c-search__box">
+            <label for="js-search-input" class="u-screen-reader-text">Search for Blog</label>
+            <input type="text" id="js-search-input" class="c-search__text" autocomplete="off" placeholder="Type to search...">
+            <div data-icon='ei-search' data-size='s'></div>
+          </div>
+          <ul id="js-results-container" class="c-search-results-list"></ul>
+        </div>
+      </div>
+    </header>
+    
+    
+    <div class="c-wrap-content">
+      <header class="c-article__header">
+        <h1 class="c-article__title">IM 系统设计与实现</h1>
+        <div class="c-article__date">
+          <span>2021, May 30</span>
+        </div>
+      </header>
+      <blockquote>
+  <p>该文档是从字节离职后在美团的技术分享</p>
+</blockquote>
+
+<h3 id="介绍">介绍</h3>
+
+<p>IM（Instant Messaging 即时通讯）在我们日常生活中扮演者比较重要的角色，为我们的社交提供了很大的便利，我们基本上每天都会使用该系统，比如微信，QQ，大象，钉钉等。</p>
+
+<p>作为 RD，我们可能或多或少思考过这套系统是如何实现的，消息收发流程是什么样的，为什么有些社交软件的群人数存在上限，我将结合之前的开发经验给大家分享一下 IM 背后的简单实现。</p>
+
+<h3 id="思考">思考</h3>
+
+<p>在正式介绍 IM 系统实现之前，先给大家抛出一个问题，我个人觉得这个问题虽然看起来简单，但是值得进一步思考。</p>
+
+<p><strong>如何实现微信朋友圈功能？</strong></p>
+
+<blockquote>
+  <p>在 DDIA （数据密集型系统设计）这本书中有个示例，即 Twitter 实现发布消息的功能，与之类似。</p>
+</blockquote>
+
+<p>使用 Redis 简单实现的其中一个思路是：为每个用户维护一个 zset( member: 动态，score: 动态发布时间)，查看朋友圈时先拉取所有好友的最新动态（比如前十条，即 zset 的前 10 个数据），再对这些动态进行排序，并取出排序后的前 10 条；再次拉取，然后排序……</p>
+
+<p>每次只拉取最新几条动态就进行排序的主要原因是内存限制。</p>
+
+<h3 id="特性">特性</h3>
+
+<p>IM 系统一般具备哪些特性呢？如何评价一个 IM 的技术是否优秀呢？通常来说，IM 系统应该具备以下几个特性：</p>
+
+<ol>
+  <li>实时性</li>
+</ol>
+
+<p>顾名思义，即时通讯就是希望能够保证消息实时触达。A 给 B 发送消息，就是期望这条消息能够立马送达。那么对于一个 IM 系统来说，实时性是其关键特性，如果连这个特性无法满足，用户可能根本不会买账。</p>
+
+<ol>
+  <li>可靠性</li>
+</ol>
+
+<p>关于可靠性这部分其实可以拆的更细，主要包括消息的有序性，不丢失，不重复。</p>
+
+<p>当一个用户发了多条消息，对方也应该按序接收到对应的消息，如果消息发生错乱，很可能造成上下文完全不同的表达。除了保证顺序性，发出的消息也应该保证不会被丢弃，并且不能因为网络等一些问题导致发送的内容被重复接收。</p>
+
+<ol>
+  <li>安全性</li>
+</ol>
+
+<p>IM 系统应该保证消息传输及存储的安全性，这对用户隐私来说相当重要。不管对于消息在网络传输还是存储到客户端本地，都应该进行消息的加密处理，保证消息内容不能被破解。</p>
+
+<p>上面这些特性应该是每个 IM 系统都需要实现并且尽可能做到最优解，具体的实现方案各家有各家的解法，比如实时性这一项，在系统需要处理的消息量达到一定的级别之后，如何保证消息仍能够实时触达。</p>
+
+<p>介绍完 IM 系统的特性，有必要提一个产品 <a href="http://core.telegram.org/">Telegram</a>。该产品在可靠性，实时性，安全性方面做的都非常优秀（加密算法，超大公开群等），目前只有客户端代码开源。</p>
+
+<h3 id="技术要点">技术要点</h3>
+
+<p>既然一个 IM 系统的基本特性有了，我们在实现这些特性过程中主要关注哪些技术要点？</p>
+
+<blockquote>
+  <p>安全性这部分主要考虑一些加密算法，暂时先不讨论。</p>
+</blockquote>
+
+<ol>
+  <li>
+    <p><strong>消息推送协议</strong></p>
+
+    <p>一般为了保证消息收发的实时性，在消息传输过程中可供选择的方案一般有：轮询，长轮询，TCP，UDP，WebSocket等。</p>
+
+    <p>轮询对服务端与客户端都额外增加较多的资源压力；长轮询可能存在消息推送延迟过高；UDP 数据传输可靠性存在问题，一般需要在应用层做二次处理；TCP，WebSocket 本质上差不多，只不过一个是传输层，一个是应用层，如果使用 TCP 的话需要包装一层应用层协议。大部分情况下，大家都会优先选择 TCP 作为消息推送协议。</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>我们之前由于项目的特殊性，采用 TCP &amp; WebSocket 两套协议</p>
+</blockquote>
+
+<ol>
+  <li><strong>消息存储系统</strong></li>
+</ol>
+
+<p>消息收发完成之后需要进行存储，以便用户查看历史消息。分析下消息存储的特点：1. 消息写入后基本不要求再修改；2. 对写入和读取的速度要求非常高；3. 读大部分都集中在新消息，顺序读请求量高；4. 消息的量级随着用户的增加而越来越大。</p>
+
+<p>存储系统的选型值得考量，首先需要支持大容量，能够进行持久化（消息漫游），并且查询及写入效率不能较低，期望能够支持较高的 QPS。我们常用的存储系统有 Mysql &amp;&amp; Redis，这两个系统各有优缺点，Redis 性能高，但是存储容量受限；Mysql 的查询写入效率瓶颈较低。那么如果两者结合呢，即 Redis 做缓存，Mysql 做持久化，看起来仍然不是最优解，还是会受限于 Redis 的容量与 Mysql 的性能。</p>
+
+<p>关于分布式存储，Google 在 05 年左右发表了一篇论文 <a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//archive/bigtable-osdi06.pdf">BigTable</a>，介绍了其分布式KV存储系统的实现，根据描述来看 BigTable 既能实现高效查询，也能支持超大容量存储（10万 级随即写QPS，10亿级存储数据）。虽然没有开源，但是业界存在一些优秀的实现案例，比如 LevelDB，RocksDB 等，国内比较优秀的商业化产品 <a href="https://pingcap.com/">TiDB</a>，美团内部的 Cellar 就是基于 LevelDB &amp; RocksDB实现。</p>
+
+<p>综合来看，这种分布式 KV 存储系统更值得选择。</p>
+
+<blockquote>
+  <p>关于之前内部的 ABase 系统没有找到公开资料，也是在 RocksDB 的基础上做了优化实现的。</p>
+</blockquote>
+
+<ol>
+  <li><strong>消息可靠性保证</strong></li>
+</ol>
+
+<p>有序性，不丢失，不重复 这些特性不只是服务端需要考虑，客户端在进行消息发送的时候也应该实现这些功能。从服务端的角度来说，一般采用 MQ 作为传输组件，通过业务逻辑处理 + MQ 的基本特性基本能保证消息的可靠性；并且 MQ 的削峰填谷特性能够帮助我们应对激增的消息流量，同时实现各个服务端组件的解耦。之前的项目采用 Kafka 作为消息传输组件，主要利用 Kafka 高吞吐量 &amp;&amp; 分区有序的特点。</p>
+
+<blockquote>
+  <p>大象的技术文档中只说明是 MQ，没有具体指名是哪一种，猜测也是 Kafka</p>
+</blockquote>
+
+<p>上面三个点是我个人觉得一个 IM 系统在进行技术选型时应该重点考虑的；同步以下我之前参与的项目技术选型：消息推送采用 WebSocket，消息存储采用内部分布式 KV 存储组件，消息传输过程使用 Kafka。</p>
+
+<h2 id="概述">概述</h2>
+
+<h3 id="名词解释">名词解释</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>名称</th>
+      <th>含义</th>
+      <th>备注</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>消息</td>
+      <td>由特定协议标识，<br />用于在各个端之间传递</td>
+      <td>存在多种类型，文本消息，系统消息，多媒体消息等；<br />由应用层制定消息协议格式</td>
+    </tr>
+    <tr>
+      <td>可见性</td>
+      <td>某个消息只允许特定的用户查看</td>
+      <td>全部可见，部分可见，自己可见等</td>
+    </tr>
+    <tr>
+      <td>会话</td>
+      <td>用户之间传递消息，则建立一条会话</td>
+      <td>消息传递的载体，每个消息都属于特定的会话</td>
+    </tr>
+    <tr>
+      <td>单聊</td>
+      <td>一对一产生的会话称为单聊</td>
+      <td>可以自己给自己发送消息</td>
+    </tr>
+    <tr>
+      <td>群聊</td>
+      <td>多人参与的会话称为群聊</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>会话链</td>
+      <td>用于存储某条会话的所有消息，消息按产生时间有序存储</td>
+      <td>存储顺序以服务端接收为准</td>
+    </tr>
+    <tr>
+      <td>用户链</td>
+      <td>用于存储某个用户参与过的所有会话消息，消息按产生时间有序存储</td>
+      <td>单条用户链包含多个会话</td>
+    </tr>
+    <tr>
+      <td>写扩散</td>
+      <td>消息分发时需要写入参与该会话的所有用户的用户链</td>
+      <td>强调消息分发过程</td>
+    </tr>
+    <tr>
+      <td>读扩散</td>
+      <td>消息拉取时需要拉取当前用户参与的所有会话的会话链</td>
+      <td>强调消息拉取过程</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>关于读扩散，写扩散可能暂时无法理解，后面会详细介绍。</p>
+
+<h3 id="消息模型">消息模型</h3>
+
+<p>为了方便客户端与服务端之前的通信，需要对传递的消息制定具体的协议，一般来说，消息需要具备以下属性。</p>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/im_1.png" /></p>
+
+<ul>
+  <li>MessageId：用于标示消息的唯一性</li>
+  <li>MessageType：消息类型，可能是文本消息，多媒体消息等</li>
+  <li>ConversionId：消息所属会话，会话是单聊还是群聊可以在 ConversionID 中标识，也可以新增字段</li>
+  <li>Sender：消息发送者，对于系统消息可能存在特殊标识</li>
+  <li>Receiver：消息接收者，对于群聊消息来说，可能为空</li>
+  <li>MessageBody：消息的具体内容，对于不同的消息来说存在不同的结构体</li>
+  <li><em>Visibility：消息的可见性（可能存在）</em></li>
+  <li><em>ConversationIndex: 会话链消息索引</em></li>
+  <li><em>UserIndex：用户链消息索引</em></li>
+</ul>
+
+<p>上面这些信息基本能够标识消息收发过程中所需要的信息，不同的系统实现可能不一样，大象的实现方案 <a href="https://km.sankuai.com/page/420442787#id-IM名词简介">消息详解</a></p>
+
+<h3 id="消息收发模型">消息收发模型</h3>
+
+<p>在选取 WebSocket 作为传输协议的前提下，基本的消息收发模型抽象起来比较简单。</p>
+
+<ol>
+  <li>发送方与接收方分别与服务端建立长连接，分配特定的 connectionId 用于标识该连接</li>
+  <li>在服务端内部将该 connectionId 与 用户信息 userId 进行绑定</li>
+  <li>发送者发送消息到服务端，其中包含接收人的 userId，消息的具体内容</li>
+  <li>服务端解析消息，找到接收方对应的长连接 connectionId</li>
+  <li>服务端将消息通过长连接推送给接收方</li>
+</ol>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/im_2.png" /></p>
+
+<h2 id="实现">实现</h2>
+
+<p>前面基本介绍了技术选型及简单的模型抽象，下面我们介绍整个系统的具体实现。</p>
+
+<h3 id="消息路由与存储">消息路由与存储</h3>
+
+<p>名词解释中有一个叫做写扩散，这个动作发生在消息路由的过程，那么消息路由具体做哪些事情呢？</p>
+
+<p>我们分析下消息模型的属性，首先消息属于某个会话，会话是消息的载体；同时消息也与用户绑定，每个消息都有它的发送者与接收者。换句话说，<strong>我们可以从两个维度看待消息，会话与用户</strong>。从这个观点出发，在消息路由与存储时，我们可以进行两个动作：1. 将消息路由到与会话相关的模块，2. 将消息路由到与用户相关的模块。</p>
+
+<p>为了实现上面观点，可以为 <strong>Kafka 设置两个 Topic：User Topic &amp;&amp; Conversation Topic；消息存储时也存在两条链：用户链 &amp;&amp; 会话链</strong>。</p>
+
+<blockquote>
+  <p>我们使用 Kafka 作为消息的中转，主要利用其分区有序的特点，在 Kafka 每个 partition 中，消息有序存储，从而在服务端侧保证消息的有序性。</p>
+</blockquote>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/im_3.png" /></p>
+
+<p>当路由到会话维度时，路由 key 为conversionId；当路由到用户维度时，路由 key 为 userId。</p>
+
+<p>按照这样的路由规则之后，User Topic Partition 与 用户链中均包含多个会话的消息（也被称为混链），而Conversation Topic Partition 与 会话链中只包含单个会话的消息（也被称为单链）。</p>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/im_4.png" /></p>
+
+<h3 id="消息分发">消息分发</h3>
+
+<p>消息分发过程是整个系统中最重要的部分，性能的瓶颈一般在于分发策略的选择上，分发过程存在可以较多进行深入优化的点，基本的分发流程如下：</p>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/im_5.png" /></p>
+
+<ol>
+  <li>发送者通过长连接将消息发送到长连接服务器</li>
+  <li>长连接服务器通过 rpc 接口将消息发送到消息服务器</li>
+  <li>消息服务器收到消息后进行解析，同时生成 MessageId 标识消息的唯一性；根据消息中的 conversationId &amp; 特定的路由规则，将该消息发送到 Kafka Conversation Topic 中特定的 Topic Partition 中。同一个会话的消息会路由到固定的 Partition 中，该步骤保证了消息的有序性。</li>
+  <li>每个Conversation Message Consumer 线程会消费特定的 Partition，这一步也保证了消费消息的有序性。</li>
+  <li>1 计算当前会话的参与用户：单聊基本是2个人，群聊存在多个人；这里的目的是为了后续将该消息写入用户链中。</li>
+  <li>2 将消息有序写入会话链，同时生成该消息在当前会话链中的 index，以便后续进行消息查询。会话链消息有序存储，并且每个消息 index 单步递增。</li>
+  <li>根据 5.1 步骤计算的会话参与用户信息，将该消息写分别入对应的 Kafka User Topic 特定的 Topic Partition 中，该步骤同样保证了消息的有序性。</li>
+</ol>
+
+<p>这个步骤就是写扩散的开始，试想如果只是单聊，那么需要将消息分发写入两次；如果是10人的群聊，消息需要被写入10次；如果是10000人的群聊，消息需要被写入100000次……所以在我们使用一些社交软件时，可能会遇到群人数达到上限的情况；超大群是对整个IM系统性能的考验。</p>
+
+<p>扩散的次数取决于参与会话的人数，人数越多，扩散压力越大。针对这种扩散带来的压力，不同的产品有不同的优化策略：</p>
+
+<ul>
+  <li>放弃写扩散，消息只被写入会话链：这种策略会将压力转移到客户端（读扩散）</li>
+  <li>消息延迟发送：收到的消息暂时先置入延迟队列中，等到消息积累到一定数目或者一定延迟时间，再将消息进行分发，降低分发次数</li>
+  <li>大群拆小群：针对拆分的群单独做处理</li>
+  <li>针对消息的可见性确定路由规则：全员可见的消息放弃写扩散，部分可见的消息仍然进行扩散</li>
+  <li>……</li>
+</ul>
+
+<ol>
+  <li>每个 User Message Consumer 消费特定的 User Topic Partition</li>
+</ol>
+
+<p>7.1 将消息有序写入用户链，同时生成该消息在当前用户链中的 index，以便后续消息查询。用户链消息有序存储，并且每个消息 index 单步递增。</p>
+
+<p>7.2 将消息生成的 用户链 Index &amp;&amp; 会话链 Index 通过 rpc 返回给消息服务器。</p>
+
+<ol>
+  <li>消息服务器将服务端生成的消息信息返回给长连接服务器，包括 MessageId &amp; UserIndex &amp; ConversationIndex</li>
+  <li>根据接收者的用户信息匹配对应的长连接，并将服务端生成的信息传给接收者</li>
+</ol>
+
+<p>消息的有序性通过 Kafka 分区有序 &amp; 消费者线程按序消费/存储 保证，并且每个消息在会话链与用户链中都存在特定的 idnex，以便后续消息拉取。</p>
+
+<p>在消息分发中存在扩散（fan-out），这个步骤有些系统会选择直接放弃，因为写扩散会导致在群聊人数较多的情况下影响系统的性能，但是直接放弃写扩散会将压力转移到客户端。</p>
+
+<p><strong>写扩散</strong>：如果我们将消息进行扩散并写入到用户链中，那么客户端在进行消息拉取的时候只需要拉取属于自己的用户链；用户链中包含多个会话消息，客户端只需要按序读取消息进行简单排列即可。</p>
+
+<p><strong>读扩散</strong>：如果消息放弃扩散从而不写入到用户链中，那么客户端在进行消息拉取的时候需要拉取所有当前用户参与过的会话链；每个会话链中只包含单个会话信息，客户端在拉取所有会话链之后需要做的工作就比较多了。</p>
+
+<blockquote>
+  <p>通过与大象同学交流得知，这部分实现应该主要是读扩散实现；大象最多支持群人数量级为 十万</p>
+</blockquote>
+
+<h3 id="消息拉取">消息拉取</h3>
+
+<p>在消息分发过程中，会给每个消息生成特定的 ConversationIndex &amp; UserIndex，分别标识该消息在会话链/用户链中的位置，客户端在进行消息拉取的时候主要就是根据 Index 拉取。</p>
+
+<p>首先，客户端会维护当前收到的最新的 UserIndex/ConversationIndex，每次收到新的消息推送后，更新本地 Index，并拉取最新的消息。其次，拉取消息的策略根据用户当前的位置可能有所不同，比如说用户处于会话列表界面时，会拉取用户链；用户处于会话内部时，会拉取当前会话链。</p>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/im_6.png" /></p>
+
+<p>如果采取读扩散拉取消息的话，流程图如下：</p>
+
+<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/im_7.png" /></p>
+
+<p>消息分发模式非不同决定了消息拉取的策略</p>
+
+<h2 id="faq">FAQ</h2>
+
+<h3 id="消息内容主体在会话链与用户链分别存储吗">消息内容主体在会话链与用户链分别存储吗</h3>
+
+<p>消息主体只单独存一份，用户链与会话链中只保存消息标识；在用户拉取消息时再进行消息拼装</p>
+
+<h3 id="kafka-分区数目变更或者重启如何处理">Kafka 分区数目变更或者重启如何处理</h3>
+
+<p>kafka 重启不会对消息重新消费产生影响，每个消费者都记录消费的 offset，支持重新消费。</p>
+
+<p>分区数目变更会导致消息错乱，因此在系统搭建的时候就需要根据业务预估容量确定分区数目，保证后续不会变更。</p>
+
+<h3 id="部分可见的消息如何处理">部分可见的消息如何处理</h3>
+
+<p>最常见的部分可见消息一般是指系统消息，比如有人给你的消息进行点赞，就会收到个人可见的系统通知。</p>
+
+<p>对于部分可见的消息，通常是在消息进行分发的时候进行选择性分发，只将消息写入可见用户的用户链，不可见用户的用户链中不存在这条消息。</p>
+
+<p>如果采取读扩散的话，会在会话拉取的时候进行过滤。</p>
+
+<h3 id="如何保证客户端发送消息的有序性">如何保证客户端发送消息的有序性</h3>
+
+<p>客户端维护一个消息发送队列，类似于TCP发送队列，支持超时重传，并且客户端发送的消息中会携带一个 ClientMessageId ，对于特定的 ClientMessageId 以服务端收到的顺序为准</p>
+
+<h3 id="receiver-离线怎么处理">Receiver 离线怎么处理</h3>
+
+<p>使用 Google FCM 的离线推送，将最新的消息 Index 推送给 receiver，等用户重新上线之后再进行拉取</p>
+
+<h3 id="用户换机登录如何处理">用户换机登录如何处理</h3>
+
+<p>如果采用的是写扩散模式，那么用户只需要拉取自己的用户链即可；如果采用的是读扩散模式，用户需要拉取所有会话链。读扩散模式会在换机登录时给客户端带来较大的压力。</p>
+
+<p>关于消息拉取的数目，一般会设定默认的消息漫游时间，有的是一个星期，三个月或者六个月</p>
+
+<h3 id="大群优化策略">大群优化策略</h3>
+
+<p>虽然针对大群存在各种各样的优化策略，但是大部分都会采用大群读扩散的模式，降低服务端写扩散的压力，因为一个人参与的大群数目可能不是特别多，客户端的压力不是很大。</p>
+
+<h3 id="长连接维持">长连接维持</h3>
+
+<p>采用心跳包，具体的间隔可能受到ISP的限制</p>
+
+<h3 id="长连接的数目">长连接的数目</h3>
+
+<p>限制长连接数目的主要因素是每个连接所占用的内存，因此之前我们的优化主要集中在 TCP/WebSocket 默认分配的发送缓存；支持单机几十万连接</p>
+
+<h3 id="如何支持多设备同时在线">如何支持多设备同时在线</h3>
+
+<p>一般情况下长连接服务会维护 user -&gt; devices 的映射，在用户登录/退出时会更新该映射，那么消息在推送时会选择当前在线的设备进行推送</p>
+
+<h2 id="总结">总结</h2>
+
+<p>上面基本简单介绍了一个IM系统的实现过程，不同的业务在技术选型上会有很大的不同，本文只是阐述个人在开发IM系统时的经验；其实关于IM系统其实有较多的技术细节需要考虑，不能一一说明。</p>
+
+<p>回到之前留的思考，其实就是读扩散与写扩散之间策略的权衡。</p>
+
+      <div class="c-article__footer u-clearfix">
+        <div class="c-article__tag">
+          
+        </div>
+        <div class="c-article__share">
+          <a href="https://twitter.com/intent/tweet?text=IM%20%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0&url=kkzhang-tt.github.io/2021/05/30/im_system/" title="Share
+          on Twitter" rel="nofollow" target="_blank"><div data-icon='ei-sc-twitter' data-size='s'></div></a>
+          <a href="https://facebook.com/sharer.php?u=kkzhang-tt.github.io/2021/05/30/im_system/" title="Share on Facebook" rel="nofollow" target="_blank"><div data-icon='ei-sc-facebook' data-size='s'></div></a>
+        </div>
+      </div>
+      <div class="c-newsletter">
+  <div class="c-newsletter__header">
+    <h4 class="c-newsletter__title">Newsletter</h4>
+    <div class="c-newsletter__subtitle">Subscribe to this blog and receive notifications of new posts by email.</div>
+  </div>
+  <form class="c-newsletter-form validate" action="#" method="POST" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank" novalidate>
+    <div class="c-newsletter-form__group">
+      <label class="u-screen-reader-text" for="mce-EMAIL">Email address</label>
+      <input class="c-newsletter__email required email" id="mce-EMAIL" type="email" name="EMAIL" placeholder="Your email address" autocomplete="on">
+      <input class="c-newsletter__button" id="mc-embedded-subscribe" type="submit" name="subscribe" value="Subscribe">
+    </div>
+  </form>
+</div> <!-- /.c-newsletter -->
+      <div class="c-recent-post">
+        <h4 class="c-recent__title">You might also enjoy</h4>
+        <div class="c-recent__box">
+        
+        
+          <div class="c-recent__item">
+            <a class="c-recent__image" href="/2021/06/26/nce2_lesson_7/" style="background-image: url( /images/nce_l7.jpg)"></a>
+            <div class="c-recent__footer">
+              <h4><a href="/2021/06/26/nce2_lesson_7/">New Concept English (Lesson 7)</a></h4>
+              <div class="c-recent__date">
+                <time datetime="2021-06-26T00:00:00+08:00">June 26, 2021</time>
+              </div>
+            </div>
+          </div>
+        
+        
+        
+          <div class="c-recent__item">
+            <a class="c-recent__image" href="/2021/06/22/summary_h1_2021/" style="background-image: url( /images/2021_summary_h1.jpg)"></a>
+            <div class="c-recent__footer">
+              <h4><a href="/2021/06/22/summary_h1_2021/">2021 H1 Summary</a></h4>
+              <div class="c-recent__date">
+                <time datetime="2021-06-22T00:00:00+08:00">June 22, 2021</time>
+              </div>
+            </div>
+          </div>
+        
+        
+        
+          <div class="c-recent__item">
+            <a class="c-recent__image" href="/2021/06/19/nce2_lesson_6/" style="background-image: url( /images/nce_l6.jpg)"></a>
+            <div class="c-recent__footer">
+              <h4><a href="/2021/06/19/nce2_lesson_6/">New Concept English (Lesson 6)</a></h4>
+              <div class="c-recent__date">
+                <time datetime="2021-06-19T00:00:00+08:00">June 19, 2021</time>
+              </div>
+            </div>
+          </div>
+        
+        
+        
+          <div class="c-recent__item">
+            <a class="c-recent__image" href="/2021/06/19/ddia-3/" style="background-image: url( /images/ddia_3.jpg)"></a>
+            <div class="c-recent__footer">
+              <h4><a href="/2021/06/19/ddia-3/">DDIA: 一致性与共识（三）</a></h4>
+              <div class="c-recent__date">
+                <time datetime="2021-06-19T00:00:00+08:00">June 19, 2021</time>
+              </div>
+            </div>
+          </div>
+        
+        
+        </div>
+      </div> <!-- /.c-recent-post -->
+      
+    </div> <!-- /.c-wrap-content -->
+  </div> <!-- /.c-article__content -->
+</article> <!-- /.c-article-page -->
+
+</main> <!-- /.c-content -->
+  </div> <!-- /.o-wrapper -->
+  <div class="c-top" data-icon='ei-chevron-up' data-size='s' title="Scroll To Top"></div> <!-- /.c-top -->
+  <script src="/js/jquery-3.3.1.min.js"></script>
+<script src="/js/evil-icons.min.js"></script>
+<script src="/js/jquery.fitvids.js"></script>
+<script src="/js/simple-jekyll-search.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- /javascripts -->
+</body>
+</html>
