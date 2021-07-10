@@ -117,6 +117,66 @@
   
   <article class="c-post">
     
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia_3.jpg)"
+        href="/2021/06/19/ddia-3/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/19/ddia-3/">DDIA: 一致性与共识（三）</a>
+      </h2>
+      <!-- <p>分布式事务与共识 共识问题也是分布式系统中最基本的问题之一，共识的目的是让几个节点就某一事件达成一致。 在许多场景中都需要集群中的节点达成某种一致： 主节点选举 对于主从复制的数据库，需要对谁来充当主节点达成一致。如果由于网络问题使得部分节点之间无法通信，可能会导致两个节点都认为自己是主节点，从而产生数据异常等问题；而共识能够避免这种错误的故障切换。 原子事务提交 对于跨节点或者跨分区的事务，在执行中可能会存在部分节点成功，其他节点失败的情况。为了保证事务的原子性，需要所有节点对事务的执行结果达成一致：要么成功提交，要么失败回滚。 两阶段提交（2PC） 2PC 是一种在多节点之间实现事务原子提交的算法，用来确保所有的节点要么全部提交，要么全部终止。 2PC 引入了一个组件：协调者（事务管理器）；参与分布式事务的数据库节点称为参与者。整体流程如下： 2PC 事务从应用程序在多个数据库节点上执行数据读写开始。当应用程序准备提交事务时，协调者开始阶段 1：发送一个准备请求到所有节点，询问它们是否可以提交，然后等待所有参与者的响应：...</p> -->
+      <span class="c-post-date">2021, Jun 19&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia_2.jpg)"
+        href="/2021/06/16/ddia-2/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/16/ddia-2/">DDIA: 一致性与共识（二）</a>
+      </h2>
+      <!-- <p>顺序保证 顺序也是一个非常重要的概念；事实证明，排序，可线性化，共识之间存在这深刻的联系。 顺序与因果关系 我们研究顺序的一个原因是其有助于保持因果关系。而因果关系对所发生的事件施加了某种排序：发送消息先于收到消息；问题出现在答案之前等。因果关系的依赖链条定义了系统中的因果顺序，即某件事情应该发生在另一个事情之前。 如果系统服从因果关系所规定的顺序，称之为因果一致性。例如，快照隔离提供了因果一致性：读取某些数据时，能够看到该数据的前序事件。 因果顺序并非全序 全序关系支持任何两个元素之间进行比较，即对于集合中的任意两个元素总是可以判断出哪个更大，哪个更小。因果关系并不是全序，而是一种偏序。 可线性化：在一个可线性化系统中，存在全序操作关系。系统的行为好像只有一个数据副本，并且每个操作都是原子性的；这意味着对于任意两个操作，总是可以判断出哪个操作在先；这种全序排列类似于之前的数据库操作时间线。 因果关系：如果两个操作都没有发生在对方之前，那么这两个操作是并发关系。如果两个操作是因果关系，那么这两个事件可以进行排序；而并发的事件无法进行排序。 因此，在可线性化存储中不存在并发操作，一定有个时间线将所有操作全序执行。 可能存在多个请求处于等待处理的状态，但是数据存储保证了在特定的时间点执行特定的操作，所以是单个时间轴，单个数据副本，没有并发。 而因果关系的时间线会出现分支与合并，而不同分支上的操作无法进行直接比较，类似于 git 中的版本记录。 可线性化强于因果关系...</p> -->
+      <span class="c-post-date">2021, Jun 16&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia_1.png)"
+        href="/2021/06/16/ddia-1/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/16/ddia-1/">DDIA: 一致性与共识（一）</a>
+      </h2>
+      <!-- <p>在分布式系统中，比较重要的抽象概念是共识：所有节点就某一项提议达成一致。 共识在分布式系统中有许多应用场景：比如，对于一个主从复制的数据库集群，如果主节点发生失效，那么就需要切换到另一个节点，而新的主节点的选举就可以采用共识算法来实现。共识算法能够保证在某一时刻，只有一个主节点。 如果两个节点都认为自己是主节点，就会发生脑裂，导致数据丢失，而共识算法能够保证这种异常不会发生 一致性保证 在多副本数据库的复制中（主从复制，多主节点复制，无主节点复制），如果在同一时刻同时访问集群中的两个不同节点，可能会看到不一样的数据，造成这种现象的原因是写请求会在不同的时间到达不同的节点，导致同一时刻各个副本的数据存在不一致现象。 不过，大多数系统都提供了最终一致性：在更新之后的一段时间（时间长度未知），最终所有的副本都会保持一致。也就是说这种副本间不一致的现象是短暂的，最终会收敛；但是，这种最终一致性是很弱的保证，无法告诉我们什么时候会收敛完成。 对于这种只能提供弱一致性保证的系统来说，存在一定的局限性。因此，需要更强的一致性保证，不过相应的会导致性能降低等一些问题。 分布式一致性与事务隔离级别中有相似之处，但是还是存在明显的区别：事务隔离性是为了处理并发执行事务时的各种临界条件，而分布式一致性则主要针对延迟和故障等问题来协调副本之间的状态。 可线性化 可线性化使得一个多副本系统看起来好像只有一个数据副本，并且对这个系统的所有操作都是原子的。（可线性化也被称为原子一致性，强一致性等） 在一个可线性化的系统中，一旦某个客户端成功提交写请求，那么之后所有客户端的读请求一定都能看到这个刚刚写入的值。因此，可线性化能够保证读取最近最新的值，而不是过期的值。 如何达到可线性化 为了实现可线性化，需要对系统进行约束：一旦新值被写入或者读取，所有后续的读到看到的是新值 可线性化背后的思想是：使得整个系统看起来好像只有一个数据副本。结合例子，逐步理解可线性化。 下图展示三个客户端在线性化数据库中读写相同的记录...</p> -->
+      <span class="c-post-date">2021, Jun 16&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/nce_l1_5.jpg)"
+        href="/2021/06/06/nce2_1/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/06/nce2_1/">New Concept English (Lesson 1-5)</a>
+      </h2>
+      <!-- <p>Lesson 1 A Private Conversation Last week I went to the theatre. I had a...</p> -->
+      <span class="c-post-date">2021, Jun 06&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">5 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
     <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/im.jpg)"
         href="/2021/05/30/im_system/"></a>
     
@@ -157,66 +217,6 @@
       <!-- <p>定义 栈内元素保持单调有序状态的栈称为单调栈（monotonous stack）。 与普通栈一样，只能在栈顶进行入栈/出栈操作。 按照从栈底到栈顶的元素状态，分为递增栈，递减栈；如下： 实现 将一个元素插入单调栈时，为了维护栈的单调性，需要在保证将该元素插入到栈顶后整个栈满足单调性的前提下弹出最少的元素。 例如，栈中自顶向下的元素为 1, 3, 5, 7, 20，插入元素 10 时为了保证单调性需要依次弹出元素...</p> -->
       <span class="c-post-date">2021, May 21&nbsp;&nbsp;&nbsp;—&nbsp;</span>
       <span class="c-post-words">5 minute read</span>
-    </div>
-  </article> <!-- /.c-post -->
-  
-  <article class="c-post">
-    
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/bloom_filter.jpg)"
-        href="/2021/05/12/bloom_filter/"></a>
-    
-    <div class="c-post-content">
-      <h2 class="c-post-title">
-        <a href="/2021/05/12/bloom_filter/">Bloom Filter</a>
-      </h2>
-      <!-- <p>布隆过滤器是一种概率性的数据结构，主要用于判断一个元素是否出现过。 对于检查一个元素是否出现过的简单实现可能只需要使用 Set。考虑一种场景，假设我们想检查一个用户是否是第一次访问我们的网站，那么使用 Set 的简单实现如下： class VisitorTracker: def __init__(self): self.visitors = set() def add_visitor(self, user_id):...</p> -->
-      <span class="c-post-date">2021, May 12&nbsp;&nbsp;&nbsp;—&nbsp;</span>
-      <span class="c-post-words">1 minute read</span>
-    </div>
-  </article> <!-- /.c-post -->
-  
-  <article class="c-post">
-    
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/index.jpg)"
-        href="/2021/05/07/sparse_index/"></a>
-    
-    <div class="c-post-content">
-      <h2 class="c-post-title">
-        <a href="/2021/05/07/sparse_index/">密集索引 VS 稀疏索引</a>
-      </h2>
-      <!-- <p>对于数据库索引来说，其中一个性质是索引可以是密集的，也可以是稀疏的。关于索引类型的选择，需要根据数据库的特性进行权衡（trade-off）。 假设存在以下数据库记录： 该 table 存在四列，并且表中的行记录被分为四页，每页包含四条记录。我们指定 first_name 字段作为索引。 密集索引 从上图我们可以看到，对于密集索引来说，对于表中的每一个 first_name 行记录都会存在一个索引项。如果我们想要查询 first_name 为 Rachelle 的用户，我们需要在索引上执行二分查找，确定该行的位置。...</p> -->
-      <span class="c-post-date">2021, May 07&nbsp;&nbsp;&nbsp;—&nbsp;</span>
-      <span class="c-post-words">1 minute read</span>
-    </div>
-  </article> <!-- /.c-post -->
-  
-  <article class="c-post">
-    
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/lsm_tree.jpg)"
-        href="/2021/05/07/LSM_Tree/"></a>
-    
-    <div class="c-post-content">
-      <h2 class="c-post-title">
-        <a href="/2021/05/07/LSM_Tree/">LSM Tree</a>
-      </h2>
-      <!-- <p>介绍 写操作友好，同时兼顾查询效率 多用于 key-value 型 or 日志型数据库 LSM Tree 性能高的原因：采用顺序读写，避免随机读写 不管是 Disk 还是 Memory，顺序读写都能比随机读写有较大的性能提好（甚至是几个数量级） 结构...</p> -->
-      <span class="c-post-date">2021, May 07&nbsp;&nbsp;&nbsp;—&nbsp;</span>
-      <span class="c-post-words">1 minute read</span>
-    </div>
-  </article> <!-- /.c-post -->
-  
-  <article class="c-post">
-    
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/pp_2.jpg)"
-        href="/2021/04/11/programming_pearls_2/"></a>
-    
-    <div class="c-post-content">
-      <h2 class="c-post-title">
-        <a href="/2021/04/11/programming_pearls_2/">编程珠玑（二）</a>
-      </h2>
-      <!-- <p>三个问题 给定一个最多包含 40 亿个随机排列的 32 位整数的文件，找出一个不在文件中的 32 位整数（整个文件可能有多个不存在的整数，但是只需要找到一个）。如果给定内存足够，如何处理；如果内存限定在几百字节，但是磁盘容量没有限制，如何处理？ 将一个 n 元一维向量向左旋转 i 个位置。例如，向量 abcdefgh 中...</p> -->
-      <span class="c-post-date">2021, Apr 11&nbsp;&nbsp;&nbsp;—&nbsp;</span>
-      <span class="c-post-words">1 minute read</span>
     </div>
   </article> <!-- /.c-post -->
   
@@ -294,14 +294,14 @@
         
         
         <div class="c-categories__img">
-          <figure style="background-image: url('/images/ddia_3.jpg');"></figure>
+          <figure style="background-image: url('/images/ddia_7_1.png');"></figure>
           <span class="c-categories__more">View all</span>
         </div>
         
         
         <div class="c-categories__container ">
           <h2 class="c-categories__header">ddia</h2>
-          <p class="c-categories__count"><span>3</span> Posts</p>
+          <p class="c-categories__count"><span>7</span> Posts</p>
         </div>
       </a>
     </li>

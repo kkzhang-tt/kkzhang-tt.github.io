@@ -1,6 +1,38 @@
 [
   
     {
+      "title"    : "DDIA: 数据复制（三）",
+      "category" : "ddia",
+      "tags"     : "",
+      "url"      : "/2021/07/10/ddia-7/",
+      "date"     : "2021-07-10 00:00:00 +0800"
+    } ,
+  
+    {
+      "title"    : "DDIA: 数据复制（二）",
+      "category" : "ddia",
+      "tags"     : "",
+      "url"      : "/2021/07/07/ddia-6/",
+      "date"     : "2021-07-07 00:00:00 +0800"
+    } ,
+  
+    {
+      "title"    : "DDIA: 数据复制（一）",
+      "category" : "ddia",
+      "tags"     : "",
+      "url"      : "/2021/06/29/ddia-5/",
+      "date"     : "2021-06-29 00:00:00 +0800"
+    } ,
+  
+    {
+      "title"    : "DDIA: 分布式系统摘要",
+      "category" : "ddia",
+      "tags"     : "",
+      "url"      : "/2021/06/29/ddia-4/",
+      "date"     : "2021-06-29 00:00:00 +0800"
+    } ,
+  
+    {
       "title"    : "New Concept English (Lesson 7)",
       "category" : "english-study",
       "tags"     : "",
