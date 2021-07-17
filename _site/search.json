@@ -1,6 +1,14 @@
 [
   
     {
+      "title"    : "DDIA: 数据分区",
+      "category" : "ddia",
+      "tags"     : "",
+      "url"      : "/2021/07/11/ddia-8/",
+      "date"     : "2021-07-11 00:00:00 +0800"
+    } ,
+  
+    {
       "title"    : "DDIA: 数据复制（三）",
       "category" : "ddia",
       "tags"     : "",
