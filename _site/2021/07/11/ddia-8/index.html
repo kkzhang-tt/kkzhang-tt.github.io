@@ -106,7 +106,7 @@
       </div>
     </header>
     
-    <div class="c-article__image o-opacity" style="background-image: url( /images/ddia_8_1.png )"></div>
+    <div class="c-article__image o-opacity" style="background-image: url( /images/ddia/ddia_8_1.png )"></div>
     
     <div class="c-wrap-content">
       <header class="c-article__header">
@@ -133,7 +133,7 @@
 
 <p><strong>一个节点上可能存在多个分区；每个分区都有主副本 &amp; 从副本，主副本与从副本被分配在不同的节点上。一个节点可能是某个分区的主副本，也可能是其他分区的从副本</strong>。</p>
 
-<p><img src="/images/ddia_8_1.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_8_1.png" alt="" /></p>
 
 <blockquote>
   <p>复制 &amp; 分区组合使用：每个节点既是某些分区的主节点又是其他分区的从节点</p>
@@ -151,7 +151,7 @@
 
 <p><strong>每个分区分配一段连续的关键字或者关键字区间范围</strong>（min ~ max）：如果知道关键字区间的上下限，就可以确定哪个分区包含哪些关键字。</p>
 
-<p><img src="/images/ddia_8_2.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_8_2.png" alt="" /></p>
 
 <blockquote>
   <p>百科全书按照关键字区间进行分区</p>
@@ -175,7 +175,7 @@
   <p>一个好的 Hash 函数可以处理数据倾斜并使其均匀分布</p>
 </blockquote>
 
-<p><img src="/images/ddia_8_3.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_8_3.png" alt="" /></p>
 
 <p>分区的边界可以是均匀间隔，也可以是伪随机选择（有时被称为一致性哈希）。</p>
 
@@ -201,7 +201,7 @@
 
 <p>假设有一个汽车销售网站，每个列表都有一个唯一的文档 ID，用该 ID 进行数据库分区；存在二级索引颜色 &amp; 制造商，用户搜索汽车时可以根据这两个二级索引条件进行过滤。</p>
 
-<p><img src="/images/ddia_8_4.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_8_4.png" alt="" /></p>
 
 <p>当一辆新的红色汽车添加到数据库中时，数据库分区会自动将其添加到索引条目为 color:red 的文档 ID 列表中。</p>
 
@@ -213,7 +213,7 @@
 
 <p>可以对所有数据构建全局索引，而不是每个分区维护自己的本地索引；而且为了避免瓶颈，不能将全局索引存储在一个节点上。所以全局索引也必须进行分区，并且可以与关键字采用不同的分区策略。</p>
 
-<p><img src="/images/ddia_8_5.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_8_5.png" alt="" /></p>
 
 <p>以上图为例，所有颜色为红色的汽车被收录到索引 color:red 中，而<strong>索引本身也是分区的</strong>（a ~ r 置于分区 0 中，s ~ z 置于分区 1 中；类似的汽车制造商的索引也被分区）。</p>
 
@@ -257,7 +257,7 @@
 
 <p><strong>如果集群中新增了一个节点，该新节点可以从每个现有的节点上匀走几个分区，直到分区再次达到全局平衡；如果从集群中删除节点，则采取相反的均衡措施</strong>。</p>
 
-<p><img src="/images/ddia_8_6.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_8_6.png" alt="" /></p>
 
 <p>迁移过程会以分区为粒度（分区在节点间迁移），但是分区的总数量不变，也不会改变关键字到分区的映射关系；唯一需要调整的是分区与节点的对应关系。</p>
 
@@ -303,7 +303,7 @@
   <li>
     <p><strong>客户端感知分区与节点的分配关系。</strong>此时客户端可以直接连接到目标节点，而不需要任何中介。</p>
 
-    <p><img src="/images/ddia_8_7.png" alt="" /></p>
+    <p><img src="/images/ddia/ddia_8_7.png" alt="" /></p>
   </li>
 </ol>
 
@@ -311,7 +311,7 @@
 
 <p>这个问题可以归为共识问题：即<strong>需要对节点与分区的映射关系达成共识</strong>；有些系统直接使用 ZK 这类的协调服务跟踪集群范围内的元数据，一旦分区发生了改变，ZK 就会主动通知路由层，这样使得路由信息保持最新状态。</p>
 
-<p><img src="/images/ddia_8_8.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_8_8.png" alt="" /></p>
 
       <div class="c-article__footer u-clearfix">
         <div class="c-article__tag">
@@ -342,7 +342,19 @@
         
         
           <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/07/10/ddia-7/" style="background-image: url( /images/ddia_7_1.png)"></a>
+            <a class="c-recent__image" href="/2021/07/29/gfs/" style="background-image: url( /images/unknown.jpg)"></a>
+            <div class="c-recent__footer">
+              <h4><a href="/2021/07/29/gfs/">Google File System</a></h4>
+              <div class="c-recent__date">
+                <time datetime="2021-07-29T00:00:00+08:00">July 29, 2021</time>
+              </div>
+            </div>
+          </div>
+        
+        
+        
+          <div class="c-recent__item">
+            <a class="c-recent__image" href="/2021/07/10/ddia-7/" style="background-image: url( /images/ddia/ddia_7_1.png)"></a>
             <div class="c-recent__footer">
               <h4><a href="/2021/07/10/ddia-7/">DDIA: 数据复制（三）</a></h4>
               <div class="c-recent__date">
@@ -354,7 +366,7 @@
         
         
           <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/07/07/ddia-6/" style="background-image: url( /images/ddia_6_1.png)"></a>
+            <a class="c-recent__image" href="/2021/07/07/ddia-6/" style="background-image: url( /images/ddia/ddia_6_1.png)"></a>
             <div class="c-recent__footer">
               <h4><a href="/2021/07/07/ddia-6/">DDIA: 数据复制（二）</a></h4>
               <div class="c-recent__date">
@@ -366,21 +378,9 @@
         
         
           <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/06/29/ddia-5/" style="background-image: url( /images/ddia_5_1.png)"></a>
+            <a class="c-recent__image" href="/2021/06/29/ddia-5/" style="background-image: url( /images/ddia/ddia_5_1.png)"></a>
             <div class="c-recent__footer">
               <h4><a href="/2021/06/29/ddia-5/">DDIA: 数据复制（一）</a></h4>
-              <div class="c-recent__date">
-                <time datetime="2021-06-29T00:00:00+08:00">June 29, 2021</time>
-              </div>
-            </div>
-          </div>
-        
-        
-        
-          <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/06/29/ddia-4/" style="background-image: url( /images/ddia_4.jpg)"></a>
-            <div class="c-recent__footer">
-              <h4><a href="/2021/06/29/ddia-4/">DDIA: 分布式系统摘要</a></h4>
               <div class="c-recent__date">
                 <time datetime="2021-06-29T00:00:00+08:00">June 29, 2021</time>
               </div>

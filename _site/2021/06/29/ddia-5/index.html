@@ -106,7 +106,7 @@
       </div>
     </header>
     
-    <div class="c-article__image o-opacity" style="background-image: url( /images/ddia_5_1.png )"></div>
+    <div class="c-article__image o-opacity" style="background-image: url( /images/ddia/ddia_5_1.png )"></div>
     
     <div class="c-wrap-content">
       <header class="c-article__header">
@@ -143,7 +143,7 @@
   <p>只有主副本可以接受写请求，从副本只读</p>
 </blockquote>
 
-<p><img src="/images/ddia_5_1.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_5_1.png" alt="" /></p>
 
 <h1 id="同步复制与异步复制">同步复制与异步复制</h1>
 
@@ -151,7 +151,7 @@
 
 <p>结合上图的流程，假设用户需要更新自己的首页头像图片，基本流程为：用户将更新请求发送到主节点，主节点收到更新请求并更新自身数据，之后将数据更新发送给从节点。之后，主节点通知用户更新完成。</p>
 
-<p><img src="/images/ddia_5_2.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_5_2.png" alt="" /></p>
 
 <blockquote>
   <p>主从复制，包括一个同步的从节点，一个异步的从节点</p>
@@ -264,7 +264,7 @@
 
 <p>不过，对于异步复制来说，从节点数据存在滞后问题；如果用户在更新数据之后立马查看数据，那么<em>读请求可能会发送到滞后的从节点上</em>，从而无法查看到最新的数据。</p>
 
-<p><img src="/images/ddia_5_3.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_5_3.png" alt="" /></p>
 
 <blockquote>
   <p>用户发起写请求，然后在滞后的副本上读取数据，此时需要 read-after-write 一致性</p>
@@ -284,7 +284,7 @@
 
 <p>对于异步复制还可能出现另一种问题：用户从多个副本进行了多次读取，可能会出现前一次读取返回了较新的数据，后一次读取返回了旧数据；看起来感觉用户数据回滚了。</p>
 
-<p><img src="/images/ddia_5_4.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_5_4.png" alt="" /></p>
 
 <blockquote>
   <p>用户读取到最新内容之后有读到了过期的内容，此时需要单调读一致性</p>
@@ -296,7 +296,7 @@
 
 <h3 id="前缀一致读">前缀一致读</h3>
 
-<p><img src="/images/ddia_5_5.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_5_5.png" alt="" /></p>
 
 <blockquote>
   <p>由于多个从节点的滞后程度不同，导致观察者先看到结果后看到原因</p>
@@ -341,7 +341,19 @@
         
         
           <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/07/11/ddia-8/" style="background-image: url( /images/ddia_8_1.png)"></a>
+            <a class="c-recent__image" href="/2021/07/29/gfs/" style="background-image: url( /images/unknown.jpg)"></a>
+            <div class="c-recent__footer">
+              <h4><a href="/2021/07/29/gfs/">Google File System</a></h4>
+              <div class="c-recent__date">
+                <time datetime="2021-07-29T00:00:00+08:00">July 29, 2021</time>
+              </div>
+            </div>
+          </div>
+        
+        
+        
+          <div class="c-recent__item">
+            <a class="c-recent__image" href="/2021/07/11/ddia-8/" style="background-image: url( /images/ddia/ddia_8_1.png)"></a>
             <div class="c-recent__footer">
               <h4><a href="/2021/07/11/ddia-8/">DDIA: 数据分区</a></h4>
               <div class="c-recent__date">
@@ -353,7 +365,7 @@
         
         
           <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/07/10/ddia-7/" style="background-image: url( /images/ddia_7_1.png)"></a>
+            <a class="c-recent__image" href="/2021/07/10/ddia-7/" style="background-image: url( /images/ddia/ddia_7_1.png)"></a>
             <div class="c-recent__footer">
               <h4><a href="/2021/07/10/ddia-7/">DDIA: 数据复制（三）</a></h4>
               <div class="c-recent__date">
@@ -365,23 +377,11 @@
         
         
           <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/07/07/ddia-6/" style="background-image: url( /images/ddia_6_1.png)"></a>
+            <a class="c-recent__image" href="/2021/07/07/ddia-6/" style="background-image: url( /images/ddia/ddia_6_1.png)"></a>
             <div class="c-recent__footer">
               <h4><a href="/2021/07/07/ddia-6/">DDIA: 数据复制（二）</a></h4>
               <div class="c-recent__date">
                 <time datetime="2021-07-07T00:00:00+08:00">July 7, 2021</time>
-              </div>
-            </div>
-          </div>
-        
-        
-        
-          <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/06/29/ddia-4/" style="background-image: url( /images/ddia_4.jpg)"></a>
-            <div class="c-recent__footer">
-              <h4><a href="/2021/06/29/ddia-4/">DDIA: 分布式系统摘要</a></h4>
-              <div class="c-recent__date">
-                <time datetime="2021-06-29T00:00:00+08:00">June 29, 2021</time>
               </div>
             </div>
           </div>

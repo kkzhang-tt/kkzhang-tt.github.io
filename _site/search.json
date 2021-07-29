@@ -1,6 +1,14 @@
 [
   
     {
+      "title"    : "Google File System",
+      "category" : "system-design",
+      "tags"     : "",
+      "url"      : "/2021/07/29/gfs/",
+      "date"     : "2021-07-29 00:00:00 +0800"
+    } ,
+  
+    {
       "title"    : "DDIA: 数据分区",
       "category" : "ddia",
       "tags"     : "",
@@ -44,7 +52,7 @@
       "title"    : "New Concept English (Lesson 7)",
       "category" : "english-study",
       "tags"     : "",
-      "url"      : "/2021/06/26/nce2_lesson_7/",
+      "url"      : "/2021/06/26/nce_3/",
       "date"     : "2021-06-26 00:00:00 +0800"
     } ,
   
@@ -60,7 +68,7 @@
       "title"    : "New Concept English (Lesson 6)",
       "category" : "english-study",
       "tags"     : "",
-      "url"      : "/2021/06/19/nce2_lesson_6/",
+      "url"      : "/2021/06/19/nce_2/",
       "date"     : "2021-06-19 00:00:00 +0800"
     } ,
   
@@ -92,7 +100,7 @@
       "title"    : "New Concept English (Lesson 1-5)",
       "category" : "english-study",
       "tags"     : "",
-      "url"      : "/2021/06/06/nce2_1/",
+      "url"      : "/2021/06/06/nce_1/",
       "date"     : "2021-06-06 00:00:00 +0800"
     } ,
   

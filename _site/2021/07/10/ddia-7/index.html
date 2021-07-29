@@ -106,7 +106,7 @@
       </div>
     </header>
     
-    <div class="c-article__image o-opacity" style="background-image: url( /images/ddia_7_1.png )"></div>
+    <div class="c-article__image o-opacity" style="background-image: url( /images/ddia/ddia_7_1.png )"></div>
     
     <div class="c-wrap-content">
       <header class="c-article__header">
@@ -129,7 +129,7 @@
 
 <p>对于主从复制模型，主节点失效时，如果想继续处理写操作，那么需要先进行节点切换；对于无主节点模型，则不需要节点切换。</p>
 
-<p><img src="/images/ddia_7_1.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_7_1.png" alt="" /></p>
 
 <ol>
   <li>客户端将<strong>写请求并行发送给三个副本</strong>，有两个副本可以正常处理请求，而失效的副本无法处理。如果两个正常工作的节点可以成功确认写操作，那么客户端收到两个确认之后，即可认为写入成功；完全忽律其中一个副本无法写入的情况。</li>
@@ -180,7 +180,7 @@
   <p>通常，读取与写入总是并行发送到所有的 n 个副本；参数 w &amp; r 只是决定要等待的节点数，即有多少个节点需要返回结果，才能判断出结果的正确性</p>
 </blockquote>
 
-<p><img src="/images/ddia_7_2.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_7_2.png" alt="" /></p>
 
 <p>如果可用节点数小于 w 或者 r，那么写入或者读取就会返回错误。</p>
 
@@ -219,7 +219,7 @@
 
 <p>Dynamo 风格的数据库允许多个客户端同时对相同的记录进行并发写，即使采用严格的 quorum 机制也会发生写冲突；同时，读时修复 &amp; 数据回传也会导致并发冲突。</p>
 
-<p><img src="/images/ddia_7_3.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_7_3.png" alt="" /></p>
 
 <blockquote>
   <p>并发写时缺乏顺序保证</p>
@@ -252,13 +252,13 @@
 
 <p>下面是两个客户端同时向购物车添加商品：</p>
 
-<p><img src="/images/ddia_7_4.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_7_4.png" alt="" /></p>
 
 <blockquote>
   <p>并发操作购物车说明事件的因果关系</p>
 </blockquote>
 
-<p><img src="/images/ddia_7_5.png" alt="" /></p>
+<p><img src="/images/ddia/ddia_7_5.png" alt="" /></p>
 
 <blockquote>
   <p>对应的时序图</p>
@@ -301,7 +301,19 @@
         
         
           <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/07/11/ddia-8/" style="background-image: url( /images/ddia_8_1.png)"></a>
+            <a class="c-recent__image" href="/2021/07/29/gfs/" style="background-image: url( /images/unknown.jpg)"></a>
+            <div class="c-recent__footer">
+              <h4><a href="/2021/07/29/gfs/">Google File System</a></h4>
+              <div class="c-recent__date">
+                <time datetime="2021-07-29T00:00:00+08:00">July 29, 2021</time>
+              </div>
+            </div>
+          </div>
+        
+        
+        
+          <div class="c-recent__item">
+            <a class="c-recent__image" href="/2021/07/11/ddia-8/" style="background-image: url( /images/ddia/ddia_8_1.png)"></a>
             <div class="c-recent__footer">
               <h4><a href="/2021/07/11/ddia-8/">DDIA: 数据分区</a></h4>
               <div class="c-recent__date">
@@ -313,7 +325,7 @@
         
         
           <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/07/07/ddia-6/" style="background-image: url( /images/ddia_6_1.png)"></a>
+            <a class="c-recent__image" href="/2021/07/07/ddia-6/" style="background-image: url( /images/ddia/ddia_6_1.png)"></a>
             <div class="c-recent__footer">
               <h4><a href="/2021/07/07/ddia-6/">DDIA: 数据复制（二）</a></h4>
               <div class="c-recent__date">
@@ -325,21 +337,9 @@
         
         
           <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/06/29/ddia-5/" style="background-image: url( /images/ddia_5_1.png)"></a>
+            <a class="c-recent__image" href="/2021/06/29/ddia-5/" style="background-image: url( /images/ddia/ddia_5_1.png)"></a>
             <div class="c-recent__footer">
               <h4><a href="/2021/06/29/ddia-5/">DDIA: 数据复制（一）</a></h4>
-              <div class="c-recent__date">
-                <time datetime="2021-06-29T00:00:00+08:00">June 29, 2021</time>
-              </div>
-            </div>
-          </div>
-        
-        
-        
-          <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/06/29/ddia-4/" style="background-image: url( /images/ddia_4.jpg)"></a>
-            <div class="c-recent__footer">
-              <h4><a href="/2021/06/29/ddia-4/">DDIA: 分布式系统摘要</a></h4>
               <div class="c-recent__date">
                 <time datetime="2021-06-29T00:00:00+08:00">June 29, 2021</time>
               </div>
