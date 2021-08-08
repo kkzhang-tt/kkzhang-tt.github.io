@@ -1,6 +1,14 @@
 [
   
     {
+      "title"    : "经济学十大原理",
+      "category" : "economics",
+      "tags"     : "",
+      "url"      : "/2021/08/08/principles-of-economics-1/",
+      "date"     : "2021-08-08 00:00:00 +0800"
+    } ,
+  
+    {
       "title"    : "Google File System",
       "category" : "system-design",
       "tags"     : "",
