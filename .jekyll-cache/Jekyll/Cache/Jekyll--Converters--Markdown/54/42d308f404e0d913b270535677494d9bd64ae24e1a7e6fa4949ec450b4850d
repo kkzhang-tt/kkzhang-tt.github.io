@@ -1,0 +1,200 @@
+I"�*<h1 id="keywords">Keywords</h1>
+
+<p>容错(Fault Tolerance)，扩展性(scalability)，数据存储(Data Storage)，集群存储(Clustered Storage)</p>
+
+<h1 id="introduction">Introduction</h1>
+
+<p>GFS 以可用性，可伸缩性，可靠性，性能等作为目标，与之前的分布式文件系统有所区别的是，其设计思路主要结合 Google 内部的实际情况考虑：</p>
+
+<ol>
+  <li>组件失效是正常现象（Normal）而非异常（Exception）
+    <ul>
+      <li>需要支持系统监控，容灾，自动恢复机制</li>
+    </ul>
+  </li>
+  <li>存储的文件通常比较大（Huge）
+    <ul>
+      <li>如果文件块（block）比较小的话（比如以 KB 为单位），那么单个文件需要由很多文件块组成，不利于文件管理，因此文件块的大小需要多方面衡量；大文件的 IO 操作也需要考虑</li>
+    </ul>
+  </li>
+  <li>大多数文件的更新方式为追加（Appending）而不是覆盖写（Overwriting）
+    <ul>
+      <li>文件写完之后多为顺序读，几乎不包含随机写的操作；因此，数据追加操作是性能优化与原子性的主要考量因素</li>
+    </ul>
+  </li>
+  <li>应用程序和文件系统 API 的协同设计提高了整个系统的灵活性（Flexibility）
+    <ul>
+      <li><strong>支持原子性地 Append 操作</strong>，从而保证多个 Client 能够同时进行 File Appending，不需要额外的同步操作来保证一致性</li>
+    </ul>
+  </li>
+</ol>
+
+<h1 id="overview">Overview</h1>
+
+<h2 id="assumptions">Assumptions</h2>
+
+<p>针对上述的情况做进一步说明，阐述整个系统的设计预期：</p>
+
+<ol>
+  <li>系统集群是由许多廉价机器组成，组件失效是比较常见的状态；因此需要实现对整个系统的持续监控，提供冗余并恢复失效的组件</li>
+  <li>系统存储大量的大文件：<strong>文件数量多，文件容量大</strong>；不过也需要支持小文件（但是并不需要针对小文件进行特殊优化）</li>
+  <li>读负载包含两种：<strong>大规模的流式读</strong> &amp; <strong>小规模的随机读</strong>；同一个 Client 的操作通常是同一个文件的连续部分</li>
+  <li>写负载包括：<strong>大规模顺序 Append</strong> &amp; <strong>小规模的随机写</strong>；数据一旦被写入文件就会很少再次修改</li>
+  <li>需要支持多个 Client 并行 Append 数据到同一个文件的语义，即需要<strong>支持原子 Appending</strong></li>
+  <li><strong>高性能，大批量地处理数据</strong>比低延迟更加重要</li>
+</ol>
+
+<h2 id="interface">Interface</h2>
+
+<p>GFS  支持类似 POSIX 标准的 API，包括创建文件，删除文件，打开文件，关闭文件等；同时还支持快照与追加操作。</p>
+
+<blockquote>
+  <p>文件以分层目录的形式组织，并用路径来标识</p>
+</blockquote>
+
+<p>快照可以以较低的成本创建一个文件或者目录树的拷贝；<strong>记录追加允许多个客户端同时对一个文件进行数据追加操作，并保证每个追加操作都是原子性的</strong>。</p>
+
+<blockquote>
+  <p>客户端不需要额外的锁定同步操作就可以完成并行追加文件操作</p>
+</blockquote>
+
+<h2 id="architecture">Architecture</h2>
+
+<p><img src="/images/gfs/gfs_1.png" alt="" /></p>
+
+<p>一个 GFS 集群包含一个 Master 节点，多个 Chunk 服务器，并且同时被多个 Client 访问。</p>
+
+<blockquote>
+  <p>一个 Master 节点是指一个系统中只存在一个逻辑上的 Master 组件，但是该组件可能存在多个副本以实现容灾</p>
+</blockquote>
+
+<p>GFS 中存储的<strong>文件被拆分成多个固定大小的 Chunk 块</strong>。Chunk 创建时，Master 节点会给其分配一个<strong>唯一且不变的 ID</strong>。Chunk 服务器把 Chunk 以 Linux 文件的形式保存在本地磁盘上，并支持<strong>根据 Chunk 标识 &amp; 字节范围进行数据读写</strong>。</p>
+
+<blockquote>
+  <p>为了提高可靠性，<strong>每个 Chunk 都会被复制到多个 Chunk 服务器上</strong></p>
+</blockquote>
+
+<p>Master 节点用于管理 GFS 系统中的元数据，具体包括：</p>
+
+<ol>
+  <li>File NameSpace</li>
+  <li>文件访问控制信息</li>
+  <li><strong>*文件与对应的 Chunk 块列表的映射关系*</strong></li>
+  <li><strong>*Chunk 的位置信息*</strong></li>
+</ol>
+
+<p>除了系统元数据，Master 节点还用于控制系统的活动：</p>
+
+<ol>
+  <li>Chunk 租用管理</li>
+  <li>孤儿 Chunk 的回收</li>
+  <li>Chunk 块在 Chunk 服务器之间的迁移</li>
+</ol>
+
+<p>Master 节点维护与 Chunk 服务器之间的心跳，同时发送指令到各个 Chunk 服务器并接收 Chunk 服务器的状态信息。</p>
+
+<p><strong>Client 与 Master 节点通信用于获取元数据</strong>，对于<strong>文件的数据操作是由 Client 直接与 Chunk 服务器进行交互的</strong>。</p>
+
+<p>Client 与 Chunk 服务器都不需要对文件数据进行缓存：</p>
+
+<ol>
+  <li>Client 一般是以流的方式读取一个很大的文件</li>
+  <li>Chunk 以本地文件的形式保存在 Chunk 服务器上，可以完全依赖 Linux 文件系统的缓存</li>
+</ol>
+
+<h2 id="single-master">Single Master</h2>
+
+<p>上面介绍，整个系统中只有一个 Master 节点；单一 Master 节点简化了系统设计，但是单个节点可能会导致其成为整个系统的瓶颈，因此要尽量减小 Master 的读写压力。</p>
+
+<ul>
+  <li>Client 只会向 Master 询问其应该访问的 Chunk 服务器，并不从 Master 进行文件数据读取</li>
+  <li>Client 会将从 Master 获取的元数据缓存在本地一段时间，后续将直接和 Chunk 服务器进行数据读写操作</li>
+  <li><strong>Client 在向 Master 请求 Chunk 信息时，通常会一次性请求多个 Chunk，而且 Master 响应时也会返回被请求的 Chunk 后面的 Chunk 信息，减小了交互次数</strong></li>
+</ul>
+
+<p>整体的文件读取流程如下：</p>
+
+<ol>
+  <li>
+    <p>Client 把业务程序中指定的文件字节偏移量，<em>根据固定的 Chunk 大小转换为对应的 Chunk 索引</em></p>
+  </li>
+  <li>
+    <p>Client 把 FileName + Chunk Index 发送给 Master 节点</p>
+  </li>
+  <li>
+    <p>Master 将请求的 <em>Chunk 唯一标识与其副本位置信息返回给 Client</em></p>
+  </li>
+  <li>
+    <p>Client 用 <em>FileName + Chunk Index 作为 key 将这些信息缓存在本地</em></p>
+  </li>
+  <li>
+    <p>Client 访问其中较近的 Chunk 副本，请求中携带了 <em>Chunk 唯一标识 + 访问文件的字节范围</em></p>
+
+    <blockquote>
+      <p>之后针对该 Chunk 的访问都不会再访问 Master，除非缓存失效或者文件被重新打开</p>
+    </blockquote>
+  </li>
+</ol>
+
+<h2 id="chunk-size">Chunk Size</h2>
+
+<p>GFS 的 Chunk 大小为 64MB，远远大于一般文件系统的 Block Size(Linux 默认 4KB)；使用较大 Chunk 的原因有：</p>
+
+<ul>
+  <li><strong>减小了 Client 与 Master 之间的交互频率</strong>：在获取 Chunk 信息后就可以对同一个 Chunk 进行多次读写操作，并且不需要再次请求 Master；由于读写负载主要以连续读写大文件为主，因此可以有效降低负载</li>
+  <li>由于使用了较大尺寸的 Chunk，<strong>Client 能够实现对一个 Chunk 的多次操作</strong>，可以通过与 Chunk 服务器之间维护较长时间的 TCP 连接来降低网络负载</li>
+  <li>较大尺寸的 Chunk 能够<strong>减少 Master 需要保存的元数据信息</strong>，有利于将所有元数据加载到内存中</li>
+</ul>
+
+<p>不过，使用较大尺寸的 Chunk 也可能会带来其他问题：对于比较小的文件会包含较小数目的 Chunk，甚至只有一个 Chunk，当有许多 Client 同时对一个 Chunk 进行多次访问时，会导致<strong>存储该 Chunk 的服务器产生热点</strong>。</p>
+
+<blockquote>
+  <p>由于 GFS 中的文件大多都是比较大的文件，因此热点问题并不重要；<em>为了降低热点问题，可以提高 Chunk 的副本数，或者允许 Client 从其他 Client 中读取数据</em></p>
+</blockquote>
+
+<h2 id="metadata">Metadata</h2>
+
+<p>Master 中主要存储了三种元数据，并且<strong>所有元数据都保存在内存中</strong>：</p>
+
+<ol>
+  <li>文件和 Chunk 的命名空间</li>
+  <li><strong>文件和 Chunk 的映射关系</strong></li>
+  <li>每个 Chunk 副本存放的位置信息</li>
+</ol>
+
+<p>前两种元数据信息会以<em>记录变更日志的方式记录在操作系统的系统日志文件中</em>，日志文件存储在本地磁盘上，同时日志会被复制到其它的远程 Master 服务器上；从而降低 Master 服务器崩溃导致数据不一致的风险。</p>
+
+<blockquote>
+  <p>Master 并不会持久化 Chunk 的位置信息，当 Master 节点重新启动时或者有新的 Chunk Server 加入集群时，Master 会向各个 Chunk 服务器轮询它们所存储的 Chunk 信息</p>
+</blockquote>
+
+<h3 id="in-memory-data-structures"><em>In-Memory Data Structures</em></h3>
+
+<p>由于元数据都保存在内存中，因此 Master 的操作速度非常快；但是这种方式会使得 Chunk 的数量及整个系统的承载能力都受限于 Master 的内存大小。</p>
+
+<p>为了减小内存占用，每个 Chunk 只需要 64 个字节的元数据进行管理，每个文件的命名空间所需要的元数据也在 64 个字节以下。</p>
+
+<h3 id="chunk-locations"><em>Chunk Locations</em></h3>
+
+<p>Master 节点并不持久化 Chunk 的位置信息，只会在内存中缓存该信息。</p>
+
+<p>Master 总是维护最新的 Chunk 信息列表：</p>
+
+<ul>
+  <li>Master 控制了 Chunk 的位置分配</li>
+  <li>Master 服务器启动时轮询所有的 Chunk 服务器，以获取当前 Chunk 信息</li>
+  <li>Master 与 Chunk Server 之间维护周期性的心跳，以监控 Chunk 服务器的状态</li>
+</ul>
+
+<blockquote>
+  <p>只将数据缓存在内存中的设计简化了 Chunk Server 发生变更时（新加入集群，离开集群，重启，重命名等），Master 与 Chunk Server 之间的数据同步问题。</p>
+</blockquote>
+
+<h3 id="operation-log"><em>Operation Log</em></h3>
+
+<p>操作日志包含了重要元数据的变更记录，用于 Master Server 的容灾备份。</p>
+
+<p>为了确保数据的完整性，<strong>只有在元数据的变更记录持久化到本地日志文件，并且持久化到其他 Master 节点的磁盘后，才会响应 Client</strong>。</p>
+
+<p>有了操作日志，Master Server 在故障恢复时可以通过日志恢复到最近的系统状态。为了减小 Master 恢复日志的启动时间，当操作日志增长到一定程度之后会进行一次 CheckPoint；所有的状态数据会写入一个 CheckPoint 文件，并且新的 CheckPoint 文件包含之前的所有修改。当 Master 节点进行恢复时，只需要最新的 CheckPoint 文件及其后的日志文件即可。</p>
+:ET
