@@ -106,7 +106,7 @@
       </div>
     </header>
     
-    <div class="c-article__image o-opacity" style="background-image: url( /images/raft.jpg )"></div>
+    <div class="c-article__image o-opacity" style="background-image: url( /images/raft/raft_1.png )"></div>
     
     <div class="c-wrap-content">
       <header class="c-article__header">
@@ -133,7 +133,7 @@
 
 <p>Raft 的节点有三种状态：Leader, Follower, Candidate。在通常情况下，系统中只有一个 Leader 并且其他的节点全部都是 Follower。Follower 都是被动的：他们不会发送任何请求，只是简单的响应来自 Leader 或者 Candidate 的请求。Leader 处理所有的客户端请求（如果一个客户端和 Follower 联系，那么 Follower 会把请求重定向给 Leader ）。</p>
 
-<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/raft_1.png" /></p>
+<p><img src="/images/raft/raft_1.png" alt="" /></p>
 
 <p>各个状态之间的转化如图：</p>
 
@@ -151,7 +151,7 @@
 
 <h2 id="任期">任期</h2>
 
-<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/raft_2.png" /></p>
+<p><img src="/images/raft/raft_2.png" alt="" /></p>
 
 <p>Raft 把时间分割成任意长度的任期，任期用连续的整数标记。任期在 Raft 算法中充当逻辑时钟的作用，在整个时间内单调递增，这会允许服务器节点查明一些过期的信息比如失效的 Leader。任期在 Raft 算法中起着重要的作用；每一个节点存储当前任期号 currentTerm，当节点收到 RPC 通信请求时就会进行比较，做出相关判断</p>
 
@@ -262,7 +262,7 @@
 
 <h3 id="复制流程">复制流程</h3>
 
-<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/raft_3.png" /></p>
+<p><img src="/images/raft/raft_3.png" alt="" /></p>
 
 <p>Leader 选举出来之后就会为客户端提供服务：</p>
 
@@ -275,7 +275,7 @@
 
 <p>在一个集群中，各个节点的日志情况可能如下所示：</p>
 
-<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/raft_4.png" /></p>
+<p><img src="/images/raft/raft_4.png" alt="" /></p>
 
 <blockquote>
   <p>每一个日志条目存储一条状态机指令和从领导人收到这条指令时的任期号，日志中的任期号用来检查是否出现不一致的情况。</p>
@@ -300,7 +300,7 @@
 
 <p>造成这种冲突的原因是之前的 Leader 崩溃，但是没有完全复制日志，使得部分 Follower 可能拥有与新的 Leader 不同的日志；可能的情况如下：</p>
 
-<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/raft_5.png" /></p>
+<p><img src="/images/raft/raft_5.png" alt="" /></p>
 
 <p>在 Raft 算法中，Leader 处理不一致是通过强制跟随者直接复制自己的日志来解决了，这意味着在跟随者中的冲突的日志条目会被领导人的日志覆盖。要使得 Follower 的日志重新与 Leader 保持一致的状态，Leader 必须找到最后两者达成一致的地方，然后删除从那个点之后的所有日志条目，发送自己的日志给 Follower。</p>
 
@@ -353,7 +353,7 @@
 
 <p>当前任期内，如果 Leader 将日志复制到大多数节点上，那么 Leader 就知道该日志可以被提交了；但是当前任期内的 Leader 不能断定前任 Leader 复制到大多数节点的日志就一定已经提交了。</p>
 
-<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/raft_6.png" /></p>
+<p><img src="/images/raft/raft_6.png" alt="" /></p>
 
 <ul>
   <li>在 (a) 中，S1 是 Leader，部分的复制了索引位置 2 的日志条目。</li>
@@ -373,7 +373,7 @@
 
 <p>当集群中需要新增节点或者删除节点，意味着集群配置发生了变更。如果直接将各个节点的集群配置从旧配置切换到新配置是不安全的，因为每个节点的配置切换可能发生在任何时候，那么就可能存在一个时间点使得两个不同的领导人在同一个任期内选举成功；其中一个是通过旧的集群配置，另一个是通过新的集群配置。</p>
 
-<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/raft_7.png" /></p>
+<p><img src="/images/raft/raft_7.png" alt="" /></p>
 
 <p>为了保证安全性，Raft 采用的是两阶段方法：集群先切换到一个过渡的配置，称为共同一致；一旦共同一致已经被提交了，那么系统就切换到新的配置上。共同一致是老配置和新配置的结合：</p>
 
@@ -428,7 +428,7 @@
 
 <p>使用两阶段过渡的方式，C-old 与 C-new 不会同时做出单方面的决定，保证了安全性。</p>
 
-<p><img src="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/raft_8.png" /></p>
+<p><img src="/images/raft/raft_8.png" alt="" /></p>
 
 <h2 id="线性化语义支持">线性化语义支持</h2>
 

@@ -4,7 +4,7 @@ layout: post
 title: "单调栈"
 category: "algrithom"
 author: "kkzhang"
-image: mono_stack.jpg
+image: mono_stack/mono_stack_1.png
 ---
 
 ## 定义

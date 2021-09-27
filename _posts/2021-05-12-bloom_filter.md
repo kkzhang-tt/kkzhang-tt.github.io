@@ -3,7 +3,8 @@
 layout: post
 title: "Bloom Filter"
 author: "kkzhang"
-image: bloom_filter.jpg
+category: "algrithom"
+image: bloom_filter/bloom_filter_1.png
 ---
 
 布隆过滤器是一种概率性的数据结构，主要用于判断一个元素是否出现过。

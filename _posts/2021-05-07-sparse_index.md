@@ -4,7 +4,7 @@ layout: post
 title: "密集索引 VS 稀疏索引"
 author: "kkzhang"
 category: "database"
-image: index.jpg
+image: index/index_1.png
 ---
 
 对于数据库索引来说，其中一个性质是索引可以是密集的，也可以是稀疏的。关于索引类型的选择，需要根据数据库的特性进行权衡（trade-off）。
