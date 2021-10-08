@@ -1,8 +1,8 @@
-I"�*<h1 id="keywords">Keywords</h1>
+I"tG<h1 id="0-keywords">0-Keywords</h1>
 
 <p>容错(Fault Tolerance)，扩展性(scalability)，数据存储(Data Storage)，集群存储(Clustered Storage)</p>
 
-<h1 id="introduction">Introduction</h1>
+<h1 id="1-introduction">1-Introduction</h1>
 
 <p>GFS 以可用性，可伸缩性，可靠性，性能等作为目标，与之前的分布式文件系统有所区别的是，其设计思路主要结合 Google 内部的实际情况考虑：</p>
 
@@ -17,7 +17,7 @@
       <li>如果文件块（block）比较小的话（比如以 KB 为单位），那么单个文件需要由很多文件块组成，不利于文件管理，因此文件块的大小需要多方面衡量；大文件的 IO 操作也需要考虑</li>
     </ul>
   </li>
-  <li>大多数文件的更新方式为追加（Appending）而不是覆盖写（Overwriting）
+  <li><strong>大多数文件的更新方式为追加（Appending）而不是覆盖写</strong>（Overwriting）
     <ul>
       <li>文件写完之后多为顺序读，几乎不包含随机写的操作；因此，数据追加操作是性能优化与原子性的主要考量因素</li>
     </ul>
@@ -29,9 +29,9 @@
   </li>
 </ol>
 
-<h1 id="overview">Overview</h1>
+<h1 id="2-overview">2-Overview</h1>
 
-<h2 id="assumptions">Assumptions</h2>
+<h2 id="21-assumptions">2.1-Assumptions</h2>
 
 <p>针对上述的情况做进一步说明，阐述整个系统的设计预期：</p>
 
@@ -44,21 +44,23 @@
   <li><strong>高性能，大批量地处理数据</strong>比低延迟更加重要</li>
 </ol>
 
-<h2 id="interface">Interface</h2>
+<h2 id="22-interface">2.2-Interface</h2>
 
 <p>GFS  支持类似 POSIX 标准的 API，包括创建文件，删除文件，打开文件，关闭文件等；同时还支持快照与追加操作。</p>
 
 <blockquote>
   <p>文件以分层目录的形式组织，并用路径来标识</p>
+
 </blockquote>
 
 <p>快照可以以较低的成本创建一个文件或者目录树的拷贝；<strong>记录追加允许多个客户端同时对一个文件进行数据追加操作，并保证每个追加操作都是原子性的</strong>。</p>
 
 <blockquote>
   <p>客户端不需要额外的锁定同步操作就可以完成并行追加文件操作</p>
+
 </blockquote>
 
-<h2 id="architecture">Architecture</h2>
+<h2 id="23-architecture">2.3-Architecture</h2>
 
 <p><img src="/images/gfs/gfs_1.png" alt="" /></p>
 
@@ -66,12 +68,14 @@
 
 <blockquote>
   <p>一个 Master 节点是指一个系统中只存在一个逻辑上的 Master 组件，但是该组件可能存在多个副本以实现容灾</p>
+
 </blockquote>
 
 <p>GFS 中存储的<strong>文件被拆分成多个固定大小的 Chunk 块</strong>。Chunk 创建时，Master 节点会给其分配一个<strong>唯一且不变的 ID</strong>。Chunk 服务器把 Chunk 以 Linux 文件的形式保存在本地磁盘上，并支持<strong>根据 Chunk 标识 &amp; 字节范围进行数据读写</strong>。</p>
 
 <blockquote>
   <p>为了提高可靠性，<strong>每个 Chunk 都会被复制到多个 Chunk 服务器上</strong></p>
+
 </blockquote>
 
 <p>Master 节点用于管理 GFS 系统中的元数据，具体包括：</p>
@@ -79,8 +83,8 @@
 <ol>
   <li>File NameSpace</li>
   <li>文件访问控制信息</li>
-  <li><strong>*文件与对应的 Chunk 块列表的映射关系*</strong></li>
-  <li><strong>*Chunk 的位置信息*</strong></li>
+  <li><strong><em>文件与对应的 Chunk 块列表的映射关系</em></strong></li>
+  <li><strong><em>Chunk 的位置信息</em></strong></li>
 </ol>
 
 <p>除了系统元数据，Master 节点还用于控制系统的活动：</p>
@@ -102,7 +106,7 @@
   <li>Chunk 以本地文件的形式保存在 Chunk 服务器上，可以完全依赖 Linux 文件系统的缓存</li>
 </ol>
 
-<h2 id="single-master">Single Master</h2>
+<h2 id="24-single-master">2.4-Single Master</h2>
 
 <p>上面介绍，整个系统中只有一个 Master 节点；单一 Master 节点简化了系统设计，但是单个节点可能会导致其成为整个系统的瓶颈，因此要尽量减小 Master 的读写压力。</p>
 
@@ -115,28 +119,21 @@
 <p>整体的文件读取流程如下：</p>
 
 <ol>
-  <li>
-    <p>Client 把业务程序中指定的文件字节偏移量，<em>根据固定的 Chunk 大小转换为对应的 Chunk 索引</em></p>
-  </li>
-  <li>
-    <p>Client 把 FileName + Chunk Index 发送给 Master 节点</p>
-  </li>
-  <li>
-    <p>Master 将请求的 <em>Chunk 唯一标识与其副本位置信息返回给 Client</em></p>
-  </li>
-  <li>
-    <p>Client 用 <em>FileName + Chunk Index 作为 key 将这些信息缓存在本地</em></p>
-  </li>
+  <li>Client 把业务程序中指定的文件字节偏移量，<em>根据固定的 Chunk 大小转换为对应的 Chunk 索引</em></li>
+  <li>Client 把 FileName + Chunk Index 发送给 Master 节点</li>
+  <li>Master 将请求的 <em>Chunk 唯一标识与其副本位置信息返回给 Client</em></li>
+  <li>Client 用 <em>FileName + Chunk Index 作为 key 将这些信息缓存在本地</em></li>
   <li>
     <p>Client 访问其中较近的 Chunk 副本，请求中携带了 <em>Chunk 唯一标识 + 访问文件的字节范围</em></p>
 
     <blockquote>
       <p>之后针对该 Chunk 的访问都不会再访问 Master，除非缓存失效或者文件被重新打开</p>
+
     </blockquote>
   </li>
 </ol>
 
-<h2 id="chunk-size">Chunk Size</h2>
+<h2 id="25-chunk-size">2.5-Chunk Size</h2>
 
 <p>GFS 的 Chunk 大小为 64MB，远远大于一般文件系统的 Block Size(Linux 默认 4KB)；使用较大 Chunk 的原因有：</p>
 
@@ -150,9 +147,10 @@
 
 <blockquote>
   <p>由于 GFS 中的文件大多都是比较大的文件，因此热点问题并不重要；<em>为了降低热点问题，可以提高 Chunk 的副本数，或者允许 Client 从其他 Client 中读取数据</em></p>
+
 </blockquote>
 
-<h2 id="metadata">Metadata</h2>
+<h2 id="26-metadata">2.6-Metadata</h2>
 
 <p>Master 中主要存储了三种元数据，并且<strong>所有元数据都保存在内存中</strong>：</p>
 
@@ -166,15 +164,16 @@
 
 <blockquote>
   <p>Master 并不会持久化 Chunk 的位置信息，当 Master 节点重新启动时或者有新的 Chunk Server 加入集群时，Master 会向各个 Chunk 服务器轮询它们所存储的 Chunk 信息</p>
+
 </blockquote>
 
-<h3 id="in-memory-data-structures"><em>In-Memory Data Structures</em></h3>
+<h3 id="261-in-memory-data-structures"><em>2.6.1-In-Memory Data Structures</em></h3>
 
 <p>由于元数据都保存在内存中，因此 Master 的操作速度非常快；但是这种方式会使得 Chunk 的数量及整个系统的承载能力都受限于 Master 的内存大小。</p>
 
 <p>为了减小内存占用，每个 Chunk 只需要 64 个字节的元数据进行管理，每个文件的命名空间所需要的元数据也在 64 个字节以下。</p>
 
-<h3 id="chunk-locations"><em>Chunk Locations</em></h3>
+<h3 id="262-chunk-locations"><em>2.6.2-Chunk Locations</em></h3>
 
 <p>Master 节点并不持久化 Chunk 的位置信息，只会在内存中缓存该信息。</p>
 
@@ -188,13 +187,132 @@
 
 <blockquote>
   <p>只将数据缓存在内存中的设计简化了 Chunk Server 发生变更时（新加入集群，离开集群，重启，重命名等），Master 与 Chunk Server 之间的数据同步问题。</p>
+
 </blockquote>
 
-<h3 id="operation-log"><em>Operation Log</em></h3>
+<h3 id="263-operation-log"><em>2.6.3-Operation Log</em></h3>
 
 <p>操作日志包含了重要元数据的变更记录，用于 Master Server 的容灾备份。</p>
 
 <p>为了确保数据的完整性，<strong>只有在元数据的变更记录持久化到本地日志文件，并且持久化到其他 Master 节点的磁盘后，才会响应 Client</strong>。</p>
 
-<p>有了操作日志，Master Server 在故障恢复时可以通过日志恢复到最近的系统状态。为了减小 Master 恢复日志的启动时间，当操作日志增长到一定程度之后会进行一次 CheckPoint；所有的状态数据会写入一个 CheckPoint 文件，并且新的 CheckPoint 文件包含之前的所有修改。当 Master 节点进行恢复时，只需要最新的 CheckPoint 文件及其后的日志文件即可。</p>
+<p>有了操作日志，Master Server 在故障恢复时可以通过日志恢复到最近的系统状态。为了减小 Master 恢复日志的启动时间，当操作日志增长到一定程度之后会进行一次 <strong>CheckPoint</strong>；所有的状态数据会写入一个 CheckPoint 文件，并且新的 CheckPoint 文件包含之前的所有修改。当 Master 节点进行恢复时，只需要<strong>最新的 CheckPoint 文件及其后的日志文件即可</strong>。</p>
+
+<h2 id="27-consistency-model">2.7-Consistency Model</h2>
+
+<p>GFS 支持一个宽松的一致性模型</p>
+
+<ul>
+  <li>对文件 NameSpace 的修改（文件创建，重命名等）是原子性的，由 Master 节点统一控制：<strong>Master 节点通过 NameSpace 锁保证了原子性与正确性</strong>；同时有序的操作日志记录了变更的全局顺序。</li>
+  <li>
+    <p>对文件 Data 的修改分为两种操作：<strong>覆盖写</strong>（Write）&amp; <strong>记录追加</strong>（Record Append）（文件数据操作直接与 Chunk Server 交互）；文件内容修改后的一致性状态取决于修改的类型，成功与否，是否并发修改等。</p>
+
+    <p><img src="/images/gfs/gfs_2.png" alt="" /></p>
+  </li>
+</ul>
+
+<p>GFS 对文件状态有以下几个定义（修改的部分称作 region）：</p>
+
+<ol>
+  <li><strong><em>Consistent</em></strong>: 如果 region 在 Chunk Sever 的多个副本中都相同，即 Client 从各个副本能获取相同的文件内容，那么这个 region 被称为一致的</li>
+  <li><strong><em>Consistent but undefined</em></strong>: region 中的内容虽然在多个 Chunk 副本中一致，但是该 region 中的信息与 Client 预期更新的内容并不相同；比如 Client 想要将文件中的一段内容设置为 abcdefg，但是由于并发修改等原因导致该 region 被更新为 abc123g，与 Client 的预期不一致</li>
+  <li><strong><em>Defined</em></strong>: region 在多个 Chunk 副本中保持一致，并且与 Client 的预期相同，Client 能够正确读取更新的数据</li>
+  <li><strong><em>Inconsistent</em></strong>: 由于更新失败导致多个 Chunk 副本中的 region 信息并不一致</li>
+</ol>
+
+<p>对于覆盖写（Client 指定写入的文件偏移位置）：</p>
+
+<ol>
+  <li>当一个 Client <em>串行修改数据成功</em>后，由于没有其他 Client 干扰，那么修改的 region 就是已定义的(隐含了一致性): 所有的 Client 都可以看到正确写入的内容</li>
+  <li>当多个 Client <em>并行修改数据成功</em>后，大部分情况下，该 region 中会<strong><em>包含来自多个 Client 修改操作的、混杂的数据片段</em></strong>，此时 region 处于一致但是未定义的状态：所有的 Client 看到同样的数据，但是无法正确读到任何一次写入操作写入的数据</li>
+  <li>失败的修改操作导致一个 region 处于不一致状态(同时也是未定义的): 不同的 Client 在不同的时间会看到不同的数据</li>
+</ol>
+
+<p>对于记录追加操作（文件偏移位置由 Chunk Server 主副本指定）：</p>
+
+<ol>
+  <li>不管是单独一个 Client 还是多个 Client 并行执行文件追加操作，<em>GFS 至少可以把数据原子性的追加到文件中一次，并返回给 Client 一个偏移量，表示了包含了写入记录的、已定义的 region 的起点；</em>此时 region 处于已定义的状态</li>
+  <li>在追加操作失败重试期间（重试之后如果成功也会被人为该追加操作是成功的），GFS 可能会在<em>文件中间插入填充数据或者重复记录；</em>这些数据占据的文件 region 被认定是不一致的， 这些数据通常比用户数据小的多。</li>
+</ol>
+
+<p>经过一系列成功的修改操作后，GFS确保被修改的文件region是已定义的，且包含最后一次修改操作的数据。</p>
+
+<h1 id="3-system-interactions">3-System Interactions</h1>
+
+<p>系统设计时尽量减少与 Master 节点的交互，降低其负载。</p>
+
+<h2 id="31-leases-and-mutation-order">3.1-Leases and Mutation Order</h2>
+
+<p>为了保证文件的变更顺序在多个 Chunk 副本之间的一致性，引入了 <strong>Lease 机制</strong>。</p>
+
+<blockquote>
+  <p>每次变更都需要按序在所有 Chunk 副本上执行，才能保证文件的一致性</p>
+
+  <ul>
+    <li>Master 节点与一个 Chunk 副本建立 Lease，该副本被称为主 Chunk</li>
+    <li><em>主 Chunk 会对所有 Chunk 的更新操作进行序列化</em>，所有副本都会按照这个序列进行操作</li>
+  </ul>
+</blockquote>
+
+<p>引入了 Lease 机制后，文件更新的全局顺序为：<strong>首先由 Master 节点选择 Lease 的顺序
+决定，然后由 Lease 中主 Chunk 分配的序列号决定</strong>。</p>
+
+<p>引入 Lease 机制有助于减少 Master 节点的管理负载；Lease 初始值是 60s，当 Chunk 更新时，Lease 可以延长。</p>
+
+<blockquote>
+  <p>Lease 的建立 or 延长 or 取消等操作信息均放在 Master 节点与 Chunk Server 之间维护的心跳中</p>
+
+</blockquote>
+
+<p>Client 进行文件更新操作的流程如下：</p>
+
+<p><img src="/images/gfs/gfs_3.png" alt="" /></p>
+
+<ol>
+  <li>
+    <p>Client 请求 Master 获取持有 Lease 的 Chunk 以及其他 Chunk 副本信息</p>
+
+    <blockquote>
+      <p>如果暂时没有一个 Chunk 持有 Lease，则 Master 节点从 Chunk 副本中选择一个建立 Lease</p>
+
+    </blockquote>
+  </li>
+  <li>
+    <p>Master 将主 Chunk 信息及其他副本信息返回给 Client</p>
+
+    <blockquote>
+      <p>Client 缓存这些数据以便后续使用；并且只有在主 Chunk 不可用，或者主 Chunk 回复信息表明它已不再持有 Lease 的时候，Client 才需要重新与 Master 交互</p>
+
+    </blockquote>
+  </li>
+  <li>
+    <p>Client 把需要修改的文件数据推送到所有 Chunk 副本上</p>
+
+    <blockquote>
+      <p>推送的副本顺序可以任意，可以根据网络拓扑情况进行推送，而不需要关心哪个是主 Chunk；Chunk Server 接收到数据并保存在其内部 LRU 缓存中，直到数据被使用或者过期</p>
+
+    </blockquote>
+  </li>
+  <li>
+    <p>当所有的 Chunk 副本都确认收到数据之后，Client 再次发送写请求到主 Chunk</p>
+
+    <blockquote>
+      <p>该写请求中标识了之前推送的数据信息；主 Chunk 收到该写请求后，为其分配一个操作序列号（所有 Client 请求会被分配连续的序列号），该序列号保证了操作的顺序；之后，主 Chunk 按照操作序列依次将变更操作应用到本地，并更新自身记录状态</p>
+
+    </blockquote>
+  </li>
+  <li>主 Chunk 把变更请求发送到其他副本中；每个副本依照主 Chunk 分配的序列号以相同的顺序执行</li>
+  <li>其他副本执行完成后，回复主 Chunk</li>
+  <li>
+    <p>主 Chunk 将变更操作的结果返回给 Client</p>
+
+    <blockquote>
+      <p>任何副本产生的任何错误都会返回 Client；在出现错误的情况下，变更操作可能在主 Chunk 和一些二级副本中执行成功，（如果操作在主 Chunk 上失败了，操作就不会被分配序列
+ 号，也不会被传递）那么 Client 的请求被确认为失败，被修改的 region 处于不一致的状态。Client 通过重复执行失败的操作来处理这样的错误。在从头开始重复执行之前，客户机会先从 3 → 7 做几次尝试。</p>
+
+    </blockquote>
+  </li>
+</ol>
+
+<p>在上述流程中，如果一次变更操作写入的数据量很大，或者数据跨越了多个 Chunk，那么 GFS Client 会将其拆分成多个写入操作。</p>
 :ET
