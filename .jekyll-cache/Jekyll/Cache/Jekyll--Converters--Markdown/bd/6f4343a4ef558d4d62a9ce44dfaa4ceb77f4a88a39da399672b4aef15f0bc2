@@ -1,0 +1,234 @@
+I"�<p>一个句子中只能有一个谓语动词，但是如果需要出现其他动词，则该动词需要被降级。降级的方式有：</p>
+
+<ul>
+  <li><strong>非谓语动词形态</strong></li>
+  <li>从句形态
+    <ul>
+      <li>The boy <em>who is crying</em> said this.</li>
+    </ul>
+  </li>
+  <li>从属连词
+    <ul>
+      <li>例如 because, although 等（and 数据并列句子，不属于从属）</li>
+      <li>为什么 although 与 but 不能连用，因为这样相当于两个句子都被降级为从句了，没有主干</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="非谓语动词">非谓语动词</h2>
+
+<p>非谓语动词，又叫非限定动词，指在句子中<strong><em>不是谓语的动词</em></strong>，主要包括</p>
+
+<ul>
+  <li><strong>不定式: to do</strong></li>
+  <li><strong>动名词: doing</strong></li>
+  <li><strong>分词: 过去分词 done/ 现在分词 doing</strong></li>
+</ul>
+
+<blockquote>
+  <p>非谓语动词除了<strong><em>不能独立作谓语</em></strong>外，可以承担句子的其他成分。</p>
+
+</blockquote>
+
+<p>非谓语动词的使用需要考虑两种因素：主动被动 &amp; 时态</p>
+
+<h3 id="语态">语态</h3>
+
+<blockquote>
+  <p>先<strong>确定非谓语动词的逻辑主语</strong>，之后再确定它们之间是主动还是被动关系</p>
+
+</blockquote>
+
+<p>下面是非谓语动词的一般时态：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>不定式( to do )</th>
+      <th>动名词( doing )</th>
+      <th>过去分词( done )/现在分词与动名词一致</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>含义</td>
+      <td>要做未做（目的或者意愿）</td>
+      <td>正在进行中</td>
+      <td>已经完成</td>
+    </tr>
+    <tr>
+      <td>一般时态主动</td>
+      <td>to do It is a new world to change.</td>
+      <td>doing This is a changing world.</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>一般时态被动</td>
+      <td>to be done It is a new world to be changed.</td>
+      <td>being done This is a world being changed by globalization.</td>
+      <td>done This is a changed world.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>上面几个句子中非谓语动词 change 的逻辑主语都是 world，因此需要确定 world 与 change 之间的关系；如：</p>
+
+<ul>
+  <li>This is a changing world.
+    <ul>
+      <li>world 和 change 是主动关系，<em>世界正在改变</em>；change 前置于逻辑主语 world</li>
+    </ul>
+  </li>
+  <li>This is a world being changed by globalization
+    <ul>
+      <li>world 和 change 是被动关系，<em>世界正在被改变</em>；change 后置于逻辑主语 world</li>
+    </ul>
+  </li>
+</ul>
+
+<p>上面的几个句子中，逻辑主语与非谓语动词都是紧紧挨着的，逻辑主语比较明显；有时候它们是分开的，需要我们自己识别确定逻辑主语。</p>
+
+<ul>
+  <li><em>We</em> have empty bottles <em>to recycle<strong>.</strong></em>
+    <ul>
+      <li>recycle 的逻辑主语是 We，所以用不定式的主动形式</li>
+    </ul>
+  </li>
+  <li>We have empty <em>bottles</em> <em>to be recycled</em>.
+    <ul>
+      <li>recycle 的逻辑主语是 bottles，所以用不定式的被动形式</li>
+    </ul>
+  </li>
+</ul>
+
+<p>最开始说，一个句子只能有一个主语 &amp; 谓语，如果需要引入别的动词，需要对其进行降级。</p>
+
+<ul>
+  <li>My colleague has the report. My colleague teaches English.</li>
+</ul>
+
+<p>对上面的两个句子如果降级为主从的形式，则为：</p>
+
+<ul>
+  <li>My colleague <em>who teaches English</em> has the report.</li>
+</ul>
+
+<p>不过，当定语从句本身较为简单，且只是描述一种状态（teaches）的时候，我们可以将定语从句简化成非谓语动词：</p>
+
+<ul>
+  <li>My colleague <em>teaching English</em> has the report.
+    <ul>
+      <li>colleague 是 teach 的逻辑主语，且为主动形式</li>
+    </ul>
+  </li>
+</ul>
+
+<p>除了上面简单的定语从句可以简化为非谓语形式，也有几种情况的从句可以简化：</p>
+
+<ol>
+  <li><strong>表示原因，并且两个句子主语相同</strong>
+    <ul>
+      <li><em>As I did not receive any message from her</em>, I gave her a phone call.</li>
+      <li><em>Not receiving any message from her</em>, I gave her a phone call.</li>
+    </ul>
+  </li>
+  <li><strong>表示结果</strong>
+    <ul>
+      <li>In Sydney the Chinese team got 28 gold medals, <em>who rank 3th of all counties.</em></li>
+      <li>In Sydney the Chinese team got 28 gold medals <em>ranking 3th of all counties.</em></li>
+    </ul>
+  </li>
+  <li><strong>定语从句为 who+be 或 which+be 的形式</strong>
+    <ul>
+      <li>The book <em>which is written for English teaching</em> came out in the 16th century.</li>
+      <li>The book <em>written for English teaching</em> came out in the 16th century.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="时态">时态</h3>
+
+<p>非谓语动词也有时态，是相对于主干谓语的时间点。</p>
+
+<blockquote>
+  <p>先明确<strong>非谓语动词和主干谓语动词之间的时间关系</strong>，之后再确定非谓语动词的时态</p>
+
+</blockquote>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>不定式( to do)</th>
+      <th>动名词( doing )</th>
+      <th>过去分词( done )/现在分词与动名词一致</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>含义</td>
+      <td>要做未做（目的或者意愿）</td>
+      <td>正在进行中</td>
+      <td>已经完成</td>
+    </tr>
+    <tr>
+      <td>一般时态主动</td>
+      <td>to do</td>
+      <td>doing</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>一般时态被动</td>
+      <td>to be done</td>
+      <td>being done</td>
+      <td>done</td>
+    </tr>
+    <tr>
+      <td>进行时态主动</td>
+      <td>to be doing</td>
+      <td>–</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>进行时态被动</td>
+      <td>to be being done</td>
+      <td>–</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>完成时态主动</td>
+      <td>to have done</td>
+      <td>having done</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>完成时态被动</td>
+      <td>to have been done</td>
+      <td>having been done</td>
+      <td>–</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol>
+  <li>非谓语动词早于主干谓语，则用完成时态</li>
+  <li>非谓语动词与主干谓语同时进行，则用进行时态</li>
+  <li>非谓语动词在主干谓语的将来，则用一般态的不定式</li>
+</ol>
+
+<p>比如：</p>
+
+<ul>
+  <li><em>Having been told</em> this many times, he finally understood it.
+    <ul>
+      <li>进行式的完成时态，并且是被动</li>
+    </ul>
+  </li>
+  <li><em>Not having receiving</em> any message from her, I gave her a phone call.
+    <ul>
+      <li>进行式的完成时态</li>
+    </ul>
+  </li>
+</ul>
+:ET

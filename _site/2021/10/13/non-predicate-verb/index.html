@@ -5,10 +5,10 @@
   <meta http-equiv='X-UA-Compatible' content='IE=edge'>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
 
-  <title>DDIA: 数据复制（二）</title>
+  <title>非谓语动词</title>
   <link rel="icon" href="https://raw.githubusercontent.com/kkzhang-tt/kkzhang-tt.github.io/main/_images/logo.ico" type="image/x-icon">
-  <meta name='description' content="多主节点复制">
-  <link rel='canonical' href="kkzhang-tt.github.io/2021/07/07/ddia-6/">
+  <meta name='description' content="一个句子中只能有一个谓语动词，但是如果需要出现其他动词，则该动词需要被降级。降级的方式有：">
+  <link rel='canonical' href="kkzhang-tt.github.io/2021/10/13/non-predicate-verb/">
   <link rel='alternate' type='application/rss+xml' title='Find a needle in haystack' href="kkzhang-tt.github.io/feed.xml">
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Volkhov:400,700" rel="stylesheet">
@@ -106,128 +106,245 @@
       </div>
     </header>
     
-    <div class="c-article__image o-opacity" style="background-image: url( /images/ddia/ddia_6_1.png )"></div>
+    <div class="c-article__image o-opacity" style="background-image: url( /images/nce/nce_2.jpg )"></div>
     
     <div class="c-wrap-content">
       <header class="c-article__header">
-        <h1 class="c-article__title">DDIA: 数据复制（二）</h1>
+        <h1 class="c-article__title">非谓语动词</h1>
         <div class="c-article__date">
-          <span>2021, Jul 07</span>
+          <span>2021, Oct 13</span>
         </div>
       </header>
-      <h1 id="多主节点复制">多主节点复制</h1>
-
-<p>主从复制的缺点是：只有一个主节点，所有写入都必须经过主节点；那么系统的写入操作可扩展性不强，同时如果主节点异常阶段会使得系统写入被阻塞。</p>
-
-<p>可以根据主从模型进行扩展，配置多个主节点，<strong>每个主节点都可以接受写请求；每个主节点都需要将数据更改转发到其他所有节点</strong>，这种方式被称为<strong>多主节点复制</strong>。</p>
-
-<blockquote>
-  <p>每个主节点同时是其他主节点的从节点</p>
-</blockquote>
-
-<h2 id="适用场景">适用场景</h2>
-
-<h3 id="多数据中心">多数据中心</h3>
-
-<p>在一个数据中心内适用多个主节点没有太大意义，反而使系统更加复杂，比较合适的场景是多数据中心。</p>
-
-<p>为了容忍数据中心级别的故障，可以把数据库的副本横跨多个数据中心。可以<strong>在每个数据中心配置一个主节点；每个数据中心内采用常规的主从复制方案；而在数据中心之间，各个数据中心的主节点来负责同其他数据中心的主节点进行数据交换，更新</strong>。</p>
-
-<blockquote>
-  <p>对于多数据中心，如果采用主从复制，由于主节点只能存在其中一个数据中心内，会导致所有写请求都会经过该中心，反而会影响系统性能</p>
-</blockquote>
-
-<p><img src="/images/ddia/ddia_6_1.png" alt="" /></p>
-
-<blockquote>
-  <p>横跨多数据中心的多主节点复制模型</p>
-</blockquote>
-
-<p>如果数据库还采用了分区，那么不同分区的主副本可能存放在不同的主节点上，但是对于给定的某个分区，只有一个主节点。</p>
-
-<h3 id="多主复制-vs-主从复制">多主复制 VS 主从复制</h3>
-
-<ol>
-  <li>
-    <p>性能</p>
-
-    <p>对于主从复制，每个写请求都需要发送到主节点所在的数据中心，会导致延迟大大增加。</p>
-
-    <p>在多主复制中，每个写操作都可以在本地数据中心操作，然后采用异步复制的方式将更新同步到其他数据中心，性能更好。</p>
-  </li>
-  <li>
-    <p>数据中心失效容忍</p>
-
-    <p>如果主从复制的主节点所在中心失效，那么需要从另一个数据中选取从节点作为主节点。</p>
-
-    <p>在多主节点模型中，每个数据中心都可以独立与其他中心运行；可以等到失效的中心恢复后再将数据同步过去。</p>
-  </li>
-  <li>
-    <p>网络问题容忍</p>
-
-    <p>数据中心之间的通信没有中心内可靠。对于主从复制，写操作是同步操作，对于中心之间的网络稳定性更加依赖；多主节点模型通常采用异步复制，能够更好容忍这类问题。</p>
-  </li>
-</ol>
-
-<p>虽然多主复制有各种优势，但是也有一个很大的缺点：<strong>不同数据中心可能会同时修改相同的数据，因而产生写冲突</strong>。</p>
-
-<h2 id="处理写冲突">处理写冲突</h2>
-
-<p>两个用户同时编辑 wiki 页面，用户 1 将标题从 A 改为 B，同时用户 2 将标题从 A 改成了 C。每个用户都将更新顺利提交到本地主节点，但是当数据被异步复制到对方时，发现存在写冲突。</p>
-
-<p><img src="/images/ddia/ddia_6_2.png" alt="" /></p>
-
-<blockquote>
-  <p>多个主节点同时更新同一条记录产生写冲突</p>
-</blockquote>
-
-<p>处理写冲突的方案有：</p>
-
-<ol>
-  <li>
-    <p>同步与异步冲突检测</p>
-
-    <p>同步冲突检测：等待写请求同步到所有副本后，再通知用户写入成功；但是这样会失去多主节点的优势。</p>
-  </li>
-  <li>
-    <p>避免冲突</p>
-
-    <p>在应用层保证对特定记录的写请求总是通过同一个主节点，这样就不会产生写冲突。</p>
-  </li>
-  <li>
-    <p>收敛于一致状态</p>
-
-    <p>不管是主从复制还是多主复制，至少应该确保数据在所有副本中的最终状态一定是一致的。实现收敛可能有以下方式：</p>
-
-    <ul>
-      <li>每个写入分配 uuid，挑选最高的 id 写入作为胜利者，被称为<strong>最后写入者获胜</strong>。但是这种方式很<strong>容易造成数据丢失</strong>。</li>
-      <li>以某种方式将冲突的值合并，例如按照字母顺序排序后拼接，A/B</li>
-    </ul>
-  </li>
-</ol>
-
-<h3 id="多主复制的拓扑结构">多主复制的拓扑结构</h3>
-
-<p>复制的拓扑结构<em>描述了写请求从一个节点传播到其他节点的通信路径</em>。</p>
-
-<p>常见的拓扑结构有：</p>
-
-<p><img src="/images/ddia/ddia_6_3.png" alt="" /></p>
+      <p>一个句子中只能有一个谓语动词，但是如果需要出现其他动词，则该动词需要被降级。降级的方式有：</p>
 
 <ul>
-  <li>环形拓扑
+  <li><strong>非谓语动词形态</strong></li>
+  <li>从句形态
     <ul>
-      <li>每个节点接收来自前序节点的写入，并将这些写入（加上自己的的写入）转发给后序节点</li>
+      <li>The boy <em>who is crying</em> said this.</li>
     </ul>
   </li>
-  <li>星型拓扑
+  <li>从属连词
     <ul>
-      <li>一个指定的根节点将写入转发给所有其他节点</li>
+      <li>例如 because, although 等（and 数据并列句子，不属于从属）</li>
+      <li>为什么 although 与 but 不能连用，因为这样相当于两个句子都被降级为从句了，没有主干</li>
     </ul>
   </li>
-  <li>全部至全部型
+</ul>
+
+<h2 id="非谓语动词">非谓语动词</h2>
+
+<p>非谓语动词，又叫非限定动词，指在句子中<strong><em>不是谓语的动词</em></strong>，主要包括</p>
+
+<ul>
+  <li><strong>不定式: to do</strong></li>
+  <li><strong>动名词: doing</strong></li>
+  <li><strong>分词: 过去分词 done/ 现在分词 doing</strong></li>
+</ul>
+
+<blockquote>
+  <p>非谓语动词除了<strong><em>不能独立作谓语</em></strong>外，可以承担句子的其他成分。</p>
+
+</blockquote>
+
+<p>非谓语动词的使用需要考虑两种因素：主动被动 &amp; 时态</p>
+
+<h3 id="语态">语态</h3>
+
+<blockquote>
+  <p>先<strong>确定非谓语动词的逻辑主语</strong>，之后再确定它们之间是主动还是被动关系</p>
+
+</blockquote>
+
+<p>下面是非谓语动词的一般时态：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>不定式( to do )</th>
+      <th>动名词( doing )</th>
+      <th>过去分词( done )/现在分词与动名词一致</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>含义</td>
+      <td>要做未做（目的或者意愿）</td>
+      <td>正在进行中</td>
+      <td>已经完成</td>
+    </tr>
+    <tr>
+      <td>一般时态主动</td>
+      <td>to do It is a new world to change.</td>
+      <td>doing This is a changing world.</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>一般时态被动</td>
+      <td>to be done It is a new world to be changed.</td>
+      <td>being done This is a world being changed by globalization.</td>
+      <td>done This is a changed world.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>上面几个句子中非谓语动词 change 的逻辑主语都是 world，因此需要确定 world 与 change 之间的关系；如：</p>
+
+<ul>
+  <li>This is a changing world.
     <ul>
-      <li>每个主节点将其写入同步到其他所有主节点</li>
+      <li>world 和 change 是主动关系，<em>世界正在改变</em>；change 前置于逻辑主语 world</li>
+    </ul>
+  </li>
+  <li>This is a world being changed by globalization
+    <ul>
+      <li>world 和 change 是被动关系，<em>世界正在被改变</em>；change 后置于逻辑主语 world</li>
+    </ul>
+  </li>
+</ul>
+
+<p>上面的几个句子中，逻辑主语与非谓语动词都是紧紧挨着的，逻辑主语比较明显；有时候它们是分开的，需要我们自己识别确定逻辑主语。</p>
+
+<ul>
+  <li><em>We</em> have empty bottles <em>to recycle<strong>.</strong></em>
+    <ul>
+      <li>recycle 的逻辑主语是 We，所以用不定式的主动形式</li>
+    </ul>
+  </li>
+  <li>We have empty <em>bottles</em> <em>to be recycled</em>.
+    <ul>
+      <li>recycle 的逻辑主语是 bottles，所以用不定式的被动形式</li>
+    </ul>
+  </li>
+</ul>
+
+<p>最开始说，一个句子只能有一个主语 &amp; 谓语，如果需要引入别的动词，需要对其进行降级。</p>
+
+<ul>
+  <li>My colleague has the report. My colleague teaches English.</li>
+</ul>
+
+<p>对上面的两个句子如果降级为主从的形式，则为：</p>
+
+<ul>
+  <li>My colleague <em>who teaches English</em> has the report.</li>
+</ul>
+
+<p>不过，当定语从句本身较为简单，且只是描述一种状态（teaches）的时候，我们可以将定语从句简化成非谓语动词：</p>
+
+<ul>
+  <li>My colleague <em>teaching English</em> has the report.
+    <ul>
+      <li>colleague 是 teach 的逻辑主语，且为主动形式</li>
+    </ul>
+  </li>
+</ul>
+
+<p>除了上面简单的定语从句可以简化为非谓语形式，也有几种情况的从句可以简化：</p>
+
+<ol>
+  <li><strong>表示原因，并且两个句子主语相同</strong>
+    <ul>
+      <li><em>As I did not receive any message from her</em>, I gave her a phone call.</li>
+      <li><em>Not receiving any message from her</em>, I gave her a phone call.</li>
+    </ul>
+  </li>
+  <li><strong>表示结果</strong>
+    <ul>
+      <li>In Sydney the Chinese team got 28 gold medals, <em>who rank 3th of all counties.</em></li>
+      <li>In Sydney the Chinese team got 28 gold medals <em>ranking 3th of all counties.</em></li>
+    </ul>
+  </li>
+  <li><strong>定语从句为 who+be 或 which+be 的形式</strong>
+    <ul>
+      <li>The book <em>which is written for English teaching</em> came out in the 16th century.</li>
+      <li>The book <em>written for English teaching</em> came out in the 16th century.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="时态">时态</h3>
+
+<p>非谓语动词也有时态，是相对于主干谓语的时间点。</p>
+
+<blockquote>
+  <p>先明确<strong>非谓语动词和主干谓语动词之间的时间关系</strong>，之后再确定非谓语动词的时态</p>
+
+</blockquote>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>不定式( to do)</th>
+      <th>动名词( doing )</th>
+      <th>过去分词( done )/现在分词与动名词一致</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>含义</td>
+      <td>要做未做（目的或者意愿）</td>
+      <td>正在进行中</td>
+      <td>已经完成</td>
+    </tr>
+    <tr>
+      <td>一般时态主动</td>
+      <td>to do</td>
+      <td>doing</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>一般时态被动</td>
+      <td>to be done</td>
+      <td>being done</td>
+      <td>done</td>
+    </tr>
+    <tr>
+      <td>进行时态主动</td>
+      <td>to be doing</td>
+      <td>–</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>进行时态被动</td>
+      <td>to be being done</td>
+      <td>–</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>完成时态主动</td>
+      <td>to have done</td>
+      <td>having done</td>
+      <td>–</td>
+    </tr>
+    <tr>
+      <td>完成时态被动</td>
+      <td>to have been done</td>
+      <td>having been done</td>
+      <td>–</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol>
+  <li>非谓语动词早于主干谓语，则用完成时态</li>
+  <li>非谓语动词与主干谓语同时进行，则用进行时态</li>
+  <li>非谓语动词在主干谓语的将来，则用一般态的不定式</li>
+</ol>
+
+<p>比如：</p>
+
+<ul>
+  <li><em>Having been told</em> this many times, he finally understood it.
+    <ul>
+      <li>进行式的完成时态，并且是被动</li>
+    </ul>
+  </li>
+  <li><em>Not having receiving</em> any message from her, I gave her a phone call.
+    <ul>
+      <li>进行式的完成时态</li>
     </ul>
   </li>
 </ul>
@@ -237,9 +354,9 @@
           
         </div>
         <div class="c-article__share">
-          <a href="https://twitter.com/intent/tweet?text=DDIA:%20%E6%95%B0%E6%8D%AE%E5%A4%8D%E5%88%B6(%E4%BA%8C)&url=kkzhang-tt.github.io/2021/07/07/ddia-6/" title="Share
+          <a href="https://twitter.com/intent/tweet?text=%E9%9D%9E%E8%B0%93%E8%AF%AD%E5%8A%A8%E8%AF%8D&url=kkzhang-tt.github.io/2021/10/13/non-predicate-verb/" title="Share
           on Twitter" rel="nofollow" target="_blank"><div data-icon='ei-sc-twitter' data-size='s'></div></a>
-          <a href="https://facebook.com/sharer.php?u=kkzhang-tt.github.io/2021/07/07/ddia-6/" title="Share on Facebook" rel="nofollow" target="_blank"><div data-icon='ei-sc-facebook' data-size='s'></div></a>
+          <a href="https://facebook.com/sharer.php?u=kkzhang-tt.github.io/2021/10/13/non-predicate-verb/" title="Share on Facebook" rel="nofollow" target="_blank"><div data-icon='ei-sc-facebook' data-size='s'></div></a>
         </div>
       </div>
       <div class="c-newsletter">
@@ -258,18 +375,6 @@
       <div class="c-recent-post">
         <h4 class="c-recent__title">You might also enjoy</h4>
         <div class="c-recent__box">
-        
-        
-          <div class="c-recent__item">
-            <a class="c-recent__image" href="/2021/10/13/non-predicate-verb/" style="background-image: url( /images/nce/nce_2.jpg)"></a>
-            <div class="c-recent__footer">
-              <h4><a href="/2021/10/13/non-predicate-verb/">非谓语动词</a></h4>
-              <div class="c-recent__date">
-                <time datetime="2021-10-13T00:00:00+08:00">October 13, 2021</time>
-              </div>
-            </div>
-          </div>
-        
         
         
           <div class="c-recent__item">
@@ -302,6 +407,18 @@
               <h4><a href="/2021/07/11/ddia-8/">DDIA: 数据分区</a></h4>
               <div class="c-recent__date">
                 <time datetime="2021-07-11T00:00:00+08:00">July 11, 2021</time>
+              </div>
+            </div>
+          </div>
+        
+        
+        
+          <div class="c-recent__item">
+            <a class="c-recent__image" href="/2021/07/10/ddia-7/" style="background-image: url( /images/ddia/ddia_7_1.png)"></a>
+            <div class="c-recent__footer">
+              <h4><a href="/2021/07/10/ddia-7/">DDIA: 数据复制（三）</a></h4>
+              <div class="c-recent__date">
+                <time datetime="2021-07-10T00:00:00+08:00">July 10, 2021</time>
               </div>
             </div>
           </div>

@@ -117,6 +117,21 @@
   
   <article class="c-post">
     
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_4_1.png)"
+        href="/2021/06/29/ddia-4/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/29/ddia-4/">DDIA: 分布式系统摘要</a>
+      </h2>
+      <!-- <p>为什么需要分布式系统？ 扩展性 当数据量或者读写负载超过了单台机器的处理上限，需要将负载分到多台机器上去 容错与高可用性 如果单台机器出现故障，我们却希望整个系统继续提供服务，那么需要采用多台机器进行冗余。这样当某些节点失效后，其他节点可以迅速接管。 延迟考虑 假设客户端遍布世界各地，通常需要考虑在全球范围内部署服务，以便用户就近访问最近的提供服务的节点，从而减小延迟。 扩展系统能力 当负载增加到需要更强的处理能力时，最简单的方法是使用配置更好的机器（垂直扩展）。由一个残做系统管理跟多的 CPU，内存，磁盘等，通过内部总线去连接；这样一个共享内存的架构中，所有组件的集合可以看作一个超大的机器。 共享内存架构的弊端： 成本增长过快：有时候硬件指标提升了两倍，但是性能并不一定提升两倍；那么就会需要更多的配置 有限的容错能力：无法提供异地容错的能力 无共享结构 无共享结构也被称为水平扩展，其中各个节点之间的通信全部通过传统的网络，不需要特殊的硬件，并且核心逻辑主要依靠软件来实现。...</p> -->
+      <span class="c-post-date">2021, Jun 29&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
     <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/nce/nce_3.jpg)"
         href="/2021/06/26/nce_3/"></a>
     
@@ -202,21 +217,6 @@
       <!-- <p>在分布式系统中，比较重要的抽象概念是共识：所有节点就某一项提议达成一致。 共识在分布式系统中有许多应用场景：比如，对于一个主从复制的数据库集群，如果主节点发生失效，那么就需要切换到另一个节点，而新的主节点的选举就可以采用共识算法来实现。共识算法能够保证在某一时刻，只有一个主节点。 如果两个节点都认为自己是主节点，就会发生脑裂，导致数据丢失，而共识算法能够保证这种异常不会发生 一致性保证 在多副本数据库的复制中（主从复制，多主节点复制，无主节点复制），如果在同一时刻同时访问集群中的两个不同节点，可能会看到不一样的数据，造成这种现象的原因是写请求会在不同的时间到达不同的节点，导致同一时刻各个副本的数据存在不一致现象。 不过，大多数系统都提供了最终一致性：在更新之后的一段时间（时间长度未知），最终所有的副本都会保持一致。也就是说这种副本间不一致的现象是短暂的，最终会收敛；但是，这种最终一致性是很弱的保证，无法告诉我们什么时候会收敛完成。 对于这种只能提供弱一致性保证的系统来说，存在一定的局限性。因此，需要更强的一致性保证，不过相应的会导致性能降低等一些问题。 分布式一致性与事务隔离级别中有相似之处，但是还是存在明显的区别：事务隔离性是为了处理并发执行事务时的各种临界条件，而分布式一致性则主要针对延迟和故障等问题来协调副本之间的状态。 可线性化 可线性化使得一个多副本系统看起来好像只有一个数据副本，并且对这个系统的所有操作都是原子的。（可线性化也被称为原子一致性，强一致性等） 在一个可线性化的系统中，一旦某个客户端成功提交写请求，那么之后所有客户端的读请求一定都能看到这个刚刚写入的值。因此，可线性化能够保证读取最近最新的值，而不是过期的值。 如何达到可线性化 为了实现可线性化，需要对系统进行约束：一旦新值被写入或者读取，所有后续的读到看到的是新值 可线性化背后的思想是：使得整个系统看起来好像只有一个数据副本。结合例子，逐步理解可线性化。 下图展示三个客户端在线性化数据库中读写相同的记录...</p> -->
       <span class="c-post-date">2021, Jun 16&nbsp;&nbsp;&nbsp;—&nbsp;</span>
       <span class="c-post-words">1 minute read</span>
-    </div>
-  </article> <!-- /.c-post -->
-  
-  <article class="c-post">
-    
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/nce/nce_1.jpg)"
-        href="/2021/06/06/nce_1/"></a>
-    
-    <div class="c-post-content">
-      <h2 class="c-post-title">
-        <a href="/2021/06/06/nce_1/">New Concept English (Lesson 1-5)</a>
-      </h2>
-      <!-- <p>Lesson 1 A Private Conversation Last week I went to the theatre. I had a...</p> -->
-      <span class="c-post-date">2021, Jun 06&nbsp;&nbsp;&nbsp;—&nbsp;</span>
-      <span class="c-post-words">5 minute read</span>
     </div>
   </article> <!-- /.c-post -->
   
@@ -332,14 +332,14 @@
         
         
         <div class="c-categories__img">
-          <figure style="background-image: url('/images/nce/nce_3.jpg');"></figure>
+          <figure style="background-image: url('/images/nce/nce_2.jpg');"></figure>
           <span class="c-categories__more">View all</span>
         </div>
         
         
         <div class="c-categories__container ">
           <h2 class="c-categories__header">english-study</h2>
-          <p class="c-categories__count"><span>3</span> Posts</p>
+          <p class="c-categories__count"><span>4</span> Posts</p>
         </div>
       </a>
     </li>

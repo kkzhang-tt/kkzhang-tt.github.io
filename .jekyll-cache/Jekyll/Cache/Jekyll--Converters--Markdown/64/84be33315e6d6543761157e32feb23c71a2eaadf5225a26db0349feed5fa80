@@ -1,4 +1,4 @@
-I"tG<h1 id="0-keywords">0-Keywords</h1>
+I"�<h1 id="0-keywords">0-Keywords</h1>
 
 <p>容错(Fault Tolerance)，扩展性(scalability)，数据存储(Data Storage)，集群存储(Clustered Storage)</p>
 
@@ -315,4 +315,256 @@
 </ol>
 
 <p>在上述流程中，如果一次变更操作写入的数据量很大，或者数据跨越了多个 Chunk，那么 GFS Client 会将其拆分成多个写入操作。</p>
+
+<h2 id="32-data-flow">3.2-Data Flow</h2>
+
+<p>为了提高网络效率，GFS 将数据流与控制流分开。</p>
+
+<p><strong>控制流</strong>：Client 将变更请求发送到主 Chunk Server，主 Chunk 把该请求同步到其他 Chunk 副本中顺序执行。</p>
+
+<p><strong>数据流</strong>：Client 把文件数据推送到所有 Chunk 副本上（此时不需要关心哪个是主 Chunk）。</p>
+
+<p>在数据流推送时，为了提高机器的带宽利用率，同时减少数据推送的延迟，<strong>数据沿着一个 Chunk  Server 链顺序推送</strong>，而不是以其它拓扑形式分散推送(如树型拓扑结构)。</p>
+
+<blockquote>
+  <p>线性推送模式下，每台机器所有的出口带宽都用于以最快的速度传输数据，而不是在多个接受者之间分配带宽</p>
+</blockquote>
+
+<p>在推送时，尽量选择一台还没有接收数据，并且离自己最近的 Chunk Server。</p>
+
+<h2 id="33-atomic-record-appends">3.3-Atomic Record Appends</h2>
+
+<p>GFS 提供了一个原子记录追加的操作方式。</p>
+
+<p>对于传统覆盖写的方式，Client 需要指定写入位置的偏移量；如果对同一个 region 进行并发写，可能会导致 region 的尾部包含多个 Client 写入的数据片段。</p>
+
+<blockquote>
+  <p>对于覆盖写，为了保证原子性，需要额外的同步机制，比如分布式锁，用于确保数据能够完整地写入</p>
+</blockquote>
+
+<p>使用记录追加的方式，Client 只需要指定写入的数据，至于写入的偏移量由 GFS 执行；GFS 保证至少有一次原子写入操作执行成功（即将文件数据正确地追加）。写入的数据追加到 GFS 指定的偏移量处，之后再将该偏移量返回给 Client。</p>
+
+<p>如果追加操作在任何一个副本上执行失败了，Client 需要进行重试。由于重试机制，因此可能会导致同一个 Chunk 在不同副本上的数据不一致：有的副本可能包含重复的数据记录。</p>
+
+<p><strong>GFS 不保证所有的Chunk 副本在 Byte 级别上是一致的，只保证数据作为一个整体至少被原子地写入一次</strong>（可能会失败重试）。</p>
+
+<h1 id="4-master-operation">4-Master Operation</h1>
+
+<p>Master 节点执行的操作有：</p>
+
+<ol>
+  <li>文件 NameSpace 相关的所有操作</li>
+  <li>Chunk 副本管理
+    <ul>
+      <li>Chunk 的存储位置</li>
+      <li>创建新的 Chunk 及相关副本</li>
+      <li>Chunk Server 之间的负载均衡</li>
+      <li>回收不再使用的存储空间</li>
+      <li>…</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="41-namespace-management-and-locking">4.1-Namespace Management and Locking</h2>
+
+<p>GFS 的 NameSpace 就是一个<strong>全路径与元数据（MetaData）的映射</strong>表。通过使用前缀压缩，降低内存占用。</p>
+
+<p>前缀树的<strong><em>每个节点（即文件 or 目录路径）都有关联一个读写锁</em></strong>。每个 Master 操作都需要先获取一系列锁，比如一个操作涉及到 /a/b/c 路径，则首先需要获取到 /a, /a/b 节点的读锁，同时要获取到 /a/b/c 节点的读写锁。</p>
+
+<blockquote>
+  <p>文件的创建操作不需要获取父目录的写锁，只需要读锁即可</p>
+</blockquote>
+
+<p>采用这种锁方案可以<em>支持对同一个目录下的并行操作</em>；比如同一个目录下（/root/kz）同时创建多个文件(a,b,c)：每个创建文件的操作都需要获取目录 /root, /root/kz 的读锁，以及要创建的文件名(a,b,c)的写锁。</p>
+
+<blockquote>
+  <p>创建文件时对目录读锁的获取足够防止目录被删除，重命名等更新操作，对文件的写锁用于防止相同名称的文件多次创建</p>
+</blockquote>
+
+<h2 id="42-replica-placement">4.2-Replica Placement</h2>
+
+<p>Chunk 副本位置的选择有两个目标：</p>
+
+<ul>
+  <li>最大化数据可靠性与可用性</li>
+  <li>最大化网络带宽利用率</li>
+</ul>
+
+<p>为了实现这两个目标，仅仅将副本分散在多个机器上是不够的，这只能预防机器损坏带来的影响及最大化没台机器的带宽利用率。因此，需要在多个机架之间分布存储 Chunk 副本。这样即使一个机架上的机器全部损坏，Chunk 仍然是可用的；网络带宽方面能够有效利用机架的带宽整合。</p>
+
+<h2 id="43-creation--re-replication--rebalancing">4.3-Creation &amp; Re-replication &amp; Rebalancing</h2>
+
+<p>Chunk 副本的创建有三个原因：新建 &amp; 重新复制 &amp; 重新负载均衡。</p>
+
+<h3 id="431-creation"><em>4.3.1-Creation</em></h3>
+
+<p>当<strong><em>新建</em></strong>一个 Chunk 时，Master 需要选择该 Chunk 存放的机器，需要考虑的因素有：</p>
+
+<ul>
+  <li><em>该 Chunk Server 的磁盘使用率低于平均磁盘使用率</em>，用于最终平衡 Chunk Servers 之间的磁盘使用率</li>
+  <li><em>该 Chunk Server 最近创建 Chunk 的次数在限制之内</em>；虽然创建 Chunk 操作是廉价的，但是创建 Chunk 之后意味着在不久之后会有大量数据写入该 Chunk，所以要对 Chunk Server 一段时间内创建 Chunk 的次数进行限制</li>
+  <li>如 4.2 描述的，我们需要将 Chunk 分散在不同的机架上</li>
+</ul>
+
+<h3 id="432-re-replication"><em>4.3.2-Re-replication</em></h3>
+
+<p>当 Chunk 的有效副本数小于用户指定的复制因数时，Master 需要对 Chunk 进行<strong><em>重新复制</em></strong>。出现这个现象的原因有：</p>
+
+<ul>
+  <li>一个 Chunk Server 不可用</li>
+  <li>Chunk Server 上报其存储的一个副本损坏</li>
+  <li>Chunk Server 的一个磁盘损坏</li>
+  <li>Chunk 的复制因数提高了</li>
+  <li>…</li>
+</ul>
+
+<p>同一时间可能有多个 Chunk 需要被重新复制，Master 需要根据一些因素对 Chunk 进行优先级排序，之后选择优先级最高的 Chunk 进行复制。</p>
+
+<ul>
+  <li>Master 命令一个可用的 Chunk Server 直接从可用的副本克隆一个出来，之后再传输到新副本中；新副本的选择与创建 Chunk 时类似</li>
+</ul>
+
+<h3 id="433-rebalancing"><em>4.3.3-Rebalancing</em></h3>
+
+<p>Master 需要周期性的对 Chunk 副本进行负载均衡：首先检查当前的副本分布情况，之后再<strong><em>移动副本</em></strong>以更好地利用机器的磁盘空间，更好地进行负载均衡。</p>
+
+<p>在确定需要移动的副本时，选择 Chunk Server 剩余空间低于平均值的 Chunk 副本；新副本的位置选择与创建时类似。</p>
+
+<h2 id="44-garbage-collection">4.4-Garbage Collection</h2>
+
+<p>GFS 在文件删除后并不会立即回收 Chunk 的物理空间，而是采用惰性删除的策略；<em>只有在文件 &amp; Chunk 级的垃圾回收机制中才会回收其物理空间</em>。</p>
+
+<h3 id="441-mechanism"><em>4.4.1-Mechanism</em></h3>
+
+<ul>
+  <li>
+    <p>当一个文件被用户删除时，Master 节点并不会立即回收文件资源，而是<em>将文件名更新为包含删除时间戳 &amp; 隐藏的名字</em>。</p>
+
+    <blockquote>
+      <p>删除动作同样会记录到 Master 的操作日志中；在文件真正被删除之前，仍然可以通过更新后的特殊文件名进行访问，也可以通过把特殊文件名修改回原来的文件名进行文件恢复</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>Master 节点对文件系统的 NameSpace 做定期扫描时，会删除三天前的所有隐藏文件。</p>
+  </li>
+  <li>
+    <p>当隐藏文件从 NameSpace 中删除后，<em>Master 才会将内存中与这个文件相关的元数据删除，从而切断删除文件与它所包含的 Chunk 之间的连接</em>。</p>
+
+    <blockquote>
+      <p>在对 NameSpace 进行扫描时，Master 会找到孤儿 Chunk（不被任何文件包含的 Chunk），并删除它们的元数据</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>Chunk Server 在与 Master 周期的心跳交互中，会上报其包含的 Chunk 子集信息。<em>Master 会周知 Chunk Server 哪些 Chunk 的元数据已经被删除了</em>；之后，Chunk Server 可以任意删除这些 Chunk 副本。</p>
+  </li>
+</ul>
+
+<h3 id="442-discussion"><em>4.4.2-Discussion</em></h3>
+
+<p>垃圾回收策略相对于直接删除文件有几个优势：</p>
+
+<ol>
+  <li>对于组件失效是常态的大规模分布式系统来说，垃圾回收的方式更加简单可靠
+    <ol>
+      <li>在 Chunk 创建时，有些副本可能会创建成功，有些可能会失败，创建失败的副本处于无法被 Master 节点识别的状态；副本删除消息可能会丢失，Master 需要重新发送删除消息</li>
+      <li>垃圾回收提供了一致的，可靠的清除无用副本的方法</li>
+    </ol>
+  </li>
+  <li>垃圾回收动作为 Master 节点的周期性后台进程，可以在 Master 节点相对空闲的时候进行回收动作，尽量减少 Master 节点的负载</li>
+  <li>对于意外的文件删除动作提供了安全保障</li>
+</ol>
+
+<p>不过，延迟空间回收可能产生的问题：在 Chunk Server 存储空间比较紧缺的时候，会阻碍用户存储空间的调优使用；特别是反复创建删除大量临时文件时。为了降低这个影响，可以为不同的文件设置不同的回收策略。</p>
+
+<h2 id="45-stale-replica-detection">4.5-Stale Replica Detection</h2>
+
+<p>当 Chunk Server 失效时，保存在其中的 Chunk 可能会在其失效期间错过一些修改操作而过期失效。</p>
+
+<p>为了判断 Chunk 是否有效，Master 节点会为每个 Chunk 保存其版本号；<strong>每当与 Chunk 副本签订新的租约时，就会增加 Chunk 的版本号</strong>，然后通知最新的副本。</p>
+
+<blockquote>
+  <p>每个 Chunk 都会被分配唯一的标识；Chunk 的版本号大小用于判断其是否有效</p>
+</blockquote>
+
+<p>新的版本号记录会被 Chunk Server &amp; Master 节点持久化到本地。</p>
+
+<p>当 Chunk Server 与  Master 心跳交互时，会上报其保存的 Chunk 集合及对应的版本号。</p>
+
+<ul>
+  <li>当 Master 发现上报 Chunk 副本的版本号比自己存储的版本号低的时候，就会判定该 Chunk 副本失效；<em>在垃圾回收时会移除所有过期失效的副本</em></li>
+  <li>如果 Master 发现上报的 Chunk 副本版本号中有比自己存储的版本号高的时候，就会认为它和 C hun</li>
+</ul>
+
+<p>当 Client 请求 Master 获取 Chunk 副本信息时，Master 不会下发失效的 Chunk 副本（这些副本会在垃圾回收时移除），并且会告知 Client 当前 Chunk 的最新版本。</p>
+
+<p>Client 与 Chunk Server 在对 Chunk 进行操作前会验证 Chunk 是否有效。</p>
+
+<h1 id="5-fault-tolerance--diagnosis">5-Fault Tolerance &amp; Diagnosis</h1>
+
+<h2 id="51-high-availability">5.1-High Availability</h2>
+
+<p>为了提高集群的可用性，GFS 使用了两条策略：快速恢复 &amp; 复制</p>
+
+<h3 id="511-fast-recovery"><em>5.1.1-Fast Recovery</em></h3>
+
+<p>Master &amp; Chunk Server 在关闭之后能够在几秒内重新启动恢复；重启期间，已经建立的请求会超时，之后会访问新的节点进行重试。</p>
+
+<blockquote>
+  <p>Master 节点存在多个冗余，并且 Master 的操作日志会定时创建 Check Point；Chunk Server 也会定时创建快照</p>
+</blockquote>
+
+<h3 id="512-chunk-replication"><em>5.1.2-Chunk Replication</em></h3>
+
+<p>每个 Chunk 都会被复制到不同机架上的不同机器中，复制因子默认为 3.</p>
+
+<p>当 Chunk Server 离线，或者通过校验发现某一个 Chunk 的数据已被损坏，Master 通过重新克隆最新副本来保证每个 Chunk 数据的完整性。</p>
+
+<h3 id="513-master-replication"><em>5.1.3-Master Replication</em></h3>
+
+<p>虽然 GFS 系统中只有一个 Master 节点进行交互，但是为了提高 Master 的冗余，需要将 Master 的状态复制到其他 Master Server 上。</p>
+
+<p>如果当前 Master 节点失效了，处于 GFS 系统之外的监控进程会<em>选择其他保存完整操作日志的 Mater Server 启动一个新的 Master 进程</em>；之后 Client 的访问会请求到新的 Master 节点上。</p>
+
+<blockquote>
+  <p>GFS  中 Master 的主节点选择不是利用 Raft 等一致性算法，而是其他监控进程进行判断选择</p>
+</blockquote>
+
+<p>Master 节点除了有备份节点，还存在<strong>影子节点</strong>：影子 Master 中的状态会比 Master 主节点慢一些（Master 备份节点与主节点保持同步）；<em>用于在 Master 的主节点失效之后提供文件系统的只读功能</em>。</p>
+
+<blockquote>
+  <p>影子节点会定时从 Master 主节点拉取最新的操作日志并应用到自身状态中，并且也会定时与 Chunk Server 交互获取 Chunk 信息</p>
+</blockquote>
+
+<h2 id="52-data-integrity">5.2-Data Integrity</h2>
+
+<p>每个 Chunk Server 都会<strong><em>使用 Checksum 来检查自己保存的数据</em></strong>是否损坏。不选择通过其他 Chunk 副本来比较检查的原因：</p>
+
+<ul>
+  <li>跨越 Chunk Server 比较副本来检查数据是否损坏很不实际</li>
+  <li>GFS 允许有歧义的 Chunk 副本存在；Chunk 在进行原子追加时，不能保证 Byte 级别的一致性，因此各个 Chunk 副本可能会不一致</li>
+</ul>
+
+<p>每个 Chunk 被划分为 64KB 的块，每个块都对应一个 32 位的 Checksum（保存在内存中，同时也记录在操作日志中）。在将 Chunk 数据返回给 Client 或者其他 Chunk Server 之前，都会根据 Checksum 校验数据是否正确。</p>
+
+<p>如果某一块数据错误，则返回异常，并将这个错误上报到 Master。收到错误之后，<strong>*Client 或者其他 Chunk Server 会从其他副本读取数据；Master 会从其他 Chunk 副本克隆数据进行恢复*</strong>。</p>
+
+<blockquote>
+  <p>当 Chunk 副本恢复之后，<em>Master 会通知副本错误的 Chunk Server 删除掉错误副本</em></p>
+</blockquote>
+
+<p>在 Chunk Server 负载较低的时候，它会定期扫描 &amp; 检验每个不活跃的 Chunk 副本的内容。一旦发现存在损坏的 Chunk，就会上报给 Master；从而可以创建一个新的，正确的 Chunk 副本；之后再把损坏的数据删除。</p>
+
+<blockquote>
+  <p>Checksum 在 Chunk Server 的磁盘中保存；同时也会保存每个 Chunk 的最新版本号</p>
+</blockquote>
+
+<h1 id="6-conclusions">6-Conclusions</h1>
+
+<p>GFS 设计思路中，组件失效是常态；大文件写入采用 Append 的方式优化性能；通过持续监控，复制关键数据，快速和自动恢复提供灾难冗余。</p>
+
+<p>GFS 并没有在文件系统层面提供任何 Cache 机制，因为 Client 几乎不会重复读取数据，其读取方式要么是流式的读取一个大型的数据集，要么是在大型的数据集中随机 Seek 到某个位置，之后每次读取少量的数据。</p>
+
+<p>分布式文件管理方面，并没有采用一致性算法来保证数据的一致性，而是采用中心节点的方式，这样简化了设计，提高可靠性，可扩展性。</p>
+
+<p>为了实现大量的并发读写操作仍能够提供很高的吞吐量，采用控制流与数据流分离的设计方案。控制流在 Master 处理，数据流在 Client 与 Chunk Server 中处理。为了降低 Master 的负载，选择了较大尺寸的 Chunk；同时，通过 Lease 机制选择 Chunk 主副本，从而将控制权从 Master 转移到主 Chunk Server 中。</p>
 :ET

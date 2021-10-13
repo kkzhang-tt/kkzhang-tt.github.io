@@ -117,6 +117,21 @@
   
   <article class="c-post">
     
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/nce/nce_2.jpg)"
+        href="/2021/10/13/non-predicate-verb/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/10/13/non-predicate-verb/">非谓语动词</a>
+      </h2>
+      <!-- <p>一个句子中只能有一个谓语动词，但是如果需要出现其他动词，则该动词需要被降级。降级的方式有： 非谓语动词形态 从句形态 The boy who is crying said this. 从属连词 例如 because, although 等（and...</p> -->
+      <span class="c-post-date">2021, Oct 13&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">2 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
     <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/economics/economics_1.png)"
         href="/2021/08/08/principles-of-economics-1/"></a>
     
@@ -141,7 +156,7 @@
       </h2>
       <!-- <p>0-Keywords 容错(Fault Tolerance)，扩展性(scalability)，数据存储(Data Storage)，集群存储(Clustered Storage) 1-Introduction GFS 以可用性，可伸缩性，可靠性，性能等作为目标，与之前的分布式文件系统有所区别的是，其设计思路主要结合 Google 内部的实际情况考虑： 组件失效是正常现象（Normal）而非异常（Exception） 需要支持系统监控，容灾，自动恢复机制 存储的文件通常比较大（Huge） 如果文件块（block）比较小的话（比如以 KB...</p> -->
       <span class="c-post-date">2021, Jul 29&nbsp;&nbsp;&nbsp;—&nbsp;</span>
-      <span class="c-post-words">4 minute read</span>
+      <span class="c-post-words">6 minute read</span>
     </div>
   </article> <!-- /.c-post -->
   
@@ -200,21 +215,6 @@
         <a href="/2021/06/29/ddia-5/">DDIA: 数据复制（一）</a>
       </h2>
       <!-- <p>复制主要是指通过网络在多台机器上保存相同的数据副本。通过数据复制，我们期望能够达到以下目的： 降低访问延迟：使数据在地理位置上更接近用户 提高可用性（容错）：当部分节点异常，系统仍然可以继续提供服务 提高读吞吐量：多个数据副本可以同时提供数据访问服务 在讨论数据复制时，假设集群中的每一台机器都能保存完整的数据集副本。 数据复制的难点在于如何处理持续更新的数据；常见的数据复制方法有三种：主从复制，多主节点复制，无主节点复制。 主从复制 每个保存数据库完整数据集的节点称为副本。当存在多个副本，如何保证不同副本之间的数据一致性是需要考虑的问题。常见的解决方案基于主从复制，其基本流程如下： 指定某个副本为主副本。当客户端写数据时，必须将写请求发送给主节点；而主节点首先将数据写入本地存储 其他副本称为从副本。主节点将新数据写入本地之后，再将数据更改作为复制的日志或者更改流发送给所有的从副本。每个从副本获得更改日志后将其应用到本地，并且严格保持与主副本相同的写入顺序。 客户端从数据库中读数据时，可以在主副本或者从副本上执行查询。 只有主副本可以接受写请求，从副本只读 同步复制与异步复制 在将数据由主节点复制到从节点时，可以选择使用同步复制还是异步复制。 结合上图的流程，假设用户需要更新自己的首页头像图片，基本流程为：用户将更新请求发送到主节点，主节点收到更新请求并更新自身数据，之后将数据更新发送给从节点。之后，主节点通知用户更新完成。...</p> -->
-      <span class="c-post-date">2021, Jun 29&nbsp;&nbsp;&nbsp;—&nbsp;</span>
-      <span class="c-post-words">1 minute read</span>
-    </div>
-  </article> <!-- /.c-post -->
-  
-  <article class="c-post">
-    
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_4_1.png)"
-        href="/2021/06/29/ddia-4/"></a>
-    
-    <div class="c-post-content">
-      <h2 class="c-post-title">
-        <a href="/2021/06/29/ddia-4/">DDIA: 分布式系统摘要</a>
-      </h2>
-      <!-- <p>为什么需要分布式系统？ 扩展性 当数据量或者读写负载超过了单台机器的处理上限，需要将负载分到多台机器上去 容错与高可用性 如果单台机器出现故障，我们却希望整个系统继续提供服务，那么需要采用多台机器进行冗余。这样当某些节点失效后，其他节点可以迅速接管。 延迟考虑 假设客户端遍布世界各地，通常需要考虑在全球范围内部署服务，以便用户就近访问最近的提供服务的节点，从而减小延迟。 扩展系统能力 当负载增加到需要更强的处理能力时，最简单的方法是使用配置更好的机器（垂直扩展）。由一个残做系统管理跟多的 CPU，内存，磁盘等，通过内部总线去连接；这样一个共享内存的架构中，所有组件的集合可以看作一个超大的机器。 共享内存架构的弊端： 成本增长过快：有时候硬件指标提升了两倍，但是性能并不一定提升两倍；那么就会需要更多的配置 有限的容错能力：无法提供异地容错的能力 无共享结构 无共享结构也被称为水平扩展，其中各个节点之间的通信全部通过传统的网络，不需要特殊的硬件，并且核心逻辑主要依靠软件来实现。...</p> -->
       <span class="c-post-date">2021, Jun 29&nbsp;&nbsp;&nbsp;—&nbsp;</span>
       <span class="c-post-words">1 minute read</span>
     </div>
@@ -332,14 +332,14 @@
         
         
         <div class="c-categories__img">
-          <figure style="background-image: url('/images/nce/nce_3.jpg');"></figure>
+          <figure style="background-image: url('/images/nce/nce_2.jpg');"></figure>
           <span class="c-categories__more">View all</span>
         </div>
         
         
         <div class="c-categories__container ">
           <h2 class="c-categories__header">english-study</h2>
-          <p class="c-categories__count"><span>3</span> Posts</p>
+          <p class="c-categories__count"><span>4</span> Posts</p>
         </div>
       </a>
     </li>
