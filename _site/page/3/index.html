@@ -117,6 +117,21 @@
   
   <article class="c-post">
     
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_2_1.png)"
+        href="/2021/06/16/ddia-2/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/16/ddia-2/">DDIA: 一致性与共识（二）</a>
+      </h2>
+      <!-- <p>顺序保证 顺序也是一个非常重要的概念；事实证明，排序，可线性化，共识之间存在这深刻的联系。 顺序与因果关系 我们研究顺序的一个原因是其有助于保持因果关系。而因果关系对所发生的事件施加了某种排序：发送消息先于收到消息；问题出现在答案之前等。因果关系的依赖链条定义了系统中的因果顺序，即某件事情应该发生在另一个事情之前。 如果系统服从因果关系所规定的顺序，称之为因果一致性。例如，快照隔离提供了因果一致性：读取某些数据时，能够看到该数据的前序事件。 因果顺序并非全序 全序关系支持任何两个元素之间进行比较，即对于集合中的任意两个元素总是可以判断出哪个更大，哪个更小。因果关系并不是全序，而是一种偏序。 可线性化：在一个可线性化系统中，存在全序操作关系。系统的行为好像只有一个数据副本，并且每个操作都是原子性的；这意味着对于任意两个操作，总是可以判断出哪个操作在先；这种全序排列类似于之前的数据库操作时间线。 因果关系：如果两个操作都没有发生在对方之前，那么这两个操作是并发关系。如果两个操作是因果关系，那么这两个事件可以进行排序；而并发的事件无法进行排序。 因此，在可线性化存储中不存在并发操作，一定有个时间线将所有操作全序执行。 可能存在多个请求处于等待处理的状态，但是数据存储保证了在特定的时间点执行特定的操作，所以是单个时间轴，单个数据副本，没有并发。 而因果关系的时间线会出现分支与合并，而不同分支上的操作无法进行直接比较，类似于 git 中的版本记录。 可线性化强于因果关系...</p> -->
+      <span class="c-post-date">2021, Jun 16&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
     <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_1_1.png)"
         href="/2021/06/16/ddia-1/"></a>
     
@@ -205,21 +220,6 @@
     </div>
   </article> <!-- /.c-post -->
   
-  <article class="c-post">
-    
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/index/index_1.png)"
-        href="/2021/05/07/sparse_index/"></a>
-    
-    <div class="c-post-content">
-      <h2 class="c-post-title">
-        <a href="/2021/05/07/sparse_index/">密集索引 VS 稀疏索引</a>
-      </h2>
-      <!-- <p>对于数据库索引来说，其中一个性质是索引可以是密集的，也可以是稀疏的。关于索引类型的选择，需要根据数据库的特性进行权衡（trade-off）。 假设存在以下数据库记录： 该 table 存在四列，并且表中的行记录被分为四页，每页包含四条记录。我们指定 first_name 字段作为索引。 密集索引 从上图我们可以看到，对于密集索引来说，对于表中的每一个 first_name 行记录都会存在一个索引项。如果我们想要查询 first_name 为 Rachelle 的用户，我们需要在索引上执行二分查找，确定该行的位置。...</p> -->
-      <span class="c-post-date">2021, May 07&nbsp;&nbsp;&nbsp;—&nbsp;</span>
-      <span class="c-post-words">1 minute read</span>
-    </div>
-  </article> <!-- /.c-post -->
-  
 </div> <!-- /.c-posts -->
 
 
@@ -230,6 +230,28 @@
 <div class="c-categories" style="display: none;">
   <ul class="c-categories__list u-lists-reset">
       
+    <li class="c-categories__item">
+      
+      <a class="c-categories__link" href="/category/operating/">
+        
+        <div class="c-categories__container ">
+          <h2 class="c-categories__header">Operating</h2>
+          <p class="c-categories__count"><span>0</span> Posts</p>
+        </div>
+      </a>
+    </li>
+    
+    <li class="c-categories__item">
+      
+      <a class="c-categories__link" href="/category/system/">
+        
+        <div class="c-categories__container ">
+          <h2 class="c-categories__header">System</h2>
+          <p class="c-categories__count"><span>0</span> Posts</p>
+        </div>
+      </a>
+    </li>
+    
     <li class="c-categories__item">
       
       <a class="c-categories__link" href="/category/algrithom/">
