@@ -6,6 +6,8 @@ category: "english-study"
 author: "kkzhang"
 image: nce/nce_3.jpg
 ---
+## 1. 概要
+
 动词不定式是一种非谓语动词形式，其结构为 **to do**。
 
 > 其中 to 不是介词，而是动词不定式的符号，称为小品词
@@ -14,7 +16,7 @@ image: nce/nce_3.jpg
 
 *动词不定式和其后面的名词等构成不定式短语*，在句子中可以**用作主语、表语、宾语、定语、状语、补足语、独立成分或与疑问词等连用**.
 
-## 时态 & 语态
+## 2. 时态与语态
 
 | 不定式     | 主动语态           | 被动语态           |
 | ---------- | ------------------ | ------------------ |
@@ -39,9 +41,9 @@ image: nce/nce_3.jpg
 
   > 完成进行式表示***谓语动作发生之前,不定式的动作一直在进行而且可能之后也继续***
 
-## 用法
+## 3. 用法
 
-### 主语
+### 3.1 主语
 
 1. To be a doctor is hard.
 2. To learn English well is not easy.
@@ -53,7 +55,7 @@ image: nce/nce_3.jpg
 1. It is not easy to learn English well.
 2. It is important for students to use English every day.
 
-### 宾语
+### 3.2 宾语
 
 > 动词不定式当宾语的格式为：vt + to do.
 
@@ -73,7 +75,7 @@ image: nce/nce_3.jpg
 - I find it interesting to learn English with you.
 - He found it hard to catch up with others.
 
-### 表语
+### 3.3 表语
 
 > 表语，属于主语补足语，语法名词，是指说明主语的身份、性质、品性、特征和状态的词或从句。表语常由名词、形容词、介词短语、动名词、不定式、副词来充当，它*常位于系动词之后*。
 
@@ -93,7 +95,7 @@ image: nce/nce_3.jpg
    - She is to blame.
    - Something is still to find out.
 
-### 定语
+### 3.4 定语
 
 动词不定式作定语，*放在所修饰的名词或代词后*。与所修饰名词有如下关系:
 
@@ -131,7 +133,7 @@ image: nce/nce_3.jpg
    - The dog found out the way to open the door.
    - I am sure of his ability to cope with this.
 
-### 状语
+### 3.5 状语
 
 > 状语的作用：状语说明地点、时间、原因、目的、结果、条件、方向、程度、方式和伴随状语等。状语一般由副词、介词短语、分词和分词短语、不定式或相当于副词的词或短语来担当。其位置一般放在句首，但也可放在句末或句中。状语是一种用来修饰动词，形容词，副词或全句的词，说明时间，地点，程度，方式等概念。
 
@@ -176,7 +178,7 @@ image: nce/nce_3.jpg
    - It's too dark for us to see anything.
    - The question is simple for him to answer.
 
-### 宾语补足语
+### 3.6 宾语补足语
 
 > 宾语补足语指有些及物动词，接了宾语意义仍不完整，还需要有一个其他的句子成分，来补充说明宾语的意义、状态等，简称宾补。 宾语和它的补足语构成复合宾语。而复合宾语的第一部分通常由名词或代词充当，第二部分表示第一部分的名词或代词发出的动作或身份、特征等。
 

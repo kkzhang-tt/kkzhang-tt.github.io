@@ -6,6 +6,8 @@ category: "english-study"
 author: "kkzhang"
 image: nce/nce_2.jpg
 ---
+## 1. 概要
+
 一个句子中只能有一个谓语动词，但是如果需要出现其他动词，则该动词需要被降级。降级的方式有：
 
 - **非谓语动词形态**
@@ -15,7 +17,7 @@ image: nce/nce_2.jpg
     - 例如 because, although 等（and 数据并列句子，不属于从属）
     - 为什么 although 与 but 不能连用，因为这样相当于两个句子都被降级为从句了，没有主干
 
-## 非谓语动词
+## 2. 非谓语动词
 
 非谓语动词，又叫非限定动词，指在句子中***不是谓语的动词***，主要包括
 
@@ -28,7 +30,7 @@ image: nce/nce_2.jpg
 
 非谓语动词的使用需要考虑两种因素：主动被动 & 时态
 
-### 语态
+### 2.1 语态
 
 > 先**确定非谓语动词的逻辑主语**，之后再确定它们之间是主动还是被动关系
 > 
@@ -80,7 +82,7 @@ image: nce/nce_2.jpg
     - The book *which is written for English teaching* came out in the 16th century.
     - The book *written for English teaching* came out in the 16th century.
 
-### 时态
+### 2.2 时态
 
 非谓语动词也有时态，是相对于主干谓语的时间点。
 
