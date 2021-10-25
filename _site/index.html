@@ -113,7 +113,7 @@
     </div>
   </div>
 </header> <!-- /.c-header -->
-<div class="c-posts o-opacity" data-page="1" data-totalPages="4">
+<div class="c-posts o-opacity" data-page="1" data-totalPages="2">
   
   <article class="c-post">
     
@@ -218,6 +218,201 @@
       <!-- <p>无主节点复制 单主节点 &amp; 多主节点复制中，客户端先向主节点发送写请求，然后系统将写请求复制到其他副本。对于无主节点复制，选择放弃主节点，允许任何副本直接接收来自客户端的请求。 亚马逊的 Dynamo 系统是无主复制的典型 在有些无主节点系统中，客户端直接将写请求发送到多副本；而在另一些系统中，由一个协调者节点代表客户端进行写入。 节点失效时写入数据库 对于主从复制模型，主节点失效时，如果想继续处理写操作，那么需要先进行节点切换；对于无主节点模型，则不需要节点切换。 客户端将写请求并行发送给三个副本，有两个副本可以正常处理请求，而失效的副本无法处理。如果两个正常工作的节点可以成功确认写操作，那么客户端收到两个确认之后，即可认为写入成功；完全忽律其中一个副本无法写入的情况。 失效的节点重新工作后，在其失效期间的数据尚未同步，此时用户可能会访问到过期的数据。因此，当客户端读取数据时，将读请求并行发送给三个副本；多个副本的响应结果可能不同，可以通过版本号等技术确定哪个值更新。 读修复 &amp; 反熵...</p> -->
       <span class="c-post-date">2021, Jul 10&nbsp;&nbsp;&nbsp;—&nbsp;</span>
       <span class="c-post-words">2 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_6_1.png)"
+        href="/2021/07/07/ddia-6/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/07/07/ddia-6/">DDIA: 数据复制（二）</a>
+      </h2>
+      <!-- <p>多主节点复制 主从复制的缺点是：只有一个主节点，所有写入都必须经过主节点；那么系统的写入操作可扩展性不强，同时如果主节点异常阶段会使得系统写入被阻塞。 可以根据主从模型进行扩展，配置多个主节点，每个主节点都可以接受写请求；每个主节点都需要将数据更改转发到其他所有节点，这种方式被称为多主节点复制。 每个主节点同时是其他主节点的从节点 适用场景 多数据中心 在一个数据中心内适用多个主节点没有太大意义，反而使系统更加复杂，比较合适的场景是多数据中心。 为了容忍数据中心级别的故障，可以把数据库的副本横跨多个数据中心。可以在每个数据中心配置一个主节点；每个数据中心内采用常规的主从复制方案；而在数据中心之间，各个数据中心的主节点来负责同其他数据中心的主节点进行数据交换，更新。 对于多数据中心，如果采用主从复制，由于主节点只能存在其中一个数据中心内，会导致所有写请求都会经过该中心，反而会影响系统性能 横跨多数据中心的多主节点复制模型 如果数据库还采用了分区，那么不同分区的主副本可能存放在不同的主节点上，但是对于给定的某个分区，只有一个主节点。 多主复制 VS 主从复制 性能...</p> -->
+      <span class="c-post-date">2021, Jul 07&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_5_1.png)"
+        href="/2021/06/29/ddia-5/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/29/ddia-5/">DDIA: 数据复制（一）</a>
+      </h2>
+      <!-- <p>复制主要是指通过网络在多台机器上保存相同的数据副本。通过数据复制，我们期望能够达到以下目的： 降低访问延迟：使数据在地理位置上更接近用户 提高可用性（容错）：当部分节点异常，系统仍然可以继续提供服务 提高读吞吐量：多个数据副本可以同时提供数据访问服务 在讨论数据复制时，假设集群中的每一台机器都能保存完整的数据集副本。 数据复制的难点在于如何处理持续更新的数据；常见的数据复制方法有三种：主从复制，多主节点复制，无主节点复制。 主从复制 每个保存数据库完整数据集的节点称为副本。当存在多个副本，如何保证不同副本之间的数据一致性是需要考虑的问题。常见的解决方案基于主从复制，其基本流程如下： 指定某个副本为主副本。当客户端写数据时，必须将写请求发送给主节点；而主节点首先将数据写入本地存储 其他副本称为从副本。主节点将新数据写入本地之后，再将数据更改作为复制的日志或者更改流发送给所有的从副本。每个从副本获得更改日志后将其应用到本地，并且严格保持与主副本相同的写入顺序。 客户端从数据库中读数据时，可以在主副本或者从副本上执行查询。 只有主副本可以接受写请求，从副本只读 同步复制与异步复制 在将数据由主节点复制到从节点时，可以选择使用同步复制还是异步复制。 结合上图的流程，假设用户需要更新自己的首页头像图片，基本流程为：用户将更新请求发送到主节点，主节点收到更新请求并更新自身数据，之后将数据更新发送给从节点。之后，主节点通知用户更新完成。...</p> -->
+      <span class="c-post-date">2021, Jun 29&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_4_1.png)"
+        href="/2021/06/29/ddia-4/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/29/ddia-4/">DDIA: 分布式系统摘要</a>
+      </h2>
+      <!-- <p>为什么需要分布式系统？ 扩展性 当数据量或者读写负载超过了单台机器的处理上限，需要将负载分到多台机器上去 容错与高可用性 如果单台机器出现故障，我们却希望整个系统继续提供服务，那么需要采用多台机器进行冗余。这样当某些节点失效后，其他节点可以迅速接管。 延迟考虑 假设客户端遍布世界各地，通常需要考虑在全球范围内部署服务，以便用户就近访问最近的提供服务的节点，从而减小延迟。 扩展系统能力 当负载增加到需要更强的处理能力时，最简单的方法是使用配置更好的机器（垂直扩展）。由一个残做系统管理跟多的 CPU，内存，磁盘等，通过内部总线去连接；这样一个共享内存的架构中，所有组件的集合可以看作一个超大的机器。 共享内存架构的弊端： 成本增长过快：有时候硬件指标提升了两倍，但是性能并不一定提升两倍；那么就会需要更多的配置 有限的容错能力：无法提供异地容错的能力 无共享结构 无共享结构也被称为水平扩展，其中各个节点之间的通信全部通过传统的网络，不需要特殊的硬件，并且核心逻辑主要依靠软件来实现。...</p> -->
+      <span class="c-post-date">2021, Jun 29&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/nce/nce_3.jpg)"
+        href="/2021/06/26/nce_3/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/26/nce_3/">New Concept English (Lesson 7)</a>
+      </h2>
+      <!-- <p>Lesson 7 Too late The plane was late and detectives were waiting at the airport...</p> -->
+      <span class="c-post-date">2021, Jun 26&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">2 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/2021_summary_h1.jpg)"
+        href="/2021/06/22/summary_h1_2021/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/22/summary_h1_2021/">2021 H1 Summary</a>
+      </h2>
+      <!-- <p>最近公司在做半年总结 &amp; 绩效考核，已经写了很多文档，趁着这个机会总结下自己上半年的情况吧 工作 目前在做的项目是 Config Center，在基础组件中，配置中心算是比较底层的模块，经常被其他组件所依赖。 上半年的工作主要集中在两个方向： SDK 功能对齐 &amp; 融合 Server-End 稳定性 &amp;...</p> -->
+      <span class="c-post-date">2021, Jun 22&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/nce/nce_2.jpg)"
+        href="/2021/06/19/nce_2/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/19/nce_2/">New Concept English (Lesson 6)</a>
+      </h2>
+      <!-- <p>Lesson 6 Percy Buttons I have just moved to a house in Bridge Street. Yesterday,...</p> -->
+      <span class="c-post-date">2021, Jun 19&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">3 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_3_1.png)"
+        href="/2021/06/19/ddia-3/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/19/ddia-3/">DDIA: 一致性与共识（三）</a>
+      </h2>
+      <!-- <p>分布式事务与共识 共识问题也是分布式系统中最基本的问题之一，共识的目的是让几个节点就某一事件达成一致。 在许多场景中都需要集群中的节点达成某种一致： 主节点选举 对于主从复制的数据库，需要对谁来充当主节点达成一致。如果由于网络问题使得部分节点之间无法通信，可能会导致两个节点都认为自己是主节点，从而产生数据异常等问题；而共识能够避免这种错误的故障切换。 原子事务提交 对于跨节点或者跨分区的事务，在执行中可能会存在部分节点成功，其他节点失败的情况。为了保证事务的原子性，需要所有节点对事务的执行结果达成一致：要么成功提交，要么失败回滚。 两阶段提交（2PC） 2PC 是一种在多节点之间实现事务原子提交的算法，用来确保所有的节点要么全部提交，要么全部终止。 2PC 引入了一个组件：协调者（事务管理器）；参与分布式事务的数据库节点称为参与者。整体流程如下： 2PC 事务从应用程序在多个数据库节点上执行数据读写开始。当应用程序准备提交事务时，协调者开始阶段 1：发送一个准备请求到所有节点，询问它们是否可以提交，然后等待所有参与者的响应：...</p> -->
+      <span class="c-post-date">2021, Jun 19&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_2_1.png)"
+        href="/2021/06/16/ddia-2/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/16/ddia-2/">DDIA: 一致性与共识（二）</a>
+      </h2>
+      <!-- <p>顺序保证 顺序也是一个非常重要的概念；事实证明，排序，可线性化，共识之间存在这深刻的联系。 顺序与因果关系 我们研究顺序的一个原因是其有助于保持因果关系。而因果关系对所发生的事件施加了某种排序：发送消息先于收到消息；问题出现在答案之前等。因果关系的依赖链条定义了系统中的因果顺序，即某件事情应该发生在另一个事情之前。 如果系统服从因果关系所规定的顺序，称之为因果一致性。例如，快照隔离提供了因果一致性：读取某些数据时，能够看到该数据的前序事件。 因果顺序并非全序 全序关系支持任何两个元素之间进行比较，即对于集合中的任意两个元素总是可以判断出哪个更大，哪个更小。因果关系并不是全序，而是一种偏序。 可线性化：在一个可线性化系统中，存在全序操作关系。系统的行为好像只有一个数据副本，并且每个操作都是原子性的；这意味着对于任意两个操作，总是可以判断出哪个操作在先；这种全序排列类似于之前的数据库操作时间线。 因果关系：如果两个操作都没有发生在对方之前，那么这两个操作是并发关系。如果两个操作是因果关系，那么这两个事件可以进行排序；而并发的事件无法进行排序。 因此，在可线性化存储中不存在并发操作，一定有个时间线将所有操作全序执行。 可能存在多个请求处于等待处理的状态，但是数据存储保证了在特定的时间点执行特定的操作，所以是单个时间轴，单个数据副本，没有并发。 而因果关系的时间线会出现分支与合并，而不同分支上的操作无法进行直接比较，类似于 git 中的版本记录。 可线性化强于因果关系...</p> -->
+      <span class="c-post-date">2021, Jun 16&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_1_1.png)"
+        href="/2021/06/16/ddia-1/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/16/ddia-1/">DDIA: 一致性与共识（一）</a>
+      </h2>
+      <!-- <p>在分布式系统中，比较重要的抽象概念是共识：所有节点就某一项提议达成一致。 共识在分布式系统中有许多应用场景：比如，对于一个主从复制的数据库集群，如果主节点发生失效，那么就需要切换到另一个节点，而新的主节点的选举就可以采用共识算法来实现。共识算法能够保证在某一时刻，只有一个主节点。 如果两个节点都认为自己是主节点，就会发生脑裂，导致数据丢失，而共识算法能够保证这种异常不会发生 一致性保证 在多副本数据库的复制中（主从复制，多主节点复制，无主节点复制），如果在同一时刻同时访问集群中的两个不同节点，可能会看到不一样的数据，造成这种现象的原因是写请求会在不同的时间到达不同的节点，导致同一时刻各个副本的数据存在不一致现象。 不过，大多数系统都提供了最终一致性：在更新之后的一段时间（时间长度未知），最终所有的副本都会保持一致。也就是说这种副本间不一致的现象是短暂的，最终会收敛；但是，这种最终一致性是很弱的保证，无法告诉我们什么时候会收敛完成。 对于这种只能提供弱一致性保证的系统来说，存在一定的局限性。因此，需要更强的一致性保证，不过相应的会导致性能降低等一些问题。 分布式一致性与事务隔离级别中有相似之处，但是还是存在明显的区别：事务隔离性是为了处理并发执行事务时的各种临界条件，而分布式一致性则主要针对延迟和故障等问题来协调副本之间的状态。 可线性化 可线性化使得一个多副本系统看起来好像只有一个数据副本，并且对这个系统的所有操作都是原子的。（可线性化也被称为原子一致性，强一致性等） 在一个可线性化的系统中，一旦某个客户端成功提交写请求，那么之后所有客户端的读请求一定都能看到这个刚刚写入的值。因此，可线性化能够保证读取最近最新的值，而不是过期的值。 如何达到可线性化 为了实现可线性化，需要对系统进行约束：一旦新值被写入或者读取，所有后续的读到看到的是新值 可线性化背后的思想是：使得整个系统看起来好像只有一个数据副本。结合例子，逐步理解可线性化。 下图展示三个客户端在线性化数据库中读写相同的记录...</p> -->
+      <span class="c-post-date">2021, Jun 16&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/nce/nce_1.jpg)"
+        href="/2021/06/06/nce_1/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/06/06/nce_1/">New Concept English (Lesson 1-5)</a>
+      </h2>
+      <!-- <p>Lesson 1 A Private Conversation Last week I went to the theatre. I had a...</p> -->
+      <span class="c-post-date">2021, Jun 06&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">5 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/im/im_1.png)"
+        href="/2021/05/30/im_system/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/05/30/im_system/">IM 系统设计与实现</a>
+      </h2>
+      <!-- <p>该文档是从字节离职后在美团的技术分享 介绍 IM（Instant Messaging 即时通讯）在我们日常生活中扮演者比较重要的角色，为我们的社交提供了很大的便利，我们基本上每天都会使用该系统，比如微信，QQ，大象，钉钉等。 作为 RD，我们可能或多或少思考过这套系统是如何实现的，消息收发流程是什么样的，为什么有些社交软件的群人数存在上限，我将结合之前的开发经验给大家分享一下 IM 背后的简单实现。 思考 在正式介绍 IM 系统实现之前，先给大家抛出一个问题，我个人觉得这个问题虽然看起来简单，但是值得进一步思考。 如何实现微信朋友圈功能？ 在...</p> -->
+      <span class="c-post-date">2021, May 30&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">3 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/raft/raft_1.png)"
+        href="/2021/05/23/raft/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/05/23/raft/">Raft: An Understandable Consensus Algorithm</a>
+      </h2>
+      <!-- <p>概述 Raft 是一种为了管理复制日志的一致性算法（一致性算法允许一组机器像一个整体一样工作，从而能够提供线性一致性，即使其中一些机器出现故障也能够继续工作下去），能够实现与 Paxos 类似的功能，但是实现与理解起来更为简单。 相对于其他一致性算法来说，有一些独特的特性： 强领导者：和其他一致性算法相比，Raft 使用一种更强的领导能力形式。比如，日志条目只从领导者发送给其他的服务器。这种方式简化了对复制日志的管理并且使得 Raft 算法更加易于理解。 领导选举：Raft 算法使用一个随机计时器来选举领导者，通过随机计时器能够有效减少选举过程中的冲突。 成员关系调整：Raft 使用一种共同一致的方法来处理集群成员变换的问题，在这种方法下，处于调整过程中的两种不同的配置集群中大多数机器会有重叠，这就使得集群在成员变换的时候依然可以继续工作。 Raft...</p> -->
+      <span class="c-post-date">2021, May 23&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">4 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/mono_stack/mono_stack_1.png)"
+        href="/2021/05/21/mono_stack/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/05/21/mono_stack/">单调栈</a>
+      </h2>
+      <!-- <p>定义 栈内元素保持单调有序状态的栈称为单调栈（monotonous stack）。 与普通栈一样，只能在栈顶进行入栈/出栈操作。 按照从栈底到栈顶的元素状态，分为递增栈，递减栈；如下： 实现 将一个元素插入单调栈时，为了维护栈的单调性，需要在保证将该元素插入到栈顶后整个栈满足单调性的前提下弹出最少的元素。 例如，栈中自顶向下的元素为 1, 3, 5, 7, 20，插入元素 10 时为了保证单调性需要依次弹出元素...</p> -->
+      <span class="c-post-date">2021, May 21&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">5 minute read</span>
     </div>
   </article> <!-- /.c-post -->
   

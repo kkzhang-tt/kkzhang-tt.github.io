@@ -113,110 +113,80 @@
     </div>
   </div>
 </header> <!-- /.c-header -->
-<div class="c-posts o-opacity" data-page="2" data-totalPages="4">
+<div class="c-posts o-opacity" data-page="2" data-totalPages="2">
   
   <article class="c-post">
     
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_6_1.png)"
-        href="/2021/07/07/ddia-6/"></a>
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/bloom_filter/bloom_filter_1.png)"
+        href="/2021/05/12/bloom_filter/"></a>
     
     <div class="c-post-content">
       <h2 class="c-post-title">
-        <a href="/2021/07/07/ddia-6/">DDIA: 数据复制（二）</a>
+        <a href="/2021/05/12/bloom_filter/">Bloom Filter</a>
       </h2>
-      <!-- <p>多主节点复制 主从复制的缺点是：只有一个主节点，所有写入都必须经过主节点；那么系统的写入操作可扩展性不强，同时如果主节点异常阶段会使得系统写入被阻塞。 可以根据主从模型进行扩展，配置多个主节点，每个主节点都可以接受写请求；每个主节点都需要将数据更改转发到其他所有节点，这种方式被称为多主节点复制。 每个主节点同时是其他主节点的从节点 适用场景 多数据中心 在一个数据中心内适用多个主节点没有太大意义，反而使系统更加复杂，比较合适的场景是多数据中心。 为了容忍数据中心级别的故障，可以把数据库的副本横跨多个数据中心。可以在每个数据中心配置一个主节点；每个数据中心内采用常规的主从复制方案；而在数据中心之间，各个数据中心的主节点来负责同其他数据中心的主节点进行数据交换，更新。 对于多数据中心，如果采用主从复制，由于主节点只能存在其中一个数据中心内，会导致所有写请求都会经过该中心，反而会影响系统性能 横跨多数据中心的多主节点复制模型 如果数据库还采用了分区，那么不同分区的主副本可能存放在不同的主节点上，但是对于给定的某个分区，只有一个主节点。 多主复制 VS 主从复制 性能...</p> -->
-      <span class="c-post-date">2021, Jul 07&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <!-- <p>布隆过滤器是一种概率性的数据结构，主要用于判断一个元素是否出现过。 对于检查一个元素是否出现过的简单实现可能只需要使用 Set。考虑一种场景，假设我们想检查一个用户是否是第一次访问我们的网站，那么使用 Set 的简单实现如下： class VisitorTracker: def __init__(self): self.visitors = set() def add_visitor(self, user_id):...</p> -->
+      <span class="c-post-date">2021, May 12&nbsp;&nbsp;&nbsp;—&nbsp;</span>
       <span class="c-post-words">1 minute read</span>
     </div>
   </article> <!-- /.c-post -->
   
   <article class="c-post">
     
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_5_1.png)"
-        href="/2021/06/29/ddia-5/"></a>
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/index/index_1.png)"
+        href="/2021/05/07/sparse_index/"></a>
     
     <div class="c-post-content">
       <h2 class="c-post-title">
-        <a href="/2021/06/29/ddia-5/">DDIA: 数据复制（一）</a>
+        <a href="/2021/05/07/sparse_index/">密集索引 VS 稀疏索引</a>
       </h2>
-      <!-- <p>复制主要是指通过网络在多台机器上保存相同的数据副本。通过数据复制，我们期望能够达到以下目的： 降低访问延迟：使数据在地理位置上更接近用户 提高可用性（容错）：当部分节点异常，系统仍然可以继续提供服务 提高读吞吐量：多个数据副本可以同时提供数据访问服务 在讨论数据复制时，假设集群中的每一台机器都能保存完整的数据集副本。 数据复制的难点在于如何处理持续更新的数据；常见的数据复制方法有三种：主从复制，多主节点复制，无主节点复制。 主从复制 每个保存数据库完整数据集的节点称为副本。当存在多个副本，如何保证不同副本之间的数据一致性是需要考虑的问题。常见的解决方案基于主从复制，其基本流程如下： 指定某个副本为主副本。当客户端写数据时，必须将写请求发送给主节点；而主节点首先将数据写入本地存储 其他副本称为从副本。主节点将新数据写入本地之后，再将数据更改作为复制的日志或者更改流发送给所有的从副本。每个从副本获得更改日志后将其应用到本地，并且严格保持与主副本相同的写入顺序。 客户端从数据库中读数据时，可以在主副本或者从副本上执行查询。 只有主副本可以接受写请求，从副本只读 同步复制与异步复制 在将数据由主节点复制到从节点时，可以选择使用同步复制还是异步复制。 结合上图的流程，假设用户需要更新自己的首页头像图片，基本流程为：用户将更新请求发送到主节点，主节点收到更新请求并更新自身数据，之后将数据更新发送给从节点。之后，主节点通知用户更新完成。...</p> -->
-      <span class="c-post-date">2021, Jun 29&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <!-- <p>对于数据库索引来说，其中一个性质是索引可以是密集的，也可以是稀疏的。关于索引类型的选择，需要根据数据库的特性进行权衡（trade-off）。 假设存在以下数据库记录： 该 table 存在四列，并且表中的行记录被分为四页，每页包含四条记录。我们指定 first_name 字段作为索引。 密集索引 从上图我们可以看到，对于密集索引来说，对于表中的每一个 first_name 行记录都会存在一个索引项。如果我们想要查询 first_name 为 Rachelle 的用户，我们需要在索引上执行二分查找，确定该行的位置。...</p> -->
+      <span class="c-post-date">2021, May 07&nbsp;&nbsp;&nbsp;—&nbsp;</span>
       <span class="c-post-words">1 minute read</span>
     </div>
   </article> <!-- /.c-post -->
   
   <article class="c-post">
     
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_4_1.png)"
-        href="/2021/06/29/ddia-4/"></a>
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/lsm/lsm_1.png)"
+        href="/2021/05/07/LSM_Tree/"></a>
     
     <div class="c-post-content">
       <h2 class="c-post-title">
-        <a href="/2021/06/29/ddia-4/">DDIA: 分布式系统摘要</a>
+        <a href="/2021/05/07/LSM_Tree/">LSM Tree</a>
       </h2>
-      <!-- <p>为什么需要分布式系统？ 扩展性 当数据量或者读写负载超过了单台机器的处理上限，需要将负载分到多台机器上去 容错与高可用性 如果单台机器出现故障，我们却希望整个系统继续提供服务，那么需要采用多台机器进行冗余。这样当某些节点失效后，其他节点可以迅速接管。 延迟考虑 假设客户端遍布世界各地，通常需要考虑在全球范围内部署服务，以便用户就近访问最近的提供服务的节点，从而减小延迟。 扩展系统能力 当负载增加到需要更强的处理能力时，最简单的方法是使用配置更好的机器（垂直扩展）。由一个残做系统管理跟多的 CPU，内存，磁盘等，通过内部总线去连接；这样一个共享内存的架构中，所有组件的集合可以看作一个超大的机器。 共享内存架构的弊端： 成本增长过快：有时候硬件指标提升了两倍，但是性能并不一定提升两倍；那么就会需要更多的配置 有限的容错能力：无法提供异地容错的能力 无共享结构 无共享结构也被称为水平扩展，其中各个节点之间的通信全部通过传统的网络，不需要特殊的硬件，并且核心逻辑主要依靠软件来实现。...</p> -->
-      <span class="c-post-date">2021, Jun 29&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <!-- <p>介绍 写操作友好，同时兼顾查询效率 多用于 key-value 型 or 日志型数据库 LSM Tree 性能高的原因：采用顺序读写，避免随机读写 不管是 Disk 还是 Memory，顺序读写都能比随机读写有较大的性能提好（甚至是几个数量级） 结构...</p> -->
+      <span class="c-post-date">2021, May 07&nbsp;&nbsp;&nbsp;—&nbsp;</span>
       <span class="c-post-words">1 minute read</span>
     </div>
   </article> <!-- /.c-post -->
   
   <article class="c-post">
     
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/nce/nce_3.jpg)"
-        href="/2021/06/26/nce_3/"></a>
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/pp_2.jpg)"
+        href="/2021/04/11/programming_pearls_2/"></a>
     
     <div class="c-post-content">
       <h2 class="c-post-title">
-        <a href="/2021/06/26/nce_3/">New Concept English (Lesson 7)</a>
+        <a href="/2021/04/11/programming_pearls_2/">编程珠玑（二）</a>
       </h2>
-      <!-- <p>Lesson 7 Too late The plane was late and detectives were waiting at the airport...</p> -->
-      <span class="c-post-date">2021, Jun 26&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <!-- <p>三个问题 给定一个最多包含 40 亿个随机排列的 32 位整数的文件，找出一个不在文件中的 32 位整数（整个文件可能有多个不存在的整数，但是只需要找到一个）。如果给定内存足够，如何处理；如果内存限定在几百字节，但是磁盘容量没有限制，如何处理？ 将一个 n 元一维向量向左旋转 i 个位置。例如，向量 abcdefgh 中...</p> -->
+      <span class="c-post-date">2021, Apr 11&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+      <span class="c-post-words">1 minute read</span>
+    </div>
+  </article> <!-- /.c-post -->
+  
+  <article class="c-post">
+    
+    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/pp_1.jpg)"
+        href="/2021/04/11/programming_pearls_1/"></a>
+    
+    <div class="c-post-content">
+      <h2 class="c-post-title">
+        <a href="/2021/04/11/programming_pearls_1/">编程珠玑（一）</a>
+      </h2>
+      <!-- <p>问题引入 输入：一个最多包含 n 个正整数的文件，每个数都小于 n，其中 n = 10^7。并且输入文件中的正整数没有重复数据，数据之间没有任何关联。 输出：按照升序排列输出整数列表。 约束：最多有 1MB 内存，但是有充足的磁盘空间使用。要求程序运行时间最多有几分钟。 程序设计 磁盘文件归并排序 通过优化基于磁盘的归并排序实现；这种做法需要生成中间文件，并且程序运行时要多次读取中间文件...</p> -->
+      <span class="c-post-date">2021, Apr 11&nbsp;&nbsp;&nbsp;—&nbsp;</span>
       <span class="c-post-words">2 minute read</span>
-    </div>
-  </article> <!-- /.c-post -->
-  
-  <article class="c-post">
-    
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/2021_summary_h1.jpg)"
-        href="/2021/06/22/summary_h1_2021/"></a>
-    
-    <div class="c-post-content">
-      <h2 class="c-post-title">
-        <a href="/2021/06/22/summary_h1_2021/">2021 H1 Summary</a>
-      </h2>
-      <!-- <p>最近公司在做半年总结 &amp; 绩效考核，已经写了很多文档，趁着这个机会总结下自己上半年的情况吧 工作 目前在做的项目是 Config Center，在基础组件中，配置中心算是比较底层的模块，经常被其他组件所依赖。 上半年的工作主要集中在两个方向： SDK 功能对齐 &amp; 融合 Server-End 稳定性 &amp;...</p> -->
-      <span class="c-post-date">2021, Jun 22&nbsp;&nbsp;&nbsp;—&nbsp;</span>
-      <span class="c-post-words">1 minute read</span>
-    </div>
-  </article> <!-- /.c-post -->
-  
-  <article class="c-post">
-    
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/nce/nce_2.jpg)"
-        href="/2021/06/19/nce_2/"></a>
-    
-    <div class="c-post-content">
-      <h2 class="c-post-title">
-        <a href="/2021/06/19/nce_2/">New Concept English (Lesson 6)</a>
-      </h2>
-      <!-- <p>Lesson 6 Percy Buttons I have just moved to a house in Bridge Street. Yesterday,...</p> -->
-      <span class="c-post-date">2021, Jun 19&nbsp;&nbsp;&nbsp;—&nbsp;</span>
-      <span class="c-post-words">3 minute read</span>
-    </div>
-  </article> <!-- /.c-post -->
-  
-  <article class="c-post">
-    
-    <a class="c-post-thumbnail o-opacity" style="background-image: url(/images/ddia/ddia_3_1.png)"
-        href="/2021/06/19/ddia-3/"></a>
-    
-    <div class="c-post-content">
-      <h2 class="c-post-title">
-        <a href="/2021/06/19/ddia-3/">DDIA: 一致性与共识（三）</a>
-      </h2>
-      <!-- <p>分布式事务与共识 共识问题也是分布式系统中最基本的问题之一，共识的目的是让几个节点就某一事件达成一致。 在许多场景中都需要集群中的节点达成某种一致： 主节点选举 对于主从复制的数据库，需要对谁来充当主节点达成一致。如果由于网络问题使得部分节点之间无法通信，可能会导致两个节点都认为自己是主节点，从而产生数据异常等问题；而共识能够避免这种错误的故障切换。 原子事务提交 对于跨节点或者跨分区的事务，在执行中可能会存在部分节点成功，其他节点失败的情况。为了保证事务的原子性，需要所有节点对事务的执行结果达成一致：要么成功提交，要么失败回滚。 两阶段提交（2PC） 2PC 是一种在多节点之间实现事务原子提交的算法，用来确保所有的节点要么全部提交，要么全部终止。 2PC 引入了一个组件：协调者（事务管理器）；参与分布式事务的数据库节点称为参与者。整体流程如下： 2PC 事务从应用程序在多个数据库节点上执行数据读写开始。当应用程序准备提交事务时，协调者开始阶段 1：发送一个准备请求到所有节点，询问它们是否可以提交，然后等待所有参与者的响应：...</p> -->
-      <span class="c-post-date">2021, Jun 19&nbsp;&nbsp;&nbsp;—&nbsp;</span>
-      <span class="c-post-words">1 minute read</span>
     </div>
   </article> <!-- /.c-post -->
   
@@ -224,8 +194,6 @@
 
 
 
-
-  <button class="c-load-more c-btn c-btn--middle">Load more posts</button>
 
 <div class="c-categories" style="display: none;">
   <ul class="c-categories__list u-lists-reset">
