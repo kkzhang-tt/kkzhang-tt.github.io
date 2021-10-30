@@ -1,0 +1,224 @@
+I"�/<h1 id="1-操作系统基本概念">1. 操作系统基本概念</h1>
+
+<p>操作系统是一个基本程序的集合，在这个集合中，最重要的程序称为内核（Kernel）。当操作系统启动时，内核被装载到 RAM 中。内核为操作系统提供了主要功能，一般把“内核”作为“操作系统”的同义词。</p>
+
+<p>操作系统有两个目标：</p>
+
+<ol>
+  <li><strong>与硬件交互</strong>：为硬件平台上的低层可编程部件提供服务</li>
+  <li><strong>为用户程序提供执行环境</strong></li>
+</ol>
+
+<p>当用户程序想要使用硬件资源时，需要向操作系统发送请求；内核对这个请求进行评估，如果允许使用该硬件资源，则由内核代表与相关硬件进行交互。为了实现这种机制，操作系统依靠特殊的硬件机制来禁止用户程序直接与硬件交互；CPU 至少引入了两种执行模式：用户程序的非特权模式 &amp; 内核的特权模式；在 Unix 中分别称为<strong>用户态</strong>（User Model）&amp; <strong>内核态</strong>（Kernel Model）。</p>
+
+<h2 id="11-多用户系统">1.1 多用户系统</h2>
+
+<p>多用户系统（Multiuser System）是指能够<strong>并发</strong>且<strong>独立</strong>地执行分别属于多个用户的应用程序的系统。</p>
+
+<p>并发是多个应用程序能同时处于活动状态并且竞争各种资源，如 CPU，内存，硬盘等。独立是指每个应用程序能够执行自己的任务而不需要考虑其他应用程序的行为。</p>
+
+<p>多用户系统需要具备以下特点：</p>
+
+<ul>
+  <li>用户身份认证机制</li>
+  <li>应用程序运行的保护机制：防止不同用户程序之间的干扰</li>
+  <li>分配给每个用户的资源的记账机制</li>
+</ul>
+
+<blockquote>
+  <p>上述安全机制的实现与 CPU 特权模式相关；Unix 是多用户系统</p>
+
+</blockquote>
+
+<h2 id="12-用户与组">1.2 用户与组</h2>
+
+<p>在多用户系统中，每个用户在机器上都有私用空间，比如磁盘空间。</p>
+
+<blockquote>
+  <p>操作系统需要保证用户空间的私有部分仅仅对其拥有者是可见的</p>
+
+</blockquote>
+
+<p>每个用户在操作系统中都有一个唯一标识，叫做用户标识符（User ID）；同时，为了与其他用户有选择地共享资料，每个用户可以是一个或者多个用户组的成员，组由用户组标识符唯一标识（User Group ID）。</p>
+
+<blockquote>
+  <p>每个文件也与一个用户组对应：比如同组用户可以读，其他用户不可读</p>
+
+</blockquote>
+
+<p>Unix 系统中存在一个 root 用户，操作系统不对其进行进行任何限制，root 能够访问系统中的任何一个文件，干涉任意一个用户程序。</p>
+
+<h2 id="13-进程">1.3 进程</h2>
+
+<p>进程（Process）是操作系统对正在运行程序的一个抽象。一个进程可以看作“<strong>程序执行的一个实例</strong>”或者“<strong>一个运行程序的执行上下文</strong>”。</p>
+
+<p>每个进程都有一个地址空间（Address Space）：<em>允许进程引用的内存地址集合</em>。</p>
+
+<p>在多用户系统中，多个进程能够并发执行，并且能够竞争系统资源；这种允许进程并发活动的系统被称为<strong>多道程序系统</strong>或者<strong>多处理系统</strong>。</p>
+
+<blockquote>
+  <p>进程与程序之间的关系：<strong>几个进程能够并发地执行同一个程序，而一个进程能够顺序执行多个程序</strong></p>
+
+</blockquote>
+
+<p>在单处理器系统上，在某一个时刻只能有一个进程占用 CPU；操作系统中的调度程序（Scheduler）用于协调进程的执行。在不同的操作系统中，进程的执行方式分为两种：</p>
+
+<ul>
+  <li>非抢占式：只有当进程自愿放弃 CPU 时，调度程序才能被调用</li>
+  <li>抢占式：CPU 可以被其他进程抢占；比如，操作系统记录每个进程占有 CPU 的时间，并周期性地激活调度程序</li>
+</ul>
+
+<blockquote>
+  <p>Unix 是具有<strong>抢占式进程的多处理系统</strong></p>
+
+</blockquote>
+
+<p>Unix 采用进程/内核模式。每个进程都认为自己是系统中的唯一进程，独占操作系统所提供的服务。当进程发出系统调用时，硬件就会把特权模式由用户态切换到内核态，之后进程以有限的目的开始一个内核过程的执行。当请求调用结束，内核过程迫使硬件返回到用户态，然后进程从系统调用的下一条指令继续执行。</p>
+
+<h1 id="2-unix-文件系统概述">2. Unix 文件系统概述</h1>
+
+<h2 id="21-文件">2.1 文件</h2>
+
+<p>Unix 文件是以字节序列组成的信息载体，内核并不解释文件的内容。文件被组织成一个树形结构的命名空间中：</p>
+
+<p><img src="/images/linux_kernel/chapter_1/lk_1.png" alt="" /></p>
+
+<p>除了叶子节点外，其他节点都表示目录名；目录节点包含它下面的文件及目录所有的信息。</p>
+
+<blockquote>
+  <p>文件名长度一般限制在 255 个字符内；同一个目录下的文件名不能相同</p>
+
+</blockquote>
+
+<p>Unix 进程有一个当前工作目录，属于进程执行上下文，<strong>用于标识进程所用的文件目录</strong>。同时，进程使用路径名（Path Name）标识特定的文件。</p>
+
+<blockquote>
+  <p>”.”表示当前工作目录；“..”表示父目录</p>
+
+</blockquote>
+
+<h2 id="22-软链接与硬链接">2.2 软链接与硬链接</h2>
+
+<p>包含在目录中的<strong>文件名就是一个文件的硬链接</strong>（Hard Link），简称链接。</p>
+
+<p>在同一个目录或者不同的目录中，同<strong>一个文件可以有多个链接，因此对应多个文件名</strong>。</p>
+
+<blockquote>
+  <p>一个文件可以对应多个文件名，而一个文件名就是一个链接</p>
+
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">ln </span>P1 P2  <span class="c"># 为由路径 P1 标识的文件创建一个路径名为 P2 的硬链接</span>
+</code></pre></div></div>
+
+<p>硬链接有两个限制：</p>
+
+<ol>
+  <li><strong>不允许给目录创建硬链接</strong>：会使得目录树变成环形图，导致不能通过文件名定位文件</li>
+  <li>只有在同一个文件系统中的文件之间才能创建链接：Unix 系统中可能包含了多种文件系统</li>
+</ol>
+
+<p>为了突破上面的两个限制，引入了<strong>软链接</strong>（Soft Link），也称为符号链接。符号链接是<em>短文件（软链接也是文件）</em>，<em>包含另一个文件的任意一个路径名</em>。路径名可以指向任意文件系统的任意文件或者目录，甚至可以指向一个不存在的文件。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">ln</span> <span class="nt">-s</span> P1 P2 <span class="c"># 创建一个路径名为 P2 的软链接，P2 指向路径名 P1；对 P2 的引用都自动转化为对 P1 的引用</span>
+</code></pre></div></div>
+
+<p>总结：硬链接相当于对源文件的直接引用，软链接是对源文件的间接引用。</p>
+
+<h2 id="22-文件类型">2.2 文件类型</h2>
+
+<p>Unix 文件类型分为：</p>
+
+<ul>
+  <li>普通文件</li>
+  <li>目录</li>
+  <li>符号链接</li>
+  <li>面向块的设备文件</li>
+  <li>面向字符的设备文件</li>
+  <li>管道 &amp; 命名管道</li>
+  <li>套接字</li>
+</ul>
+
+<p>前三种是基本的文件类型；设备文件与 IO 设备及相关驱动程序有关；管道与套接字是用于进程间通信的特殊文件。</p>
+
+<h2 id="23-文件描述符与索引节点">2.3 文件描述符与索引节点</h2>
+
+<p>Unix 文件的内容与文件描述信息是分开存储的：</p>
+
+<ol>
+  <li>文件内容是由字节序列组成，不包含任何控制信息，如文件长度等</li>
+  <li>文件的描述信息存储在<strong>索引节点</strong>（Index Node）中，每个文件都有自己的索引节点；文件系统用索引节点来标识文件</li>
+</ol>
+
+<p>索引节点中包含的信息有：</p>
+
+<ul>
+  <li>文件类型</li>
+  <li>与文件相关的硬链接个数</li>
+  <li>以字节为单位的文件长度</li>
+  <li>在文件系统中用于标识文件的索引节点号</li>
+  <li>文件拥有者的 UID</li>
+  <li>文件的用户组 ID</li>
+  <li>访问权限和文件模式</li>
+</ul>
+
+<h2 id="24-文件操作的系统调用">2.4 文件操作的系统调用</h2>
+
+<p>当用户访问文件内容时，实际上是访问存储在硬件块设备上的数据。由于处于用户态的进程不能直接与底层硬件交互，所以每次文件操作必须在内核态下进行。</p>
+
+<h3 id="241-打开文件">2.4.1 打开文件</h3>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">mode</span><span class="p">);</span> <span class="c1">// flag 指定打开文件的方式（读，写，追加）</span>
+</code></pre></div></div>
+
+<p>该系统调用创建一个“打开文件”对象，并返回文件描述符。</p>
+
+<p>其中，打开文件对象包括：</p>
+
+<ul>
+  <li>文件操作的一些数据结构：表示文件当前位置的 offset；指定文件打开方式的一组标识</li>
+  <li>进程可以调用的一些内核函数指针</li>
+</ul>
+
+<p>文件描述符表示进程与打开文件之间的交互，而打开的文件对象包含了与这种交互相关的数据。</p>
+
+<blockquote>
+  <p><strong>同一个打开文件对象可以由同一个进程的几个文件描述符标识</strong></p>
+
+</blockquote>
+
+<p>多个进程同时打开一个文件时，文件系统会给每个进程分配一个单独的打开文件对象与单独的文件描述符。</p>
+
+<h3 id="242-访问打开的文件">2.4.2 访问打开的文件</h3>
+
+<p>对于普通的 Unix 文件，可以顺序访问，也可以随机访问；默认是顺序访问。</p>
+
+<blockquote>
+  <p>内核把文件指针存放在打开文件对象中</p>
+
+</blockquote>
+
+<p><code class="language-plaintext highlighter-rouge">read（）</code>与 <code class="language-plaintext highlighter-rouge">write()</code> 是从文件指针的当前位置开始操作；如果需要更新文件指针的值，必须显示调用 <code class="language-plaintext highlighter-rouge">lseek()</code>。</p>
+
+<h3 id="243-关闭文件">2.4.3 关闭文件</h3>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">res</span> <span class="o">=</span> <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>该方法用于释放与文件描述符相对应的打开文件对象。</p>
+
+<blockquote>
+  <p>进程终止时，内核会关闭所有仍然打开的文件</p>
+
+</blockquote>
+
+<h3 id="244-重命名与删除文件">2.4.4 重命名与删除文件</h3>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">res</span> <span class="o">=</span> <span class="n">rename</span><span class="p">(</span><span class="n">oldPath</span><span class="p">,</span> <span class="n">newPath</span><span class="p">);</span> <span class="c1">// 更新了文件链接的名字</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">unlink</span><span class="p">(</span><span class="n">pathName</span><span class="p">);</span> <span class="c1">// 减少文件链接数，删除了对应的目录项；当链接数为 0 时，文件才会被真正删除</span>
+</code></pre></div></div>
+
+<p>删除与重命名文件时，并不需要打开文件。这两个操作并没有对文件的内容进行更新，而是对目录的内容进行了更新。</p>
+
+<h1 id="3-unix-内核概述">3. Unix 内核概述</h1>
+:ET
