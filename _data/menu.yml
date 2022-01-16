@@ -1,0 +1,44 @@
+# For documentation on this file, see:
+# https://github.com/riggraz/no-style-please#customize-the-menu
+
+entries:
+  
+  - title: All posts
+    post_list:
+      limit: 10
+      show_more: true
+      show_more_text: See more posts...
+      show_more_url: archive.html
+
+  - title: Posts by category
+    entries:
+      - title: System Design
+        url: system-design-archive.html
+      - title: DDIA
+        url: ddia-archive.html
+      - title: Operating System
+        url: os-archive.html
+      - title: Algrithom
+        url: algrithom-archive.html
+      - title: English Study
+        url: english-study-archive.html
+
+  - title: Resume
+    entries:
+      - title: English
+        url: english
+      - title: 中文
+        url: chinese  
+
+  - title: Contact me
+    entries:
+      - title: Twitter
+        url: https://twitter.com/KZ25674171
+      - title: Github
+        url: https://github.com/kkzhang-tt
+      - title: Linkedin
+        url: https://www.linkedin.cn/injobs/in/k-z-23575b202
+      - title: Email
+        url: email
+
+  

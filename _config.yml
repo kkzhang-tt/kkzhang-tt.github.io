@@ -1,53 +1,27 @@
-title: Find a needle in haystack
-description: Distributed-System | Java | Golang | Infrastructure | Operating System
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "kkzhang-tt.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+title: Find a needle in haystack # name of the site
+author: kkzhang # name of site's author
+email: kkzhang1029[at]gmail.com # email of site's author
+url: https://kkzhang-tt.github.io/ # root address of the site
+baseurl: "" # subpath of the site, e.g. "/blog" (leave it blank "" if you're site shouldn't use a subpath)
+description: > # description of the site (multiple lines allowed)
+  Code.
 
-# Author
-author-name:    KKZHANG
-author-image:   kkzhang.jpg
-author-job:     Software Engineer
-author-email:   kkzhang1029@gmail.com # Add your email for contant form.
-author-twitter: KZ25674171 # Add your twitter account
-about-author:   👋 Hi, I’m @kkzhang.<br/> 👍I am now working at @MeiTuan, engaged in middleware development.<br> ✌️ I used to work at @ByteDance, develop software about Instant Messaging. <br> ☎️ I am interested in distributed-system & operating-system.<br> 🧭 The main development language is java, and I also know little golang. 
+permalink: /:slug.html
 
-# Social settings
-social-twitter:   KZ25674171
-social-facebook:
-social-github:    kkzhang-tt
-social-pinterest: 
-social-instagram: kzhang29
-social-youtube:
-social-vk:   
-social-linkedin: k-z-23575b202
+favicon: "logo.ico" # name+extension of favicon (which must be put on the root folder)
+# goat_counter: "yoursitename" # put your GoatCounter name if you want to use GoatCounter analytics
 
-# Newsletter
-mailchimp: # Add your MailChimp form identifier. For example - blogenjoyfreedom.us16.list-manage.com/subscribe/post?u=cd56155d76ddeeb4c0bc4d080&amp;id=7a526cd13e
+theme: no-style-please # if you are using GitHub Pages, change it to remote_theme: riggraz/no-style-please
 
-# Google Analytics
-google-analytics: # Add your identifier. For example UA-99631805-1
-
-# Comment Section (Disqus)
-# disqus-identifier: mr-brown # Add your shortname for Disqus Comment. For example mr-brown
-
-# Build settings
-markdown: kramdown
-permalink: /:year/:month/:day/:title/
-plugins:
-  - jekyll-paginate
-
-paginate: 22
-paginate_path: "/page/:num/"
-
-include:
-  - _pages
+theme_config:
+  appearance: "auto" # can be "light", "dark" or "auto"
+  back_home_text: "../" # customize text for homepage link in post layout
+  date_format: "%Y-%m-%d" # customize how date is formatted
+  show_description: false # show blog description in home page
 
 sass:
-  sass_dir: _sass
-  style: compressed
+  style: :compressed
 
-# Exclude from processing.
-exclude:
-  - Gemfile
-  - Gemfile.lock
-  - vendor
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag

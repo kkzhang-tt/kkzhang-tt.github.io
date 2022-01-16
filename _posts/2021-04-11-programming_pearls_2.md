@@ -3,7 +3,7 @@
 layout: post
 title: "编程珠玑（二）"
 author: "kkzhang"
-category: "algrithom"
+category: algrithom
 image: pp_2.jpg
 ---
 

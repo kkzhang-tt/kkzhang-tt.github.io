@@ -1,0 +1,2843 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-01-16T16:05:37+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
+</subtitle><author><name>kkzhang</name></author><entry><title type="html">Linux Kernel: Processes</title><link href="http://localhost:4000/linux-kernel-4.html" rel="alternate" type="text/html" title="Linux Kernel: Processes" /><published>2021-11-28T00:00:00+08:00</published><updated>2021-11-28T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-4</id><content type="html" xml:base="http://localhost:4000/linux-kernel-4.html">&lt;p&gt;进程被定义为&lt;strong&gt;程序执行的一个实例&lt;/strong&gt;。在 Linux 中，通常把进程称为任务（task）或者线程（thread）。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;如果有 n 个用户同时运行 vim 命令，那么就会有 n 个独立的进程；尽管它们共享同一个可执行代码&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;1-进程--轻量级进程--线程&quot;&gt;1-进程 &amp;amp; 轻量级进程 &amp;amp; 线程&lt;/h1&gt;
+
+&lt;p&gt;从内核角度来看，&lt;strong&gt;进程是系统资源（CPU 时间，内存等）分配的实体&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;当一个进程创建时，几乎与父进程相同。子进程接受父进程地址空间的一个逻辑拷贝，并从进程创建系统调用的下一条指令开始执行与父进程相同的代码。尽管父子进程可以共享含有程序代码的页，但是它们有各自独立的数据拷贝（堆 &amp;amp; 栈），因此，子进程对一个内存单元的修改对父进程是不可见的（反之亦然）。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;父子进程的地址空间采用 copy on write 机制&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;现代 Unix 系统支持多线程应用程序：一个进程由几个用户线程组成，&lt;strong&gt;每个线程都代表进程的一个执行流&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;大部分多线程应用程序都是基于 POSIX thread 标准库实现&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;从 Linux 内核来看，多线程应用程序仅仅是一个普通的进程。&lt;strong&gt;&lt;em&gt;多线程应用程序多个执行流的创建，处理，调度等都是在用户态进行的&lt;/em&gt;&lt;/strong&gt;。这种实现方式存在不足：假设一个应用进程中存在两个线程，A 线程在执行部分流程之后需要暂停执行，并等待 B 线程的执行结果。如果 A 线程只是简单的触发阻塞系统调用，试图将 CPU 交给 B，那么 B 线程也会被阻塞（它们同属于一个进程）。相反，A 线程必须使用比较复杂的非阻塞技术来确保进程仍然是可运行的。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Linux 使用轻量级进程（lightweight process）来实现对多线程应用程序更好的支持&lt;/strong&gt;。两个轻量级进程基本上可以共享一些资源，如地址空间，打开的文件等。只要其中一个轻量级进程修改了共享资源，另一个就能立即查看这种修改。&lt;/p&gt;
+
+&lt;p&gt;实现多线程应用程序的一个简单方式就是&lt;strong&gt;把轻量级进程与每个线程关联起来&lt;/strong&gt;。线程之间可以通过简单共享同一内存地址空间，同一打开文件集等来访问相同的应用程序数据结构集；同时，每个线程都可以由内核单独调度，以便阻塞一个线程的同时，另一个线程仍然是可运行的。&lt;/p&gt;
+
+&lt;h1 id=&quot;2-进程描述符&quot;&gt;2-进程描述符&lt;/h1&gt;
+
+&lt;p&gt;进程描述符包含了与进程相关的所有信息，类型为 task_struct。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_4/lk_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;2-1-进程状态&quot;&gt;2-1 进程状态&lt;/h2&gt;
+
+&lt;p&gt;进程描述符中的 state 字段标识了进程当前所处的状态（某一时刻只能处于一种状态下）。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;可运行状态（TASK_RUNNING）
+    &lt;ul&gt;
+      &lt;li&gt;进程要么正在 CPU 上执行，要么准备执行&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;可中断的等待状态（TASK_INTERRUPTIBLE）
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;进程被挂起（休眠），直到某个条件变成真&lt;/strong&gt;。产生一个硬件中断，释放进程正等待的系统资源或者传递一个信号都可以是唤醒进程的条件（进程的状态被重新置为 TASK_RUNNING）&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;不可中断的等待状态（TASK_UNINTERRUPTIBLE）
+    &lt;ul&gt;
+      &lt;li&gt;与可中断的等待状态蕾西，但是有一点不同，把信号传递到休眠进程并不能改变进程的状态（该状态只会在一些特定的情况下使用）&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;暂停状态（TASK_STOPPED）
+    &lt;ul&gt;
+      &lt;li&gt;进程的执行被暂停：当进程收到 SIGSTOP, SIGTSTP, SIGTTIN or SIGTTOU 信号后，进入暂停状态&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;跟踪状态（TASK_TRACED）
+    &lt;ul&gt;
+      &lt;li&gt;进程的执行已由 debugger 程序暂停&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;僵死状态（TASK_ZOMBIE）
+    &lt;ul&gt;
+      &lt;li&gt;进程的执行被终止，但是父进程还没有发布 wait4() or waitpid() 系统调用来返回有关死亡进程的信息&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;僵死撤销状态（EXIT_DEAD）
+    &lt;ul&gt;
+      &lt;li&gt;最终状态：由于父进程刚发出 wait4() or waitpid() 系统调用，因而进程被系统删除&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-2-标识进程&quot;&gt;2-2 标识进程&lt;/h2&gt;
+
+&lt;p&gt;一般来说，每个能够被独立调度的执行上下文都必须拥有它自己的进程描述符。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;即使是轻量级进程也有 task_struct 结构&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;进程与进程描述符之间一一对应，因此&lt;strong&gt;常用 32 位的进程描述符地址（线性地址）标识一个进程&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;进程描述符指针指向该地址&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;此外，Unix 操作系统还使用&lt;strong&gt;进程标识符 processID（PID）&lt;/strong&gt;来标识进程，PID 存放在进程描述符的 pid 字段中。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;PID 被顺序编号，并且被循环使用&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Linux 把不同的 PID 与系统中的每个进程或者轻量级进程相关联；同时 Unix 希望同一组中的线程有共同的 PID（一个多线程应用程序的所有线程拥有相同的 PID）。因此，Linux 引入线程组的方式，一个线程组的所有线程使用和该线程组的领头线程（thread group leader）相同的 PID，即该组中的第一个轻量级进程的 PID，被存放在进程描述符中的 tgid 字段中。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;一个多线程应用的所有线程共享同一个 PID&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;2-2-1-进程描述符处理&quot;&gt;2-2-1 进程描述符处理&lt;/h3&gt;
+
+&lt;p&gt;内核把进程描述符存放在动态内存中，而不是分配给内核的内存区。对每个进程，Linux 都把两个不同的数据结构紧凑地存放在一个单独为进程分配的存储区域内：1. 与进程描述符相关的小数据结构 thread_info，线程描述符; 2. 内核态的进程堆栈。这块存储区域通常占据两个页框。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_4/lk_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;分别通过 task 与 thread_info 字段使 thread_info 结构与 task_struct 结构互相关联&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;2-2-2-进程链表&quot;&gt;2-2-2 进程链表&lt;/h3&gt;
+
+&lt;p&gt;进程链表是一个双向链表，如下图：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_4/lk_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;进程双向链表把所有的进程描述符链接起来&lt;/strong&gt;；每个 task_struct 结构都包含一个 list_head类型的 tasks 字段，该类型的 pre &amp;amp; next 字段分别指向前面和后面的 task_struct 元素。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;进程链表的头是 init_task 描述符，它是 0 进程的进程描述符&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;2-2-3-task_running-状态的进程链表&quot;&gt;2-2-3 TASK_RUNNING 状态的进程链表&lt;/h3&gt;
+
+&lt;p&gt;当内核试图切换新的进程在 CPU 上运行时，必须只考虑可运行进程（即处在 TASK_RUNNING 状态的进程）。&lt;/p&gt;
+
+&lt;p&gt;早期的 Linux 版本把所有可运行的进程都放在同一个运行队列中，导致维护链表中的进程按照优先级排序开销过大。Linux 2.6 实现的运行队列期望调度程序能够在&lt;strong&gt;固定的时间内选出最佳可运行的进程&lt;/strong&gt;（与队列中可运行的进程数无关）。&lt;/p&gt;
+
+&lt;p&gt;为了实现该目的，建立多个可运行进程链表，&lt;strong&gt;每种进程优先权对应一个不同的链表&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;一共有 140 个不同的队列&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;2-3-进程间的关系&quot;&gt;2-3 进程间的关系&lt;/h2&gt;
+
+&lt;p&gt;程序创建的进程具有父子关系，一个父进程的多个子进程之间具有兄弟关系。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;进程 0 和进程 1 是由内核创建的，进程 1 （init）是所有进程的祖先&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_4/lk_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;进程之间还存在其他关系：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;一个进程可能是一个进程组或者登录会话的领头进程&lt;/li&gt;
+  &lt;li&gt;也可能是一个线程组的领头进程&lt;/li&gt;
+  &lt;li&gt;也可能跟踪其他进程的执行&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-4-如何组织进程&quot;&gt;2-4 如何组织进程&lt;/h2&gt;
+
+&lt;p&gt;Linux 对不同状态的进程有不同的组织方式：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;运行队列链表把处于 TASK_RUNNING 状态的所有进程组织在一起&lt;/li&gt;
+  &lt;li&gt;没有为 TASK_STOPPED, EXIT_ZOMBIE 和 EXIT_DEAD 状态的进程专门建立链表：对这些状态的进程访问比较简单&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;根据不同的特殊事件把处于 TASK_INTERRUPTIBLE 和 TASK_UNINTERRUPTIBLE 状态的进程细分为很多类别，每一类都对应一个特殊的事件&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;2-4-1-等待队列&quot;&gt;2-4-1 等待队列&lt;/h3&gt;
+
+&lt;p&gt;进程必须经常等待某些事件的发生，例如，等待一个磁盘操作的终止，等待释放系统资源或者等待事件经过固定的间隔；等待队列实现了在事件上的&lt;strong&gt;条件等待：希望等待特定事件的进程把自己放进合适的等待队列中，并放弃控制权。因此，等待队列表示一组休眠的进程，当某一条件变成真时，由内核唤醒它们&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;等待队列在中断处理，进程同步及定时方面由很大作用&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;等待队列也是由双向链表实现，其元素包括指向进程描述符的指针。每个等待队列都有一个等待队列头(wait queue head)，而等待队列头是一个类型为 wait_queue_head_t 的数据结构：&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__wait_queue_head&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;spinlock&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 自旋锁&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list_head&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;task_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 双向链表：等待进程链表的头&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;等待队列是由中断处理程序和一些内核函数修改的，因此必须对其双向链表进行保护以避免并发带来的异常。同步操作是通过等待队列头中的自旋锁实现的。&lt;/p&gt;
+
+&lt;p&gt;等待队列链表中的元素类型为 wait_queue_t:&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__wait_queue&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+	&lt;span class=&quot;kt&quot;&gt;unsigned&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;flags&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;task_struct&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 进程描述符&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;wait_queue_func_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list_head&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;task_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;等待队列中的每个元素代表一个休眠的进程，该进程等待某一事件的发生；进程描述符地址存放在 task 字段中；task_list 字段表示等待相同事件的进程链表；func 字段表示进程应该用什么方式唤醒。&lt;/p&gt;
+
+&lt;p&gt;等待队列中的进程有两种类型：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;互斥进程（flags = 1）：由内核有选择地唤醒
+    &lt;ul&gt;
+      &lt;li&gt;如等待访问临界区资源的进程&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;非互斥进程（flags = 0）：总是在内核事件发生时唤醒，即一次会唤醒全部非互斥进程
+    &lt;ul&gt;
+      &lt;li&gt;比如等待磁盘传输结束的一组进程，一旦磁盘传输完成，所有等待进程都会被唤醒&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;2-4-2-等待队列的操作&quot;&gt;2-4-2 等待队列的操作&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;通过调用特定函数（add_wait_queue(), add_wait_queue_exclusive() 等）可以把进程添加到等待队列或者从等待队列中移除（remove_wait_queue()）&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;需要等待某个条件的进程可以调用以下函数将自己添加到等待队列中：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;sleep_on()：该函数把当前进程的状态设置为 TASK_UNINTERRUPTIBLE，并把它插入到特定的等待队列。之后，它调用调度程序，而调度程序重新开始另一个程序的执行。当休眠的进程被唤醒时，调度程序重新开始执行 sleep_on() 函数，把该进程从等待队列中删除&lt;/p&gt;
+
+    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sleep_on&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait_queue_head_t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;wait_queue_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;init_waitqueue_entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;current_state&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TASK_UNINTERRUPTIBLE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;add_wait_queue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//插入等待队列的头部&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;schedule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 调用调度程序执行其他进程&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;remove_wait_queue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 被唤醒后重新执行&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;interruptible_sleep_on()：与 sleep_on() 函数一样，只不过是把进程的状态设置为 TASK_INTERRUPTIBLE；因此，&lt;em&gt;接受一个信号就可以唤醒当前进程&lt;/em&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;sleep_on_timeout() &amp;amp; interruptible_sleep_on_timeout() 与上面的函数类似，但是允许调用者定义一个时间间隔，&lt;em&gt;过了这个时间间隔之后，进程将由内核唤醒&lt;/em&gt;。为了实现该功能，这两个方法调用的时 schedule_timeout() 函数而不是 schedule() 函数&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;prepare_to_wait(), prepare_to_wait_exclusive() 和 finish_wait() 函数提供了另一种途径使得当前进程在一个等待队列中休眠；典型用法如下：&lt;/p&gt;
+
+    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;prepare_to_wait_exclusive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TASK_INTERRUPTIBLE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;condition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;schedule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;finish_wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 进程被唤醒后从该处执行&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;wait_event() &amp;amp; wait_event_interruptible() 使得调用进程在等待队列上休眠，直到修改了给定条件为止&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;内核通过调用以下函数将等待队列中的进程唤醒并把状态设置为 TASK_RUNNING&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;wake_up()：扫描等待队列中的所有进程，并通过 func 字段试图唤醒进程。该函数总是先唤醒非互斥进程，再唤醒互斥进程：非互斥进程位于双向链表的开始位置&lt;/p&gt;
+
+    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;wake_up&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait_queue_head_t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;q&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;sturct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list_head&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tmp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;wait_queue_t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;curr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;list_for_each&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tmp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;q&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;task_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+		&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;curr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TASK_INTERRUBPIBLE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TASK_UNITERRUPRIBLE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;curr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;flags&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+			&lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;wake_up_all() &amp;amp; wake_up_nr() 等方法&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;一个等待队列中同时包含互斥进程与非互斥进程的情况很罕见&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-5-进程资源限制&quot;&gt;2-5 进程资源限制&lt;/h2&gt;
+
+&lt;p&gt;每个进程都有一组相关的进程资源限制（resource limit），限制指定了进程能够使用的系统资源数量。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;RLIMIT_AS: 进程地址空间的最大数（字节为单位）&lt;/li&gt;
+  &lt;li&gt;RLIMIT_RSS: 进程所拥有的页框最大数&lt;/li&gt;
+  &lt;li&gt;RLIMIT_CPU: 进程使用 CPU 的最长时间（秒为单位）&lt;/li&gt;
+  &lt;li&gt;RLIMIT_DATA: 堆大小的最大值&lt;/li&gt;
+  &lt;li&gt;RLIMIT_STACK: 栈大小的最大值（字节为单位）&lt;/li&gt;
+  &lt;li&gt;RLIMIT_NOFILE: 打开文件描述符的最大值&lt;/li&gt;
+  &lt;li&gt;RLIMIT_SIGPENDING: 进程挂起信号的最大数&lt;/li&gt;
+  &lt;li&gt;RLIMIT_NPROC: 用户能够拥有的进程最大数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;3-进程切换&quot;&gt;3-进程切换&lt;/h1&gt;
+
+&lt;p&gt;为了控制进程的执行，内核必须能够挂起正在 CPU 上运行的进程，并恢复以前挂起的摸个进程的执行；这种行为被称为&lt;strong&gt;进程切换&lt;/strong&gt;（process switch）或者上下文切换（context switch）。&lt;/p&gt;
+
+&lt;h2 id=&quot;3-1-硬件上下文&quot;&gt;3-1 硬件上下文&lt;/h2&gt;
+
+&lt;p&gt;每个进程可以拥有自己的地址空间，但是所有进程需要共享 CPU 寄存器。因此，在进程恢复运行之前，需要确保每个寄存器装入了挂起进程的值；这组数据被称为硬件上下文（hardware context）。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;硬件上下文是进程可执行上下文的子集&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;在 Linux 中，进程硬件上下文的一部分存放在 TSS 段（Task State Segment，任务状态段），而剩余部分存放在内核态堆栈中。&lt;/p&gt;
+
+&lt;p&gt;进程切换只发生在内核态。在执行进程切换之前，用户态进程使用的所有寄存器内容已保存在内核态堆栈上。&lt;/p&gt;
+
+&lt;h2 id=&quot;3-2-执行进程切换&quot;&gt;3-2 执行进程切换&lt;/h2&gt;
+
+&lt;p&gt;进程切换只能发生在 schedule() 函数中；每个进程切换由两步组成：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;切换页全局目录以安装一个新的地址空间&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;切换内核态堆栈和硬件上下文&lt;/strong&gt;（硬件上下文提供了内核执行新进程所需要的素有信息，包含 CPU 寄存器）&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;4-创建进程&quot;&gt;4-创建进程&lt;/h1&gt;
+
+&lt;p&gt;传统的 Unix 操作系统以统一的方式对待所有进程：子进程复制父进程所拥有的资源。这种效率比较低，因为子进程需要拷贝父进程所有的地址空间，实际上，子进程几乎不必读或者修改父进程所拥有的资源；在很多情况下，子进程立即调用 execve()，并清除父进程拷贝过来的地址空间。&lt;/p&gt;
+
+&lt;p&gt;现代 Unix 内核通过引入三种不同的机制解决这个问题：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;写时复制（copy on write）技术允许父子进程读取相同的物理页&lt;/strong&gt;。只要两者中有一个试图写一个物理页，内核就把这个页的内容拷贝到一个新的物理页，并把这个新的物理页分配给正在写的进程。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;轻量级进程允许父子进程共享每进程在内核的很多数据结构&lt;/strong&gt;，如页表（用户态地址空间），打开的文件表及信号处理。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;vfork() 系统调用创建的进程能共享其父进程的内存地址空间&lt;/strong&gt;。为了防止父进程重写子进程所需要的数据，阻塞父进程的执行，直到子进程退出或执行一个新的程序为止。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;4-1-相关系统调用&quot;&gt;4-1 相关系统调用&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;clone(): 轻量级进程是由 clone() 函数创建&lt;/li&gt;
+  &lt;li&gt;传统的 fork() 调用是用 clone() 实现的，不过对于一些标志都清除&lt;/li&gt;
+  &lt;li&gt;vfork() 也是用 clone 实现，也是一些参数的不同&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;4-2-内核线程&quot;&gt;4-2 内核线程&lt;/h2&gt;
+
+&lt;p&gt;一些系统进程只运行在内核态，所以现代操作系统把它们的函数委托给&lt;strong&gt;内核线程&lt;/strong&gt;（kernel thread）。内核线程用于执行一些周期性的任务：刷新磁盘高速缓存，交换出不用的页框，维护网络连接等。内核线程不受不必要的用户态上下文的拖累；在以下方面不同于普通进程：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;*内核线程只运行在内核态*&lt;/strong&gt;，而普通进程既可以运行在用户态，也可以运行在内核态&lt;/li&gt;
+  &lt;li&gt;因为只运行在内核态，所以只使用大于 PAGE_OFFSET 的线性地址空间。而普通进程不管是处于用户态还是内核态，可以使用 4GB 的线性地址空间。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;4-2-1-进程-0&quot;&gt;4-2-1 进程 0&lt;/h3&gt;
+
+&lt;p&gt;所有进程的祖先叫做进程 0，它是在 Linux 的初始化阶段从无到有创建的一个内核线程。&lt;/p&gt;
+
+&lt;h3 id=&quot;4-2-2-进程-1&quot;&gt;4-2-2 进程 1&lt;/h3&gt;
+
+&lt;p&gt;由进程 0 创建的内核线程执行 init() 函数，init() 依次完成内核初始化。&lt;/p&gt;
+
+&lt;h1 id=&quot;5-撤销进程&quot;&gt;5-撤销进程&lt;/h1&gt;
+
+&lt;p&gt;进程终止一般是调用 exit() 函数，用于释放所分配的资源。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;exit_group(): 终止整个线程组，即基于多线程的应用&lt;/li&gt;
+  &lt;li&gt;exit(): 终止某个线程&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">进程被定义为程序执行的一个实例。在 Linux 中，通常把进程称为任务（task）或者线程（thread）。</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/linux_kernel/chapter_4/lk_1.png" /><media:content medium="image" url="http://localhost:4000/linux_kernel/chapter_4/lk_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Linux Kernel: Process Address Space</title><link href="http://localhost:4000/linux-kernel-3.html" rel="alternate" type="text/html" title="Linux Kernel: Process Address Space" /><published>2021-11-27T00:00:00+08:00</published><updated>2021-11-27T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-3</id><content type="html" xml:base="http://localhost:4000/linux-kernel-3.html">&lt;h1 id=&quot;1-概述&quot;&gt;1-概述&lt;/h1&gt;
+
+&lt;p&gt;操作系统在对进程进行内存分配时，会根据进程的状态有不同的处理方式。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;进程处于内核态，则立即分配内存；并且假定所有的内存分配函数都不会产生错误（信任内核）&lt;/li&gt;
+  &lt;li&gt;进程处于用户态，则推迟动态内存的分配；用户进程时不可信任的，分配过程可能会产生异常&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;关于两种状态下内存分配时机的不同出于以下原因：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;内核时操作系统中优先级最高的成分。如果内核请求动态内存，则必定有充分的理由，所以应该立即满足该请求&lt;/li&gt;
+  &lt;li&gt;用户态进程对内存的请求被认为是不紧迫的。当进程获得动态内存之后，并不意味着很快会对这些内存进行访问；因此，内核一般总是尽量推迟给用户态进程分配动态内存&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;内核如何实现对进程动态内存的推迟分配？&lt;strong&gt;当用户态进程请求动态内存时，并没有获得请求的页框，而仅仅获得对一个新的线性地址区间的使用权，而这以线性地址区间就成为进程地址空间的一部分，该区间叫做线性区（memory region）&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;2-进程的地址空间&quot;&gt;2-进程的地址空间&lt;/h1&gt;
+
+&lt;p&gt;&lt;strong&gt;进程的地址空间（address space）由允许进程使用的全部线性地址组成&lt;/strong&gt;。每个进程看到的线性地址集合是不同的，一个进程所使用的地址与另一个进程所使用的地址之间没有关系。&lt;/p&gt;
+
+&lt;p&gt;内核可以通过增加或者删除某些线性地址区间来动态地修改进程的地址空间。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;每个进程的地址空间是整个虚拟地址空间的子集&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;内核通过线性区资源来表示线性地址区间，线性区由起始线性地址，长度及一些访问权限来描述。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;em&gt;线性区的起始地址与长度必须是 4096 的倍数&lt;/em&gt;，使得每个线性区所识别的数据能够完全填满分配给它的页框&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;进程获取新的线性区一些典型情况&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;控制台输入一条命令，Shell 进程创建新的进程区执行该命令，从而使新的地址空间分配给了新的进程&lt;/li&gt;
+  &lt;li&gt;正在运行的进程装入一个新的程序，这种情况下该进程之前所使用的线性区被释放，并且新的线性区被分配给该进程（exec() 函数的执行）&lt;/li&gt;
+  &lt;li&gt;正在运行的进程对一个文件执行内存映射，此时内核会给该进程分配一个新的线性区来映射该文件&lt;/li&gt;
+  &lt;li&gt;进程的用户态堆栈被耗尽，需要扩展该线性区的大小&lt;/li&gt;
+  &lt;li&gt;进程创建一个 IPC 共享线性区与其他进程共享数据，这种情况下，内核给该进程分配一个新的线性区来实现&lt;/li&gt;
+  &lt;li&gt;进程主动调用 malloc() 函数扩展自己的动态区&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_3/lk_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;创建，删除线性区相关系统调用&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;内核需要确定一个线程当前所拥有的线性区（即进程地址空间），以便能够区分两种不同的无效线性地址：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;由编程错误引发的无效线性地址&lt;/li&gt;
+  &lt;li&gt;由缺页引发的无效线性地址：&lt;strong&gt;&lt;em&gt;即使该线性地址属于进程的地址空间，但是对应于这个地址的页框仍然待分配&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;3-内存描述符&quot;&gt;3-内存描述符&lt;/h1&gt;
+
+&lt;p&gt;与进程地址空间相关的全部信息都包含在&lt;strong&gt;内存描述符（memory descriptor）&lt;/strong&gt;中，内存描述符又被进程描述符所引用；内存描述符类型为 mm_struct。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_3/lk_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;mmap 字段指向线性区对象的链表头&lt;/li&gt;
+  &lt;li&gt;mmap_cache 指向队后一次引用的线性区对象&lt;/li&gt;
+  &lt;li&gt;pgd 指向页全局目录&lt;/li&gt;
+  &lt;li&gt;map_count 表示线性区的个数&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;mmlist 指向内存描述符链表中的相邻元素&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;mlist&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;所有进程的内存描述符存放在一个双向链表中，每个内存描述符中的 mmlist 字段存放了链表相邻元素的地址。其中链表的第一个元素是 init_mm 的 mmlist 字段，而 init_mm 是初始化阶段进程 0 所使用的内存描述符。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;为了实现多处理器对内存描述符链表的安全访问，引入了自旋锁&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;4-线性区&quot;&gt;4-线性区&lt;/h1&gt;
+
+&lt;p&gt;在内存描述符中 mmap 指向线性区对象的链表头，类型为 vm_area_struct；该类型表示的数据结构为&lt;strong&gt;线性区描述符&lt;/strong&gt;，每个线性区描述符表示一个线性地址空间。vm_area_struct 类型的一些关键字段：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_3/lk_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;vm_mm 字段指向&lt;strong&gt;&lt;em&gt;拥有该区间的进程的内存描述符&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;vm_start 表示该区间包含的第一个线性地址&lt;/li&gt;
+  &lt;li&gt;vm_end 表示该区间之外的第一个线性地址；所以 &lt;em&gt;vm_end - vm_start 表示线性区的长度&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;vm_next 表示进程拥有的线性区链表的&lt;strong&gt;&lt;em&gt;下一个线性区&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;进程拥有的线性区从不重叠，并且内核尽量把新分配的线性区与紧邻的现有线性区进行合并&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;如果两个相邻区的访问权限匹配，则这两个线性区可以被合并&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_3/lk_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;新的线性区加入到进程的地址空间时，内核将其与一个已经存在的线性区进行合并扩大&lt;/li&gt;
+  &lt;li&gt;如果不能合并，则创建一个新的线性区&lt;/li&gt;
+  &lt;li&gt;从进程的地址空间中删除一个线性地址空间，调整线性区的大小&lt;/li&gt;
+  &lt;li&gt;删除一个线性地址空间后，可能会导致一个线性区变成两个比较小的线性区&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;4-1-线性区数据结构&quot;&gt;4-1 线性区数据结构&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;进程拥有的线性区通过链表链接在一起，并按照内存地址升序排列&lt;/strong&gt;。链表中前后两个线性区并不一定保持线性地址的连续，中间可以由未使用的地址分隔开。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;内核通过进程的内存描述符的 mmap 字段查找线性区，该字段指向链表中第一个线性区描述符；内存描述符中的 mmap_count 表示进程拥有的线性区数目，默认最大数目为 65536&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;进程的地址空间，内存描述符及线性区链表之间的关系如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_3/lk_5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;内核需要经常判断一个线性地址属于哪个线性区。如果通过查找有序线性区链表的话，需要从首个线性区进行扫描，直到找到包含该线性地址的线性区，时间复杂度为 O(n)。&lt;/p&gt;
+
+&lt;p&gt;为了加速该查询动作，Linux 还使用红黑树存放进程的线性区；所以线性区的保存存在两种方式：链表 &amp;amp; 红黑树。一般来说，红黑树用来判断一个线性地址的线性区，链表用来扫描整个线性区集合。&lt;/p&gt;
+
+&lt;h2 id=&quot;4-2-页与线性区&quot;&gt;4-2 页与线性区&lt;/h2&gt;
+
+&lt;p&gt;页既表示一组连续的线性地址，也表示这组地址中所存放的数据；页的大小一般为 4KB，其中 0～4095 之间的的线性地址区间称为第 0 页，依此类推。&lt;/p&gt;
+
+&lt;p&gt;线性区由一组号码连续的页组成，起始地址与长度均为 4096 的倍数。&lt;/p&gt;
+
+&lt;h2 id=&quot;4-3-线性区访问权限&quot;&gt;4-3 线性区访问权限&lt;/h2&gt;
+
+&lt;p&gt;页相关的标志有三种：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;每个页表项中存放的标志：read&amp;amp;write, present, user&amp;amp;supervisor&lt;/li&gt;
+  &lt;li&gt;存放在每个页描述符 flags 字段中的一组标志&lt;/li&gt;
+  &lt;li&gt;线性区中与页有关的标志，存放在线性区描述符中的 vm_flags 字段中；用于给内核提供有关这个线性区全部页的信息&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_3/lk_6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;5-缺页异常处理&quot;&gt;5-缺页异常处理&lt;/h1&gt;
+
+&lt;p&gt;缺页异常处理程序需要区分由编程错误引起的缺页异常，与引用属于进程地址空间但尚未分配物理页框的页所引起的异常。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_3/lk_7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;5-1-请求调页&quot;&gt;5-1 请求调页&lt;/h2&gt;
+
+&lt;p&gt;请求调页指的是一种动态内存分配技术，把页框的分配推迟到不能再推迟为止。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;一直&lt;strong&gt;推迟到进程要访问的页不在 RAM 中时为止，由此引起缺页异常&lt;/strong&gt;&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;请求调页背后的原因是：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;进程开始运行时并不访问其地址空间中的全部地址&lt;/em&gt;&lt;/strong&gt;（有时候有些地址永远没有被访问）&lt;/li&gt;
+  &lt;li&gt;由于程序的局部性原理保证了程序在执行的每个阶段，&lt;strong&gt;&lt;em&gt;真正引用的进程页只有一小部分&lt;/em&gt;&lt;/strong&gt;，因此临时用不着的页所在的页框可以由其他进程所使用&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;请求调页技术增加了系统中空闲页框的平均数，更好地利用了空闲内存，并且提高了系统的吞吐量。&lt;/p&gt;
+
+&lt;p&gt;不过，请求调页也带来了额外的开销：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;请求调页引发的缺页中断必须由内核处理，浪费了 CPU 的周期&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;不过，缺页中断的概率比较小&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;被访问的页不在主存中的原因可能是&lt;strong&gt;进程从未访问过该页，或者该页对应的页框已经别内核回收&lt;/strong&gt;了。&lt;/p&gt;
+
+&lt;h2 id=&quot;5-2-写时复制&quot;&gt;5-2 写时复制&lt;/h2&gt;
+
+&lt;p&gt;当 fork() 系统调用触发时，会创建一个子进程。Linux 之前的实现是将父进程的地址空间原样复制一份分配给子进程。该复制操作耗时比较大。&lt;/p&gt;
+
+&lt;p&gt;现在的 Linux 内核采用&lt;strong&gt;写时复制（copy on write）技术实现：父进程与子进程共享页框而不是复制页框；当页框被共享时，不能被修改。无论子进程还是父进程如果尝试写一个共享的页框，会产生一个异常，此时，内核会把这个页复制到一个新的页框中并标记为可以写。原来的页框仍然是写保护：当其他进程试图写入时，内核检查写进程是否是该页框的唯一属主，如果是，则把该页框标记为对这个线程是可写的&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;6-堆管理&quot;&gt;6-堆管理&lt;/h1&gt;
+
+&lt;p&gt;每个 Linux 进程都拥有一个特殊的线性区，即所谓的&lt;strong&gt;堆（heap）&lt;/strong&gt;。堆用于满足进程的动态内存请求。&lt;/p&gt;
+
+&lt;p&gt;进程可以使用以下 API 实现请求释放动态内存：&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;malloc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 请求 size 个字节的动态内存；如果分配成功则返回分配内存的第一个字节的线性地址&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;free&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 释放 malloc 分配的起始地址为 addr 的线性区&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;brk&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 直接修改堆的大小，返回线性区的新的结束地址&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">1-概述</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/linux_kernel/chapter_3/lk_1.png" /><media:content medium="image" url="http://localhost:4000/linux_kernel/chapter_3/lk_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Linux Kernel: Memory Addressing</title><link href="http://localhost:4000/linux-kernel-2.html" rel="alternate" type="text/html" title="Linux Kernel: Memory Addressing" /><published>2021-11-20T00:00:00+08:00</published><updated>2021-11-20T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-2</id><content type="html" xml:base="http://localhost:4000/linux-kernel-2.html">&lt;h1 id=&quot;1-内存地址&quot;&gt;1-内存地址&lt;/h1&gt;
+
+&lt;p&gt;我们偶尔会引用内存地址（Memory Address）访问内存单元内容；在 x86 处理器中，需要区分以下三种不同的地址：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;逻辑地址（logical address）
+    &lt;ul&gt;
+      &lt;li&gt;在机器语言指令中用来指定一个操作数或者指令的地址。在 x86 中需要将程序分为若干段，每个逻辑地址都由一个段（segment）和偏移量（offset）组成&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;线性地址（linear address）or 虚拟地址（virtual address）
+    &lt;ul&gt;
+      &lt;li&gt;用一个 32 位无符号整数表示 4GB 的虚拟内存地址；通常用 16 进制数字表示，0x00000000 ~ 0xffffffff&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;物理地址（physical address）
+    &lt;ul&gt;
+      &lt;li&gt;用于内存芯片级内存单元寻址；物理地址由 32 位或者 36 位无符号整数表示&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;内存控制单元（MMU）通过分段单元（segmentation unit）的硬件电路把逻辑地址转换为线性地址，之后通过分页单元（paging unit）的硬件电路把线性地址转换为物理地址。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_2/lk_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在多处理器系统中，所有 CPU 共享同一内存，因此多个 CPU 可以并发地访问 RAM 芯片。由于 RAM 芯片上的读写操作必须串行执行，所以一种所谓的内存仲裁器来控制并发访问。&lt;/p&gt;
+
+&lt;h1 id=&quot;2-linux-分段&quot;&gt;2-Linux 分段&lt;/h1&gt;
+
+&lt;p&gt;Linux 以非常有限的方式使用分段，实际上分段与分页在某种程度上有点多余，因为它们都用来划分进程的物理空间：分段可以给每个进程分配不同的线性地址空间；分页可以把同一个线性地址空间映射到不同的物理空间。与分段相比，Linux 更常用分页的方式：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;当所有进程使用相同的段寄存器值时，内存管理比较简单，即所有进程能够共享同样的一组线性地址&lt;/li&gt;
+  &lt;li&gt;使用分页的方式能够将 Linux 移植到大多数处理器平台上&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在 Linux 中，逻辑地址与线性地址时一致的，逻辑地址的偏移量字段值与相应的线性地址值总是一致的。&lt;/p&gt;
+
+&lt;h1 id=&quot;3-硬件中的分页&quot;&gt;3-硬件中的分页&lt;/h1&gt;
+
+&lt;p&gt;分页单元（paging unit）把线性地址转换成物理地址。&lt;/p&gt;
+
+&lt;p&gt;线性地址被分成以固定长度为单位的组，称为页（page）。页内部连续的线性地址被映射到连续的物理地址中。这样，内核可以指定一个页的物理地址及页的存取权限，而不用指定页所包含的全部线性地址的的存取权限，提高了效率。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;按照约定，&lt;strong&gt;页既指一组线性地址，也指包含在这组地址中的数据&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;分页单元把所有的 RAM 分成固定长度的页框（page frame，物理页）。页框与页的长度一致，因此每个页框包含一个页。页框是一个存储区域，是主存的一部分。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;页只是一个数据块，可以存放在任何页框或者磁盘中&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;把线性地址映射到物理地址的数据结构称为页表（page table）。&lt;strong&gt;页表存放在主存中，并在启用分页单元之间必须由内核对页表进行适当的初始化&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;3-1-常规分页&quot;&gt;3-1 常规分页&lt;/h2&gt;
+
+&lt;p&gt;Intel 处理器的分页单元处理 4KB 的页。32 位的线性地址被分成 3 个域：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Directory（目录：高 10 位）&lt;/li&gt;
+  &lt;li&gt;Table（页表：中间 10 位）&lt;/li&gt;
+  &lt;li&gt;Offset（偏移量：低 12 位）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;线性地址的转换非为两步，每一步都基于一种转换表，第一种转换表称为页目录表（page directory），第二种转换表称为页表（page table）。&lt;/p&gt;
+
+&lt;p&gt;这种二级模式主要用于减少每个进程页表所需的 RAM 数量。每个活动进程必须有一个分配给它的页目录；不过，&lt;strong&gt;*没必要马上为进程的所有页表都分配 RAM*&lt;/strong&gt;。只有在进程实际需要一个页表时才会给该页表分配 RAM。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;不同的进程共享同一个线性地址空间集合，每个进程只使用 32 位地址空间的子集&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;进程正在使用的页目录的物理地址存放在控制寄存器 cr3 中。线性地址的 Directory 字段决定页目录中的目录项，而&lt;strong&gt;目录项指定适当的页表&lt;/strong&gt;；线性地址中的 Table 字段又决定页表中的表项，而&lt;strong&gt;表项包含页所在页框的物理地址&lt;/strong&gt;；线性地址中的 Offset 字段决定&lt;strong&gt;页框内的相对地址&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_2/lk_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;线性地址通过分页单元转换为物理地址&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;页目录项与页表项具有相同的结构，每项都包含下面的字段：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Present 标志：1 表示所指的的页（页表）在主存中；0 表示该页不在主存中，触发缺页异常&lt;/li&gt;
+  &lt;li&gt;Field：&lt;strong&gt;包含页框物理地址的最高 20 位&lt;/strong&gt;的字段；&lt;strong&gt;*如果这个字段指向一个页目录，相应的页框就会包含一个页表；如果该字段指向一个页表，则相应的页框就包含有一页的数据*&lt;/strong&gt;。由于一个页框有 4KB 的容量，因此该字段指定的物理地址必须是 4096 的倍数（物理地址的最低 12 位总是 0）&lt;/li&gt;
+  &lt;li&gt;Accessed 标志：当分页单元对相应页框进行寻址时设置该标志&lt;/li&gt;
+  &lt;li&gt;Dirty 标志：只应用于页表项中；当对一个页框进行写操作时，设置该标志&lt;/li&gt;
+  &lt;li&gt;Read &amp;amp; Write 标志：页或者页表的存取权限&lt;/li&gt;
+  &lt;li&gt;User &amp;amp; Supervisor 标志：访问页表或者页所需要的特权级（硬件保护方案）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;3-2-硬件保护方案&quot;&gt;3-2 硬件保护方案&lt;/h2&gt;
+
+&lt;p&gt;与页和页表相关的特权级有两种：如果 User &amp;amp; Supervisor 标志为 0，只有处理器处于内核态时才能对页进行寻址，如果 User &amp;amp; Supervisor 标志为 1，则总能对页进行寻址。&lt;/p&gt;
+
+&lt;p&gt;存取权限有两种：如果页目录项或者页表项的 Read &amp;amp; Write 标志被设为 0，则说明相应的页表或者页是只读的，否则是可读写的。&lt;/p&gt;
+
+&lt;h2 id=&quot;3-3-分页寻址流程&quot;&gt;3-3 分页寻址流程&lt;/h2&gt;
+
+&lt;p&gt;假设内核给一个进程分配的线性地址空间范围是 0x20000000 ~ 0x2003ffff（我们不需要关心包含这些页的页框的物理地址）。&lt;/p&gt;
+
+&lt;p&gt;假设进程需要读取线性地址 0x20021406 中的字节：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Directory 字段的 0x80 用于选择页目录的第 0x80 目录项，该目录项指向那个与该进程相关的页表&lt;/li&gt;
+  &lt;li&gt;Table 字段的 0x21 用于选择页表的第 0x21 表项，该表项指向包含所需页的页框&lt;/li&gt;
+  &lt;li&gt;Offset 字段 0x406 用于在目标页框中读取偏移量为 0x406 中的字节&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;如果页表第 ox21 表项的 Present 标志为 0，则该页就不在主存中，此时会产生缺页异常，需要给其分配一个空闲页框之后再读取。另外，当进程试图访问 0x20000000 ~ 0x2003ffff 之外的线性地址时，会产生另一种缺页异常。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;当新的进程被调度时，必须为新进程重置 MMU，刷新 TLB，清除以前进程的痕迹&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_2/lk_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;由于只给该进程分配了第 0x80 个目录项，因此页目录的其余 1023 项都置为 0；同时，页表中只有前 64 个表项有意义，则其余的 960 个表项也都置为 0。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;3-4-分页相关的工作&quot;&gt;3-4 分页相关的工作&lt;/h2&gt;
+
+&lt;p&gt;操作系统需要在进程创建时，进程执行时，缺页中断时和进程终止时四个时间段做一些与分页相关的工作。&lt;/p&gt;
+
+&lt;h3 id=&quot;3-4-1-进程创建&quot;&gt;3-4-1 进程创建&lt;/h3&gt;
+
+&lt;p&gt;新进程创建时，操作系统需要确定程序和数据在初始化时有多大，并为其创建一个页表：在内存中为页表分配空间并对其进行初始化。当进程被换出时，页表不需要驻留在内存中，但是当进程运行时，必须在内存中。&lt;/p&gt;
+
+&lt;h3 id=&quot;3-4-2-进程执行&quot;&gt;3-4-2 进程执行&lt;/h3&gt;
+
+&lt;p&gt;当调度一个进程执行时，必须为新进程重置 MMU，刷新 TLB；新进程的页表必须成为当前页表。&lt;/p&gt;
+
+&lt;h3 id=&quot;3-4-3-缺页中断&quot;&gt;3-4-3 缺页中断&lt;/h3&gt;
+
+&lt;p&gt;发生缺页中断时，操作系统必须能够知道是哪个虚拟地址造成的缺页中断；并计算出需要哪个页面，在磁盘上对该页面进行定位。操作系统需要找到合适的页框来存放新的页面，必要时置换出老页面，然后把页面读入到页框。最后重新执行引起缺页中断的指令。&lt;/p&gt;
+
+&lt;h3 id=&quot;3-4-4-进程终止&quot;&gt;3-4-4 进程终止&lt;/h3&gt;
+
+&lt;p&gt;进程退出时，操作系统需要释放进程的页表，页面和页面在磁盘上所占的空间。如果某些页面时与其他线程共享的，当最后一个进程终止时才需要释放。&lt;/p&gt;
+
+&lt;h2 id=&quot;3-5-转换后援缓冲器tlb&quot;&gt;3-5 转换后援缓冲器（TLB）&lt;/h2&gt;
+
+&lt;p&gt;x86 处理器中包含了一个被称为转换后援缓冲器（Translation Lookaside Buffer）的高速缓存用于加快线性地址的转换。当一个线性地址被第一次使用时，通过慢速访问 RAM 中的页表计算出相应的物理地址。同时，物理地址被存放在一个 TLB 表项（TLB Entry）中，以便以后对同一个线性地址的引用可以快速得到转换。&lt;/p&gt;
+
+&lt;p&gt;在多处理器系统中，每个 CPU 都有自己的 TLB，被称为该 CPU 的本地 TLB。当 CPU 的 cr3 控制寄存器被修改时，硬件自动使本地 TLB 中的所有项都失效。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;当新的一组页表被启用时，TLB 指向的使旧数据&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;4-linux-中的分页&quot;&gt;4-Linux 中的分页&lt;/h1&gt;
+
+&lt;p&gt;Linux 采用了中同时适用 32 位与 64 位系统的普通分页模型。对 32 位系统来说，两级页表已经够了，但是 64 位系统需要更多数量的分页级别；Linux 采用了 4 级分页模型：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;页全局目录&lt;/li&gt;
+  &lt;li&gt;页上级目录&lt;/li&gt;
+  &lt;li&gt;页中间目录&lt;/li&gt;
+  &lt;li&gt;页表&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;线性地址被分成 5 部分；页全局目录包含若干页上级目录的地址，页上级目录包含若干页中间目录的地址，页中间目录包含若干页表的地址，每个页表项又指向一个页框。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_2/lk_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Linux 进程的处理很大程度上依赖于分页；从线性地址到物理地址的转换使得：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;给每个进程分配一块不同的物理地址空间，有效防止寻址错误&lt;/li&gt;
+  &lt;li&gt;区别&lt;strong&gt;页（即一组数据）与页框（即主存中的物理地址&lt;/strong&gt;）之间的不同。从而允许存放在某个页框中的一个页，然后保存到磁盘上，以后重新装入该页时又可以被装在不同的页框中。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;每个进程都有自己的页全局目录与页表集。&lt;strong&gt;*当发生进程切换时，Linux 把 cr3 控制器的内容保存在前一个执行进程的描述符中，然后把下一个要执行进程的描述符的值装载到 cr3 寄存器中*&lt;/strong&gt;。因此当新进程重新开始在 CPU 上执行时，分页单元指向一组正确的页表。&lt;/p&gt;
+
+&lt;h2 id=&quot;4-1-物理内存布局&quot;&gt;4-1 物理内存布局&lt;/h2&gt;
+
+&lt;p&gt;在初始化阶段，内核需要指定哪些物理地址范围对内核可用，而哪些范围不可用。内核将下列页框标记为保留：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;在不可用的物理地址范围内的页框&lt;/li&gt;
+  &lt;li&gt;含有内核代码和已初始化的数据结构的页框&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;em&gt;保留页框中的页绝对不会被动态分配或者交换到磁盘上&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_2/lk_5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;前 768 个页框（3 MB）&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;4-2-进程页表&quot;&gt;4-2 进程页表&lt;/h2&gt;
+
+&lt;p&gt;进程的线性地址空间分为两部分：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;0x00000000 ~ 0xbffffff 的范围，无论进程运行在用户态还是内核态都可以寻址&lt;/li&gt;
+  &lt;li&gt;0xc00000000 ~ 0xffffffff 的范围，只有内核态才能寻址&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;当进程运行在用户态时，其产生的线性地址小于 0xc0000000；当进程运行在内核态时，执行内核代码，所产生的地址大于或等于 0xc0000000。但是，有时内核为了检索或者存放数据必须访问用户态线性地址空间。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;页全局目录的第一部分表项映射的线性地址小于 0xc0000000，具体值依赖于特定进程&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;4-3-内核页表&quot;&gt;4-3 内核页表&lt;/h2&gt;
+
+&lt;p&gt;内核维持着一组自己使用的页表，驻留在所谓的主内核页全局目录（master kernel page global directory）中。&lt;/p&gt;
+
+&lt;p&gt;内核初始化自己的页表分为两个阶段：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;内核创建一个有限的地址空间，该地址空间仅能够将内核装入 RAM 和对其初始化的核心数据结构&lt;/li&gt;
+  &lt;li&gt;内核充分利用剩余的 RAM 并适当建立分页表&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;4-4-处理-tlb&quot;&gt;4-4 处理 TLB&lt;/h2&gt;
+
+&lt;p&gt;一般来说，任何进程切换都意味着更换活动页表集。相对于过期页表，本地 TLB 表项必须被刷新；这个过程在内核把新的页全局目录的地址写入 cr3 控制器时会自动完成。不过在有些情况下将避免 TLB 被刷新：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;两个使用相同页表集的普通进程之间执行进程切换时&lt;/li&gt;
+  &lt;li&gt;一个普通进程与一个内核线程之间执行进程切换时。内核线程并不拥有自己的页表集，他们使用刚在 CPU 傻姑娘执行过的普通进程的页表集&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">1-内存地址</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/linux_kernel/chapter_2/lk_1.png" /><media:content medium="image" url="http://localhost:4000/linux_kernel/chapter_2/lk_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Linux Kernel: Abstract</title><link href="http://localhost:4000/linux-kernel-1.html" rel="alternate" type="text/html" title="Linux Kernel: Abstract" /><published>2021-10-27T00:00:00+08:00</published><updated>2021-10-27T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-1</id><content type="html" xml:base="http://localhost:4000/linux-kernel-1.html">&lt;h1 id=&quot;1-操作系统基本概念&quot;&gt;1. 操作系统基本概念&lt;/h1&gt;
+
+&lt;p&gt;操作系统是一个基本程序的集合，在这个集合中，最重要的程序称为内核（Kernel）。当操作系统启动时，内核被装载到 RAM 中。内核为操作系统提供了主要功能，一般把“内核”作为“操作系统”的同义词。&lt;/p&gt;
+
+&lt;p&gt;操作系统有两个目标：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;与硬件交互&lt;/strong&gt;：为硬件平台上的低层可编程部件提供服务&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;为用户程序提供执行环境&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;当用户程序想要使用硬件资源时，需要向操作系统发送请求；内核对这个请求进行评估，如果允许使用该硬件资源，则由内核代表与相关硬件进行交互。为了实现这种机制，操作系统依靠特殊的硬件机制来禁止用户程序直接与硬件交互；CPU 至少引入了两种执行模式：用户程序的非特权模式 &amp;amp; 内核的特权模式；在 Unix 中分别称为&lt;strong&gt;用户态&lt;/strong&gt;（User Model）&amp;amp; &lt;strong&gt;内核态&lt;/strong&gt;（Kernel Model）。&lt;/p&gt;
+
+&lt;h2 id=&quot;11-多用户系统&quot;&gt;1.1 多用户系统&lt;/h2&gt;
+
+&lt;p&gt;多用户系统（Multiuser System）是指能够&lt;strong&gt;并发&lt;/strong&gt;且&lt;strong&gt;独立&lt;/strong&gt;地执行分别属于多个用户的应用程序的系统。&lt;/p&gt;
+
+&lt;p&gt;并发是多个应用程序能同时处于活动状态并且竞争各种资源，如 CPU，内存，硬盘等。独立是指每个应用程序能够执行自己的任务而不需要考虑其他应用程序的行为。&lt;/p&gt;
+
+&lt;p&gt;多用户系统需要具备以下特点：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;用户身份认证机制&lt;/li&gt;
+  &lt;li&gt;应用程序运行的保护机制：防止不同用户程序之间的干扰&lt;/li&gt;
+  &lt;li&gt;分配给每个用户的资源的记账机制&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;上述安全机制的实现与 CPU 特权模式相关；Unix 是多用户系统&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;12-用户与组&quot;&gt;1.2 用户与组&lt;/h2&gt;
+
+&lt;p&gt;在多用户系统中，每个用户在机器上都有私用空间，比如磁盘空间。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;操作系统需要保证用户空间的私有部分仅仅对其拥有者是可见的&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;每个用户在操作系统中都有一个唯一标识，叫做用户标识符（User ID）；同时，为了与其他用户有选择地共享资料，每个用户可以是一个或者多个用户组的成员，组由用户组标识符唯一标识（User Group ID）。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;每个文件也与一个用户组对应：比如同组用户可以读，其他用户不可读&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Unix 系统中存在一个 root 用户，操作系统不对其进行进行任何限制，root 能够访问系统中的任何一个文件，干涉任意一个用户程序。&lt;/p&gt;
+
+&lt;h2 id=&quot;13-进程&quot;&gt;1.3 进程&lt;/h2&gt;
+
+&lt;p&gt;进程（Process）是操作系统对正在运行程序的一个抽象。一个进程可以看作“&lt;strong&gt;程序执行的一个实例&lt;/strong&gt;”或者“&lt;strong&gt;一个运行程序的执行上下文&lt;/strong&gt;”。&lt;/p&gt;
+
+&lt;p&gt;每个进程都有一个地址空间（Address Space）：&lt;em&gt;允许进程引用的内存地址集合&lt;/em&gt;。&lt;/p&gt;
+
+&lt;p&gt;在多用户系统中，多个进程能够并发执行，并且能够竞争系统资源；这种允许进程并发活动的系统被称为&lt;strong&gt;多道程序系统&lt;/strong&gt;或者&lt;strong&gt;多处理系统&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;进程与程序之间的关系：&lt;strong&gt;几个进程能够并发地执行同一个程序，而一个进程能够顺序执行多个程序&lt;/strong&gt;&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;在单处理器系统上，在某一个时刻只能有一个进程占用 CPU；操作系统中的调度程序（Scheduler）用于协调进程的执行。在不同的操作系统中，进程的执行方式分为两种：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;非抢占式：只有当进程自愿放弃 CPU 时，调度程序才能被调用&lt;/li&gt;
+  &lt;li&gt;抢占式：CPU 可以被其他进程抢占；比如，操作系统记录每个进程占有 CPU 的时间，并周期性地激活调度程序&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Unix 是具有&lt;strong&gt;抢占式进程的多处理系统&lt;/strong&gt;&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Unix 采用进程/内核模式。每个进程都认为自己是系统中的唯一进程，独占操作系统所提供的服务。当进程发出系统调用时，硬件就会把特权模式由用户态切换到内核态，之后进程以有限的目的开始一个内核过程的执行。当请求调用结束，内核过程迫使硬件返回到用户态，然后进程从系统调用的下一条指令继续执行。&lt;/p&gt;
+
+&lt;h1 id=&quot;2-unix-文件系统概述&quot;&gt;2. Unix 文件系统概述&lt;/h1&gt;
+
+&lt;h2 id=&quot;21-文件&quot;&gt;2.1 文件&lt;/h2&gt;
+
+&lt;p&gt;Unix 文件是以字节序列组成的信息载体，内核并不解释文件的内容。文件被组织成一个树形结构的命名空间中：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_1/lk_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;除了叶子节点外，其他节点都表示目录名；目录节点包含它下面的文件及目录所有的信息。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;文件名长度一般限制在 255 个字符内；同一个目录下的文件名不能相同&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Unix 进程有一个当前工作目录，属于进程执行上下文，&lt;strong&gt;用于标识进程所用的文件目录&lt;/strong&gt;。同时，进程使用路径名（Path Name）标识特定的文件。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;”.”表示当前工作目录；“..”表示父目录&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;22-软链接与硬链接&quot;&gt;2.2 软链接与硬链接&lt;/h2&gt;
+
+&lt;p&gt;包含在目录中的&lt;strong&gt;文件名就是一个文件的硬链接&lt;/strong&gt;（Hard Link），简称链接。&lt;/p&gt;
+
+&lt;p&gt;在同一个目录或者不同的目录中，同&lt;strong&gt;一个文件可以有多个链接，因此对应多个文件名&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;一个文件可以对应多个文件名，而一个文件名就是一个链接&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ln &lt;/span&gt;P1 P2  &lt;span class=&quot;c&quot;&gt;# 为由路径 P1 标识的文件创建一个路径名为 P2 的硬链接&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;硬链接有两个限制：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;不允许给目录创建硬链接&lt;/strong&gt;：会使得目录树变成环形图，导致不能通过文件名定位文件&lt;/li&gt;
+  &lt;li&gt;只有在同一个文件系统中的文件之间才能创建链接：Unix 系统中可能包含了多种文件系统&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;为了突破上面的两个限制，引入了&lt;strong&gt;软链接&lt;/strong&gt;（Soft Link），也称为符号链接。符号链接是&lt;em&gt;短文件（软链接也是文件）&lt;/em&gt;，&lt;em&gt;包含另一个文件的任意一个路径名&lt;/em&gt;。路径名可以指向任意文件系统的任意文件或者目录，甚至可以指向一个不存在的文件。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ln&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; P1 P2 &lt;span class=&quot;c&quot;&gt;# 创建一个路径名为 P2 的软链接，P2 指向路径名 P1；对 P2 的引用都自动转化为对 P1 的引用&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;总结：硬链接相当于对源文件的直接引用，软链接是对源文件的间接引用。&lt;/p&gt;
+
+&lt;h2 id=&quot;22-文件类型&quot;&gt;2.2 文件类型&lt;/h2&gt;
+
+&lt;p&gt;Unix 文件类型分为：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;普通文件&lt;/li&gt;
+  &lt;li&gt;目录&lt;/li&gt;
+  &lt;li&gt;符号链接&lt;/li&gt;
+  &lt;li&gt;面向块的设备文件&lt;/li&gt;
+  &lt;li&gt;面向字符的设备文件&lt;/li&gt;
+  &lt;li&gt;管道 &amp;amp; 命名管道&lt;/li&gt;
+  &lt;li&gt;套接字&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;前三种是基本的文件类型；设备文件与 IO 设备及相关驱动程序有关；管道与套接字是用于进程间通信的特殊文件。&lt;/p&gt;
+
+&lt;h2 id=&quot;23-文件描述符与索引节点&quot;&gt;2.3 文件描述符与索引节点&lt;/h2&gt;
+
+&lt;p&gt;Unix 文件的内容与文件描述信息是分开存储的：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;文件内容是由字节序列组成，不包含任何控制信息，如文件长度等&lt;/li&gt;
+  &lt;li&gt;文件的描述信息存储在&lt;strong&gt;索引节点&lt;/strong&gt;（Index Node）中，每个文件都有自己的索引节点；文件系统用索引节点来标识文件&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;索引节点中包含的信息有：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;文件类型&lt;/li&gt;
+  &lt;li&gt;与文件相关的硬链接个数&lt;/li&gt;
+  &lt;li&gt;以字节为单位的文件长度&lt;/li&gt;
+  &lt;li&gt;在文件系统中用于标识文件的索引节点号&lt;/li&gt;
+  &lt;li&gt;文件拥有者的 UID&lt;/li&gt;
+  &lt;li&gt;文件的用户组 ID&lt;/li&gt;
+  &lt;li&gt;访问权限和文件模式&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;24-文件操作的系统调用&quot;&gt;2.4 文件操作的系统调用&lt;/h2&gt;
+
+&lt;p&gt;当用户访问文件内容时，实际上是访问存储在硬件块设备上的数据。由于处于用户态的进程不能直接与底层硬件交互，所以每次文件操作必须在内核态下进行。&lt;/p&gt;
+
+&lt;h3 id=&quot;241-打开文件&quot;&gt;2.4.1 打开文件&lt;/h3&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;fd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;flag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// flag 指定打开文件的方式（读，写，追加）&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;该系统调用创建一个“打开文件”对象，并返回文件描述符。&lt;/p&gt;
+
+&lt;p&gt;其中，打开文件对象包括：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;文件操作的一些数据结构：表示文件当前位置的 offset；指定文件打开方式的一组标识&lt;/li&gt;
+  &lt;li&gt;进程可以调用的一些内核函数指针&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;文件描述符表示进程与打开文件之间的交互，而打开的文件对象包含了与这种交互相关的数据。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;同一个打开文件对象可以由同一个进程的几个文件描述符标识&lt;/strong&gt;&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;多个进程同时打开一个文件时，文件系统会给每个进程分配一个单独的打开文件对象与单独的文件描述符。&lt;/p&gt;
+
+&lt;h3 id=&quot;242-访问打开的文件&quot;&gt;2.4.2 访问打开的文件&lt;/h3&gt;
+
+&lt;p&gt;对于普通的 Unix 文件，可以顺序访问，也可以随机访问；默认是顺序访问。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;内核把文件指针存放在打开文件对象中&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;read（）&lt;/code&gt;与 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;write()&lt;/code&gt; 是从文件指针的当前位置开始操作；如果需要更新文件指针的值，必须显示调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lseek()&lt;/code&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;243-关闭文件&quot;&gt;2.4.3 关闭文件&lt;/h3&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;res&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;该方法用于释放与文件描述符相对应的打开文件对象。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;进程终止时，内核会关闭所有仍然打开的文件&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;244-重命名与删除文件&quot;&gt;2.4.4 重命名与删除文件&lt;/h3&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;res&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;oldPath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;newPath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 更新了文件链接的名字&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;res&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unlink&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pathName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 减少文件链接数，删除了对应的目录项；当链接数为 0 时，文件才会被真正删除&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;删除与重命名文件时，并不需要打开文件。这两个操作并没有对文件的内容进行更新，而是对目录的内容进行了更新。&lt;/p&gt;
+
+&lt;h1 id=&quot;3-unix-内核概述&quot;&gt;3. Unix 内核概述&lt;/h1&gt;
+
+&lt;h2 id=&quot;31-进程内核模式&quot;&gt;3.1 进程/内核模式&lt;/h2&gt;
+
+&lt;p&gt;正如之前描述的，CPU 既可以运行在用户态，也可以运行在内核态。当应用程序在用户态下执行时，不能直接访问内核的数据机构与程序；当应用程序运行在内核态下是，便没有这些限制。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;CPU 模型为从用户态转换到内核态提供了特殊的指令，反之亦然&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;进程是动态的实体，通常只有有限的生命周期。&lt;/p&gt;
+
+&lt;p&gt;内核本身并不是进程，而是进程的管理者。对于进程/内核模式假设：&lt;strong&gt;请求内核服务的进程使用系统调用（System Call）的特殊编程机制。每个系统调用都设置了一组识别进程请求的参数，然后执行与硬件相关的 CPU 指令完成从用户态到内核态的转换&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;除了用户进程外，Unix 系统还包括了几个内核线程的特权进程，特点如下：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;以内核态运行在内核地址空间&lt;/li&gt;
+  &lt;li&gt;不与用户直接交互&lt;/li&gt;
+  &lt;li&gt;系统启动时创建，一直处于活跃状态直到系统关闭&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_1/lk_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;有几种方式可以使进程进行用户态与内核态的转换：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;进程进行系统调用&lt;/li&gt;
+  &lt;li&gt;正在执行进程的 CPU 发出一个异常（Exception）信号（如无效的指令），由内核代表产生异常的进程处理异常&lt;/li&gt;
+  &lt;li&gt;外围设备向 CPU 发出一个中断信号（Interrupt）以通知时间的发生（如 IO 操作已完成）；中断信号交由内核中的中断处理程序来处理&lt;/li&gt;
+  &lt;li&gt;内核线程被执行：内核线程运行在内核态&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;32-进程实现&quot;&gt;3.2 进程实现&lt;/h2&gt;
+
+&lt;p&gt;每个进程都由一个&lt;strong&gt;进程描述符&lt;/strong&gt;（Process Descriptor）表示，该描述符包含了进程当前状态的信息。&lt;/p&gt;
+
+&lt;p&gt;当进程暂停时，就把相关寄存器中的内容保存在进程描述符中，寄存器包括：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;程序计数器 &amp;amp; 栈指针寄存器&lt;/li&gt;
+  &lt;li&gt;通用寄存器&lt;/li&gt;
+  &lt;li&gt;浮点寄存器&lt;/li&gt;
+  &lt;li&gt;包含 CPU 状态信息的处理器控制寄存器&lt;/li&gt;
+  &lt;li&gt;用来跟踪进程对 RAM 访问的内存管理寄存器&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;当进程被重新恢复执行时，内核将进程描述符中对应的字段装载到 CPU 寄存器中。&lt;/p&gt;
+
+&lt;p&gt;当进程等待某一个事件时，会被置入进程描述符等待队列中等待事件的发生。&lt;/p&gt;
+
+&lt;h2 id=&quot;33-可重入内核&quot;&gt;3.3 可重入内核&lt;/h2&gt;
+
+&lt;p&gt;Unix 内核是可重入（Reentrant）的，是指多个进程可以同时在内核态下执行。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在单处理器系统上只有一个进程在运行，但是&lt;em&gt;可以有多个进程在内核态下被阻塞&lt;/em&gt;，比如等待 CPU或者 IO 操作完成&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;如果发生硬件中断，可重入内核就可以挂起正在执行的进程去响应中断，即使该进程正处于内核态。这种实现方式能够提高发出中断的设备控制器的吞吐量，否则该设备需要一直等待 CPU 直到 CPU 重新从内核态切换为用户态。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;内核控制路径（Kernel Control Path）是指内核处理系统调用，异常或者中断所执行的指令序列&lt;/strong&gt;。而可重入性内核可以使得 CPU 交错执行内核控制路径。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_1/lk_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;上图显示了交错与非交错的内核控制路径；其中&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;User：在用户态下运行一个进程&lt;/li&gt;
+  &lt;li&gt;Excp：运行一个异常处理程序或者系统调用程序&lt;/li&gt;
+  &lt;li&gt;Intr：运行一个中断处理程序&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;34-进程地址空间&quot;&gt;3.4 进程地址空间&lt;/h2&gt;
+
+&lt;p&gt;进程运行在私有地址空间中。处于用户态的进程涉及到私有栈，数据区，代码区；处于内核态的进程访问内核的数据区，代码区，但是使用另外的私有栈。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;每个内核控制路径都引用自己的私有内核栈&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;进程间也能共享部分地址空间，实现进程间通信。另外，Linux 支持存在在磁盘上的文件部分映射到进程的部分地址空间中。&lt;/p&gt;
+
+&lt;h2 id=&quot;35-同步与临界区&quot;&gt;3.5 同步与临界区&lt;/h2&gt;
+
+&lt;p&gt;为了实现可重入内核，需要引入同步机制，以&lt;strong&gt;防止不同的内核控制路径对同一个数据结构的访问出现不一致的状态&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;对全局变量的安全访问一般是通过原子操作（Atomic Operation）实现。&lt;strong&gt;临界区&lt;/strong&gt;（Critical Region）是指存在这样一段代码，进入这段代码的进程必须完成，之后另一个进程才能进入。&lt;/p&gt;
+
+&lt;p&gt;常见的几种同步内核控制路径的方式：&lt;/p&gt;
+
+&lt;h3 id=&quot;351-非抢占式内核&quot;&gt;3.5.1 非抢占式内核&lt;/h3&gt;
+
+&lt;p&gt;当进程在内核态执行时，不能被任意挂起，也不能被其他进程抢占。这样，在单处理器系统中，中断或者异常处理程序便不能修改内核数据结构，保证了数据的一致性。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;局限&lt;/strong&gt;：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;对于多处理器系统，非抢占式方式仍然不能避免不同 CPU 上的内核控制路径并发访问同一个数据结构&lt;/li&gt;
+  &lt;li&gt;非抢占式内核会降低系统的执行效率&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;352-禁止中断&quot;&gt;3.5.2 禁止中断&lt;/h3&gt;
+
+&lt;p&gt;单处理器系统中还有一种同步机制：&lt;strong&gt;在进入临界区前禁止所有硬件中断，离开后再重新启用中断&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;局限&lt;/strong&gt;：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;如果临界区执行耗时比较大，那么在较长时间内会使得硬件处于冻结状态&lt;/li&gt;
+  &lt;li&gt;禁止中断只会对本地 CPU 起作用，在多处理器系统中，还需要结合其他同步方式&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;353-信号量&quot;&gt;3.5.3 信号量&lt;/h3&gt;
+
+&lt;p&gt;信号量（Semaphore）是一个广泛使用的同步机制；其仅仅是一个与数据结构（临界区）相关的计数器，所有内核线程在访问这个数据结构之前都需要检查信号量。信号量可以看作一个对象，组成如下：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;一个整数变量&lt;/li&gt;
+  &lt;li&gt;一个等待进程的链表&lt;/li&gt;
+  &lt;li&gt;两个原子方法：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;down()&lt;/code&gt; &amp;amp; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;up()&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;down()&lt;/code&gt;：对信号量的值减 1，如果新值小于 0，那么就会把正在运行的进程加入到该信号量链表中，然后阻塞该进程（调用调度程序）&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;up()&lt;/code&gt;：对信号量的值加 1，如果新值大于或者等于 0，则激活该信号量链表中的一个或者多个进程&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;执行流程如下&lt;/strong&gt;：&lt;/p&gt;
+
+&lt;p&gt;每个需要保护的数据结构（临界区）都有一个相关的信号量，初始值为 1。当内核控制路径试图访问该数据结构时，首先对信号量执行 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;down()&lt;/code&gt; 操作，如果信号量的新值不是负值，则允许访问；否则将内核控制路径的进程阻塞并添加到信号量链表中。当另一个进程访问数据结构结束时，执行 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;up()&lt;/code&gt; 操作，同时允许信号量链表中的一个或者多个进程继续执行。&lt;/p&gt;
+
+&lt;h3 id=&quot;354-自旋锁&quot;&gt;3.5.4 自旋锁&lt;/h3&gt;
+
+&lt;p&gt;信号量机制虽然有效，但是会比较耗时：内核需要将进程插入到信号量链表中，之后再挂起进程。在完成这两个操作时，其他的内核控制路径可能已经释放了信号量。因此对于执行临界区耗时较小的情况来说，可以推荐使用&lt;strong&gt;自旋锁&lt;/strong&gt;（Spin Lock）。&lt;/p&gt;
+
+&lt;p&gt;自旋锁与信号量类似，但是没有进程链表；&lt;strong&gt;&lt;em&gt;当一个进程发现锁被其他进程持有时，它就执行一个紧凑的循环执行进行自旋，直到锁能够被获取&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;355-避免死锁&quot;&gt;3.5.5 避免死锁&lt;/h3&gt;
+
+&lt;p&gt;当使用内核信号量比较多的情况时，很可能会出现死锁（DeadLock）的状态：受影响的进程或者内核控制路径完全处于冻结的状态。&lt;/p&gt;
+
+&lt;p&gt;为了减少内核控制路径交错执行时出现死锁的概率，有些操作系统通过&lt;em&gt;按规定的顺序请求信号量来避免死锁&lt;/em&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;36-信号与进程间通信&quot;&gt;3.6 信号与进程间通信&lt;/h2&gt;
+
+&lt;p&gt;Unix 信号（Signal）是一种&lt;strong&gt;把系统事件上报给进程的机制&lt;/strong&gt;。系统事件分为两种&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;异步通告&lt;/em&gt;&lt;/strong&gt;：如终端输入 ctrl-c，内核会向前台进程发出中断信号&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;同步错误或者异常&lt;/em&gt;&lt;/strong&gt;：如进程访问内存非法地址时，内核会向进程发送异常信号&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;进程对收到的信号的处理方式有：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;忽略该信号&lt;/li&gt;
+  &lt;li&gt;异步地执行一个指定的过程（信号处理程序）&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;同时，如果进程不指定处理方式，内核就会根据信号类型的不同，有五种默认的执行操作：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;终止进程&lt;/li&gt;
+  &lt;li&gt;将进程上下文与地址空间 core dump，并终止进程&lt;/li&gt;
+  &lt;li&gt;忽略信号&lt;/li&gt;
+  &lt;li&gt;挂起进程&lt;/li&gt;
+  &lt;li&gt;恢复进程&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Unix 在用户态下的进程间通信机制有：&lt;strong&gt;信号量，消息队列，共享内存&lt;/strong&gt;等。&lt;/p&gt;
+
+&lt;p&gt;该信号量与内核中的信号量类似，之不过是在用户态下；消息队列可以通过指定的队列允许进程之间交换消息；共享内存为进程之间交换和共享数据提供了最快的方式。&lt;/p&gt;
+
+&lt;h2 id=&quot;37-进程管理&quot;&gt;3.7 进程管理&lt;/h2&gt;
+
+&lt;p&gt;系统调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fork()&lt;/code&gt;：创建新的进程；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;_exit()&lt;/code&gt;：终止进程；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;exec()&lt;/code&gt;：装入一个新的程序。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fork()&lt;/code&gt; 创建子进程时，使用的是写时复制技术，把内存页的复制延迟到最后一刻。&lt;/p&gt;
+
+&lt;h2 id=&quot;38-内存管理&quot;&gt;3.8 内存管理&lt;/h2&gt;
+
+&lt;h3 id=&quot;381-虚拟内存&quot;&gt;3.8.1 虚拟内存&lt;/h3&gt;
+
+&lt;p&gt;虚拟内存（Virtual Memory）是一种抽象，作为一种逻辑层处于应用程序内存请求与硬件内存管理单元（Memory Management Unit）之间；虚拟内存的优势有：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;多个进程可以并发执行&lt;/li&gt;
+  &lt;li&gt;应用程序所需的内存大于实际可用物理内存时也可以运行&lt;/li&gt;
+  &lt;li&gt;程序只有部分代码装入内存时进程也可以执行&lt;/li&gt;
+  &lt;li&gt;允许进程访问可用物理内存的子集&lt;/li&gt;
+  &lt;li&gt;程序可重定位（可以把程序放在物理内存的任何地方）&lt;/li&gt;
+  &lt;li&gt;进程可以共享库函数或者内存映像&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;虚拟内存系统主要是虚拟地址空间（Virtual Address Space）的概念。&lt;strong&gt;当进程使用虚拟地址时，内核与 MMU 协同定位其在内存中的实际物理地址&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;虚拟内存通过把可用 RAM 划分成大小为 4KB or 8KB 的&lt;strong&gt;页框&lt;/strong&gt;，并且引入&lt;strong&gt;页表&lt;/strong&gt;来指定&lt;strong&gt;虚拟地址与物理地址之间的对应关系&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;一块连续的虚拟地址请求可以通过分配一组非连续的物理地址页框来实现&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;381-进程虚拟地址空间处理&quot;&gt;3.8.1 进程虚拟地址空间处理&lt;/h3&gt;
+
+&lt;p&gt;进程的虚拟地址空间包括了进程可以引用的所有虚拟内存地址。内核分配个进程的虚拟地址空间由以下内存区组成：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;程序可执行代码&lt;/li&gt;
+  &lt;li&gt;程序的初始化数据 &amp;amp; 未初始化数据&lt;/li&gt;
+  &lt;li&gt;初始程序栈（用户态栈）&lt;/li&gt;
+  &lt;li&gt;共享库&lt;/li&gt;
+  &lt;li&gt;堆（程序动态请求的内存）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;通过&lt;strong&gt;请求调页&lt;/strong&gt;（Demand Paging）的内存分配策略可以使得进程在其页还没有加载到内存时就可以执行；当进程访问一个不存在的页时，MMU 就会产生一个异常，之后异常处理程序会为其分配一个空闲页框并加载数据。&lt;/p&gt;
+
+&lt;h2 id=&quot;39-设备驱动程序&quot;&gt;3.9 设备驱动程序&lt;/h2&gt;
+
+&lt;p&gt;内核通过设备驱动程序与 IO 设备交互。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;设备驱动程序包含在内核中&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_1/lk_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;通过设备驱动程序，内核可以以统一的方式对待所有的设备，并且通过相同的接口访问这些设备。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">1. 操作系统基本概念</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/linux_kernel/chapter_1/lk_1.png" /><media:content medium="image" url="http://localhost:4000/linux_kernel/chapter_1/lk_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">动名词结构</title><link href="http://localhost:4000/gerund.html" rel="alternate" type="text/html" title="动名词结构" /><published>2021-10-22T00:00:00+08:00</published><updated>2021-10-22T00:00:00+08:00</updated><id>http://localhost:4000/gerund</id><content type="html" xml:base="http://localhost:4000/gerund.html">&lt;h1 id=&quot;1-介绍&quot;&gt;1. 介绍&lt;/h1&gt;
+
+&lt;p&gt;动名词是由动词变化而来，一方面保留着动词的某些特征，具有动词的某些变化形式，用以表达名词所不能表达的较为复杂的意念；另一方面动名词在句子的用法及功能与名词类同: 在句子中可以作主语、宾语、表语、定语，它也可以被副词修饰或者用来支配宾语。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;既有动词的变化形式，又具有名词的用法&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;2-用法&quot;&gt;2. 用法&lt;/h1&gt;
+
+&lt;h2 id=&quot;21-主语&quot;&gt;2.1 主语&lt;/h2&gt;
+
+&lt;p&gt;动名词做主语，&lt;strong&gt;谓语动词用单数&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;直接位于句首做主语&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Swimming is a good sport in summer.&lt;/li&gt;
+      &lt;li&gt;Fighting broke out between the South and the North.&lt;/li&gt;
+      &lt;li&gt;Breathing became difficult at that altitude.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;用 it 作形式主语&lt;/strong&gt;，把&lt;strong&gt;动名词&lt;/strong&gt;(真实主语)&lt;strong&gt;置于句尾作后置主语&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;动名词做主语时，不太常用 it 作先行主语，多见于某些形容词及名词之后。常见的能用于这种结构的形容词还有：good，better，wonderful, enjoyable，interesting，foolish，difficult，useless，senseless，worthwhile，等。但是 important，essential，necessary 等形容词不能用于上述结构。&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;It is no use waiting for him any longer.&lt;/li&gt;
+      &lt;li&gt;It is no good learning without practice.&lt;/li&gt;
+      &lt;li&gt;It is dangerous using this method to measure the speed of light.&lt;/li&gt;
+      &lt;li&gt;It is worthwhile consulting your tutor about it again.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;用于 “&lt;strong&gt;There be” 结构&lt;/strong&gt;中&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;There is no saying when he’ll come. 很难说他何时回来&lt;/li&gt;
+      &lt;li&gt;There is no joking about such matters.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;用于&lt;strong&gt;布告形式的省略结构&lt;/strong&gt;中&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;No smoking. =  Smoking is not allowed here.&lt;/li&gt;
+      &lt;li&gt;No parking.  = parking is not allowed here.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;动名词的复合结构作主语&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;当动名词有自己的逻辑主语时，常可以在前面加上一个&lt;strong&gt;名词或代词的所有格&lt;/strong&gt;，构成动名词的复合结构(此时，名词或代词的所有格做动名词的逻辑主语)。&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;His coming to help was a great encouragement to us.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;22-定语&quot;&gt;2.2 定语&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;动名词一般为名词性，很少做定语，不过在一些特殊的情况下可以用来表示所修饰名词的用途
+    &lt;ul&gt;
+      &lt;li&gt;sleeping bag&lt;/li&gt;
+      &lt;li&gt;walking stick&lt;/li&gt;
+      &lt;li&gt;drinking water&lt;/li&gt;
+      &lt;li&gt;swimming pool&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;有些动名词已经转化成了形容词，常用作定语修饰物，表示“令人……的”，如 exciting, shocking, puzzling, confusing, disappointing, discouraging, boring, tiring, moving, touching, interesting, satisfying, frightening, amazing 等
+    &lt;ul&gt;
+      &lt;li&gt;That must be a terrifying experience.&lt;/li&gt;
+      &lt;li&gt;The experiment was an amazing success.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;23-宾语&quot;&gt;2.3 宾语&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;一些动词后用动名词作宾语，如 finish 完成，enjoy享受，mind介意，suggest建议，practise练习，admit 承认，advise 建议，allow 允许，appreciate 感激，avoid 避免，consider 考虑，delay 推迟，deny 否认，discuss 讨论，dislike 不喜欢，enjoy 喜爱，escape 逃脱，excuse 原谅，fancy 设想， forbid 禁止，forgive 原谅，imagine 想像，keep 保持，mention 提及，mind 介意 miss 没赶上，pardon 原谅，permit 允许， prevent 阻止，risk 冒险，understand 理解
+    &lt;ul&gt;
+      &lt;li&gt;I admit breaking the window.&lt;/li&gt;
+      &lt;li&gt;Try to imagine being on the moon.&lt;/li&gt;
+      &lt;li&gt;He tried to escape being punished.&lt;/li&gt;
+      &lt;li&gt;You shouldn’t keep thinking about it.&lt;/li&gt;
+      &lt;li&gt;Would you mind going with her?&lt;/li&gt;
+      &lt;li&gt;I can’t understand neglecting children like that.&lt;/li&gt;
+      &lt;li&gt;We only missed seeing each other by five minutes.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;有些动词短语后跟动名词作宾语，如 insist on, be worth，give up，object/objection to，put off，keep on，insist on，leave off，look forward to，think of, can’t help, be/get used to, spend…in ,can’t stand，feel like 等
+    &lt;ul&gt;
+      &lt;li&gt;Do you feel like going out for dinner with me tonight?&lt;/li&gt;
+      &lt;li&gt;Chinese people are looking forward to holding the 27th Olympic games.&lt;/li&gt;
+      &lt;li&gt;I am used to going to bed late and getting up late.&lt;/li&gt;
+      &lt;li&gt;The professor was quite used to students’ being late for his lecture.&lt;/li&gt;
+      &lt;li&gt;He put off making a decision till he had more information.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;24-表语&quot;&gt;2.4 表语&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;动名词作表语时句子&lt;strong&gt;主语常是表示无生命的事物名词或 what 引导的名词性从句&lt;/strong&gt;。表语动名词与主语通常是对等的关系，表示主语的内容，&lt;strong&gt;主语、表语可互换位置&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;如果句中的主语和表语同为动词时，要注意保持两个动词在形式上的一致。&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Your task is cleaning the windows. = Cleaning the windows is your task.&lt;/li&gt;
+      &lt;li&gt;What I hate most is being laughed at. = Being laughed at is what I hate most.&lt;/li&gt;
+      &lt;li&gt;The most popular pastime is playing chess. = Playing chess is the most popular pastime.&lt;/li&gt;
+      &lt;li&gt;The only thing that interests her is working. = Working is the only thing that interests her.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1. 介绍</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/nce/nce_2.jpg" /><media:content medium="image" url="http://localhost:4000/nce/nce_2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">动词不定式</title><link href="http://localhost:4000/verb-infinitive.html" rel="alternate" type="text/html" title="动词不定式" /><published>2021-10-15T00:00:00+08:00</published><updated>2021-10-15T00:00:00+08:00</updated><id>http://localhost:4000/verb-infinitive</id><content type="html" xml:base="http://localhost:4000/verb-infinitive.html">&lt;h2 id=&quot;1-概要&quot;&gt;1. 概要&lt;/h2&gt;
+
+&lt;p&gt;动词不定式是一种非谓语动词形式，其结构为 &lt;strong&gt;to do&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;其中 to 不是介词，而是动词不定式的符号，称为小品词&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;动词不定式没有人称和数的变化，但有时态和语态的变化。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;动词不定式和其后面的名词等构成不定式短语&lt;/em&gt;，在句子中可以&lt;strong&gt;用作主语、表语、宾语、定语、状语、补足语、独立成分或与疑问词等连用&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;2-时态与语态&quot;&gt;2. 时态与语态&lt;/h2&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;不定式&lt;/th&gt;
+      &lt;th&gt;主动语态&lt;/th&gt;
+      &lt;th&gt;被动语态&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;一般式&lt;/td&gt;
+      &lt;td&gt;to do&lt;/td&gt;
+      &lt;td&gt;to be done&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;进行式&lt;/td&gt;
+      &lt;td&gt;to be doing&lt;/td&gt;
+      &lt;td&gt;无&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;完成式&lt;/td&gt;
+      &lt;td&gt;to have done&lt;/td&gt;
+      &lt;td&gt;to have been  done&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;完成进行式&lt;/td&gt;
+      &lt;td&gt;to have been doing&lt;/td&gt;
+      &lt;td&gt;无&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;They pretended not to see us.&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;不定式的一般式表示与谓语动词动作 &lt;strong&gt;&lt;em&gt;几乎同时发生*** 或者 **&lt;/em&gt;发生在谓语动词动作之后*&lt;/strong&gt;&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;He pretended to be sleeping.&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;不定式的进行式表示&lt;strong&gt;&lt;em&gt;在谓语动词动作发生的同时,不定式的动作也正在进行&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;She pretended to have known it before.&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;完成式表示不定式动作&lt;strong&gt;&lt;em&gt;发生在谓语动作之前&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;We’re happy to have been working with you.&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;完成进行式表示&lt;strong&gt;&lt;em&gt;谓语动作发生之前,不定式的动作一直在进行而且可能之后也继续&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;3-用法&quot;&gt;3. 用法&lt;/h2&gt;
+
+&lt;h3 id=&quot;31-主语&quot;&gt;3.1 主语&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;To be a doctor is hard.&lt;/li&gt;
+  &lt;li&gt;To learn English well is not easy.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;单个不定式作主语时，谓语动词用单数&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;动词不定式（短语）作主语时，为了避免句子的头重脚轻，可以&lt;strong&gt;用 “it” 作形式主语，而把真正的主语即动词不定式（短语）放在句子的后部&lt;/strong&gt;。如：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;It is not easy to learn English well.&lt;/li&gt;
+  &lt;li&gt;It is important for students to use English every day.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;32-宾语&quot;&gt;3.2 宾语&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;动词不定式当宾语的格式为：vt + to do.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;动词不定式（短语）可以放在一些动词后面用作宾语，能以动词不定式作宾语的动词有：begin, start, want, forget, remember, learn, like, hate, love, ask , decide, expect, want, hope, wish, offer, fail, plan, learn, pretend, refuse, manage, help, agree, promise, prefer, mean 等等&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;I want to tell you a story.&lt;/li&gt;
+  &lt;li&gt;They begin to work at eight every morning.&lt;/li&gt;
+  &lt;li&gt;Don’t forget to lock the door.&lt;/li&gt;
+  &lt;li&gt;Would you like to go and have a picnic with us tomorrow?&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;如果 and 连接两个动词不定式，&lt;em&gt;第二个动词不定式一般省 “to”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;He wants to go and have a swim with us.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;若作宾语的动词不定式（短语）很长，可用 it 作形式宾语&lt;/strong&gt;（与形式主语类似）。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;I find it interesting to learn English with you.&lt;/li&gt;
+  &lt;li&gt;He found it hard to catch up with others.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;33-表语&quot;&gt;3.3 表语&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;表语，属于主语补足语，语法名词，是指说明主语的身份、性质、品性、特征和状态的词或从句。表语常由名词、形容词、介词短语、动名词、不定式、副词来充当，它&lt;em&gt;常位于系动词之后&lt;/em&gt;。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;不定式表示目的
+    &lt;ul&gt;
+      &lt;li&gt;The purpose of education is to develop a fine personality in children.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;表示事态发展的结果、预期的结果、不幸的命运
+    &lt;ul&gt;
+      &lt;li&gt;He was to perish in a shipwreck and to leave a wife and two children.&lt;/li&gt;
+      &lt;li&gt;You are to die at ninety-eight.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;用于第一人称疑问句，表示征求意见
+    &lt;ul&gt;
+      &lt;li&gt;What am I to say if they ask me the question?&lt;/li&gt;
+      &lt;li&gt;What am I to do if I have no money?&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;表示“同意、安排、命令、决定、劝告、意愿、禁止”等
+    &lt;ul&gt;
+      &lt;li&gt;They are to marry next week.&lt;/li&gt;
+      &lt;li&gt;Children are not to smoke.&lt;/li&gt;
+      &lt;li&gt;You must be patient and persistent if you are to succeed.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;不定式作表语，可用主动形式表示被动意义
+    &lt;ul&gt;
+      &lt;li&gt;She is to blame.&lt;/li&gt;
+      &lt;li&gt;Something is still to find out.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;34-定语&quot;&gt;3.4 定语&lt;/h3&gt;
+
+&lt;p&gt;动词不定式作定语，&lt;em&gt;放在所修饰的名词或代词后&lt;/em&gt;。与所修饰名词有如下关系:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;主谓关系&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;不定式作定语表示主谓关系，指的是中心词是不定式的逻辑主语&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;He is not a man to tell a lie.&lt;/li&gt;
+      &lt;li&gt;See if you can get the car to start.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;动宾关系&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;不定式作定语表示动宾关系，指的是中心词是不定式的逻辑宾语&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;We have a lot of work to do.&lt;/li&gt;
+      &lt;li&gt;I have some clothes to wash.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;当不定式与所修饰的中心词有动宾关系时，不定式的动词需为及物动词，若是不及物动词，不定式后需加上适当的介词。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;I need a pen to write with.&lt;/li&gt;
+      &lt;li&gt;Give me some paper to write on.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;同位关系&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;不定式做定语表示同位关系，指的是不定式是中心词的内容，两者具有同位关系&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;I have a wish to go to college.&lt;/li&gt;
+      &lt;li&gt;I had a dream to fly in the sky like a bird.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;有时不表示任何特别关系&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;有时不定式与被修饰的名词不存在主谓、动宾、同位关系的，此时被修饰的名词多是些抽象名词&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;We have no need to be afraid of them!&lt;/li&gt;
+      &lt;li&gt;The dog found out the way to open the door.&lt;/li&gt;
+      &lt;li&gt;I am sure of his ability to cope with this.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;35-状语&quot;&gt;3.5 状语&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;状语的作用：状语说明地点、时间、原因、目的、结果、条件、方向、程度、方式和伴随状语等。状语一般由副词、介词短语、分词和分词短语、不定式或相当于副词的词或短语来担当。其位置一般放在句首，但也可放在句末或句中。状语是一种用来修饰动词，形容词，副词或全句的词，说明时间，地点，程度，方式等概念。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;表示目的&lt;/p&gt;
+
+    &lt;p&gt;不定式用作目的状语时，常常翻译成”为了”，”目的是”。&lt;/p&gt;
+
+    &lt;p&gt;不定式用作目的状语&lt;strong&gt;&lt;em&gt;常放在句首和句末&lt;/em&gt;&lt;/strong&gt;。一般说来，用于句首属于强调性用法，即强调动词的目的。&lt;/p&gt;
+
+    &lt;p&gt;有时为了&lt;strong&gt;&lt;em&gt;特别强调目的状语，可以在不定式之前加上 in order 或 so as，即构成 in order to do sth.和 so as to do sth. 结构&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;To finish my work, I worked overtime late into the night last Friday.&lt;/li&gt;
+      &lt;li&gt;He worked day and night to get the money.&lt;/li&gt;
+      &lt;li&gt;She sold her hair to buy the watch chain.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;注意不定式放句首时，逻辑主语与句子主语要一致。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;wrong: To save money, every means has been tried.&lt;/li&gt;
+      &lt;li&gt;right: To save money, he has tried every means.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;表示结果&lt;/p&gt;
+
+    &lt;p&gt;不定式作结果状语只限于下面几个词：&lt;strong&gt;*learn（得知），find（发现），see（看见），hear（听见），to be told（被告知），make（使得*&lt;/strong&gt;）等。&lt;/p&gt;
+
+    &lt;p&gt;only + 不定式常表示出乎意料的结果。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;I hurried to the library only to find it is closed.&lt;/li&gt;
+      &lt;li&gt;He arrived late only to find the train had gone.&lt;/li&gt;
+      &lt;li&gt;I visited him only to find him out.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;表示原因&lt;/p&gt;
+
+    &lt;p&gt;不定式作原因状语主要&lt;strong&gt;&lt;em&gt;用于表示情绪与心理状态的动词或形容词&lt;/em&gt;&lt;/strong&gt;，表示人对某事某物的反应如何，常译作“因……而……”。&lt;/p&gt;
+
+    &lt;p&gt;常见的这类形容词有 able（有能力的），afraid（害怕的），cruel（残忍的），possible（可能的），proud（自豪的），unable（没能力的），useless（没用的），willing（愿意的）等。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;I am so glad to hear the news .&lt;/li&gt;
+      &lt;li&gt;They were very sad to hear the news.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;表示程度&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;It’s too dark for us to see anything.&lt;/li&gt;
+      &lt;li&gt;The question is simple for him to answer.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;36-宾语补足语&quot;&gt;3.6 宾语补足语&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;宾语补足语指有些及物动词，接了宾语意义仍不完整，还需要有一个其他的句子成分，来补充说明宾语的意义、状态等，简称宾补。 宾语和它的补足语构成复合宾语。而复合宾语的第一部分通常由名词或代词充当，第二部分表示第一部分的名词或代词发出的动作或身份、特征等。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;在复合宾语中，动词不定式可充当宾语补足语，如下动词常跟这种复合宾语: want, wish, ask, tell, order, beg, permit, help, advise, persuade, allow, prepare, cause, force, call on, wait for, invite…&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Father will not allow us to play on the street.&lt;/li&gt;
+  &lt;li&gt;We believe him to be guilty.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;此外，介词有时也与这种复合宾语连用:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;With a lot of work to do, he didn’t go to the cinema.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;有些动词如 make, let, see, watch, hear, feel, have等与不带有to的不定式连用，但改为被动语态时，不定式要加 to&lt;/em&gt;&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;I saw him cross the road.&lt;/li&gt;
+  &lt;li&gt;He was seen to cross the road.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1. 概要</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/nce/nce_3.jpg" /><media:content medium="image" url="http://localhost:4000/nce/nce_3.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">非谓语动词</title><link href="http://localhost:4000/non-predicate-verb.html" rel="alternate" type="text/html" title="非谓语动词" /><published>2021-10-13T00:00:00+08:00</published><updated>2021-10-13T00:00:00+08:00</updated><id>http://localhost:4000/non-predicate-verb</id><content type="html" xml:base="http://localhost:4000/non-predicate-verb.html">&lt;h2 id=&quot;1-概要&quot;&gt;1. 概要&lt;/h2&gt;
+
+&lt;p&gt;一个句子中只能有一个谓语动词，但是如果需要出现其他动词，则该动词需要被降级。降级的方式有：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;非谓语动词形态&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;从句形态
+    &lt;ul&gt;
+      &lt;li&gt;The boy &lt;em&gt;who is crying&lt;/em&gt; said this.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;从属连词
+    &lt;ul&gt;
+      &lt;li&gt;例如 because, although 等（and 数据并列句子，不属于从属）&lt;/li&gt;
+      &lt;li&gt;为什么 although 与 but 不能连用，因为这样相当于两个句子都被降级为从句了，没有主干&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-非谓语动词&quot;&gt;2. 非谓语动词&lt;/h2&gt;
+
+&lt;p&gt;非谓语动词，又叫非限定动词，指在句子中&lt;strong&gt;&lt;em&gt;不是谓语的动词&lt;/em&gt;&lt;/strong&gt;，主要包括&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;不定式: to do&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;动名词: doing&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;分词: 过去分词 done/ 现在分词 doing&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;非谓语动词除了&lt;strong&gt;&lt;em&gt;不能独立作谓语&lt;/em&gt;&lt;/strong&gt;外，可以承担句子的其他成分。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;非谓语动词的使用需要考虑两种因素：主动被动 &amp;amp; 时态&lt;/p&gt;
+
+&lt;h3 id=&quot;21-语态&quot;&gt;2.1 语态&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;先&lt;strong&gt;确定非谓语动词的逻辑主语&lt;/strong&gt;，之后再确定它们之间是主动还是被动关系&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;下面是非谓语动词的一般时态：&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt; &lt;/th&gt;
+      &lt;th&gt;不定式( to do )&lt;/th&gt;
+      &lt;th&gt;动名词( doing )&lt;/th&gt;
+      &lt;th&gt;过去分词( done )/现在分词与动名词一致&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;含义&lt;/td&gt;
+      &lt;td&gt;要做未做（目的或者意愿）&lt;/td&gt;
+      &lt;td&gt;正在进行中&lt;/td&gt;
+      &lt;td&gt;已经完成&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;一般时态主动&lt;/td&gt;
+      &lt;td&gt;to do It is a new world to change.&lt;/td&gt;
+      &lt;td&gt;doing This is a changing world.&lt;/td&gt;
+      &lt;td&gt;–&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;一般时态被动&lt;/td&gt;
+      &lt;td&gt;to be done It is a new world to be changed.&lt;/td&gt;
+      &lt;td&gt;being done This is a world being changed by globalization.&lt;/td&gt;
+      &lt;td&gt;done This is a changed world.&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;上面几个句子中非谓语动词 change 的逻辑主语都是 world，因此需要确定 world 与 change 之间的关系；如：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;This is a changing world.
+    &lt;ul&gt;
+      &lt;li&gt;world 和 change 是主动关系，&lt;em&gt;世界正在改变&lt;/em&gt;；change 前置于逻辑主语 world&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;This is a world being changed by globalization
+    &lt;ul&gt;
+      &lt;li&gt;world 和 change 是被动关系，&lt;em&gt;世界正在被改变&lt;/em&gt;；change 后置于逻辑主语 world&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;上面的几个句子中，逻辑主语与非谓语动词都是紧紧挨着的，逻辑主语比较明显；有时候它们是分开的，需要我们自己识别确定逻辑主语。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;We&lt;/em&gt; have empty bottles &lt;em&gt;to recycle&lt;strong&gt;.&lt;/strong&gt;&lt;/em&gt;
+    &lt;ul&gt;
+      &lt;li&gt;recycle 的逻辑主语是 We，所以用不定式的主动形式&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;We have empty &lt;em&gt;bottles&lt;/em&gt; &lt;em&gt;to be recycled&lt;/em&gt;.
+    &lt;ul&gt;
+      &lt;li&gt;recycle 的逻辑主语是 bottles，所以用不定式的被动形式&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;最开始说，一个句子只能有一个主语 &amp;amp; 谓语，如果需要引入别的动词，需要对其进行降级。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;My colleague has the report. My colleague teaches English.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;对上面的两个句子如果降级为主从的形式，则为：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;My colleague &lt;em&gt;who teaches English&lt;/em&gt; has the report.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;不过，当定语从句本身较为简单，且只是描述一种状态（teaches）的时候，我们可以将定语从句简化成非谓语动词：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;My colleague &lt;em&gt;teaching English&lt;/em&gt; has the report.
+    &lt;ul&gt;
+      &lt;li&gt;colleague 是 teach 的逻辑主语，且为主动形式&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;除了上面简单的定语从句可以简化为非谓语形式，也有几种情况的从句可以简化：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;表示原因，并且两个句子主语相同&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;em&gt;As I did not receive any message from her&lt;/em&gt;, I gave her a phone call.&lt;/li&gt;
+      &lt;li&gt;&lt;em&gt;Not receiving any message from her&lt;/em&gt;, I gave her a phone call.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;表示结果&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;In Sydney the Chinese team got 28 gold medals, &lt;em&gt;who rank 3th of all counties.&lt;/em&gt;&lt;/li&gt;
+      &lt;li&gt;In Sydney the Chinese team got 28 gold medals &lt;em&gt;ranking 3th of all counties.&lt;/em&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;定语从句为 who+be 或 which+be 的形式&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;The book &lt;em&gt;which is written for English teaching&lt;/em&gt; came out in the 16th century.&lt;/li&gt;
+      &lt;li&gt;The book &lt;em&gt;written for English teaching&lt;/em&gt; came out in the 16th century.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;22-时态&quot;&gt;2.2 时态&lt;/h3&gt;
+
+&lt;p&gt;非谓语动词也有时态，是相对于主干谓语的时间点。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;先明确&lt;strong&gt;非谓语动词和主干谓语动词之间的时间关系&lt;/strong&gt;，之后再确定非谓语动词的时态&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt; &lt;/th&gt;
+      &lt;th&gt;不定式( to do)&lt;/th&gt;
+      &lt;th&gt;动名词( doing )&lt;/th&gt;
+      &lt;th&gt;过去分词( done )/现在分词与动名词一致&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;含义&lt;/td&gt;
+      &lt;td&gt;要做未做（目的或者意愿）&lt;/td&gt;
+      &lt;td&gt;正在进行中&lt;/td&gt;
+      &lt;td&gt;已经完成&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;一般时态主动&lt;/td&gt;
+      &lt;td&gt;to do&lt;/td&gt;
+      &lt;td&gt;doing&lt;/td&gt;
+      &lt;td&gt;–&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;一般时态被动&lt;/td&gt;
+      &lt;td&gt;to be done&lt;/td&gt;
+      &lt;td&gt;being done&lt;/td&gt;
+      &lt;td&gt;done&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;进行时态主动&lt;/td&gt;
+      &lt;td&gt;to be doing&lt;/td&gt;
+      &lt;td&gt;–&lt;/td&gt;
+      &lt;td&gt;–&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;进行时态被动&lt;/td&gt;
+      &lt;td&gt;to be being done&lt;/td&gt;
+      &lt;td&gt;–&lt;/td&gt;
+      &lt;td&gt;–&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;完成时态主动&lt;/td&gt;
+      &lt;td&gt;to have done&lt;/td&gt;
+      &lt;td&gt;having done&lt;/td&gt;
+      &lt;td&gt;–&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;完成时态被动&lt;/td&gt;
+      &lt;td&gt;to have been done&lt;/td&gt;
+      &lt;td&gt;having been done&lt;/td&gt;
+      &lt;td&gt;–&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;非谓语动词早于主干谓语，则用完成时态&lt;/li&gt;
+  &lt;li&gt;非谓语动词与主干谓语同时进行，则用进行时态&lt;/li&gt;
+  &lt;li&gt;非谓语动词在主干谓语的将来，则用一般态的不定式&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;比如：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;Having been told&lt;/em&gt; this many times, he finally understood it.
+    &lt;ul&gt;
+      &lt;li&gt;进行式的完成时态，并且是被动&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Not having receiving&lt;/em&gt; any message from her, I gave her a phone call.
+    &lt;ul&gt;
+      &lt;li&gt;进行式的完成时态&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1. 概要</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/nce/nce_2.jpg" /><media:content medium="image" url="http://localhost:4000/nce/nce_2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">经济学十大原理</title><link href="http://localhost:4000/principles-of-economics-1.html" rel="alternate" type="text/html" title="经济学十大原理" /><published>2021-08-08T00:00:00+08:00</published><updated>2021-08-08T00:00:00+08:00</updated><id>http://localhost:4000/principles-of-economics-1</id><content type="html" xml:base="http://localhost:4000/principles-of-economics-1.html">&lt;h1 id=&quot;引言&quot;&gt;引言&lt;/h1&gt;
+
+&lt;p&gt;社会资源具有&lt;strong&gt;稀缺性&lt;/strong&gt;，因此不能生产出人们希望拥有的所有物品与服务，每个人也就不能达到其希望的最高生活水平。&lt;/p&gt;
+
+&lt;p&gt;经济学用于&lt;strong&gt;研究社会如何管理自己的稀缺资源&lt;/strong&gt;。在大多数社会中，资源并不是由一个全权的独裁者来配置，而是通过千万家庭和企业的共同选择来配置的。经济学研究的内容包括：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;人们如何做出决策&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;做多少工作，购买什么，储蓄多少&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;人们之间如何相互影响&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;一种物品的众多买者与卖者如何共同决定该物品的销售价格和销售量&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;分析影响整个经济的力量与趋势&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;平均收入的增长，失业人口的比例，物品价格上升的速度&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;针对上述内容，经济学中存在十大基本原理。&lt;/p&gt;
+
+&lt;h1 id=&quot;人们如何做出决策&quot;&gt;人们如何做出决策&lt;/h1&gt;
+
+&lt;p&gt;经济是什么？经济只不过是在生活中相互交易的人们所组成的群体而已；一个经济体的行为反映了组成这个经济体的个人行为。&lt;/p&gt;
+
+&lt;h2 id=&quot;原理一人们面临权衡取舍&quot;&gt;原理一：人们面临权衡取舍&lt;/h2&gt;
+
+&lt;p&gt;在生活中，为了得到一个喜欢的东西通常需要放弃另一个喜欢的东西。&lt;strong&gt;做出决策就是要求我们在一个目标与另一个目标之间进行权衡取舍&lt;/strong&gt;。比如政府要求企业减少污染，那么就会使得该企业生产对应物品的成本增加，相应的利润就会减少，支付给工人的工资降低了，产品的价格提高了等。&lt;/p&gt;
+
+&lt;p&gt;社会面临的另一种权衡取舍是在&lt;strong&gt;效率与平等之间&lt;/strong&gt;。效率可以看作是经济蛋糕的大小，而平等是指如何分割这块蛋糕。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;效率：社会从稀缺资源中获得的最大利益；平等：经济成果在社会成员中平均分配&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;在政府政策中，这两个目标往往不是一致的。例如，政府可以制定失业保险 &amp;amp; 提高个人所得税来实现较大程度的平等，但是这些政策会降低效率；当政府把富人的收入再分配给穷人时，就减少了对辛勤工作的奖励，相应地会导致人们工作少了，生产的物品与服务也少了。换句话说，当政府想要把经济蛋糕切的更为均等时，蛋糕本身变小了。&lt;/p&gt;
+
+&lt;h2 id=&quot;原理二某种东西的成本是为了得到它所放弃的东西&quot;&gt;原理二：某种东西的成本是为了得到它所放弃的东西&lt;/h2&gt;
+
+&lt;p&gt;由于人们面临权衡取舍，所以决策时需要比较成本与收益。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;一种东西的机会成本是为了得到这种东西所放弃的东西&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;原理三理性人考虑边际量&quot;&gt;原理三：理性人考虑边际量&lt;/h2&gt;
+
+&lt;p&gt;人通常是理性的：&lt;strong&gt;在可用的机会为既定条件下，理性人系统而有目的地尽最大努力去实现其目标&lt;/strong&gt;。生活中的很多决策很少是非黑即白的选择，往往是介于中间的灰色地带；比如当考试临近的时候，你的决策不是在放弃考试和每天 24 小时学习之间进行选择，而是是否多花 1 小时时间复习功课而不是看电视。&lt;/p&gt;
+
+&lt;p&gt;经济学家用&lt;strong&gt;边际变动（marginal change）来描述对现有行动计划的微小增量调整&lt;/strong&gt;。边际变动是围绕所做事情的边缘的调整；理性人通过比较&lt;strong&gt;边际收益&lt;/strong&gt;（marginal benefit）和&lt;strong&gt;边际成本&lt;/strong&gt;（marginal cost）来做决策。&lt;/p&gt;
+
+&lt;p&gt;假设一架有 200 个座位的飞机每次飞行成本是 10 万元，这样每个座位的平均成本是 10W/200 = 500 元。人们很容易就此得出结论：航空公司的票价不应该低于 500 元；而事实上，一个理性的航空公司往往会考虑边际量来增加利润。设想一架飞机临近起飞时仍然有 10 个空位，而登机口有几个乘客愿意支付 300 元买一张票；航空公司仍然会决定将票卖给这些乘客。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;虽然每个乘客的平均成本是 500 元，但是边际成本微乎其微（仅仅是飞机上提供的额外服务），所以只要乘客支付的钱大于边际成本，那么机票就是有利可图的。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;原理四人们会对激励做出反应&quot;&gt;原理四：人们会对激励做出反应&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;激励（incentive）是引起一个人做出某种行为的某种东西&lt;/strong&gt;（如惩罚或者奖励的预期）。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;激励可以是正向的，也可以是反向的&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;由于理性人会通过比较成本和收益做出决策，所以他们会对激励做出反应。&lt;/p&gt;
+
+&lt;p&gt;在分析市场如何运行时，激励是至关重要的。例如：当苹果的价格上涨时，人们决定少吃苹果，同时苹果园主决定雇佣更多的工人并多采摘苹果。换句话说，&lt;em&gt;市场上的高价格提供了买者少消费和卖者多生产的激励&lt;/em&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;人们如何相互影响&quot;&gt;人们如何相互影响&lt;/h1&gt;
+
+&lt;h2 id=&quot;原理五贸易可以使每个人的状况都变得更好&quot;&gt;原理五：贸易可以使每个人的状况都变得更好&lt;/h2&gt;
+
+&lt;p&gt;贸易可以使每个人都可以专门从事自己最擅长的活动，无论是耕地还是做衣服。通过贸易，人们可以以较低的成本获得各种各样的物品与服务。&lt;/p&gt;
+
+&lt;h2 id=&quot;原理六市场通常是组织经济活动的一种好方法&quot;&gt;原理六：市场通常是组织经济活动的一种好方法&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;中央计划经济&lt;/strong&gt;是由中央政府配置经济中的稀缺资源；这些中央计划者决定生产什么物品与服务，生产多少，谁生产和消费这些物品与服务。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;市场经济中，中央计划者的决策被千万家企业和家庭的决策所取代&lt;/strong&gt;。企业决定雇佣谁和生产什么；家庭决定为哪家企业工作及用自己的收入购买什么。这些企业和家庭在市场上相互交易，&lt;strong&gt;价格和利己引导着他们的决策&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;市场经济：当许多企业和家庭在物品与服务市场上相互交易时，通过他们的&lt;strong&gt;&lt;em&gt;分散决策配置资源&lt;/em&gt;&lt;/strong&gt;的经济。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;尽管市场中存在的是分散的决策和利己的决策者，但是市场经济在以一种促进总体经济福利的方式组织经济活动方面非常成功。&lt;/p&gt;
+
+&lt;p&gt;市场经济被一只看不见的手所指引，而&lt;strong&gt;价格就是看不见的手用来指引经济活动的工具&lt;/strong&gt;。价格作为卖者与买者决策的结果，反映了一种物品的社会价值，也反映了生产该物品的社会成本。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;当政府阻止价格根据供求情况自发调整时，它就限制了看不见的手对组成经济的千百万家庭和企业的决策进行协调的能力。中央计划经济就是将这双手给束缚了。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;原理七政府有时可以改善市场结果&quot;&gt;原理七：政府有时可以改善市场结果&lt;/h2&gt;
+
+&lt;p&gt;如果市场这只看不见的手如此伟大，那么为什么还需要政府？&lt;em&gt;只有在政府实施规则并维持对市场经济至关重要的制度时，看不见的手才能施展其魔力&lt;/em&gt;。&lt;/p&gt;
+
+&lt;p&gt;政府干预经济的原因有两类：&lt;strong&gt;1. 促进效率；2. 促进平等&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;要么把经济蛋糕做大，要么改变蛋糕的分割方式&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;效率目标&lt;/p&gt;
+
+    &lt;p&gt;通常看不见的手会有效地配置资源，使经济蛋糕最大化。不过有时候会出现&lt;strong&gt;市场失灵&lt;/strong&gt;的情况。这时候就需要设计良好的公共政策来提高经济效率。&lt;/p&gt;
+
+    &lt;p&gt;市场失灵是指市场本身不能有效地配置资源的情况；造成这种现象的原因有两种：&lt;/p&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;strong&gt;外部性&lt;/strong&gt;&lt;/p&gt;
+
+        &lt;p&gt;是指一个人的行为对旁观者的福利有影响。比较经典的例子是污染：当一种产品的生产污染了空气并引起住在附近的人们的健康问题时，市场本身并不能将这种成本考虑在内。&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;strong&gt;市场势力&lt;/strong&gt;&lt;/p&gt;
+
+        &lt;p&gt;是指单个人或者公司不适当地影响市场价格的能力（即垄断行为）。&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;平等目标&lt;/p&gt;
+
+    &lt;p&gt;看不见的手并不能保证每个人都有充足的食物，充足的医疗保健等。这种不平等需要政府进行干预，例如制定所得税与福利制度等。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;整体经济如何运行&quot;&gt;整体经济如何运行&lt;/h1&gt;
+
+&lt;h2 id=&quot;原理八一国的生活水平取决于它生产物品与服务的能力&quot;&gt;原理八：一国的生活水平取决于它生产物品与服务的能力&lt;/h2&gt;
+
+&lt;p&gt;不同国家生活水平的差别归因于各国的生产率。同样，生产率的增长率决定了平均收入的增长率。&lt;/p&gt;
+
+&lt;h2 id=&quot;原理九当政府发行了过多货币时物价上升&quot;&gt;原理九：当政府发行了过多货币时，物价上升&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;通货膨胀（inflation）是指经济中物价总水平的上升&lt;/strong&gt;。大多数通货膨胀的原因是货币量的增长。&lt;/p&gt;
+
+&lt;h2 id=&quot;原理十社会面临通货膨胀与失业之间的短期权衡取舍&quot;&gt;原理十：社会面临通货膨胀与失业之间的短期权衡取舍&lt;/h2&gt;
+
+&lt;p&gt;长期中，物价上升主要是货币增加的结果，但是短期中，货币注入问题比较复杂：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;货币增加刺激了社会整体支出水平，增加了对物品与服务的需求&lt;/li&gt;
+  &lt;li&gt;需求的增加会使得企业提高物价，但同时也会使企业雇佣更多的人，生产出更多的物品与服务&lt;/li&gt;
+  &lt;li&gt;雇佣更多的人意味着更少的失业&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;因此会存在通货膨胀与失业之间的短期均衡取舍。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="economics" /><summary type="html">引言</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/economics/economics_1.png" /><media:content medium="image" url="http://localhost:4000/economics/economics_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Google File System</title><link href="http://localhost:4000/gfs.html" rel="alternate" type="text/html" title="Google File System" /><published>2021-07-29T00:00:00+08:00</published><updated>2021-07-29T00:00:00+08:00</updated><id>http://localhost:4000/gfs</id><content type="html" xml:base="http://localhost:4000/gfs.html">&lt;h1 id=&quot;0-keywords&quot;&gt;0-Keywords&lt;/h1&gt;
+
+&lt;p&gt;容错(Fault Tolerance)，扩展性(scalability)，数据存储(Data Storage)，集群存储(Clustered Storage)&lt;/p&gt;
+
+&lt;h1 id=&quot;1-introduction&quot;&gt;1-Introduction&lt;/h1&gt;
+
+&lt;p&gt;GFS 以可用性，可伸缩性，可靠性，性能等作为目标，与之前的分布式文件系统有所区别的是，其设计思路主要结合 Google 内部的实际情况考虑：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;组件失效是正常现象（Normal）而非异常（Exception）
+    &lt;ul&gt;
+      &lt;li&gt;需要支持系统监控，容灾，自动恢复机制&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;存储的文件通常比较大（Huge）
+    &lt;ul&gt;
+      &lt;li&gt;如果文件块（block）比较小的话（比如以 KB 为单位），那么单个文件需要由很多文件块组成，不利于文件管理，因此文件块的大小需要多方面衡量；大文件的 IO 操作也需要考虑&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;大多数文件的更新方式为追加（Appending）而不是覆盖写&lt;/strong&gt;（Overwriting）
+    &lt;ul&gt;
+      &lt;li&gt;文件写完之后多为顺序读，几乎不包含随机写的操作；因此，数据追加操作是性能优化与原子性的主要考量因素&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;应用程序和文件系统 API 的协同设计提高了整个系统的灵活性（Flexibility）
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;支持原子性地 Append 操作&lt;/strong&gt;，从而保证多个 Client 能够同时进行 File Appending，不需要额外的同步操作来保证一致性&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;2-overview&quot;&gt;2-Overview&lt;/h1&gt;
+
+&lt;h2 id=&quot;21-assumptions&quot;&gt;2.1-Assumptions&lt;/h2&gt;
+
+&lt;p&gt;针对上述的情况做进一步说明，阐述整个系统的设计预期：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;系统集群是由许多廉价机器组成，组件失效是比较常见的状态；因此需要实现对整个系统的持续监控，提供冗余并恢复失效的组件&lt;/li&gt;
+  &lt;li&gt;系统存储大量的大文件：&lt;strong&gt;文件数量多，文件容量大&lt;/strong&gt;；不过也需要支持小文件（但是并不需要针对小文件进行特殊优化）&lt;/li&gt;
+  &lt;li&gt;读负载包含两种：&lt;strong&gt;大规模的流式读&lt;/strong&gt; &amp;amp; &lt;strong&gt;小规模的随机读&lt;/strong&gt;；同一个 Client 的操作通常是同一个文件的连续部分&lt;/li&gt;
+  &lt;li&gt;写负载包括：&lt;strong&gt;大规模顺序 Append&lt;/strong&gt; &amp;amp; &lt;strong&gt;小规模的随机写&lt;/strong&gt;；数据一旦被写入文件就会很少再次修改&lt;/li&gt;
+  &lt;li&gt;需要支持多个 Client 并行 Append 数据到同一个文件的语义，即需要&lt;strong&gt;支持原子 Appending&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;高性能，大批量地处理数据&lt;/strong&gt;比低延迟更加重要&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;22-interface&quot;&gt;2.2-Interface&lt;/h2&gt;
+
+&lt;p&gt;GFS  支持类似 POSIX 标准的 API，包括创建文件，删除文件，打开文件，关闭文件等；同时还支持快照与追加操作。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;文件以分层目录的形式组织，并用路径来标识&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;快照可以以较低的成本创建一个文件或者目录树的拷贝；&lt;strong&gt;记录追加允许多个客户端同时对一个文件进行数据追加操作，并保证每个追加操作都是原子性的&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;客户端不需要额外的锁定同步操作就可以完成并行追加文件操作&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;23-architecture&quot;&gt;2.3-Architecture&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/gfs/gfs_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;一个 GFS 集群包含一个 Master 节点，多个 Chunk 服务器，并且同时被多个 Client 访问。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;一个 Master 节点是指一个系统中只存在一个逻辑上的 Master 组件，但是该组件可能存在多个副本以实现容灾&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;GFS 中存储的&lt;strong&gt;文件被拆分成多个固定大小的 Chunk 块&lt;/strong&gt;。Chunk 创建时，Master 节点会给其分配一个&lt;strong&gt;唯一且不变的 ID&lt;/strong&gt;。Chunk 服务器把 Chunk 以 Linux 文件的形式保存在本地磁盘上，并支持&lt;strong&gt;根据 Chunk 标识 &amp;amp; 字节范围进行数据读写&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;为了提高可靠性，&lt;strong&gt;每个 Chunk 都会被复制到多个 Chunk 服务器上&lt;/strong&gt;&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Master 节点用于管理 GFS 系统中的元数据，具体包括：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;File NameSpace&lt;/li&gt;
+  &lt;li&gt;文件访问控制信息&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;文件与对应的 Chunk 块列表的映射关系&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Chunk 的位置信息&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;除了系统元数据，Master 节点还用于控制系统的活动：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Chunk 租用管理&lt;/li&gt;
+  &lt;li&gt;孤儿 Chunk 的回收&lt;/li&gt;
+  &lt;li&gt;Chunk 块在 Chunk 服务器之间的迁移&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Master 节点维护与 Chunk 服务器之间的心跳，同时发送指令到各个 Chunk 服务器并接收 Chunk 服务器的状态信息。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Client 与 Master 节点通信用于获取元数据&lt;/strong&gt;，对于&lt;strong&gt;文件的数据操作是由 Client 直接与 Chunk 服务器进行交互的&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;Client 与 Chunk 服务器都不需要对文件数据进行缓存：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Client 一般是以流的方式读取一个很大的文件&lt;/li&gt;
+  &lt;li&gt;Chunk 以本地文件的形式保存在 Chunk 服务器上，可以完全依赖 Linux 文件系统的缓存&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;24-single-master&quot;&gt;2.4-Single Master&lt;/h2&gt;
+
+&lt;p&gt;上面介绍，整个系统中只有一个 Master 节点；单一 Master 节点简化了系统设计，但是单个节点可能会导致其成为整个系统的瓶颈，因此要尽量减小 Master 的读写压力。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Client 只会向 Master 询问其应该访问的 Chunk 服务器，并不从 Master 进行文件数据读取&lt;/li&gt;
+  &lt;li&gt;Client 会将从 Master 获取的元数据缓存在本地一段时间，后续将直接和 Chunk 服务器进行数据读写操作&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Client 在向 Master 请求 Chunk 信息时，通常会一次性请求多个 Chunk，而且 Master 响应时也会返回被请求的 Chunk 后面的 Chunk 信息，减小了交互次数&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;整体的文件读取流程如下：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Client 把业务程序中指定的文件字节偏移量，&lt;em&gt;根据固定的 Chunk 大小转换为对应的 Chunk 索引&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;Client 把 FileName + Chunk Index 发送给 Master 节点&lt;/li&gt;
+  &lt;li&gt;Master 将请求的 &lt;em&gt;Chunk 唯一标识与其副本位置信息返回给 Client&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;Client 用 &lt;em&gt;FileName + Chunk Index 作为 key 将这些信息缓存在本地&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Client 访问其中较近的 Chunk 副本，请求中携带了 &lt;em&gt;Chunk 唯一标识 + 访问文件的字节范围&lt;/em&gt;&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;之后针对该 Chunk 的访问都不会再访问 Master，除非缓存失效或者文件被重新打开&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;25-chunk-size&quot;&gt;2.5-Chunk Size&lt;/h2&gt;
+
+&lt;p&gt;GFS 的 Chunk 大小为 64MB，远远大于一般文件系统的 Block Size(Linux 默认 4KB)；使用较大 Chunk 的原因有：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;减小了 Client 与 Master 之间的交互频率&lt;/strong&gt;：在获取 Chunk 信息后就可以对同一个 Chunk 进行多次读写操作，并且不需要再次请求 Master；由于读写负载主要以连续读写大文件为主，因此可以有效降低负载&lt;/li&gt;
+  &lt;li&gt;由于使用了较大尺寸的 Chunk，&lt;strong&gt;Client 能够实现对一个 Chunk 的多次操作&lt;/strong&gt;，可以通过与 Chunk 服务器之间维护较长时间的 TCP 连接来降低网络负载&lt;/li&gt;
+  &lt;li&gt;较大尺寸的 Chunk 能够&lt;strong&gt;减少 Master 需要保存的元数据信息&lt;/strong&gt;，有利于将所有元数据加载到内存中&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;不过，使用较大尺寸的 Chunk 也可能会带来其他问题：对于比较小的文件会包含较小数目的 Chunk，甚至只有一个 Chunk，当有许多 Client 同时对一个 Chunk 进行多次访问时，会导致&lt;strong&gt;存储该 Chunk 的服务器产生热点&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;由于 GFS 中的文件大多都是比较大的文件，因此热点问题并不重要；&lt;em&gt;为了降低热点问题，可以提高 Chunk 的副本数，或者允许 Client 从其他 Client 中读取数据&lt;/em&gt;&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;26-metadata&quot;&gt;2.6-Metadata&lt;/h2&gt;
+
+&lt;p&gt;Master 中主要存储了三种元数据，并且&lt;strong&gt;所有元数据都保存在内存中&lt;/strong&gt;：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;文件和 Chunk 的命名空间&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;文件和 Chunk 的映射关系&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;每个 Chunk 副本存放的位置信息&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;前两种元数据信息会以&lt;em&gt;记录变更日志的方式记录在操作系统的系统日志文件中&lt;/em&gt;，日志文件存储在本地磁盘上，同时日志会被复制到其它的远程 Master 服务器上；从而降低 Master 服务器崩溃导致数据不一致的风险。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Master 并不会持久化 Chunk 的位置信息，当 Master 节点重新启动时或者有新的 Chunk Server 加入集群时，Master 会向各个 Chunk 服务器轮询它们所存储的 Chunk 信息&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;261-in-memory-data-structures&quot;&gt;&lt;em&gt;2.6.1-In-Memory Data Structures&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;由于元数据都保存在内存中，因此 Master 的操作速度非常快；但是这种方式会使得 Chunk 的数量及整个系统的承载能力都受限于 Master 的内存大小。&lt;/p&gt;
+
+&lt;p&gt;为了减小内存占用，每个 Chunk 只需要 64 个字节的元数据进行管理，每个文件的命名空间所需要的元数据也在 64 个字节以下。&lt;/p&gt;
+
+&lt;h3 id=&quot;262-chunk-locations&quot;&gt;&lt;em&gt;2.6.2-Chunk Locations&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;Master 节点并不持久化 Chunk 的位置信息，只会在内存中缓存该信息。&lt;/p&gt;
+
+&lt;p&gt;Master 总是维护最新的 Chunk 信息列表：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Master 控制了 Chunk 的位置分配&lt;/li&gt;
+  &lt;li&gt;Master 服务器启动时轮询所有的 Chunk 服务器，以获取当前 Chunk 信息&lt;/li&gt;
+  &lt;li&gt;Master 与 Chunk Server 之间维护周期性的心跳，以监控 Chunk 服务器的状态&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;只将数据缓存在内存中的设计简化了 Chunk Server 发生变更时（新加入集群，离开集群，重启，重命名等），Master 与 Chunk Server 之间的数据同步问题。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;263-operation-log&quot;&gt;&lt;em&gt;2.6.3-Operation Log&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;操作日志包含了重要元数据的变更记录，用于 Master Server 的容灾备份。&lt;/p&gt;
+
+&lt;p&gt;为了确保数据的完整性，&lt;strong&gt;只有在元数据的变更记录持久化到本地日志文件，并且持久化到其他 Master 节点的磁盘后，才会响应 Client&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;有了操作日志，Master Server 在故障恢复时可以通过日志恢复到最近的系统状态。为了减小 Master 恢复日志的启动时间，当操作日志增长到一定程度之后会进行一次 &lt;strong&gt;CheckPoint&lt;/strong&gt;；所有的状态数据会写入一个 CheckPoint 文件，并且新的 CheckPoint 文件包含之前的所有修改。当 Master 节点进行恢复时，只需要&lt;strong&gt;最新的 CheckPoint 文件及其后的日志文件即可&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;27-consistency-model&quot;&gt;2.7-Consistency Model&lt;/h2&gt;
+
+&lt;p&gt;GFS 支持一个宽松的一致性模型&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;对文件 NameSpace 的修改（文件创建，重命名等）是原子性的，由 Master 节点统一控制：&lt;strong&gt;Master 节点通过 NameSpace 锁保证了原子性与正确性&lt;/strong&gt;；同时有序的操作日志记录了变更的全局顺序。&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;对文件 Data 的修改分为两种操作：&lt;strong&gt;覆盖写&lt;/strong&gt;（Write）&amp;amp; &lt;strong&gt;记录追加&lt;/strong&gt;（Record Append）（文件数据操作直接与 Chunk Server 交互）；文件内容修改后的一致性状态取决于修改的类型，成功与否，是否并发修改等。&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/images/gfs/gfs_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;GFS 对文件状态有以下几个定义（修改的部分称作 region）：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Consistent&lt;/em&gt;&lt;/strong&gt;: 如果 region 在 Chunk Sever 的多个副本中都相同，即 Client 从各个副本能获取相同的文件内容，那么这个 region 被称为一致的&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Consistent but undefined&lt;/em&gt;&lt;/strong&gt;: region 中的内容虽然在多个 Chunk 副本中一致，但是该 region 中的信息与 Client 预期更新的内容并不相同；比如 Client 想要将文件中的一段内容设置为 abcdefg，但是由于并发修改等原因导致该 region 被更新为 abc123g，与 Client 的预期不一致&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Defined&lt;/em&gt;&lt;/strong&gt;: region 在多个 Chunk 副本中保持一致，并且与 Client 的预期相同，Client 能够正确读取更新的数据&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Inconsistent&lt;/em&gt;&lt;/strong&gt;: 由于更新失败导致多个 Chunk 副本中的 region 信息并不一致&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;对于覆盖写（Client 指定写入的文件偏移位置）：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;当一个 Client &lt;em&gt;串行修改数据成功&lt;/em&gt;后，由于没有其他 Client 干扰，那么修改的 region 就是已定义的(隐含了一致性): 所有的 Client 都可以看到正确写入的内容&lt;/li&gt;
+  &lt;li&gt;当多个 Client &lt;em&gt;并行修改数据成功&lt;/em&gt;后，大部分情况下，该 region 中会&lt;strong&gt;&lt;em&gt;包含来自多个 Client 修改操作的、混杂的数据片段&lt;/em&gt;&lt;/strong&gt;，此时 region 处于一致但是未定义的状态：所有的 Client 看到同样的数据，但是无法正确读到任何一次写入操作写入的数据&lt;/li&gt;
+  &lt;li&gt;失败的修改操作导致一个 region 处于不一致状态(同时也是未定义的): 不同的 Client 在不同的时间会看到不同的数据&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;对于记录追加操作（文件偏移位置由 Chunk Server 主副本指定）：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;不管是单独一个 Client 还是多个 Client 并行执行文件追加操作，&lt;em&gt;GFS 至少可以把数据原子性的追加到文件中一次，并返回给 Client 一个偏移量，表示了包含了写入记录的、已定义的 region 的起点；&lt;/em&gt;此时 region 处于已定义的状态&lt;/li&gt;
+  &lt;li&gt;在追加操作失败重试期间（重试之后如果成功也会被人为该追加操作是成功的），GFS 可能会在&lt;em&gt;文件中间插入填充数据或者重复记录；&lt;/em&gt;这些数据占据的文件 region 被认定是不一致的， 这些数据通常比用户数据小的多。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;经过一系列成功的修改操作后，GFS确保被修改的文件region是已定义的，且包含最后一次修改操作的数据。&lt;/p&gt;
+
+&lt;h1 id=&quot;3-system-interactions&quot;&gt;3-System Interactions&lt;/h1&gt;
+
+&lt;p&gt;系统设计时尽量减少与 Master 节点的交互，降低其负载。&lt;/p&gt;
+
+&lt;h2 id=&quot;31-leases-and-mutation-order&quot;&gt;3.1-Leases and Mutation Order&lt;/h2&gt;
+
+&lt;p&gt;为了保证文件的变更顺序在多个 Chunk 副本之间的一致性，引入了 &lt;strong&gt;Lease 机制&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;每次变更都需要按序在所有 Chunk 副本上执行，才能保证文件的一致性&lt;/p&gt;
+
+  &lt;ul&gt;
+    &lt;li&gt;Master 节点与一个 Chunk 副本建立 Lease，该副本被称为主 Chunk&lt;/li&gt;
+    &lt;li&gt;&lt;em&gt;主 Chunk 会对所有 Chunk 的更新操作进行序列化&lt;/em&gt;，所有副本都会按照这个序列进行操作&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;引入了 Lease 机制后，文件更新的全局顺序为：&lt;strong&gt;首先由 Master 节点选择 Lease 的顺序
+决定，然后由 Lease 中主 Chunk 分配的序列号决定&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;引入 Lease 机制有助于减少 Master 节点的管理负载；Lease 初始值是 60s，当 Chunk 更新时，Lease 可以延长。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Lease 的建立 or 延长 or 取消等操作信息均放在 Master 节点与 Chunk Server 之间维护的心跳中&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Client 进行文件更新操作的流程如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/gfs/gfs_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Client 请求 Master 获取持有 Lease 的 Chunk 以及其他 Chunk 副本信息&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;如果暂时没有一个 Chunk 持有 Lease，则 Master 节点从 Chunk 副本中选择一个建立 Lease&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Master 将主 Chunk 信息及其他副本信息返回给 Client&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;Client 缓存这些数据以便后续使用；并且只有在主 Chunk 不可用，或者主 Chunk 回复信息表明它已不再持有 Lease 的时候，Client 才需要重新与 Master 交互&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Client 把需要修改的文件数据推送到所有 Chunk 副本上&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;推送的副本顺序可以任意，可以根据网络拓扑情况进行推送，而不需要关心哪个是主 Chunk；Chunk Server 接收到数据并保存在其内部 LRU 缓存中，直到数据被使用或者过期&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;当所有的 Chunk 副本都确认收到数据之后，Client 再次发送写请求到主 Chunk&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;该写请求中标识了之前推送的数据信息；主 Chunk 收到该写请求后，为其分配一个操作序列号（所有 Client 请求会被分配连续的序列号），该序列号保证了操作的顺序；之后，主 Chunk 按照操作序列依次将变更操作应用到本地，并更新自身记录状态&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;主 Chunk 把变更请求发送到其他副本中；每个副本依照主 Chunk 分配的序列号以相同的顺序执行&lt;/li&gt;
+  &lt;li&gt;其他副本执行完成后，回复主 Chunk&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;主 Chunk 将变更操作的结果返回给 Client&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;任何副本产生的任何错误都会返回 Client；在出现错误的情况下，变更操作可能在主 Chunk 和一些二级副本中执行成功，（如果操作在主 Chunk 上失败了，操作就不会被分配序列
+ 号，也不会被传递）那么 Client 的请求被确认为失败，被修改的 region 处于不一致的状态。Client 通过重复执行失败的操作来处理这样的错误。在从头开始重复执行之前，客户机会先从 3 → 7 做几次尝试。&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;在上述流程中，如果一次变更操作写入的数据量很大，或者数据跨越了多个 Chunk，那么 GFS Client 会将其拆分成多个写入操作。&lt;/p&gt;
+
+&lt;h2 id=&quot;32-data-flow&quot;&gt;3.2-Data Flow&lt;/h2&gt;
+
+&lt;p&gt;为了提高网络效率，GFS 将数据流与控制流分开。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;控制流&lt;/strong&gt;：Client 将变更请求发送到主 Chunk Server，主 Chunk 把该请求同步到其他 Chunk 副本中顺序执行。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;数据流&lt;/strong&gt;：Client 把文件数据推送到所有 Chunk 副本上（此时不需要关心哪个是主 Chunk）。&lt;/p&gt;
+
+&lt;p&gt;在数据流推送时，为了提高机器的带宽利用率，同时减少数据推送的延迟，&lt;strong&gt;数据沿着一个 Chunk  Server 链顺序推送&lt;/strong&gt;，而不是以其它拓扑形式分散推送(如树型拓扑结构)。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;线性推送模式下，每台机器所有的出口带宽都用于以最快的速度传输数据，而不是在多个接受者之间分配带宽&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;在推送时，尽量选择一台还没有接收数据，并且离自己最近的 Chunk Server。&lt;/p&gt;
+
+&lt;h2 id=&quot;33-atomic-record-appends&quot;&gt;3.3-Atomic Record Appends&lt;/h2&gt;
+
+&lt;p&gt;GFS 提供了一个原子记录追加的操作方式。&lt;/p&gt;
+
+&lt;p&gt;对于传统覆盖写的方式，Client 需要指定写入位置的偏移量；如果对同一个 region 进行并发写，可能会导致 region 的尾部包含多个 Client 写入的数据片段。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;对于覆盖写，为了保证原子性，需要额外的同步机制，比如分布式锁，用于确保数据能够完整地写入&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;使用记录追加的方式，Client 只需要指定写入的数据，至于写入的偏移量由 GFS 执行；GFS 保证至少有一次原子写入操作执行成功（即将文件数据正确地追加）。写入的数据追加到 GFS 指定的偏移量处，之后再将该偏移量返回给 Client。&lt;/p&gt;
+
+&lt;p&gt;如果追加操作在任何一个副本上执行失败了，Client 需要进行重试。由于重试机制，因此可能会导致同一个 Chunk 在不同副本上的数据不一致：有的副本可能包含重复的数据记录。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;GFS 不保证所有的Chunk 副本在 Byte 级别上是一致的，只保证数据作为一个整体至少被原子地写入一次&lt;/strong&gt;（可能会失败重试）。&lt;/p&gt;
+
+&lt;h1 id=&quot;4-master-operation&quot;&gt;4-Master Operation&lt;/h1&gt;
+
+&lt;p&gt;Master 节点执行的操作有：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;文件 NameSpace 相关的所有操作&lt;/li&gt;
+  &lt;li&gt;Chunk 副本管理
+    &lt;ul&gt;
+      &lt;li&gt;Chunk 的存储位置&lt;/li&gt;
+      &lt;li&gt;创建新的 Chunk 及相关副本&lt;/li&gt;
+      &lt;li&gt;Chunk Server 之间的负载均衡&lt;/li&gt;
+      &lt;li&gt;回收不再使用的存储空间&lt;/li&gt;
+      &lt;li&gt;…&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;41-namespace-management-and-locking&quot;&gt;4.1-Namespace Management and Locking&lt;/h2&gt;
+
+&lt;p&gt;GFS 的 NameSpace 就是一个&lt;strong&gt;全路径与元数据（MetaData）的映射&lt;/strong&gt;表。通过使用前缀压缩，降低内存占用。&lt;/p&gt;
+
+&lt;p&gt;前缀树的&lt;strong&gt;&lt;em&gt;每个节点（即文件 or 目录路径）都有关联一个读写锁&lt;/em&gt;&lt;/strong&gt;。每个 Master 操作都需要先获取一系列锁，比如一个操作涉及到 /a/b/c 路径，则首先需要获取到 /a, /a/b 节点的读锁，同时要获取到 /a/b/c 节点的读写锁。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;文件的创建操作不需要获取父目录的写锁，只需要读锁即可&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;采用这种锁方案可以&lt;em&gt;支持对同一个目录下的并行操作&lt;/em&gt;；比如同一个目录下（/root/kz）同时创建多个文件(a,b,c)：每个创建文件的操作都需要获取目录 /root, /root/kz 的读锁，以及要创建的文件名(a,b,c)的写锁。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;创建文件时对目录读锁的获取足够防止目录被删除，重命名等更新操作，对文件的写锁用于防止相同名称的文件多次创建&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;42-replica-placement&quot;&gt;4.2-Replica Placement&lt;/h2&gt;
+
+&lt;p&gt;Chunk 副本位置的选择有两个目标：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;最大化数据可靠性与可用性&lt;/li&gt;
+  &lt;li&gt;最大化网络带宽利用率&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;为了实现这两个目标，仅仅将副本分散在多个机器上是不够的，这只能预防机器损坏带来的影响及最大化没台机器的带宽利用率。因此，需要在多个机架之间分布存储 Chunk 副本。这样即使一个机架上的机器全部损坏，Chunk 仍然是可用的；网络带宽方面能够有效利用机架的带宽整合。&lt;/p&gt;
+
+&lt;h2 id=&quot;43-creation--re-replication--rebalancing&quot;&gt;4.3-Creation &amp;amp; Re-replication &amp;amp; Rebalancing&lt;/h2&gt;
+
+&lt;p&gt;Chunk 副本的创建有三个原因：新建 &amp;amp; 重新复制 &amp;amp; 重新负载均衡。&lt;/p&gt;
+
+&lt;h3 id=&quot;431-creation&quot;&gt;&lt;em&gt;4.3.1-Creation&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;当&lt;strong&gt;&lt;em&gt;新建&lt;/em&gt;&lt;/strong&gt;一个 Chunk 时，Master 需要选择该 Chunk 存放的机器，需要考虑的因素有：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;该 Chunk Server 的磁盘使用率低于平均磁盘使用率&lt;/em&gt;，用于最终平衡 Chunk Servers 之间的磁盘使用率&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;该 Chunk Server 最近创建 Chunk 的次数在限制之内&lt;/em&gt;；虽然创建 Chunk 操作是廉价的，但是创建 Chunk 之后意味着在不久之后会有大量数据写入该 Chunk，所以要对 Chunk Server 一段时间内创建 Chunk 的次数进行限制&lt;/li&gt;
+  &lt;li&gt;如 4.2 描述的，我们需要将 Chunk 分散在不同的机架上&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;432-re-replication&quot;&gt;&lt;em&gt;4.3.2-Re-replication&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;当 Chunk 的有效副本数小于用户指定的复制因数时，Master 需要对 Chunk 进行&lt;strong&gt;&lt;em&gt;重新复制&lt;/em&gt;&lt;/strong&gt;。出现这个现象的原因有：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;一个 Chunk Server 不可用&lt;/li&gt;
+  &lt;li&gt;Chunk Server 上报其存储的一个副本损坏&lt;/li&gt;
+  &lt;li&gt;Chunk Server 的一个磁盘损坏&lt;/li&gt;
+  &lt;li&gt;Chunk 的复制因数提高了&lt;/li&gt;
+  &lt;li&gt;…&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;同一时间可能有多个 Chunk 需要被重新复制，Master 需要根据一些因素对 Chunk 进行优先级排序，之后选择优先级最高的 Chunk 进行复制。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Master 命令一个可用的 Chunk Server 直接从可用的副本克隆一个出来，之后再传输到新副本中；新副本的选择与创建 Chunk 时类似&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;433-rebalancing&quot;&gt;&lt;em&gt;4.3.3-Rebalancing&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;Master 需要周期性的对 Chunk 副本进行负载均衡：首先检查当前的副本分布情况，之后再&lt;strong&gt;&lt;em&gt;移动副本&lt;/em&gt;&lt;/strong&gt;以更好地利用机器的磁盘空间，更好地进行负载均衡。&lt;/p&gt;
+
+&lt;p&gt;在确定需要移动的副本时，选择 Chunk Server 剩余空间低于平均值的 Chunk 副本；新副本的位置选择与创建时类似。&lt;/p&gt;
+
+&lt;h2 id=&quot;44-garbage-collection&quot;&gt;4.4-Garbage Collection&lt;/h2&gt;
+
+&lt;p&gt;GFS 在文件删除后并不会立即回收 Chunk 的物理空间，而是采用惰性删除的策略；&lt;em&gt;只有在文件 &amp;amp; Chunk 级的垃圾回收机制中才会回收其物理空间&lt;/em&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;441-mechanism&quot;&gt;&lt;em&gt;4.4.1-Mechanism&lt;/em&gt;&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;当一个文件被用户删除时，Master 节点并不会立即回收文件资源，而是&lt;em&gt;将文件名更新为包含删除时间戳 &amp;amp; 隐藏的名字&lt;/em&gt;。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;删除动作同样会记录到 Master 的操作日志中；在文件真正被删除之前，仍然可以通过更新后的特殊文件名进行访问，也可以通过把特殊文件名修改回原来的文件名进行文件恢复&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Master 节点对文件系统的 NameSpace 做定期扫描时，会删除三天前的所有隐藏文件。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;当隐藏文件从 NameSpace 中删除后，&lt;em&gt;Master 才会将内存中与这个文件相关的元数据删除，从而切断删除文件与它所包含的 Chunk 之间的连接&lt;/em&gt;。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;在对 NameSpace 进行扫描时，Master 会找到孤儿 Chunk（不被任何文件包含的 Chunk），并删除它们的元数据&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Chunk Server 在与 Master 周期的心跳交互中，会上报其包含的 Chunk 子集信息。&lt;em&gt;Master 会周知 Chunk Server 哪些 Chunk 的元数据已经被删除了&lt;/em&gt;；之后，Chunk Server 可以任意删除这些 Chunk 副本。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;442-discussion&quot;&gt;&lt;em&gt;4.4.2-Discussion&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;垃圾回收策略相对于直接删除文件有几个优势：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;对于组件失效是常态的大规模分布式系统来说，垃圾回收的方式更加简单可靠
+    &lt;ol&gt;
+      &lt;li&gt;在 Chunk 创建时，有些副本可能会创建成功，有些可能会失败，创建失败的副本处于无法被 Master 节点识别的状态；副本删除消息可能会丢失，Master 需要重新发送删除消息&lt;/li&gt;
+      &lt;li&gt;垃圾回收提供了一致的，可靠的清除无用副本的方法&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;垃圾回收动作为 Master 节点的周期性后台进程，可以在 Master 节点相对空闲的时候进行回收动作，尽量减少 Master 节点的负载&lt;/li&gt;
+  &lt;li&gt;对于意外的文件删除动作提供了安全保障&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;不过，延迟空间回收可能产生的问题：在 Chunk Server 存储空间比较紧缺的时候，会阻碍用户存储空间的调优使用；特别是反复创建删除大量临时文件时。为了降低这个影响，可以为不同的文件设置不同的回收策略。&lt;/p&gt;
+
+&lt;h2 id=&quot;45-stale-replica-detection&quot;&gt;4.5-Stale Replica Detection&lt;/h2&gt;
+
+&lt;p&gt;当 Chunk Server 失效时，保存在其中的 Chunk 可能会在其失效期间错过一些修改操作而过期失效。&lt;/p&gt;
+
+&lt;p&gt;为了判断 Chunk 是否有效，Master 节点会为每个 Chunk 保存其版本号；&lt;strong&gt;每当与 Chunk 副本签订新的租约时，就会增加 Chunk 的版本号&lt;/strong&gt;，然后通知最新的副本。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;每个 Chunk 都会被分配唯一的标识；Chunk 的版本号大小用于判断其是否有效&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;新的版本号记录会被 Chunk Server &amp;amp; Master 节点持久化到本地。&lt;/p&gt;
+
+&lt;p&gt;当 Chunk Server 与  Master 心跳交互时，会上报其保存的 Chunk 集合及对应的版本号。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;当 Master 发现上报 Chunk 副本的版本号比自己存储的版本号低的时候，就会判定该 Chunk 副本失效；&lt;em&gt;在垃圾回收时会移除所有过期失效的副本&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;如果 Master 发现上报的 Chunk 副本版本号中有比自己存储的版本号高的时候，就会认为它和 C hun&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;当 Client 请求 Master 获取 Chunk 副本信息时，Master 不会下发失效的 Chunk 副本（这些副本会在垃圾回收时移除），并且会告知 Client 当前 Chunk 的最新版本。&lt;/p&gt;
+
+&lt;p&gt;Client 与 Chunk Server 在对 Chunk 进行操作前会验证 Chunk 是否有效。&lt;/p&gt;
+
+&lt;h1 id=&quot;5-fault-tolerance--diagnosis&quot;&gt;5-Fault Tolerance &amp;amp; Diagnosis&lt;/h1&gt;
+
+&lt;h2 id=&quot;51-high-availability&quot;&gt;5.1-High Availability&lt;/h2&gt;
+
+&lt;p&gt;为了提高集群的可用性，GFS 使用了两条策略：快速恢复 &amp;amp; 复制&lt;/p&gt;
+
+&lt;h3 id=&quot;511-fast-recovery&quot;&gt;&lt;em&gt;5.1.1-Fast Recovery&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;Master &amp;amp; Chunk Server 在关闭之后能够在几秒内重新启动恢复；重启期间，已经建立的请求会超时，之后会访问新的节点进行重试。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Master 节点存在多个冗余，并且 Master 的操作日志会定时创建 Check Point；Chunk Server 也会定时创建快照&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;512-chunk-replication&quot;&gt;&lt;em&gt;5.1.2-Chunk Replication&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;每个 Chunk 都会被复制到不同机架上的不同机器中，复制因子默认为 3.&lt;/p&gt;
+
+&lt;p&gt;当 Chunk Server 离线，或者通过校验发现某一个 Chunk 的数据已被损坏，Master 通过重新克隆最新副本来保证每个 Chunk 数据的完整性。&lt;/p&gt;
+
+&lt;h3 id=&quot;513-master-replication&quot;&gt;&lt;em&gt;5.1.3-Master Replication&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;虽然 GFS 系统中只有一个 Master 节点进行交互，但是为了提高 Master 的冗余，需要将 Master 的状态复制到其他 Master Server 上。&lt;/p&gt;
+
+&lt;p&gt;如果当前 Master 节点失效了，处于 GFS 系统之外的监控进程会&lt;em&gt;选择其他保存完整操作日志的 Mater Server 启动一个新的 Master 进程&lt;/em&gt;；之后 Client 的访问会请求到新的 Master 节点上。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;GFS  中 Master 的主节点选择不是利用 Raft 等一致性算法，而是其他监控进程进行判断选择&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Master 节点除了有备份节点，还存在&lt;strong&gt;影子节点&lt;/strong&gt;：影子 Master 中的状态会比 Master 主节点慢一些（Master 备份节点与主节点保持同步）；&lt;em&gt;用于在 Master 的主节点失效之后提供文件系统的只读功能&lt;/em&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;影子节点会定时从 Master 主节点拉取最新的操作日志并应用到自身状态中，并且也会定时与 Chunk Server 交互获取 Chunk 信息&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;52-data-integrity&quot;&gt;5.2-Data Integrity&lt;/h2&gt;
+
+&lt;p&gt;每个 Chunk Server 都会&lt;strong&gt;&lt;em&gt;使用 Checksum 来检查自己保存的数据&lt;/em&gt;&lt;/strong&gt;是否损坏。不选择通过其他 Chunk 副本来比较检查的原因：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;跨越 Chunk Server 比较副本来检查数据是否损坏很不实际&lt;/li&gt;
+  &lt;li&gt;GFS 允许有歧义的 Chunk 副本存在；Chunk 在进行原子追加时，不能保证 Byte 级别的一致性，因此各个 Chunk 副本可能会不一致&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;每个 Chunk 被划分为 64KB 的块，每个块都对应一个 32 位的 Checksum（保存在内存中，同时也记录在操作日志中）。在将 Chunk 数据返回给 Client 或者其他 Chunk Server 之前，都会根据 Checksum 校验数据是否正确。&lt;/p&gt;
+
+&lt;p&gt;如果某一块数据错误，则返回异常，并将这个错误上报到 Master。收到错误之后，&lt;strong&gt;*Client 或者其他 Chunk Server 会从其他副本读取数据；Master 会从其他 Chunk 副本克隆数据进行恢复*&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;当 Chunk 副本恢复之后，&lt;em&gt;Master 会通知副本错误的 Chunk Server 删除掉错误副本&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;在 Chunk Server 负载较低的时候，它会定期扫描 &amp;amp; 检验每个不活跃的 Chunk 副本的内容。一旦发现存在损坏的 Chunk，就会上报给 Master；从而可以创建一个新的，正确的 Chunk 副本；之后再把损坏的数据删除。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Checksum 在 Chunk Server 的磁盘中保存；同时也会保存每个 Chunk 的最新版本号&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;6-conclusions&quot;&gt;6-Conclusions&lt;/h1&gt;
+
+&lt;p&gt;GFS 设计思路中，组件失效是常态；大文件写入采用 Append 的方式优化性能；通过持续监控，复制关键数据，快速和自动恢复提供灾难冗余。&lt;/p&gt;
+
+&lt;p&gt;GFS 并没有在文件系统层面提供任何 Cache 机制，因为 Client 几乎不会重复读取数据，其读取方式要么是流式的读取一个大型的数据集，要么是在大型的数据集中随机 Seek 到某个位置，之后每次读取少量的数据。&lt;/p&gt;
+
+&lt;p&gt;分布式文件管理方面，并没有采用一致性算法来保证数据的一致性，而是采用中心节点的方式，这样简化了设计，提高可靠性，可扩展性。&lt;/p&gt;
+
+&lt;p&gt;为了实现大量的并发读写操作仍能够提供很高的吞吐量，采用控制流与数据流分离的设计方案。控制流在 Master 处理，数据流在 Client 与 Chunk Server 中处理。为了降低 Master 的负载，选择了较大尺寸的 Chunk；同时，通过 Lease 机制选择 Chunk 主副本，从而将控制权从 Master 转移到主 Chunk Server 中。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">0-Keywords</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/gfs/gfs_1.png" /><media:content medium="image" url="http://localhost:4000/gfs/gfs_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">DDIA: 数据分区</title><link href="http://localhost:4000/ddia-8.html" rel="alternate" type="text/html" title="DDIA: 数据分区" /><published>2021-07-11T00:00:00+08:00</published><updated>2021-07-11T00:00:00+08:00</updated><id>http://localhost:4000/ddia-8</id><content type="html" xml:base="http://localhost:4000/ddia-8.html">&lt;p&gt;复制是在不同节点上保存相同数据的多个副本，如果数据量过大使得单节点无法存储全量数据或者查询压力过高，那么仅仅使用复制是不够的，我们需要将数据拆分为分区（分片）。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;分区使得每条记录（数据，行 或者 文档）只属于某个特定的分区&lt;/em&gt;。每个分区可以看作一个完整的小型数据库。&lt;/p&gt;
+
+&lt;p&gt;数据分区用于&lt;strong&gt;提高可扩展性&lt;/strong&gt;；不同分区可以存放在无共享集群中的不同节点上，使得大数据集分散在更多磁盘上，负载相应地也分散到各个机器。&lt;/p&gt;
+
+&lt;p&gt;每个分区可以进行独立查询操作，因此多分区可以&lt;strong&gt;提高系统吞吐量&lt;/strong&gt;；但是对跨分区查询比较困难。&lt;/p&gt;
+
+&lt;h1 id=&quot;分区与复制&quot;&gt;分区与复制&lt;/h1&gt;
+
+&lt;p&gt;分区通常与复制同时使用，即每个分区都会存在多个副本。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;某条记录属于特定的分区，该记录又会被保存在不同的副本中以提高容错性&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;一个节点上可能存在多个分区；每个分区都有主副本 &amp;amp; 从副本，主副本与从副本被分配在不同的节点上。一个节点可能是某个分区的主副本，也可能是其他分区的从副本&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/ddia/ddia_8_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;复制 &amp;amp; 分区组合使用：每个节点既是某些分区的主节点又是其他分区的从节点&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;键-值数据的分区&quot;&gt;键-值数据的分区&lt;/h1&gt;
+
+&lt;p&gt;分区的主要目的是&lt;strong&gt;将数据和负载均匀分布在所有节点上&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;如果节点平均分担负载，那么 n 个节点理论上能处理 n 倍的数据量和 n 背的读写吞吐量。如果分区不均匀，那么会导致某些分区的负载比其他分区负载高，称之为倾斜。倾斜会导致整体性能下降；系统的瓶颈在负载最高的分区上，该分区就会称为系统热点。&lt;/p&gt;
+
+&lt;p&gt;假设所有的数据都是 key-value 类型的模型，常见的分区方式有：&lt;/p&gt;
+
+&lt;h2 id=&quot;基于关键字区间分区&quot;&gt;基于关键字区间分区&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;每个分区分配一段连续的关键字或者关键字区间范围&lt;/strong&gt;（min ~ max）：如果知道关键字区间的上下限，就可以确定哪个分区包含哪些关键字。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/ddia/ddia_8_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;百科全书按照关键字区间进行分区&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;需要注意的是，&lt;strong&gt;*关键字的区间段不一定要均匀分布，因为数据本身可能就不均匀*&lt;/strong&gt;。为了均匀地分布数据，分区边界应该适配数据本身的分布特征。每个分区内可以按照关键字排序，便于&lt;strong&gt;支持区间查询&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;分区边界可以手动指定，也可以自动设定（分区再平衡）&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;基于关键字区间分区的缺点是&lt;em&gt;某些访问模式下会导致热点&lt;/em&gt;。比如，关键字是时间戳，每个分区对应一段时间范围，可能大部分操作都集中在当前时间段内。&lt;/p&gt;
+
+&lt;h2 id=&quot;基于关键字-hash-分区&quot;&gt;基于关键字 Hash 分区&lt;/h2&gt;
+
+&lt;p&gt;对于数据倾斜与热点问题，较多的系统选择基于关键字的哈希值来分区。&lt;/p&gt;
+
+&lt;p&gt;可以为&lt;strong&gt;每个分区分配一个哈希值范围（而不是直接作用于关键字范围），关键字根据其哈希值的范围划分到不同的分区&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;一个好的 Hash 函数可以处理数据倾斜并使其均匀分布&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/ddia/ddia_8_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;分区的边界可以是均匀间隔，也可以是伪随机选择（有时被称为一致性哈希）。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;一致性哈希是一种平均分配负载的方案&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;但是，关键字哈希值分区会使得&lt;em&gt;区间查询的特性丧失&lt;/em&gt;；即使关键字相邻，经过哈希之后可能会分散到不同的分区中。&lt;/p&gt;
+
+&lt;p&gt;基于哈希分区的方法可以减轻热点，但是无法做到完全避免，如果大多数请求都是针对同一个关键字，那么都会被路由到同一个分区。&lt;/p&gt;
+
+&lt;h1 id=&quot;分区与二级索引&quot;&gt;分区与二级索引&lt;/h1&gt;
+
+&lt;p&gt;之前的分区方案都是假设数据模型为 key-value 类型，因此可以根据 key 直接分区；但是如果涉及到二级索引，分区方案更为复杂点。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;二级索引通常不能唯一标识一条记录，而是用来加速特定值的查询&lt;/em&gt;。二级索引带来的主要挑战是不能规整地映射到分区中；主要有两种方法对二级索引分区：&lt;strong&gt;基于文档的分区&lt;/strong&gt; &amp;amp; &lt;strong&gt;基于词条的分区&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;二级索引是关系数据库标配，在文档数据库中也比较普遍&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;基于文档分区的二级索引&quot;&gt;基于文档分区的二级索引&lt;/h2&gt;
+
+&lt;p&gt;假设有一个汽车销售网站，每个列表都有一个唯一的文档 ID，用该 ID 进行数据库分区；存在二级索引颜色 &amp;amp; 制造商，用户搜索汽车时可以根据这两个二级索引条件进行过滤。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/ddia/ddia_8_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;当一辆新的红色汽车添加到数据库中时，数据库分区会自动将其添加到索引条目为 color:red 的文档 ID 列表中。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;在这种索引方法中，每个分区完全独立，各自维护自己的二级索引，并且只负责自己分区内的文档而不关心其他分区中的数据。因此文档分区索引也被称为本地索引，而不是全局索引&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;但是在查找数据时需要注意：比如想要查找所有红色的汽车，需要将&lt;strong&gt;查询发送到所有的分区&lt;/strong&gt;，然后合并所有的返回结果，该查询会引起&lt;strong&gt;读放大&lt;/strong&gt;。这种查询方法也被称为分散/聚集（容易引起读延迟显著放大）。&lt;/p&gt;
+
+&lt;h2 id=&quot;基于词条的二级索引分区&quot;&gt;基于词条的二级索引分区&lt;/h2&gt;
+
+&lt;p&gt;可以对所有数据构建全局索引，而不是每个分区维护自己的本地索引；而且为了避免瓶颈，不能将全局索引存储在一个节点上。所以全局索引也必须进行分区，并且可以与关键字采用不同的分区策略。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/ddia/ddia_8_5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;以上图为例，所有颜色为红色的汽车被收录到索引 color:red 中，而&lt;strong&gt;索引本身也是分区的&lt;/strong&gt;（a ~ r 置于分区 0 中，s ~ z 置于分区 1 中；类似的汽车制造商的索引也被分区）。&lt;/p&gt;
+
+&lt;p&gt;这种索引方案称为词条分区，它&lt;strong&gt;以带查找的关键字本身作为索引&lt;/strong&gt;。相比于文档分区的优点是：读取效率更高，不需要对所有分区进行查询；只需要向包含指定词条的分区发出请求即可。缺点是：写入速度较慢且复杂，因为当一条记录更新时，可能会涉及到多个二级索引，而二级索引的分区可能在不同的节点上，从而导致&lt;strong&gt;写放大&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;分区再平衡&quot;&gt;分区再平衡&lt;/h1&gt;
+
+&lt;p&gt;随着时间的推移，数据库可能会发生变化：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;查询压力增大：需要更多的 cpu 来处理负载&lt;/li&gt;
+  &lt;li&gt;数据规模增加：需要更多的磁盘和内存来存储数据&lt;/li&gt;
+  &lt;li&gt;节点可能出现故障：需要其他机器来接管失效的节点&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;上述变化要求数据和请求从一个节点转移到另一个节点，这种迁移负载的过程称为&lt;strong&gt;再平衡（动态平衡&lt;/strong&gt;）。无论采用哪种分区方案，分区再平衡通常需要满足：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;平衡之后，负载，数据存储，读写请求等应该在集群范围内更均匀地分布&lt;/li&gt;
+  &lt;li&gt;再平衡执行过程中，数据库可以继续正常提供读写服务&lt;/li&gt;
+  &lt;li&gt;避免不必要的迁移负载，以加快动态再平衡&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;动态再平衡的策略&quot;&gt;动态再平衡的策略&lt;/h2&gt;
+
+&lt;h3 id=&quot;为什么不用取模&quot;&gt;为什么不用取模？&lt;/h3&gt;
+
+&lt;p&gt;在哈希分区中，将哈希值划分为不同的区间范围，然后将每个区间分配给一个分区。如区间[0, b0) 对应分区 0，区间[b0, b1) 对应分区 1 等。&lt;/p&gt;
+
+&lt;p&gt;有时候会用&lt;em&gt;对分区数取模的方式确定关键字所属分区&lt;/em&gt;；如果有 10 个节点（0 ～ 9），那么 hash(key) % 10 会返回一个介于 0 和 9 之间的数字，从而确定 key 的目标分区。&lt;/p&gt;
+
+&lt;p&gt;然而，对节点数取模的问题是，如果节点数 N 发生了变化，会导致很多关键字需要从现有节点迁移到另一个节点；这种&lt;strong&gt;频繁迁移的操作大大增加了再平衡的成本&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;固定数量的分区&quot;&gt;固定数量的分区&lt;/h3&gt;
+
+&lt;p&gt;为了减少数据迁移，可以采用固定数量分区的方式：&lt;strong&gt;首先，创建远超实际节点数的分区数，然后为每个节点分配多个分区&lt;/strong&gt;。例如，对于 10 个节点的集群，可以创建 10000 个分区，这样每个节点大概承担 100 个分区。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Redis 集群采用该中方式，其中每个分区被称为 slot；固定数量分区的方式与一致性哈希是不同的，尽管都能减少迁移数据量&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;如果集群中新增了一个节点，该新节点可以从每个现有的节点上匀走几个分区，直到分区再次达到全局平衡；如果从集群中删除节点，则采取相反的均衡措施&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/ddia/ddia_8_6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;迁移过程会以分区为粒度（分区在节点间迁移），但是分区的总数量不变，也不会改变关键字到分区的映射关系；唯一需要调整的是分区与节点的对应关系。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在迁移期间，旧的分区仍然可以接收读写请求&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;使用该策略时，分区数目在集群初始化的时候就确定了，并且之后都不会改变。&lt;/p&gt;
+
+&lt;h3 id=&quot;动态分区&quot;&gt;动态分区&lt;/h3&gt;
+
+&lt;p&gt;对于采用关键字区间分区的数据库，如果边界设置有问题，可能会出现所有数据都集中在一个分区中，而其他分区基本为空；设置固定边界 或者 固定数量的分区可能会带来不便。&lt;/p&gt;
+
+&lt;p&gt;因此有些数据库支持动态创建分区：&lt;strong&gt;当分区中的数据增长到一个阈值后，就拆分为两个分区，每个承担一半的数据量；相反，如果大量数据被删除，并且分区数据缩小到一个阈值以下，则将其与相邻分区合并&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;HBase 采用了动态创建分区策略&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;与固定数量的分区策略一样，每个分区总是分配给一个节点，而每个节点可以承担多个分区。&lt;/p&gt;
+
+&lt;p&gt;动态分区的一个显著优点是，&lt;strong&gt;分区数量可以自适应数据总量&lt;/strong&gt;。如果只有少量数据，则只需要少量分区，减小系统开销；如果有大量数据，每个分区可以被设定为一个可分配的最大阈值。&lt;/p&gt;
+
+&lt;h3 id=&quot;按节点比例分区&quot;&gt;按节点比例分区&lt;/h3&gt;
+
+&lt;p&gt;不管是固定分区数还是动态分区，两种方式的分区数量都与节点数无关；还有一种策略，使分区数与节点数目成正比关系，即每个节点拥有固定数量的分区。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;当节点数目不变时，每个分区的大小与数据集大小保持正比关系；当节点数增加时，分区则会变小&lt;/em&gt;。较大的数据量需要较多的节点存储，因此该方法也使得每个分区的大小保持稳定。&lt;/p&gt;
+
+&lt;h2 id=&quot;请求路由&quot;&gt;请求路由&lt;/h2&gt;
+
+&lt;p&gt;将数据分散到多个节点上后，客户端如何知道应该访问哪个节点呢？&lt;/p&gt;
+
+&lt;p&gt;这类问题可以统一归为服务发现；并且有几种不同的处理策略：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;允许客户端连接任意的节点&lt;/strong&gt;。如果当前节点恰好拥有所访问的分区，则直接处理该请求；否则，将请求转发到下一个合适的节点，接收响应，并将结果返回给客户端。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;所有的客户端请求都发送到一个路由层，由路由层负责将请求转发到对应的分区节点上&lt;/strong&gt;。路由层本身不处理任何请求，仅仅充当一个分区感知的负载均衡器。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;客户端感知分区与节点的分配关系。&lt;/strong&gt;此时客户端可以直接连接到目标节点，而不需要任何中介。&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/images/ddia/ddia_8_7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;不管是哪一种方法，核心问题是：做出路由决策的组件如何知道分区与节点的对应关系以及变化情况？&lt;/p&gt;
+
+&lt;p&gt;这个问题可以归为共识问题：即&lt;strong&gt;需要对节点与分区的映射关系达成共识&lt;/strong&gt;；有些系统直接使用 ZK 这类的协调服务跟踪集群范围内的元数据，一旦分区发生了改变，ZK 就会主动通知路由层，这样使得路由信息保持最新状态。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/ddia/ddia_8_8.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="ddia" /><summary type="html">复制是在不同节点上保存相同数据的多个副本，如果数据量过大使得单节点无法存储全量数据或者查询压力过高，那么仅仅使用复制是不够的，我们需要将数据拆分为分区（分片）。</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/ddia/ddia_8_1.png" /><media:content medium="image" url="http://localhost:4000/ddia/ddia_8_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>

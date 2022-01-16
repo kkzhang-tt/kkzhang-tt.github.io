@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>编程珠玑（一）</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.1" />
+<meta property="og:title" content="编程珠玑（一）" />
+<meta name="author" content="kkzhang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="问题引入" />
+<meta property="og:description" content="问题引入" />
+<link rel="canonical" href="http://localhost:4000/programming-pearls-1.html" />
+<meta property="og:url" content="http://localhost:4000/programming-pearls-1.html" />
+<meta property="og:site_name" content="Find a needle in haystack" />
+<meta property="og:image" content="http://localhost:4000/pp_1.jpg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-04-11T00:00:00+08:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="http://localhost:4000/pp_1.jpg" />
+<meta property="twitter:title" content="编程珠玑（一）" />
+<script type="application/ld+json">
+{"image":"http://localhost:4000/pp_1.jpg","author":{"@type":"Person","name":"kkzhang"},"@type":"BlogPosting","description":"问题引入","headline":"编程珠玑（一）","dateModified":"2021-04-11T00:00:00+08:00","datePublished":"2021-04-11T00:00:00+08:00","url":"http://localhost:4000/programming-pearls-1.html","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/programming-pearls-1.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Find a needle in haystack" /><link rel="shortcut icon" type="image/x-icon" href="/logo.ico" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head><body a="auto">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/">../</a><article>
+  <p class="post-meta">
+    <time datetime="2021-04-11 00:00:00 +0800">2021-04-11</time>
+  </p>
+  
+  <h1>编程珠玑（一）</h1>
+
+  <h2 id="问题引入">问题引入</h2>
+
+<p><strong>输入</strong>：一个最多包含 n 个正整数的文件，每个数都小于 n，其中 n = 10^7。并且输入文件中的正整数没有重复数据，数据之间没有任何关联。</p>
+
+<p><strong>输出</strong>：按照升序排列输出整数列表。</p>
+
+<p><strong>约束</strong>：最多有 1MB 内存，但是有充足的磁盘空间使用。要求程序运行时间最多有几分钟。</p>
+
+<h2 id="程序设计">程序设计</h2>
+
+<h3 id="磁盘文件归并排序">磁盘文件归并排序</h3>
+
+<p>通过优化基于磁盘的归并排序实现；这种做法需要生成中间文件，并且程序运行时要多次读取中间文件</p>
+
+<h3 id="多趟排序">多趟排序</h3>
+
+<p>文件中的正整数最大为 10^7，假设每个数都使用 32 位整数来表示，则每个整数需要 4 Byte，那么在 1 MB 内存中最多存储 250000 个数字。因此可以通过<strong>多次遍历输入文件</strong>来完成排序：<strong>在第一趟遍历中，将 0 — 249999 之间的整数都读入到内存中，并对这 250000 个数进行内存排序，然后写入到输出文件中</strong>；同理，第二趟遍历将 25000 -499999 之间的整数读到内存中并排序，然后顺序写入到输出文件；依此类推。这样，基本需要 40 次输入文件的遍历可以将所有整数顺序输出。</p>
+
+<p>这种方法的好处是没有产生中间文件，但是付出的代价是需要遍历输入文件 40 次。</p>
+
+<h3 id="位图排序">位图排序</h3>
+
+<p>优势：读取输入文件一次，并且没有中间文件产生。</p>
+
+<p>位图数据结构<strong>描述了一个有限定义域内的稠密集合，其中每一个元素最多出现一次并且没有其他任何数据与该元素相关联</strong>。</p>
+
+<blockquote>
+  <p>即使这些条件没有完全满足（例如存在重复元素或者额外的数据），也可以用有限定义域内的键作为一个表项更复杂的表格的索引。</p>
+</blockquote>
+
+<p>位图或位向量表示集合：<em>当整数 i 在原数组中存在时，则位图中第 i 位为 1；否则为 0</em>。用一个长度为 20 位的数组表示所有元素都小于 20 的非负整数集合。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 原始数据</span>
+<span class="o">[</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">5</span><span class="o">,</span><span class="mi">8</span><span class="o">,</span><span class="mi">13</span><span class="o">]</span>
+<span class="c1">// 位图表示</span>
+<span class="mi">0</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> 
+</code></pre></div></div>
+
+<p>在上面的问题中，我们使用一个具有 10^7 个位的数组表示整个文件中整数的集合，当整数 i 在文件中存在时，第 i 位为 1.</p>
+
+<p>使用位图来实现利用了三个在排序问题中并不常见的属性：</p>
+
+<ol>
+  <li>输入数据限制在相对较小的范围内</li>
+  <li>数据没有重复</li>
+  <li>对每个记录而言，除了单一整数外，没有任何其他关联数据</li>
+</ol>
+
+<h2 id="实现">实现</h2>
+
+<p>位图排序实现分为三步：</p>
+
+<ul>
+  <li>所有位置 0</li>
+  <li>通过遍历输入文件来建立集合，将每个对应的位都置为 1</li>
+  <li>遍历位图数组，如果该位为 1，则输出对应的整数</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// initialize</span>
+<span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="o">[</span><span class="mi">0</span><span class="o">,</span><span class="n">n</span><span class="o">)</span>
+    <span class="n">bit</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1">// insert present elements into set</span>
+<span class="k">for</span> <span class="n">i</span> <span class="n">in</span> <span class="n">the</span> <span class="n">file</span>
+    <span class="n">bit</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1">// write sorted output</span>
+<span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="o">[</span><span class="mi">0</span><span class="o">,</span><span class="n">n</span><span class="o">)</span>
+    <span class="k">if</span> <span class="n">bit</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">==</span> <span class="mi">1</span>
+         <span class="n">write</span> <span class="n">i</span> <span class="n">output</span>
+</code></pre></div></div>
+
+<h2 id="引申">引申</h2>
+
+<ol>
+  <li>通过位逻辑运算实现位向量</li>
+  <li>如何生成 0 至 n-1 之间的 k 个不同的随机整数</li>
+  <li>如果每个整数不是最多出现 1 次，而是最多出现 10 次，如何处理</li>
+</ol>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
