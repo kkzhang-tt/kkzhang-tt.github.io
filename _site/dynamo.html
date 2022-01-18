@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Dynamo: Amazon's Highly Available Key-value Store</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.1" />
+<meta property="og:title" content="Dynamo: Amazon’s Highly Available Key-value Store" />
+<meta name="author" content="kkzhang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="1-Abstract" />
+<meta property="og:description" content="1-Abstract" />
+<link rel="canonical" href="http://localhost:4000/dynamo.html" />
+<meta property="og:url" content="http://localhost:4000/dynamo.html" />
+<meta property="og:site_name" content="Find a needle in haystack" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-01-18T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Dynamo: Amazon’s Highly Available Key-value Store" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"kkzhang"},"headline":"Dynamo: Amazon’s Highly Available Key-value Store","dateModified":"2022-01-18T00:00:00+08:00","@type":"BlogPosting","datePublished":"2022-01-18T00:00:00+08:00","description":"1-Abstract","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/dynamo.html"},"url":"http://localhost:4000/dynamo.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Find a needle in haystack" /><link rel="shortcut icon" type="image/x-icon" href="/logo.ico" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head><body a="auto">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/">../</a><article>
+  <p class="post-meta">
+    <time datetime="2022-01-18 00:00:00 +0800">2022-01-18</time>
+  </p>
+  
+  <h1>Dynamo: Amazon's Highly Available Key-value Store</h1>
+
+  <h1 id="1-abstract">1-Abstract</h1>
+
+<p>Dynamo 是 Amazon 提出的<strong>高可用键值存储</strong>系统。为了保证系统的高可用，<em>牺牲了一些特定场景下的一致性</em>。Dynamo 使用了<strong>对象版本化（object versioning）</strong>与<strong>应用协助解决冲突（application-assisted conflict resolution）</strong>的机制。</p>
+
+<h1 id="2-introduction">2-Introduction</h1>
+
+<p>Amazon 的基础设施由数百万台设备组成，任何时刻都会有比例小但是数量不少的设备发生故障。因此，可以将故障看作是正常的，可预期的行为，<em>软件系统不应该因为硬件设备故障影响自身的可用性与性能</em>。</p>
+
+<p>Dynamo 的目标是实现一个<strong>永远可用（always available）</strong>的系统：即使服务器故障或者网络异常，用户也能往自己的购物车里添加商品。基于以下技术保证了高可用性与高扩展性：</p>
+
+<ul>
+  <li>数据通过<strong>一致性 Hash 进行分区与复制</strong></li>
+  <li>通过<strong>对象版本化</strong>实现一致性（最终一致性）</li>
+  <li>数据副本之间的一致性通过“<strong>类似仲裁的技术</strong>”与“<strong>去中心化的副本同步协议</strong>”保证</li>
+  <li>以 gossip 协议为基础的分布式<strong>故障检测与成员检测</strong>协议</li>
+</ul>
+
+<p>Dynamo 系统通过组合不同的技术实现一个高度可用（high-available）的系统，并证明了最终一致性存储系统可以用于生产环境，满足应用的高可用要求。</p>
+
+<h1 id="3-background">3-Background</h1>
+
+<p>Amazon 电商平台由几百个服务组成，有些服务是无状态的（如聚合其他服务响应的服务），有些服务是有状态的（如基于存储在数据仓库中的状态，执行业务逻辑并产生响应的服务）。传统上，服务状态使用关系型数据库存储；但是，对很多<strong>持久状态的存储</strong>需求来说，关系型数据库有一些局限性：</p>
+
+<ul>
+  <li>该类型的服务大部分情况下只需要<strong>使用主键检索</strong>，并不需要关系型数据库提供的复杂查询和管理功能</li>
+  <li>关系型数据库的复制功能受限，而且通常通过<strong>牺牲可用性来换取一致性</strong>；水平扩展（scale-out）不足</li>
+</ul>
+
+<p>针对关系型数据库的不足，Dynamo 能够做到高度可用，有定义清晰的一致性窗口（clearly defined consistency window），易用的水平扩展方案。</p>
+
+<blockquote>
+  <p>Dynamo 支持独立部署，不同的业务使用不同的 Dynamo 系统</p>
+
+</blockquote>
+
+<h2 id="3-1-system-assumptions-and-requirements">3-1-<strong>System Assumptions and Requirements</strong></h2>
+
+<p>对接入 Dynamo 的服务有以下假设：</p>
+
+<ol>
+  <li>查询模型（<em>Query Model</em>）
+    <ol>
+      <li>通过<em>唯一 key</em> 进行数据读写操作</li>
+      <li>任何读写操作都<em>不会跨多个数据单元</em>（data item）</li>
+      <li>没有关系型 schema 需求</li>
+      <li>需要存储的<em>文件较小</em>（&lt; 1MB）</li>
+    </ol>
+  </li>
+  <li>ACID 特性（<em>ACID Properties</em>）
+    <ol>
+      <li>在数据库领域中，ACID 是保证事务可靠执行的保证；但是这些特性会牺牲系统的可用性。Dynamo 实现目标是：<em>允许通过牺牲一些一致性（C）提高可用性</em></li>
+      <li>Dynamo <em>不提供任何隔离保证</em>，只允许单个key 的更新操作</li>
+    </ol>
+  </li>
+  <li>效率（<em>Efficiency</em>）
+    <ol>
+      <li>系统需要满足严格的 SLA（通过 TP999 衡量）；并允许业务自定义配置 Dynamo 以满足吞吐量 &amp; 延迟的需求</li>
+    </ol>
+  </li>
+</ol>
+
+<h2 id="3-2-design-considerations">3-2-<strong>Design Considerations</strong></h2>
+
+<p><em>为了达到强一致性，一般数据库会采用同步复制算法</em>。这类算法在某些故障场景下牺牲了可用性，如当数据出现冲突，则暂时禁止对该数据的访问，直到冲突解决。</p>
+
+<p>分布式系统是无法同时满足 C（强一致性），A（高可用性），P（网络故障容忍）三个特性；因此，在不同的业务场景下需要选择不同的特性：是强一致性还是高可用性。</p>
+
+<p>在服务器与网络故障比较高的场景下，可以通过<strong>乐观复制</strong>（optimistic replication）提高可用性：在后台通过异步同步将数据变更复制到其他节点，能够容忍并发更新与操作异常。不过这种方式虽然能够提高可用性，但是会导致数据冲突，需要检测并修复冲突。那么：</p>
+
+<ul>
+  <li>什么时候解决冲突</li>
+  <li>由谁解决冲突</li>
+</ul>
+
+<blockquote>
+  <p>Dynamo 被设计为<strong>最终一致性数据仓库（eventually consistent data store）</strong>，所有的数据变更最后都会同步到所有副本</p>
+</blockquote>
+
+<ol>
+  <li>
+    <p><strong>什么时候解决冲突</strong></p>
+
+    <p>解决冲突的时机有两个：读时 &amp; 写时。</p>
+
+    <p>传统数据库在写时解决冲突，可以使得读操作比较简单。这种方式在<em>系统不能访问大部分（或者全部）副本时，就会拒绝写</em>。</p>
+
+    <p>Dynamo 期望保证<strong>永远可写</strong>（always writeable），所以在<em>数据读取时解决冲突</em>，以保证写操作不会被拒绝。</p>
+  </li>
+  <li>
+    <p><strong>谁解决冲突</strong></p>
+
+    <p>冲突解决方也有两个：业务服务 &amp; 数据库。</p>
+
+    <p>如果由数据库来解决，只能执行一些简单的策略，如最后写有效（last write wins）。</p>
+
+    <p>由于业务服务能够更了解数据的作用，可以更加<em>灵活地选择对用户体验最好的冲突解决算法</em>，如合并冲突的版本。</p>
+  </li>
+  <li>
+    <p>其他设计原则</p>
+    <ol>
+      <li><strong>增量扩展性（Incremental scalability）</strong>：支持逐个节点扩容，并减小对系统的影响</li>
+      <li><strong>对称性（Symmetry）</strong>：<em>每个节点的职责应该是相同的</em>；对称性简化了系统的运维</li>
+      <li><strong>去中心化（Decentralization）</strong>：去中心化是对称性的进一步扩展；系统应该是去中心化，点对点的，而不是集中控制；<em>去中心化能够使得系统更加简单，更具可扩展性 &amp; 可用性</em></li>
+      <li>异构性（Heterogeneity）：负载的分布要与节点的承载能力成正比</li>
+    </ol>
+  </li>
+</ol>
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
