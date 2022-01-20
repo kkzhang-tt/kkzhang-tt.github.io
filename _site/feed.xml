@@ -1,5 +1,152 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-01-18T23:20:05+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
-</subtitle><author><name>kkzhang</name></author><entry><title type="html">Dynamo: Amazon’s Highly Available Key-value Store</title><link href="http://localhost:4000/dynamo.html" rel="alternate" type="text/html" title="Dynamo: Amazon’s Highly Available Key-value Store" /><published>2022-01-18T00:00:00+08:00</published><updated>2022-01-18T00:00:00+08:00</updated><id>http://localhost:4000/dynamo</id><content type="html" xml:base="http://localhost:4000/dynamo.html">&lt;h1 id=&quot;1-abstract&quot;&gt;1-Abstract&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-01-20T22:09:51+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
+</subtitle><author><name>kkzhang</name></author><entry><title type="html">过去完成时</title><link href="http://localhost:4000/perfect-past-tense.html" rel="alternate" type="text/html" title="过去完成时" /><published>2022-01-20T00:00:00+08:00</published><updated>2022-01-20T00:00:00+08:00</updated><id>http://localhost:4000/perfect-past-tense</id><content type="html" xml:base="http://localhost:4000/perfect-past-tense.html">&lt;h2 id=&quot;含义与结构&quot;&gt;含义与结构&lt;/h2&gt;
+
+&lt;p&gt;过去完成时表示&lt;strong&gt;&lt;em&gt;过去某一时间或动作&lt;/em&gt;&lt;/strong&gt;以前已经发生或完成了的动作，对过去的某一点造成的某种影响或是结果，用来指&lt;strong&gt;在另一个过去动作之前就已经完成了的事件&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;动作发生的时间是”过去的过去”，侧重事情的结果。&lt;/p&gt;
+
+&lt;p&gt;基本结构为：&lt;strong&gt;主语+had+动词过去分词&lt;/strong&gt;（done）&lt;/p&gt;
+
+&lt;h2 id=&quot;用法&quot;&gt;用法&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;表示在&lt;strong&gt;过去某一时刻或动作以前完成了的动作&lt;/strong&gt;，表示“过去的过去”；可以用 &lt;strong&gt;by, before&lt;/strong&gt; 等介词短语或一个时间状语从句来表示，也可以用一个表示过去的动作来表示，还可能通过上下文来表示。
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;By&lt;/strong&gt; the time I got outside, the bus had already left.&lt;/li&gt;
+      &lt;li&gt;She had studied English for six years &lt;strong&gt;before&lt;/strong&gt; she went to college.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;表示由过去的某一时刻开始，一直&lt;strong&gt;延续到过去另一时间&lt;/strong&gt;的动作或状态，常和 &lt;strong&gt;for, since&lt;/strong&gt; 构成的时间状语连用。
+    &lt;ul&gt;
+      &lt;li&gt;He had lived in the house &lt;strong&gt;for&lt;/strong&gt; five years.&lt;/li&gt;
+      &lt;li&gt;He said he had worked in that factory &lt;strong&gt;since&lt;/strong&gt; 1949.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;叙述过去发生的事情，在已叙述了过去发生的事情后，反过来&lt;strong&gt;追述或补述以前发生的动作&lt;/strong&gt;时，常使用过去完成时。
+    &lt;ul&gt;
+      &lt;li&gt;Mr. Smith died yesterday. He had been a good friend of mine.&lt;/li&gt;
+      &lt;li&gt;I didn’t know a thing about the verbs, for I had not studied my lesson.（因为我没有好好学习，作为补充）&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;在含有定语从句的&lt;strong&gt;主从复合句&lt;/strong&gt;中，如果&lt;strong&gt;叙述的是过去的事&lt;/strong&gt;，&lt;strong&gt;先发生的动作常用过去完成时&lt;/strong&gt;。
+    &lt;ul&gt;
+      &lt;li&gt;I returned the book that I had borrowed.&lt;/li&gt;
+      &lt;li&gt;She found the key that she had lost.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;过去完成时常常&lt;strong&gt;用在 told, said, knew, heard, thought 等动词后的宾语从句&lt;/strong&gt;（或间接引语）中，这时从句中的动作发生在主句表示的过去的动作之前。
+    &lt;ul&gt;
+      &lt;li&gt;He said that he had known her well.&lt;/li&gt;
+      &lt;li&gt;I thought I had sent the letter a week before.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;含有时间状语从句，对于过去不同时间发生的两个动作，&lt;strong&gt;发生在前的动作，用过去完成时；发生在后的动作，用一般过去时&lt;/strong&gt;。如 &lt;strong&gt;when, before, after, as soon as, till/until 引导的从句。&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;When&lt;/strong&gt; I woke up, it had already stopped raining.&lt;/li&gt;
+      &lt;li&gt;She didn’t go to bed &lt;strong&gt;until&lt;/strong&gt; she had finished her work.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;需要注意的是，如果&lt;strong&gt;两个动作紧接着发生&lt;/strong&gt;，则常常不用过去完成时，特别是在包含 &lt;strong&gt;before&lt;/strong&gt; 和&lt;strong&gt;after&lt;/strong&gt; 的复合句中，因为这时&lt;em&gt;从句的动作和主句的动作发生的先后顺序已经非常明确&lt;/em&gt;，可以用一般过去时代替过去完成时。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;After he arrived in England, Marx worked hard to improve his English.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;动词 &lt;strong&gt;think, want, hope, mean, plan, intend 等用过去完成时来表示过去未曾实现&lt;/strong&gt;的想法，希望，打算或意图等。
+    &lt;ul&gt;
+      &lt;li&gt;They &lt;strong&gt;had wanted&lt;/strong&gt; to help but could not get there in time.&lt;/li&gt;
+      &lt;li&gt;We &lt;strong&gt;had hoped&lt;/strong&gt; to be able to come and see you.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;过去完成时还可用在 &lt;strong&gt;hardly…when…, no sooner…than…, It was the first (second, etc) time (that)…&lt;/strong&gt; 等固定句型中。
+    &lt;ul&gt;
+      &lt;li&gt;Hardly had he begun to speak when the audience interrupted him.（一 … 就 …，倒装句）&lt;/li&gt;
+      &lt;li&gt;No sooner had he arrived than he went away again.（一 … 就 …，倒装句）&lt;/li&gt;
+      &lt;li&gt;It was the third time that he had been out of work that year.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">含义与结构</summary></entry><entry><title type="html">such 与 so 的区别</title><link href="http://localhost:4000/such-and-so.html" rel="alternate" type="text/html" title="such 与 so 的区别" /><published>2022-01-20T00:00:00+08:00</published><updated>2022-01-20T00:00:00+08:00</updated><id>http://localhost:4000/such-and-so</id><content type="html" xml:base="http://localhost:4000/such-and-so.html">&lt;p&gt;such 和 so 都可以&lt;strong&gt;表示程度&lt;/strong&gt;，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;such 为形容词，一般&lt;strong&gt;修饰名词&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;so 为副词，一般&lt;strong&gt;修饰形容词或副词&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;such-用法&quot;&gt;such 用法&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;such + a/an + 可数名词单数
+    &lt;ul&gt;
+      &lt;li&gt;All of us have never seen &lt;strong&gt;&lt;em&gt;such an animal before&lt;/em&gt;&lt;/strong&gt;.&lt;/li&gt;
+      &lt;li&gt;He said he would rather be poor than get money &lt;strong&gt;&lt;em&gt;in such a way&lt;/em&gt;&lt;/strong&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;such + a/an + 形容词 + 可数名词单数
+    &lt;ul&gt;
+      &lt;li&gt;She is &lt;strong&gt;&lt;em&gt;such a good teacher&lt;/em&gt;&lt;/strong&gt; just as we expect.&lt;/li&gt;
+      &lt;li&gt;I really thank you for giving &lt;strong&gt;&lt;em&gt;such an exciting party&lt;/em&gt;&lt;/strong&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;such + 可数名词复数
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;&lt;em&gt;Such things&lt;/em&gt;&lt;/strong&gt; often happen in our daily life.&lt;/li&gt;
+      &lt;li&gt;I don’t think &lt;strong&gt;&lt;em&gt;such people&lt;/em&gt;&lt;/strong&gt; are dangerous.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;such + 形容词 + 可数名词复数
+    &lt;ul&gt;
+      &lt;li&gt;He told us &lt;strong&gt;&lt;em&gt;such funny stories&lt;/em&gt;&lt;/strong&gt; that we all couldn’t help laughing.&lt;/li&gt;
+      &lt;li&gt;He’s amazed to see &lt;strong&gt;&lt;em&gt;such beautiful fishes&lt;/em&gt;&lt;/strong&gt; under the sea.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;such + 不可数名词
+    &lt;ul&gt;
+      &lt;li&gt;When he knew &lt;strong&gt;&lt;em&gt;such news&lt;/em&gt;&lt;/strong&gt;, he began to cry.&lt;/li&gt;
+      &lt;li&gt;It’s dangerous to go swimming in &lt;strong&gt;&lt;em&gt;such weather&lt;/em&gt;&lt;/strong&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;such + 形容词 + 不可数名词
+    &lt;ul&gt;
+      &lt;li&gt;We are glad to see that he has made &lt;strong&gt;&lt;em&gt;such rapid progress&lt;/em&gt;&lt;/strong&gt; in English this term.&lt;/li&gt;
+      &lt;li&gt;I’ll remember &lt;strong&gt;&lt;em&gt;such delicious food&lt;/em&gt;&lt;/strong&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;so-用法&quot;&gt;so 用法&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;so + 形容词/副词
+    &lt;ul&gt;
+      &lt;li&gt;It’s &lt;strong&gt;&lt;em&gt;so cold&lt;/em&gt;&lt;/strong&gt; outside. We’d better wear warm clothes.&lt;/li&gt;
+      &lt;li&gt;He spoke &lt;strong&gt;&lt;em&gt;so fast&lt;/em&gt;&lt;/strong&gt; that I couldn’t follow.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;so + 形容词 + a/an + 可数名词单数
+    &lt;ul&gt;
+      &lt;li&gt;He’s &lt;strong&gt;&lt;em&gt;so kind a man&lt;/em&gt;&lt;/strong&gt; that everybody here likes him.&lt;/li&gt;
+      &lt;li&gt;It’s &lt;strong&gt;&lt;em&gt;so easy an exercise&lt;/em&gt;&lt;/strong&gt; that every one of us can do it.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;这种句式可以和 such + a/an + 形容词 + 可数名词单数换用：&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;I’ve never seen so amusing a film. = I’ve never seen such an amusing film.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;so + many/much/few/little + 可数名词复数/不可数名词
+    &lt;ul&gt;
+      &lt;li&gt;There are &lt;strong&gt;&lt;em&gt;so many visitors&lt;/em&gt;&lt;/strong&gt; in our school today.&lt;/li&gt;
+      &lt;li&gt;I have eaten &lt;strong&gt;&lt;em&gt;so much food&lt;/em&gt;&lt;/strong&gt;. I don’t want to eat any more.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;so many 已成固定搭配，a lot of 虽相当于 many，但 a lot of 为名词性的，只能用 such 搭配。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;I feel very happy that I have such a lot of friends.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">such 和 so 都可以表示程度，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。</summary></entry><entry><title type="html">Dynamo: Amazon’s Highly Available Key-value Store</title><link href="http://localhost:4000/dynamo.html" rel="alternate" type="text/html" title="Dynamo: Amazon’s Highly Available Key-value Store" /><published>2022-01-18T00:00:00+08:00</published><updated>2022-01-18T00:00:00+08:00</updated><id>http://localhost:4000/dynamo</id><content type="html" xml:base="http://localhost:4000/dynamo.html">&lt;h1 id=&quot;1-abstract&quot;&gt;1-Abstract&lt;/h1&gt;
 
 &lt;p&gt;Dynamo 是 Amazon 提出的&lt;strong&gt;高可用键值存储&lt;/strong&gt;系统。为了保证系统的高可用，&lt;em&gt;牺牲了一些特定场景下的一致性&lt;/em&gt;。Dynamo 使用了&lt;strong&gt;对象版本化（object versioning）&lt;/strong&gt;与&lt;strong&gt;应用协助解决冲突（application-assisted conflict resolution）&lt;/strong&gt;的机制。&lt;/p&gt;
 
@@ -1877,392 +2024,4 @@ in +（已过去的）某年/ 月, on +（已过去的）某天, at +（已过�
 &lt;ul&gt;
   &lt;li&gt;I saw him cross the road.&lt;/li&gt;
   &lt;li&gt;He was seen to cross the road.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1. 概要</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/nce/nce_3.jpg" /><media:content medium="image" url="http://localhost:4000/nce/nce_3.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">非谓语动词</title><link href="http://localhost:4000/non-predicate-verb.html" rel="alternate" type="text/html" title="非谓语动词" /><published>2021-10-13T00:00:00+08:00</published><updated>2021-10-13T00:00:00+08:00</updated><id>http://localhost:4000/non-predicate-verb</id><content type="html" xml:base="http://localhost:4000/non-predicate-verb.html">&lt;h2 id=&quot;1-概要&quot;&gt;1. 概要&lt;/h2&gt;
-
-&lt;p&gt;一个句子中只能有一个谓语动词，但是如果需要出现其他动词，则该动词需要被降级。降级的方式有：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;非谓语动词形态&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;从句形态
-    &lt;ul&gt;
-      &lt;li&gt;The boy &lt;em&gt;who is crying&lt;/em&gt; said this.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;从属连词
-    &lt;ul&gt;
-      &lt;li&gt;例如 because, although 等（and 数据并列句子，不属于从属）&lt;/li&gt;
-      &lt;li&gt;为什么 although 与 but 不能连用，因为这样相当于两个句子都被降级为从句了，没有主干&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-非谓语动词&quot;&gt;2. 非谓语动词&lt;/h2&gt;
-
-&lt;p&gt;非谓语动词，又叫非限定动词，指在句子中&lt;strong&gt;&lt;em&gt;不是谓语的动词&lt;/em&gt;&lt;/strong&gt;，主要包括&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;不定式: to do&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;动名词: doing&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;分词: 过去分词 done/ 现在分词 doing&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;非谓语动词除了&lt;strong&gt;&lt;em&gt;不能独立作谓语&lt;/em&gt;&lt;/strong&gt;外，可以承担句子的其他成分。&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;非谓语动词的使用需要考虑两种因素：主动被动 &amp;amp; 时态&lt;/p&gt;
-
-&lt;h3 id=&quot;21-语态&quot;&gt;2.1 语态&lt;/h3&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;先&lt;strong&gt;确定非谓语动词的逻辑主语&lt;/strong&gt;，之后再确定它们之间是主动还是被动关系&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;下面是非谓语动词的一般时态：&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt; &lt;/th&gt;
-      &lt;th&gt;不定式( to do )&lt;/th&gt;
-      &lt;th&gt;动名词( doing )&lt;/th&gt;
-      &lt;th&gt;过去分词( done )/现在分词与动名词一致&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;含义&lt;/td&gt;
-      &lt;td&gt;要做未做（目的或者意愿）&lt;/td&gt;
-      &lt;td&gt;正在进行中&lt;/td&gt;
-      &lt;td&gt;已经完成&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;一般时态主动&lt;/td&gt;
-      &lt;td&gt;to do It is a new world to change.&lt;/td&gt;
-      &lt;td&gt;doing This is a changing world.&lt;/td&gt;
-      &lt;td&gt;–&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;一般时态被动&lt;/td&gt;
-      &lt;td&gt;to be done It is a new world to be changed.&lt;/td&gt;
-      &lt;td&gt;being done This is a world being changed by globalization.&lt;/td&gt;
-      &lt;td&gt;done This is a changed world.&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;上面几个句子中非谓语动词 change 的逻辑主语都是 world，因此需要确定 world 与 change 之间的关系；如：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;This is a changing world.
-    &lt;ul&gt;
-      &lt;li&gt;world 和 change 是主动关系，&lt;em&gt;世界正在改变&lt;/em&gt;；change 前置于逻辑主语 world&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;This is a world being changed by globalization
-    &lt;ul&gt;
-      &lt;li&gt;world 和 change 是被动关系，&lt;em&gt;世界正在被改变&lt;/em&gt;；change 后置于逻辑主语 world&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;上面的几个句子中，逻辑主语与非谓语动词都是紧紧挨着的，逻辑主语比较明显；有时候它们是分开的，需要我们自己识别确定逻辑主语。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;em&gt;We&lt;/em&gt; have empty bottles &lt;em&gt;to recycle&lt;strong&gt;.&lt;/strong&gt;&lt;/em&gt;
-    &lt;ul&gt;
-      &lt;li&gt;recycle 的逻辑主语是 We，所以用不定式的主动形式&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;We have empty &lt;em&gt;bottles&lt;/em&gt; &lt;em&gt;to be recycled&lt;/em&gt;.
-    &lt;ul&gt;
-      &lt;li&gt;recycle 的逻辑主语是 bottles，所以用不定式的被动形式&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;最开始说，一个句子只能有一个主语 &amp;amp; 谓语，如果需要引入别的动词，需要对其进行降级。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;My colleague has the report. My colleague teaches English.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;对上面的两个句子如果降级为主从的形式，则为：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;My colleague &lt;em&gt;who teaches English&lt;/em&gt; has the report.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;不过，当定语从句本身较为简单，且只是描述一种状态（teaches）的时候，我们可以将定语从句简化成非谓语动词：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;My colleague &lt;em&gt;teaching English&lt;/em&gt; has the report.
-    &lt;ul&gt;
-      &lt;li&gt;colleague 是 teach 的逻辑主语，且为主动形式&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;除了上面简单的定语从句可以简化为非谓语形式，也有几种情况的从句可以简化：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;表示原因，并且两个句子主语相同&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;&lt;em&gt;As I did not receive any message from her&lt;/em&gt;, I gave her a phone call.&lt;/li&gt;
-      &lt;li&gt;&lt;em&gt;Not receiving any message from her&lt;/em&gt;, I gave her a phone call.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;表示结果&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;In Sydney the Chinese team got 28 gold medals, &lt;em&gt;who rank 3th of all counties.&lt;/em&gt;&lt;/li&gt;
-      &lt;li&gt;In Sydney the Chinese team got 28 gold medals &lt;em&gt;ranking 3th of all counties.&lt;/em&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;定语从句为 who+be 或 which+be 的形式&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;The book &lt;em&gt;which is written for English teaching&lt;/em&gt; came out in the 16th century.&lt;/li&gt;
-      &lt;li&gt;The book &lt;em&gt;written for English teaching&lt;/em&gt; came out in the 16th century.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;22-时态&quot;&gt;2.2 时态&lt;/h3&gt;
-
-&lt;p&gt;非谓语动词也有时态，是相对于主干谓语的时间点。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;先明确&lt;strong&gt;非谓语动词和主干谓语动词之间的时间关系&lt;/strong&gt;，之后再确定非谓语动词的时态&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt; &lt;/th&gt;
-      &lt;th&gt;不定式( to do)&lt;/th&gt;
-      &lt;th&gt;动名词( doing )&lt;/th&gt;
-      &lt;th&gt;过去分词( done )/现在分词与动名词一致&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;含义&lt;/td&gt;
-      &lt;td&gt;要做未做（目的或者意愿）&lt;/td&gt;
-      &lt;td&gt;正在进行中&lt;/td&gt;
-      &lt;td&gt;已经完成&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;一般时态主动&lt;/td&gt;
-      &lt;td&gt;to do&lt;/td&gt;
-      &lt;td&gt;doing&lt;/td&gt;
-      &lt;td&gt;–&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;一般时态被动&lt;/td&gt;
-      &lt;td&gt;to be done&lt;/td&gt;
-      &lt;td&gt;being done&lt;/td&gt;
-      &lt;td&gt;done&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;进行时态主动&lt;/td&gt;
-      &lt;td&gt;to be doing&lt;/td&gt;
-      &lt;td&gt;–&lt;/td&gt;
-      &lt;td&gt;–&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;进行时态被动&lt;/td&gt;
-      &lt;td&gt;to be being done&lt;/td&gt;
-      &lt;td&gt;–&lt;/td&gt;
-      &lt;td&gt;–&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;完成时态主动&lt;/td&gt;
-      &lt;td&gt;to have done&lt;/td&gt;
-      &lt;td&gt;having done&lt;/td&gt;
-      &lt;td&gt;–&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;完成时态被动&lt;/td&gt;
-      &lt;td&gt;to have been done&lt;/td&gt;
-      &lt;td&gt;having been done&lt;/td&gt;
-      &lt;td&gt;–&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;非谓语动词早于主干谓语，则用完成时态&lt;/li&gt;
-  &lt;li&gt;非谓语动词与主干谓语同时进行，则用进行时态&lt;/li&gt;
-  &lt;li&gt;非谓语动词在主干谓语的将来，则用一般态的不定式&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;比如：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;em&gt;Having been told&lt;/em&gt; this many times, he finally understood it.
-    &lt;ul&gt;
-      &lt;li&gt;进行式的完成时态，并且是被动&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;Not having receiving&lt;/em&gt; any message from her, I gave her a phone call.
-    &lt;ul&gt;
-      &lt;li&gt;进行式的完成时态&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1. 概要</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/nce/nce_2.jpg" /><media:content medium="image" url="http://localhost:4000/nce/nce_2.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">经济学十大原理</title><link href="http://localhost:4000/principles-of-economics-1.html" rel="alternate" type="text/html" title="经济学十大原理" /><published>2021-08-08T00:00:00+08:00</published><updated>2021-08-08T00:00:00+08:00</updated><id>http://localhost:4000/principles-of-economics-1</id><content type="html" xml:base="http://localhost:4000/principles-of-economics-1.html">&lt;h1 id=&quot;引言&quot;&gt;引言&lt;/h1&gt;
-
-&lt;p&gt;社会资源具有&lt;strong&gt;稀缺性&lt;/strong&gt;，因此不能生产出人们希望拥有的所有物品与服务，每个人也就不能达到其希望的最高生活水平。&lt;/p&gt;
-
-&lt;p&gt;经济学用于&lt;strong&gt;研究社会如何管理自己的稀缺资源&lt;/strong&gt;。在大多数社会中，资源并不是由一个全权的独裁者来配置，而是通过千万家庭和企业的共同选择来配置的。经济学研究的内容包括：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;人们如何做出决策&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;做多少工作，购买什么，储蓄多少&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;人们之间如何相互影响&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;一种物品的众多买者与卖者如何共同决定该物品的销售价格和销售量&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;分析影响整个经济的力量与趋势&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;平均收入的增长，失业人口的比例，物品价格上升的速度&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;针对上述内容，经济学中存在十大基本原理。&lt;/p&gt;
-
-&lt;h1 id=&quot;人们如何做出决策&quot;&gt;人们如何做出决策&lt;/h1&gt;
-
-&lt;p&gt;经济是什么？经济只不过是在生活中相互交易的人们所组成的群体而已；一个经济体的行为反映了组成这个经济体的个人行为。&lt;/p&gt;
-
-&lt;h2 id=&quot;原理一人们面临权衡取舍&quot;&gt;原理一：人们面临权衡取舍&lt;/h2&gt;
-
-&lt;p&gt;在生活中，为了得到一个喜欢的东西通常需要放弃另一个喜欢的东西。&lt;strong&gt;做出决策就是要求我们在一个目标与另一个目标之间进行权衡取舍&lt;/strong&gt;。比如政府要求企业减少污染，那么就会使得该企业生产对应物品的成本增加，相应的利润就会减少，支付给工人的工资降低了，产品的价格提高了等。&lt;/p&gt;
-
-&lt;p&gt;社会面临的另一种权衡取舍是在&lt;strong&gt;效率与平等之间&lt;/strong&gt;。效率可以看作是经济蛋糕的大小，而平等是指如何分割这块蛋糕。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;效率：社会从稀缺资源中获得的最大利益；平等：经济成果在社会成员中平均分配&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;在政府政策中，这两个目标往往不是一致的。例如，政府可以制定失业保险 &amp;amp; 提高个人所得税来实现较大程度的平等，但是这些政策会降低效率；当政府把富人的收入再分配给穷人时，就减少了对辛勤工作的奖励，相应地会导致人们工作少了，生产的物品与服务也少了。换句话说，当政府想要把经济蛋糕切的更为均等时，蛋糕本身变小了。&lt;/p&gt;
-
-&lt;h2 id=&quot;原理二某种东西的成本是为了得到它所放弃的东西&quot;&gt;原理二：某种东西的成本是为了得到它所放弃的东西&lt;/h2&gt;
-
-&lt;p&gt;由于人们面临权衡取舍，所以决策时需要比较成本与收益。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;一种东西的机会成本是为了得到这种东西所放弃的东西&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;原理三理性人考虑边际量&quot;&gt;原理三：理性人考虑边际量&lt;/h2&gt;
-
-&lt;p&gt;人通常是理性的：&lt;strong&gt;在可用的机会为既定条件下，理性人系统而有目的地尽最大努力去实现其目标&lt;/strong&gt;。生活中的很多决策很少是非黑即白的选择，往往是介于中间的灰色地带；比如当考试临近的时候，你的决策不是在放弃考试和每天 24 小时学习之间进行选择，而是是否多花 1 小时时间复习功课而不是看电视。&lt;/p&gt;
-
-&lt;p&gt;经济学家用&lt;strong&gt;边际变动（marginal change）来描述对现有行动计划的微小增量调整&lt;/strong&gt;。边际变动是围绕所做事情的边缘的调整；理性人通过比较&lt;strong&gt;边际收益&lt;/strong&gt;（marginal benefit）和&lt;strong&gt;边际成本&lt;/strong&gt;（marginal cost）来做决策。&lt;/p&gt;
-
-&lt;p&gt;假设一架有 200 个座位的飞机每次飞行成本是 10 万元，这样每个座位的平均成本是 10W/200 = 500 元。人们很容易就此得出结论：航空公司的票价不应该低于 500 元；而事实上，一个理性的航空公司往往会考虑边际量来增加利润。设想一架飞机临近起飞时仍然有 10 个空位，而登机口有几个乘客愿意支付 300 元买一张票；航空公司仍然会决定将票卖给这些乘客。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;虽然每个乘客的平均成本是 500 元，但是边际成本微乎其微（仅仅是飞机上提供的额外服务），所以只要乘客支付的钱大于边际成本，那么机票就是有利可图的。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;原理四人们会对激励做出反应&quot;&gt;原理四：人们会对激励做出反应&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;激励（incentive）是引起一个人做出某种行为的某种东西&lt;/strong&gt;（如惩罚或者奖励的预期）。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;激励可以是正向的，也可以是反向的&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;由于理性人会通过比较成本和收益做出决策，所以他们会对激励做出反应。&lt;/p&gt;
-
-&lt;p&gt;在分析市场如何运行时，激励是至关重要的。例如：当苹果的价格上涨时，人们决定少吃苹果，同时苹果园主决定雇佣更多的工人并多采摘苹果。换句话说，&lt;em&gt;市场上的高价格提供了买者少消费和卖者多生产的激励&lt;/em&gt;。&lt;/p&gt;
-
-&lt;h1 id=&quot;人们如何相互影响&quot;&gt;人们如何相互影响&lt;/h1&gt;
-
-&lt;h2 id=&quot;原理五贸易可以使每个人的状况都变得更好&quot;&gt;原理五：贸易可以使每个人的状况都变得更好&lt;/h2&gt;
-
-&lt;p&gt;贸易可以使每个人都可以专门从事自己最擅长的活动，无论是耕地还是做衣服。通过贸易，人们可以以较低的成本获得各种各样的物品与服务。&lt;/p&gt;
-
-&lt;h2 id=&quot;原理六市场通常是组织经济活动的一种好方法&quot;&gt;原理六：市场通常是组织经济活动的一种好方法&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;中央计划经济&lt;/strong&gt;是由中央政府配置经济中的稀缺资源；这些中央计划者决定生产什么物品与服务，生产多少，谁生产和消费这些物品与服务。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;市场经济中，中央计划者的决策被千万家企业和家庭的决策所取代&lt;/strong&gt;。企业决定雇佣谁和生产什么；家庭决定为哪家企业工作及用自己的收入购买什么。这些企业和家庭在市场上相互交易，&lt;strong&gt;价格和利己引导着他们的决策&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;市场经济：当许多企业和家庭在物品与服务市场上相互交易时，通过他们的&lt;strong&gt;&lt;em&gt;分散决策配置资源&lt;/em&gt;&lt;/strong&gt;的经济。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;尽管市场中存在的是分散的决策和利己的决策者，但是市场经济在以一种促进总体经济福利的方式组织经济活动方面非常成功。&lt;/p&gt;
-
-&lt;p&gt;市场经济被一只看不见的手所指引，而&lt;strong&gt;价格就是看不见的手用来指引经济活动的工具&lt;/strong&gt;。价格作为卖者与买者决策的结果，反映了一种物品的社会价值，也反映了生产该物品的社会成本。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;当政府阻止价格根据供求情况自发调整时，它就限制了看不见的手对组成经济的千百万家庭和企业的决策进行协调的能力。中央计划经济就是将这双手给束缚了。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;原理七政府有时可以改善市场结果&quot;&gt;原理七：政府有时可以改善市场结果&lt;/h2&gt;
-
-&lt;p&gt;如果市场这只看不见的手如此伟大，那么为什么还需要政府？&lt;em&gt;只有在政府实施规则并维持对市场经济至关重要的制度时，看不见的手才能施展其魔力&lt;/em&gt;。&lt;/p&gt;
-
-&lt;p&gt;政府干预经济的原因有两类：&lt;strong&gt;1. 促进效率；2. 促进平等&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;要么把经济蛋糕做大，要么改变蛋糕的分割方式&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;效率目标&lt;/p&gt;
-
-    &lt;p&gt;通常看不见的手会有效地配置资源，使经济蛋糕最大化。不过有时候会出现&lt;strong&gt;市场失灵&lt;/strong&gt;的情况。这时候就需要设计良好的公共政策来提高经济效率。&lt;/p&gt;
-
-    &lt;p&gt;市场失灵是指市场本身不能有效地配置资源的情况；造成这种现象的原因有两种：&lt;/p&gt;
-
-    &lt;ol&gt;
-      &lt;li&gt;
-        &lt;p&gt;&lt;strong&gt;外部性&lt;/strong&gt;&lt;/p&gt;
-
-        &lt;p&gt;是指一个人的行为对旁观者的福利有影响。比较经典的例子是污染：当一种产品的生产污染了空气并引起住在附近的人们的健康问题时，市场本身并不能将这种成本考虑在内。&lt;/p&gt;
-      &lt;/li&gt;
-      &lt;li&gt;
-        &lt;p&gt;&lt;strong&gt;市场势力&lt;/strong&gt;&lt;/p&gt;
-
-        &lt;p&gt;是指单个人或者公司不适当地影响市场价格的能力（即垄断行为）。&lt;/p&gt;
-      &lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;平等目标&lt;/p&gt;
-
-    &lt;p&gt;看不见的手并不能保证每个人都有充足的食物，充足的医疗保健等。这种不平等需要政府进行干预，例如制定所得税与福利制度等。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h1 id=&quot;整体经济如何运行&quot;&gt;整体经济如何运行&lt;/h1&gt;
-
-&lt;h2 id=&quot;原理八一国的生活水平取决于它生产物品与服务的能力&quot;&gt;原理八：一国的生活水平取决于它生产物品与服务的能力&lt;/h2&gt;
-
-&lt;p&gt;不同国家生活水平的差别归因于各国的生产率。同样，生产率的增长率决定了平均收入的增长率。&lt;/p&gt;
-
-&lt;h2 id=&quot;原理九当政府发行了过多货币时物价上升&quot;&gt;原理九：当政府发行了过多货币时，物价上升&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;通货膨胀（inflation）是指经济中物价总水平的上升&lt;/strong&gt;。大多数通货膨胀的原因是货币量的增长。&lt;/p&gt;
-
-&lt;h2 id=&quot;原理十社会面临通货膨胀与失业之间的短期权衡取舍&quot;&gt;原理十：社会面临通货膨胀与失业之间的短期权衡取舍&lt;/h2&gt;
-
-&lt;p&gt;长期中，物价上升主要是货币增加的结果，但是短期中，货币注入问题比较复杂：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;货币增加刺激了社会整体支出水平，增加了对物品与服务的需求&lt;/li&gt;
-  &lt;li&gt;需求的增加会使得企业提高物价，但同时也会使企业雇佣更多的人，生产出更多的物品与服务&lt;/li&gt;
-  &lt;li&gt;雇佣更多的人意味着更少的失业&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;因此会存在通货膨胀与失业之间的短期均衡取舍。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="economics" /><summary type="html">引言</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/economics/economics_1.png" /><media:content medium="image" url="http://localhost:4000/economics/economics_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1. 概要</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/nce/nce_3.jpg" /><media:content medium="image" url="http://localhost:4000/nce/nce_3.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>
