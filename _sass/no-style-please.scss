@@ -35,13 +35,13 @@ body {
 
 .post-meta { text-align: right; }
 
-h2, h3, h4, h5, h6 { margin-top: 3rem; }
+h2, h3, h4, h5, h6 { margin-top: 1.5rem; }
 
-hr { margin: 2rem 0; }
+hr { margin: 1.3rem 0; }
 
-p { margin: 1rem 0; }
+p { margin: 0.3rem 0; }
 
-li { margin: 0.4rem 0; }
+li { margin: 0.3rem 0; }
 
 *:target { background: yellow; }
 
@@ -82,7 +82,7 @@ div.highlighter-rouge code {
 blockquote {
   font-style: italic;
   background-color: rgba(220, 235, 245, 0.2);
-  margin: auto;
+  margin: 0.3rem;
   p {
     padding: 10px;
   }
