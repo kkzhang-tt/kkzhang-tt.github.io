@@ -386,6 +386,178 @@
 </ol>
 
 <h2 id="4-6-handling-failures-hinted-handoff">4-6 Handling Failures: Hinted Handoff</h2>
+<p>传统的仲裁算法无法保证 Dynamo 系统在节点失效或者网络分区的情况下仍然可用，持久性也会降低。</p>
+
+<p>因此，Dynamo 采用<strong>宽松的仲裁机制</strong>（sloppy quorum）：<strong>所有读写操作在 preference list 的前 N 个健康节点执行</strong>（<em>前 N 个健康节点不一定是前 N 个节点，如果遇到不健康的节点，会顺延</em>）。</p>
+
+<p><img src="/images/dynamo/dynamo_2.png" alt="" /></p>
+
+<p>在之前数据分区的例子中，N =3。</p>
+
+<ul>
+  <li>如果 A 节点临时不可用，那么本应该发送给 A 的更新请求会被发送到 D</li>
+  <li>发送到 D 的副本的元数据中会提示 (hint) 这个副本本应该发送给 A</li>
+  <li>该数据被 D 保存到本地一个独立的数据库中
+    <ul>
+      <li>D 有一个定时任务不断扫描，如果发现 A 重新变得可用了，就将数据发送给 A</li>
+      <li>成功发送回 A 之后，D 可以将该数据从本地数据库中删除；以<strong>保证系统内的副本数保持不变</strong></li>
+    </ul>
+  </li>
+</ul>
+
+<p>通过 hinted handoff 机制，保证了<strong>在节点或者网络发生临时故障时，读写操作不会失败，提高了可用性与持久性</strong>。</p>
+
+<blockquote>
+  <p>通过配置不同的 R 与 W，可以满足不同级别的可用性与持久性；W = 1 可用性最高，但是持久性较低</p>
+
+</blockquote>
+
+<p>为了提高容灾等级，保证整个数据中心挂掉的情况下系统仍然可用，可以将 preference list 中的节点分散到不同的数据中心。</p>
+
+<h2 id="4-7-handling-permanent-failures-replica-synchronization">4-7 Handling Permanent Failures: Replica Synchronization</h2>
+
+<p>hinted handoff 机制在短时故障的场景下运行良好，但是对于长期故障的场景无法保证持久性：在 hinted 副本移交给本应该存储该副本的节点之前，该副本就不可用了，那么系统中的副本就会出现不一致的情况。</p>
+
+<p>为了保证不同副本之间的一致性，<strong>Dynamo 实现一种逆熵（副本同步）协议来保证副本之间是同步的</strong>。</p>
+
+<p>为了<em>快速检测副本之间的不一致性，以及最小转移的数据量</em>，Dynamo 使用了 Merkle tree。</p>
+
+<blockquote>
+  <p>Merkle tree 是一个 Hash tree：叶子节点是 key 对应的 value 的 hash 值；父节点是子节点的 hash</p>
+
+</blockquote>
+
+<p>如果两棵树的根节点 hash 值相同，那么这两棵树的叶子节点肯定相同，则这两棵树是一致的；否则这两棵树存在不一致的数据，需要继续比较其子节点的 hash 值，直到找到不一致的子树。</p>
+
+<p>Dynamo 系统的<strong>每个节点为每段 key range 维护了一个单独的 Merkle tree</strong>。不同节点之间可以比较其维护的 key range 内的 key 是否一致。</p>
+
+<blockquote>
+  <p>key range: 一致性 hash 环中每个节点维护的范围</p>
+
+</blockquote>
+
+<p>这种方案的缺点是：<em>每当有节点加入或离开系统时，一些 key range 会变，因此对应的 tree 需要重新计算</em>。</p>
+
+<h2 id="4-8-membership-and-failure-detection">4-8 Membership and Failure Detection</h2>
+
+<h3 id="4-8-1-ring-membership">4-8-1 Ring Membership</h3>
+
+<p>Dynamo 使用<strong>显示机制来向 hash ring 中增删节点</strong>。</p>
+
+<blockquote>
+  <p>通常情况下节点不可用持续的时间都比较短，一个节点的临时不可用不能说明这个节点永久离开了系统，因此不应该在节点不可用时立即进行 re-partiton，或者修复无法访问的副本</p>
+
+</blockquote>
+
+<p>管理员通过命令行手动添加或者删除节点，负责处理该请求的节点<strong>将成员变动的信息持久化到本地，并通过 gossip-based 算法广播成员变动信息</strong>，保证成员信息的一致性。</p>
+
+<p><em>每个节点周期性地随机选择另一个节点，这两个节点互相交换自己拥有的成员信息，维护成员信息的一致性</em>。</p>
+
+<ol>
+  <li>节点启动时，计算自己的 token 集合（一致性 hash ring 上的 token range）</li>
+  <li>将节点映射到 token 集合中（包含虚拟节点）</li>
+  <li>将映射关系持久化到本地</li>
+  <li>与其他节点交换自己维护的成员信息，从而不同节点保持一致</li>
+  <li>通过 gossip-based 协议多次交换后，每个节点都会知道其他节点负责的 token 范围</li>
+</ol>
+
+<p>成员信息的交换，既能保证维护信息的一致性，也能够使得<strong>每个节点都可以将任意 key 的读写操作直接发送给正确的节点处理</strong>。</p>
+
+<h3 id="4-8-2-external-discovery">4-8-2 External Discovery</h3>
+
+<p>上述成员信息维护流程啃根会导致 Dynamo 在逻辑上的临时分裂：管理员添加 A 节点，A 维护了自己的 token 集合；之后管理员又将 B 添加到系统中，B 也维护了自己的 token 集合；但是 A，B 两个节点<em>无法感知对方的存在</em>，就无法进行信息交换。</p>
+
+<p>为了避免逻辑分裂，可以通过<strong>外部机制配置一些 Dynamo 节点作为种子节点</strong>：<em>所有节点都知道种子节点的存在，并和种子节点交换自己的信息，最终所有节点都会感知对方的存在，避免逻辑分裂的可能</em>。</p>
+
+<blockquote>
+  <p>种子节点只是一个普通的 Dynamo 节点，不过是提前配置在配置中心或者配置文件中</p>
+
+</blockquote>
+
+<h3 id="4-8-3-failure-detection">4-8-3 Failure Detection</h3>
+
+<p>故障检测是一个<strong>纯本地概念</strong>（pure local notion）的检测机制：只要节点 B 没有应答 A 的请求，那么 A 就认为 B 发生故障，不可访问。</p>
+
+<p>如果 A 认为 B 是故障的，那么可以选择与 B 拥有同一个 partition 的其他节点（preference list 中的其他节点）来处理请求，并定期检查 B 是否再次可用。</p>
+
+<p>故障检测的目的是为了<em>避免尝试与不可访问的节点持续通信</em>，如：</p>
+
+<ul>
+  <li>get(), put() 操作访问的节点</li>
+  <li>转移 partition 和 临时副本(hinted replica) 时的目标节点</li>
+</ul>
+
+<p>在没有客户端请求的情况下，节点之间并不需要知道对方是否故障；在客户端持续请求下，不同节点间会持续交互，此时如果对方不可访问，当前节点也会立马知道。</p>
+
+<h2 id="4-9-addingremoving-storage-nodes">4-9 Adding/Removing Storage Nodes</h2>
+
+<p>当新节点 X 添加到系统中后，它会获得一些<strong>随机分散在 hash ring 上的 token 集合</strong>。</p>
+
+<p><img src="/images/dynamo/dynamo_2.png" alt="" /></p>
+
+<p>如 X 加入 A, B 节点之间，X 就会负责<code class="language-plaintext highlighter-rouge">(F, G], (G, A] and (A, X]</code> 之间的 key。相应地，B, C, D 节点就不需要负责相应的 range 了。<strong>在收到 X 转移 key 的请求之后，B, C, D 会向 X 转移相应的 key</strong>。</p>
+
+<blockquote>
+  <p>节点移除的分配顺序相反</p>
+
+</blockquote>
+
+<p>通过这种方式，可以使得 key 在存储节点上均匀分布。同时，为了不重复转移 key range，需要在源节点与目标节点间添加确认机制。</p>
+
+<h1 id="5-implementation">5-Implementation</h1>
+
+<p>Dynamo 系统中的每个节点上有 3 个组件：</p>
+
+<ol>
+  <li>request coordination（请求协调）组件</li>
+  <li>成员验证 &amp; 故障检测组件</li>
+  <li>本地持久化存储引擎</li>
+</ol>
+
+<h2 id="5-1-local-storage">5-1 Local Storage</h2>
+
+<p>存储引擎组件设计为可插拔：<strong>为不同访问类型选择合适的存储引擎</strong>。如 BDB 适合处理几十 KB 大小的对象，MySQL 适合处理更大的对象</p>
+
+<h2 id="5-2-request-coordination">5-2 Request Coordination</h2>
+
+<p><strong>Coordinator 构建在事件驱动的消息系统上，用于代替客户端执行读写请求</strong>：</p>
+
+<ul>
+  <li>读操作会从一个或者多个节点收集数据</li>
+  <li>写操作会向一个或者多个节点存储数据</li>
+</ul>
+
+<p>Coordinator 会<strong>为每个请求创建一个状态机</strong>：包含了<em>识别 key 对应的节点，发送请求，等待响应，重试，处理响应，组合响应，返回给客户端</em>等逻辑。</p>
+
+<p>每个状态机只会处理一个客户端请求，读操作流程为：</p>
+
+<ol>
+  <li>发送读请求给其他 Dynamo 节点</li>
+  <li>等待最少数量的响应
+    <ol>
+      <li>如果在一定时间内收到的响应数少于规定的，则认为请求失败</li>
+      <li>如果满足规定数量，则收集对象的所有版本，并确定返回版本</li>
+      <li><strong>如果收到过期版本，则需要合并版本并回写给对应节点 —— 读修复(read repair)</strong></li>
+    </ol>
+  </li>
+  <li>生成上下文 context：包含版本向量时钟</li>
+</ol>
+
+<p>即使读操作的结果已经响应给客户端，<strong>状态机也会等待一段时间，用于接受剩余节点可能的有效响应</strong>。</p>
+
+<p>对于写操作，如果<strong><em>总是选择 preference list 中的第一个健康节点作为 coordinator，可以完成写操作的序列化</em></strong>，但是会导致负载不均衡（操作请求的 key 不一定是均匀分布的）。为了解决这个问题，<strong>preference list 中的前 N 个健康节点都可以作为 coordinator</strong>。</p>
+
+<p>并且，每个写操作请求前都会先进行一次读操作，所以<strong>写操作的 coordinator 可以选择前一次读操作返回最快的节点</strong>（该信息存储在读操作的 context 中）。</p>
+
+<blockquote>
+  <p>该策略同时提高了“读取刚写入数据”的概率</p>
+</blockquote>
+
+<h1 id="6-conclusions">6-Conclusions</h1>
+
+<p>Dynamo 作为一个高可用，高可扩展的数据仓库，提供了期望的可用性和性能等级，可以正确地处理服务器故障、数据中心故障和网络分裂；支持增量扩展；允许<strong>客户端应用可以通过对 N、R 和 W 三个参数进行调优来达到期望的性能、可用性和持久性等级</strong>。</p>
+
+<p>Dynamo 表明了<strong>最终一致性存储系统可以作为高可用应用（highly available applications）的一块基石。</strong></p>
 
 </article>
       </div>
