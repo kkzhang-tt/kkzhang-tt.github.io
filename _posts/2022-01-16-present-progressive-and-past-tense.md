@@ -12,14 +12,14 @@ author: "kkzhang"
 - 现在完成时属于现在时态的范畴
 - 一般过去时属于过去时态的范畴
 
-## 1 - 构成形式不同
+## 1-构成形式不同
 
 现在完成时的动词形式为：**have (has) + 动词的过去分词**；一般过去时的动词形式为：**动词的过去式**。
 
 - 一般过去时：Jack’s mother took him to school every day when he was in primary school.
 - 现在完成时：Maria has never read any Chinese stories.
 
-## 2 - 强调对象不同
+## 2-强调对象不同
 
 现在完成时：
 
@@ -40,7 +40,7 @@ author: "kkzhang"
 - I saw the film three days ago.（强调是三天前，而不是别的什么时候看的电影）
 - I have seen the film.（现在我仍记得电影的内容）
 
-## 3 - 时间状语不同
+## 3-时间状语不同
 
 一般过去时常与 ***具体的时间状语*** 连用，而现在完成时通常与 ***模糊的时间状语*** 连用，或 ***无时间状语***。
 
