@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "such 与 so 的区别"
+title: "such & so"
 category: "english-study"
 author: "kkzhang"
 
