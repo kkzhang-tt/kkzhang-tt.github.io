@@ -1,5 +1,418 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-02-09T23:52:30+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
-</subtitle><author><name>kkzhang</name></author><entry><title type="html">表语从句</title><link href="http://localhost:4000/predicative-clause.html" rel="alternate" type="text/html" title="表语从句" /><published>2022-02-09T00:00:00+08:00</published><updated>2022-02-09T00:00:00+08:00</updated><id>http://localhost:4000/predicative-clause</id><content type="html" xml:base="http://localhost:4000/predicative-clause.html">&lt;h2 id=&quot;1-介绍&quot;&gt;1-介绍&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-02-13T12:57:11+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
+</subtitle><author><name>kkzhang</name></author><entry><title type="html">同位语从句</title><link href="http://localhost:4000/appositive-clause.html" rel="alternate" type="text/html" title="同位语从句" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/appositive-clause</id><content type="html" xml:base="http://localhost:4000/appositive-clause.html">&lt;h2 id=&quot;1-同位语&quot;&gt;1-同位语&lt;/h2&gt;
+
+&lt;p&gt;一个名词（或其它形式）&lt;strong&gt;&lt;em&gt;对另一个名词或代词进行解释或补充说明&lt;/em&gt;&lt;/strong&gt;，这个名词（或其它形式）就是同位语。&lt;/p&gt;
+
+&lt;p&gt;同位语与被它限定的词的格式要一致，并常常紧挨在一起。同位语除表示其同位成分的全部意义外，还可以表示部分意义。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Mr. Smith, our new teacher, is very kind to us.&lt;/li&gt;
+  &lt;li&gt;He told me that his brother John was a world-famous doctor.(John 是 brother 的同位语)&lt;/li&gt;
+  &lt;li&gt;Yesterday I talked to my English teacher, Mr. James.&lt;/li&gt;
+  &lt;li&gt;We Chinese people are brave and hard-working.(Chinese people 是 we 的同位语)&lt;/li&gt;
+  &lt;li&gt;He is interested in sports, especially ball games.(ball games 是 sports 的同位语)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-同位语从句&quot;&gt;2-同位语从句&lt;/h2&gt;
+
+&lt;p&gt;同位语从句指的是在复合句中充当同位语的从句，属于名词性从句的范畴。&lt;/p&gt;
+
+&lt;p&gt;同位语从句用来&lt;em&gt;对其前面的抽象名词进行解释说明&lt;/em&gt;，被解释说明的词和同位语在逻辑上是&lt;strong&gt;主表关系&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;2-1-先行词&quot;&gt;2-1 先行词&lt;/h3&gt;
+
+&lt;p&gt;可以连接同位语从句的名词有：&lt;strong&gt;news，idea，fact，promise，question，doubt，thought，hope，message，suggestion，words(消息)，possibility, decision&lt;/strong&gt; 等(一般的”抽象”名词)。&lt;/p&gt;
+
+&lt;h3 id=&quot;2-2-引导词&quot;&gt;2-2 引导词&lt;/h3&gt;
+
+&lt;p&gt;引导同位语从句的词语通常有连词 that, whethe, 连接代词和连接副词等。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;that 连接从句时，&lt;strong&gt;从句为一个句意完整的陈述句&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;that 不能省略，没有具体的含义，&lt;strong&gt;&lt;em&gt;不充当句子成分，只起连接作用&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;The idea &lt;em&gt;that you can do this work well without thinking&lt;/em&gt; is quite wrong.(that 引导的从句作 idea 的同位语)&lt;/li&gt;
+      &lt;li&gt;We heard the news &lt;em&gt;that our team had won&lt;/em&gt;.(news 的同位语)&lt;/li&gt;
+      &lt;li&gt;They were worried over the fact &lt;em&gt;that you were sick&lt;/em&gt;.(fact 的同位语)&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;在某些名词(如 &lt;strong&gt;demand, wish, suggestion, resolution&lt;/strong&gt;等) 后面的同位语从句要&lt;strong&gt;用虚拟语气&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;There was a suggestion &lt;em&gt;that Brown should be dropped from the team&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;引导同位语从句的连词 that 通常不省略，但在&lt;em&gt;非正式文体中也可以省去&lt;/em&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;He grabbed his suitcase and gave the impression &lt;em&gt;he was boarding the Tokyo plane&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;whether 引导同位语从句&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;if 不能引导同位语从句&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;There is some doubt &lt;em&gt;whether he will come&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;Answer my question &lt;em&gt;whether you are coming&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;The question &lt;em&gt;whether it is right or wrong&lt;/em&gt; depends on the result.&lt;/li&gt;
+      &lt;li&gt;We are not investigating the question &lt;em&gt;whether he is trustworthy&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;连接代词 what, who, whom, whose 引导同位语从句
+    &lt;ul&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;what size shoes she wears&lt;/em&gt;.(what 作 size 的定语)&lt;/li&gt;
+      &lt;li&gt;The question &lt;em&gt;who will take his place&lt;/em&gt; is still not clear.(who 作同位语从句的主语)&lt;/li&gt;
+      &lt;li&gt;Have you any idea &lt;em&gt;what time it starts&lt;/em&gt;?&lt;/li&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;who can really understand my complicated mind&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;连接副词 where, when, why, how 引导同位语从句
+    &lt;ul&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;when he will come back&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;It is a question &lt;em&gt;how he does it&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;He had no idea &lt;em&gt;why she left&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;You have no idea &lt;em&gt;how worried I was&lt;/em&gt;!&lt;/li&gt;
+      &lt;li&gt;We haven’t yet settled the question &lt;em&gt;where we are going to spend our summer vacation&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-同位语</summary></entry><entry><title type="html">定语从句</title><link href="http://localhost:4000/attributive-clause.html" rel="alternate" type="text/html" title="定语从句" /><published>2022-02-11T00:00:00+08:00</published><updated>2022-02-11T00:00:00+08:00</updated><id>http://localhost:4000/attributive-clause</id><content type="html" xml:base="http://localhost:4000/attributive-clause.html">&lt;h2 id=&quot;1-基本概念&quot;&gt;1-基本概念&lt;/h2&gt;
+
+&lt;h3 id=&quot;1-1-定义&quot;&gt;1-1 定义&lt;/h3&gt;
+
+&lt;p&gt;一个简单句跟在&lt;em&gt;名词或代词（先行词）后进行修饰限定&lt;/em&gt;，就叫做定语从句；定语从句在主句中充当定语成分。&lt;/p&gt;
+
+&lt;p&gt;被定语从句修饰的词叫&lt;strong&gt;先行词&lt;/strong&gt;；定语从句通常只能放在被修饰的先行词之后。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;单词做定语放在被修饰词之前&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;1-2-引导词&quot;&gt;1-2 引导词&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;引导定语从句的词有：
+    &lt;ul&gt;
+      &lt;li&gt;关系代词：&lt;strong&gt;that, who, whom, which, as&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;关系副词：&lt;strong&gt;when, where, why&lt;/strong&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;引导词位于定语从句之前，先行词之后（as 除外）。&lt;/li&gt;
+  &lt;li&gt;引导词的作用有：
+    &lt;ul&gt;
+      &lt;li&gt;连接先行词和定语从句&lt;/li&gt;
+      &lt;li&gt;在定语从句中充当一定的成分（&lt;strong&gt;&lt;em&gt;关系代词充当主语或宾语，关系副词充当状语&lt;/em&gt;&lt;/strong&gt;）&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;2-关系代词的用法&quot;&gt;2-关系代词的用法&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;who/that&lt;/strong&gt; 指人，是主格；&lt;strong&gt;在定语从句中代替先行词，又作定语从句的主语，不能省略&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Do you know the gentleman who/that is sitting there？&lt;/li&gt;
+      &lt;li&gt;The student who/that answered the question was John.&lt;/li&gt;
+      &lt;li&gt;Nothing is difficult to the man who/that will try.&lt;/li&gt;
+      &lt;li&gt;The windows was broken by the boy who/that lives opposite.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;whom/who/that&lt;/strong&gt; 指人，是宾格；&lt;strong&gt;在定语从句中代替先行词，又作定语从句的宾语(动宾或介宾)&lt;/strong&gt;
+    &lt;ol&gt;
+      &lt;li&gt;当作&lt;strong&gt;动宾&lt;/strong&gt;（动词后接宾语）时，关系代词可省略
+        &lt;ul&gt;
+          &lt;li&gt;Do you know the gentleman (whom/who/that) we met just now？&lt;/li&gt;
+          &lt;li&gt;The author (whom/who/that) you criticized.&lt;/li&gt;
+          &lt;li&gt;Then I telephoned the doctor (whom/who/that) Charles had recommended.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;当作&lt;strong&gt;介宾&lt;/strong&gt;（介词后接宾语）时：&lt;em&gt;介词不提前，关系代词可省略；介词提前，关系代词不可省&lt;/em&gt;，即 “介词+whom” (指人时介词后的关系代词只能用whom)
+        &lt;ul&gt;
+          &lt;li&gt;The man (whom/who/that) I spoke with is my teacher.&lt;/li&gt;
+          &lt;li&gt;The man with whom I spoke is my teacher.&lt;/li&gt;
+          &lt;li&gt;The man with whom I traveled couldn’t speak English&lt;/li&gt;
+        &lt;/ul&gt;
+
+        &lt;p&gt;固定的动词短语（动词+介词），如 look for, take care of 等不能把动词与介词拆开，即介词不能提至引导词前。&lt;/p&gt;
+
+        &lt;ul&gt;
+          &lt;li&gt;She is the right girl (who/whom/that) we are looking for.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;whose&lt;/strong&gt; 是所有格 “…的” 形式；&lt;strong&gt;whose + n. 一起在定语从句中充当主语、宾语(&lt;/strong&gt;动宾或介宾)，即先行词的什么东西。&lt;/p&gt;
+
+    &lt;p&gt;whose 用来指人或物（只用作定语) ，且 whose 不能省略。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;&lt;em&gt;whose + n. = the + n. + of which/whom&lt;/em&gt;&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;I didn’t find the desk whose leg was broken. (主语)&lt;/li&gt;
+      &lt;li&gt;He is the student whose pencil I broke yesterday. (动宾)&lt;/li&gt;
+      &lt;li&gt;The boss in whose company I work is very kind. (介宾)&lt;/li&gt;
+      &lt;li&gt;They rushed over to help the man whose car had broken down. (主语)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;which/that&lt;/strong&gt; 指物，&lt;strong&gt;代替先行词，且在定语从句中作主语或宾语(动宾或介宾)&lt;/strong&gt;
+    &lt;ol&gt;
+      &lt;li&gt;作主语
+        &lt;ul&gt;
+          &lt;li&gt;The house which/that was destroyed in the earthquake is weak.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;作宾语&lt;/p&gt;
+
+        &lt;p&gt;which/that 作宾语时，同样分为动宾与介宾两种情况：1. 作动宾时，which/that 可以省略；2. 作介宾时，介词不提前时，关系代词 which/that 可以省略；介词提前时，关系代词 which/that 不可以省略。&lt;/p&gt;
+
+        &lt;ul&gt;
+          &lt;li&gt;The pen (which/that) you found yesterday is mine.&lt;/li&gt;
+          &lt;li&gt;The games (that/which) the young men competed in were difficult.&lt;/li&gt;
+          &lt;li&gt;The games in which the young men competed were difficult.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;&lt;em&gt;介词 + which 指物；介词 + whom 指人&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;as&lt;/strong&gt; 指人或物，在定语从句中可作主语，宾语，表语或状语，不能省略&lt;/p&gt;
+
+    &lt;p&gt;主要用于 “&lt;strong&gt;the same …as…；such …as…；so …as…；as … as…；as follows&lt;/strong&gt; ” 固定结构中。在这种形式的结构中，要用 as 代替 who(m), which, 或 that 引导定语从句。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Such people as knew Hill thought he was honest.&lt;/li&gt;
+      &lt;li&gt;Such people as Hill knew thought he was honest.&lt;/li&gt;
+      &lt;li&gt;My hometown is no longer the same as it was.&lt;/li&gt;
+      &lt;li&gt;Here is so big a stone as no one can lift.&lt;/li&gt;
+      &lt;li&gt;The child knows as much as grow-ups (know).&lt;/li&gt;
+      &lt;li&gt;I’d like to have the same books as are used in your school.&lt;/li&gt;
+      &lt;li&gt;He is not such a person as I expected.&lt;/li&gt;
+      &lt;li&gt;He will marry as pretty a girl as he can find.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;3-关系副词的用法&quot;&gt;3-关系副词的用法&lt;/h2&gt;
+
+&lt;p&gt;关系副词，兼有副词与连接词两种作用，在&lt;strong&gt;不及物动词的连接中要求用关系副词&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;关系副词在句中作状语，关系副词=介词+关系代词，定语从句中常用的关系副词有三个：&lt;strong&gt;when，where，why&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;when = during/on/in which  where = in/at/on which  why = for which&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;when&lt;/strong&gt; 主要用于修饰表时间的名词，同时它在定语从句中用作&lt;strong&gt;时间状语&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;There comes a time when you have to make a choice.&lt;/li&gt;
+      &lt;li&gt;Gone are the days when they could do what they liked.&lt;/li&gt;
+      &lt;li&gt;We’ll put off the picnic until next week, when the weather may be better.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;先行词为时间名词时不一定用关系副词 when 来引导定语从句；需要进一步判断先行词在定语从句中成分。如果在定语从句中作时间状语，则用 when；如果在定语从句中作主语或者宾语时，要用 that, which 等。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Don’t forget the time (that, which) I’ve told you.（先行词 time 作 told 的宾语）&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;where&lt;/strong&gt; 主要用于修饰表地点的名词，同时它在定语从句中用作&lt;strong&gt;地点状语&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;This is the village where he was born.&lt;/li&gt;
+      &lt;li&gt;That’s the hotel where we were staying last summer.&lt;/li&gt;
+      &lt;li&gt;Barbary was working in Aubury, where she went daily in a bus.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;同样，先行词为地点的名词时，不一定要用 where 引导，需要进一步判断先行词在定语从句中的成分。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;He works in a factory that/which makes TV sets.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;why&lt;/strong&gt; 主要用于修饰表原因的名词(主要是the reason)，同时它在定语从句中用作&lt;strong&gt;原因状语&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;We don’t know the reason why he didn’t show up.&lt;/li&gt;
+      &lt;li&gt;She didn’t tell me the reason why she refused the offer.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;why 与 where/when 的用法有点不同：&lt;/p&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;&lt;strong&gt;why 可以省略或者替换成 that&lt;/strong&gt;
+        &lt;ul&gt;
+          &lt;li&gt;That’s one of the reasons (why, that) I asked you to come.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;why 只能引导限制性定语从句，where/when 可以引导非限制性定语从句
+        &lt;ul&gt;
+          &lt;li&gt;The main reason, why he lost his job, was that he drank. (wrong)&lt;/li&gt;
+          &lt;li&gt;The main reason why he lost his job was that he drank. (right)&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;4-限制性与非限制性定语从句的区别&quot;&gt;4-限制性与非限制性定语从句的区别&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;在句中作用不同
+    &lt;ul&gt;
+      &lt;li&gt;限制性定语从句&lt;strong&gt;对&lt;/strong&gt;被修饰的&lt;strong&gt;先行词有限定制约作用&lt;/strong&gt;，使该词的含义更具体,更明确。&lt;strong&gt;限制性定语从句不能被省略&lt;/strong&gt;，否则句意就不完整。&lt;/li&gt;
+      &lt;li&gt;非限制性定语从句&lt;strong&gt;与先行词关系不是十分密切&lt;/strong&gt;，只是对其作一些附加说明，不起限定制约作用。如果将非限制性定语从句省去，主句的意义仍然完整。&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;表现形式不同&lt;/p&gt;
+
+    &lt;p&gt;限制性定语从句因与先行词关系密切，所以&lt;strong&gt;不可以用逗号将其与主句隔开&lt;/strong&gt;；非限制性定语从句与先行词关系不是十分密切，所以&lt;strong&gt;可用逗号将其与主句隔开。&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Do you remember the girl who taught us English?&lt;/li&gt;
+      &lt;li&gt;Clock is a kind of instrument which can tell people time.&lt;/li&gt;
+      &lt;li&gt;This is the place where he used to live.&lt;/li&gt;
+      &lt;li&gt;Mr. Zhang, who came to see me yesterday, is an old friend of mine.&lt;/li&gt;
+      &lt;li&gt;We walked down the village street, where they were having market day.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;前三个例句中，定语从句与先行词关系密切，为限制性定语从句，不可用逗号隔开；后面两个例句中，定语从句与先行词关系不密切，为非限制性定语从句。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;先行词内容有所不同&lt;/p&gt;
+
+    &lt;p&gt;大多数限制性和非限制性定语从句的先行词往往为某一个词或短语，而特殊情况下&lt;strong&gt;&lt;em&gt;非限制性定语从句的先行词也可为整个主句,此时非限制性定语从句常由 which 引导&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;&lt;em&gt;A middle-aged woman killed her husband&lt;/em&gt;, &lt;strong&gt;which&lt;/strong&gt; frightened me very much.&lt;/li&gt;
+      &lt;li&gt;&lt;em&gt;A five-year-old boy can speak two foreign languages&lt;/em&gt;, &lt;strong&gt;which&lt;/strong&gt; surprises all the people present.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;使用的关系词有所不同
+    &lt;ol&gt;
+      &lt;li&gt;
+        &lt;p&gt;that 不可以引导非限制性定语从句&lt;/p&gt;
+
+        &lt;p&gt;所有关系代词和关系副词都可以引导限制性定语从句，大部分关系代词与关系副词都可以引导非限制性定语从句，但是 that 除外。&lt;/p&gt;
+
+        &lt;ul&gt;
+          &lt;li&gt;He gave his mother a color TV set for her birthday, that pleased her a lot.（wrong）&lt;/li&gt;
+          &lt;li&gt;He gave his mother a color TV set for her birthday, &lt;strong&gt;&lt;em&gt;which&lt;/em&gt;&lt;/strong&gt; pleased her a lot.（wright）&lt;/li&gt;
+          &lt;li&gt;He didn’t pass the exam, that disappointed me.（wrong）&lt;/li&gt;
+          &lt;li&gt;He didn’t pass the exam, &lt;strong&gt;&lt;em&gt;which&lt;/em&gt;&lt;/strong&gt; disappointed me.（wright）&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;关系词替代情况不同&lt;/p&gt;
+
+        &lt;p&gt;关系代词 whom 在限制性定语从句中作宾语时可用 who 代替 whom ,但 whom 在非限制性定语从句中作宾语时不可用 who 来代替。&lt;/p&gt;
+
+        &lt;p&gt;在限制性定语从句中,先行词指人时可用 that 代替 who/whom ,但在非限制性定语从句中先行词指人时, 不可用 that 代替 who/whom。&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;关系代词省略情况不同&lt;/p&gt;
+
+        &lt;p&gt;关系代词在&lt;strong&gt;&lt;em&gt;限制性定语从句中作宾语时可以省去&lt;/em&gt;&lt;/strong&gt;,非限制性定语从句的所有关系词均不可省。&lt;/p&gt;
+
+        &lt;ul&gt;
+          &lt;li&gt;This is the book (&lt;em&gt;which/that&lt;/em&gt;) he lost yesterday.&lt;/li&gt;
+          &lt;li&gt;The book, &lt;em&gt;which&lt;/em&gt; he lost yesterday, has been found.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;5-wich-与-that&quot;&gt;5-wich 与 that&lt;/h2&gt;
+
+&lt;h3 id=&quot;5-1-定语从句中只用-that-不用-which&quot;&gt;5-1 定语从句中只用 that, 不用 which&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;先行词是 &lt;strong&gt;everything, anything, nothing&lt;/strong&gt; (something 除外), &lt;strong&gt;all, none, few, little, some&lt;/strong&gt; 等不定代词时，或当先行词被 &lt;strong&gt;every, any, all, some, no, little, few, much 等词修饰&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Have you set down everything that Mr. Li said?&lt;/li&gt;
+      &lt;li&gt;There seems to be nothing that is impossible to him in the world.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;当先行词指人时，偶尔也可用关系代词 who。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Any man that/who has a sense of responsibility won’t do such a thing.&lt;/li&gt;
+      &lt;li&gt;All the guests that/who were invited to her wedding were important people.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;先行词&lt;strong&gt;被序数词修饰&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;The first American movie that I watched was the Titanic.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;先行词&lt;strong&gt;被形容词最高级修饰&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;This is the best museum that I have visited all my life.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;先行词&lt;strong&gt;被 the very, the only, the first/last 等修饰&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;She is the only person that understands me.&lt;/li&gt;
+      &lt;li&gt;After the big fire, the old car is the only thing that he owns.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;先行词&lt;strong&gt;前面有 who, which 等疑问代词&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Who is the man that is standing in front of the crowd?&lt;/li&gt;
+      &lt;li&gt;Which is the room that Mr. Wang lives in?&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;先行词为人与动物或人与物
+    &lt;ul&gt;
+      &lt;li&gt;Look at the man and his donkey that are walking alone the street.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;先行词是 reason, way 等词时，关系代词常用 that 代替 in which, for which, why，也常可省略
+    &lt;ul&gt;
+      &lt;li&gt;She admired the way (that) they solved the questions.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;5-2-定语从句中只用-which-不用-that&quot;&gt;5-2 定语从句中只用 which, 不用 that&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;在非限定性定语从句中，在任何情况下都不能用 that
+    &lt;ul&gt;
+      &lt;li&gt;This brunch of carnation, which is wound by silk ribbon, is the first gift to my mom.&lt;/li&gt;
+      &lt;li&gt;These books, which you can get at any corner of the town, will give you all the information.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;关系代词前面有介词&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Those days in which you could travel without a passport has gone.&lt;/li&gt;
+      &lt;li&gt;That is the motel at which we stayed several years ago.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;先行词本身为 that (指代作用)
+    &lt;ul&gt;
+      &lt;li&gt;what about that which had appeared in recent activities.&lt;/li&gt;
+      &lt;li&gt;The knowledge are from various fields and that which display the waves of human being.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-基本概念</summary></entry><entry><title type="html">表语从句</title><link href="http://localhost:4000/predicative-clause.html" rel="alternate" type="text/html" title="表语从句" /><published>2022-02-09T00:00:00+08:00</published><updated>2022-02-09T00:00:00+08:00</updated><id>http://localhost:4000/predicative-clause</id><content type="html" xml:base="http://localhost:4000/predicative-clause.html">&lt;h2 id=&quot;1-介绍&quot;&gt;1-介绍&lt;/h2&gt;
 
 &lt;p&gt;表语从句放在连系动词之后，充当复合句中的表语。&lt;/p&gt;
 
@@ -308,7 +721,73 @@
   &lt;li&gt;连接词 that 引导宾语从句在句中无词义，不充当句子成份，多数情况下可以省略。&lt;/li&gt;
   &lt;li&gt;whether 和 if 都可引导宾语从句，但 whether 后可紧跟 or not；whether 从句可作介词的宾语。&lt;/li&gt;
   &lt;li&gt;如果从句太长，可以用形式宾语it。&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍</summary></entry><entry><title type="html">such &amp;amp; so</title><link href="http://localhost:4000/such-and-so.html" rel="alternate" type="text/html" title="such &amp;amp; so" /><published>2022-01-20T00:00:00+08:00</published><updated>2022-01-20T00:00:00+08:00</updated><id>http://localhost:4000/such-and-so</id><content type="html" xml:base="http://localhost:4000/such-and-so.html">&lt;p&gt;such 和 so 都可以&lt;strong&gt;表示程度&lt;/strong&gt;，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。&lt;/p&gt;
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍</summary></entry><entry><title type="html">过去完成时</title><link href="http://localhost:4000/perfect-past-tense.html" rel="alternate" type="text/html" title="过去完成时" /><published>2022-01-20T00:00:00+08:00</published><updated>2022-01-20T00:00:00+08:00</updated><id>http://localhost:4000/perfect-past-tense</id><content type="html" xml:base="http://localhost:4000/perfect-past-tense.html">&lt;h2 id=&quot;含义与结构&quot;&gt;含义与结构&lt;/h2&gt;
+
+&lt;p&gt;过去完成时表示&lt;strong&gt;&lt;em&gt;过去某一时间或动作&lt;/em&gt;&lt;/strong&gt;以前已经发生或完成了的动作，对过去的某一点造成的某种影响或是结果，用来指&lt;strong&gt;在另一个过去动作之前就已经完成了的事件&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;动作发生的时间是”过去的过去”，侧重事情的结果。&lt;/p&gt;
+
+&lt;p&gt;基本结构为：&lt;strong&gt;主语+had+动词过去分词&lt;/strong&gt;（done）&lt;/p&gt;
+
+&lt;h2 id=&quot;用法&quot;&gt;用法&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;表示在&lt;strong&gt;过去某一时刻或动作以前完成了的动作&lt;/strong&gt;，表示“过去的过去”；可以用 &lt;strong&gt;by, before&lt;/strong&gt; 等介词短语或一个时间状语从句来表示，也可以用一个表示过去的动作来表示，还可能通过上下文来表示。
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;By&lt;/strong&gt; the time I got outside, the bus had already left.&lt;/li&gt;
+      &lt;li&gt;She had studied English for six years &lt;strong&gt;before&lt;/strong&gt; she went to college.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;表示由过去的某一时刻开始，一直&lt;strong&gt;延续到过去另一时间&lt;/strong&gt;的动作或状态，常和 &lt;strong&gt;for, since&lt;/strong&gt; 构成的时间状语连用。
+    &lt;ul&gt;
+      &lt;li&gt;He had lived in the house &lt;strong&gt;for&lt;/strong&gt; five years.&lt;/li&gt;
+      &lt;li&gt;He said he had worked in that factory &lt;strong&gt;since&lt;/strong&gt; 1949.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;叙述过去发生的事情，在已叙述了过去发生的事情后，反过来&lt;strong&gt;追述或补述以前发生的动作&lt;/strong&gt;时，常使用过去完成时。
+    &lt;ul&gt;
+      &lt;li&gt;Mr. Smith died yesterday. He had been a good friend of mine.&lt;/li&gt;
+      &lt;li&gt;I didn’t know a thing about the verbs, for I had not studied my lesson.（因为我没有好好学习，作为补充）&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;在含有定语从句的&lt;strong&gt;主从复合句&lt;/strong&gt;中，如果&lt;strong&gt;叙述的是过去的事&lt;/strong&gt;，&lt;strong&gt;先发生的动作常用过去完成时&lt;/strong&gt;。
+    &lt;ul&gt;
+      &lt;li&gt;I returned the book that I had borrowed.&lt;/li&gt;
+      &lt;li&gt;She found the key that she had lost.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;过去完成时常常&lt;strong&gt;用在 told, said, knew, heard, thought 等动词后的宾语从句&lt;/strong&gt;（或间接引语）中，这时从句中的动作发生在主句表示的过去的动作之前。
+    &lt;ul&gt;
+      &lt;li&gt;He said that he had known her well.&lt;/li&gt;
+      &lt;li&gt;I thought I had sent the letter a week before.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;含有时间状语从句，对于过去不同时间发生的两个动作，&lt;strong&gt;发生在前的动作，用过去完成时；发生在后的动作，用一般过去时&lt;/strong&gt;。如 &lt;strong&gt;when, before, after, as soon as, till/until 引导的从句。&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;When&lt;/strong&gt; I woke up, it had already stopped raining.&lt;/li&gt;
+      &lt;li&gt;She didn’t go to bed &lt;strong&gt;until&lt;/strong&gt; she had finished her work.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;需要注意的是，如果&lt;strong&gt;两个动作紧接着发生&lt;/strong&gt;，则常常不用过去完成时，特别是在包含 &lt;strong&gt;before&lt;/strong&gt; 和&lt;strong&gt;after&lt;/strong&gt; 的复合句中，因为这时&lt;em&gt;从句的动作和主句的动作发生的先后顺序已经非常明确&lt;/em&gt;，可以用一般过去时代替过去完成时。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;After he arrived in England, Marx worked hard to improve his English.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;动词 &lt;strong&gt;think, want, hope, mean, plan, intend 等用过去完成时来表示过去未曾实现&lt;/strong&gt;的想法，希望，打算或意图等。
+    &lt;ul&gt;
+      &lt;li&gt;They &lt;strong&gt;had wanted&lt;/strong&gt; to help but could not get there in time.&lt;/li&gt;
+      &lt;li&gt;We &lt;strong&gt;had hoped&lt;/strong&gt; to be able to come and see you.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;过去完成时还可用在 &lt;strong&gt;hardly…when…, no sooner…than…, It was the first (second, etc) time (that)…&lt;/strong&gt; 等固定句型中。
+    &lt;ul&gt;
+      &lt;li&gt;Hardly had he begun to speak when the audience interrupted him.（一 … 就 …，倒装句）&lt;/li&gt;
+      &lt;li&gt;No sooner had he arrived than he went away again.（一 … 就 …，倒装句）&lt;/li&gt;
+      &lt;li&gt;It was the third time that he had been out of work that year.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">含义与结构</summary></entry><entry><title type="html">such &amp;amp; so</title><link href="http://localhost:4000/such-and-so.html" rel="alternate" type="text/html" title="such &amp;amp; so" /><published>2022-01-20T00:00:00+08:00</published><updated>2022-01-20T00:00:00+08:00</updated><id>http://localhost:4000/such-and-so</id><content type="html" xml:base="http://localhost:4000/such-and-so.html">&lt;p&gt;such 和 so 都可以&lt;strong&gt;表示程度&lt;/strong&gt;，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;such 为形容词，一般&lt;strong&gt;修饰名词&lt;/strong&gt;&lt;/li&gt;
@@ -389,73 +868,7 @@
       &lt;li&gt;I feel very happy that I have such a lot of friends.&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">such 和 so 都可以表示程度，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。</summary></entry><entry><title type="html">过去完成时</title><link href="http://localhost:4000/perfect-past-tense.html" rel="alternate" type="text/html" title="过去完成时" /><published>2022-01-20T00:00:00+08:00</published><updated>2022-01-20T00:00:00+08:00</updated><id>http://localhost:4000/perfect-past-tense</id><content type="html" xml:base="http://localhost:4000/perfect-past-tense.html">&lt;h2 id=&quot;含义与结构&quot;&gt;含义与结构&lt;/h2&gt;
-
-&lt;p&gt;过去完成时表示&lt;strong&gt;&lt;em&gt;过去某一时间或动作&lt;/em&gt;&lt;/strong&gt;以前已经发生或完成了的动作，对过去的某一点造成的某种影响或是结果，用来指&lt;strong&gt;在另一个过去动作之前就已经完成了的事件&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;动作发生的时间是”过去的过去”，侧重事情的结果。&lt;/p&gt;
-
-&lt;p&gt;基本结构为：&lt;strong&gt;主语+had+动词过去分词&lt;/strong&gt;（done）&lt;/p&gt;
-
-&lt;h2 id=&quot;用法&quot;&gt;用法&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;表示在&lt;strong&gt;过去某一时刻或动作以前完成了的动作&lt;/strong&gt;，表示“过去的过去”；可以用 &lt;strong&gt;by, before&lt;/strong&gt; 等介词短语或一个时间状语从句来表示，也可以用一个表示过去的动作来表示，还可能通过上下文来表示。
-    &lt;ul&gt;
-      &lt;li&gt;&lt;strong&gt;By&lt;/strong&gt; the time I got outside, the bus had already left.&lt;/li&gt;
-      &lt;li&gt;She had studied English for six years &lt;strong&gt;before&lt;/strong&gt; she went to college.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;表示由过去的某一时刻开始，一直&lt;strong&gt;延续到过去另一时间&lt;/strong&gt;的动作或状态，常和 &lt;strong&gt;for, since&lt;/strong&gt; 构成的时间状语连用。
-    &lt;ul&gt;
-      &lt;li&gt;He had lived in the house &lt;strong&gt;for&lt;/strong&gt; five years.&lt;/li&gt;
-      &lt;li&gt;He said he had worked in that factory &lt;strong&gt;since&lt;/strong&gt; 1949.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;叙述过去发生的事情，在已叙述了过去发生的事情后，反过来&lt;strong&gt;追述或补述以前发生的动作&lt;/strong&gt;时，常使用过去完成时。
-    &lt;ul&gt;
-      &lt;li&gt;Mr. Smith died yesterday. He had been a good friend of mine.&lt;/li&gt;
-      &lt;li&gt;I didn’t know a thing about the verbs, for I had not studied my lesson.（因为我没有好好学习，作为补充）&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;在含有定语从句的&lt;strong&gt;主从复合句&lt;/strong&gt;中，如果&lt;strong&gt;叙述的是过去的事&lt;/strong&gt;，&lt;strong&gt;先发生的动作常用过去完成时&lt;/strong&gt;。
-    &lt;ul&gt;
-      &lt;li&gt;I returned the book that I had borrowed.&lt;/li&gt;
-      &lt;li&gt;She found the key that she had lost.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;过去完成时常常&lt;strong&gt;用在 told, said, knew, heard, thought 等动词后的宾语从句&lt;/strong&gt;（或间接引语）中，这时从句中的动作发生在主句表示的过去的动作之前。
-    &lt;ul&gt;
-      &lt;li&gt;He said that he had known her well.&lt;/li&gt;
-      &lt;li&gt;I thought I had sent the letter a week before.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;含有时间状语从句，对于过去不同时间发生的两个动作，&lt;strong&gt;发生在前的动作，用过去完成时；发生在后的动作，用一般过去时&lt;/strong&gt;。如 &lt;strong&gt;when, before, after, as soon as, till/until 引导的从句。&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;&lt;strong&gt;When&lt;/strong&gt; I woke up, it had already stopped raining.&lt;/li&gt;
-      &lt;li&gt;She didn’t go to bed &lt;strong&gt;until&lt;/strong&gt; she had finished her work.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;需要注意的是，如果&lt;strong&gt;两个动作紧接着发生&lt;/strong&gt;，则常常不用过去完成时，特别是在包含 &lt;strong&gt;before&lt;/strong&gt; 和&lt;strong&gt;after&lt;/strong&gt; 的复合句中，因为这时&lt;em&gt;从句的动作和主句的动作发生的先后顺序已经非常明确&lt;/em&gt;，可以用一般过去时代替过去完成时。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;After he arrived in England, Marx worked hard to improve his English.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;动词 &lt;strong&gt;think, want, hope, mean, plan, intend 等用过去完成时来表示过去未曾实现&lt;/strong&gt;的想法，希望，打算或意图等。
-    &lt;ul&gt;
-      &lt;li&gt;They &lt;strong&gt;had wanted&lt;/strong&gt; to help but could not get there in time.&lt;/li&gt;
-      &lt;li&gt;We &lt;strong&gt;had hoped&lt;/strong&gt; to be able to come and see you.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;过去完成时还可用在 &lt;strong&gt;hardly…when…, no sooner…than…, It was the first (second, etc) time (that)…&lt;/strong&gt; 等固定句型中。
-    &lt;ul&gt;
-      &lt;li&gt;Hardly had he begun to speak when the audience interrupted him.（一 … 就 …，倒装句）&lt;/li&gt;
-      &lt;li&gt;No sooner had he arrived than he went away again.（一 … 就 …，倒装句）&lt;/li&gt;
-      &lt;li&gt;It was the third time that he had been out of work that year.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">含义与结构</summary></entry><entry><title type="html">Dynamo: Amazon’s Highly Available Key-value Store</title><link href="http://localhost:4000/dynamo.html" rel="alternate" type="text/html" title="Dynamo: Amazon’s Highly Available Key-value Store" /><published>2022-01-18T00:00:00+08:00</published><updated>2022-01-18T00:00:00+08:00</updated><id>http://localhost:4000/dynamo</id><content type="html" xml:base="http://localhost:4000/dynamo.html">&lt;h1 id=&quot;1-abstract&quot;&gt;1-Abstract&lt;/h1&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">such 和 so 都可以表示程度，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。</summary></entry><entry><title type="html">Dynamo: Amazon’s Highly Available Key-value Store</title><link href="http://localhost:4000/dynamo.html" rel="alternate" type="text/html" title="Dynamo: Amazon’s Highly Available Key-value Store" /><published>2022-01-18T00:00:00+08:00</published><updated>2022-01-18T00:00:00+08:00</updated><id>http://localhost:4000/dynamo</id><content type="html" xml:base="http://localhost:4000/dynamo.html">&lt;h1 id=&quot;1-abstract&quot;&gt;1-Abstract&lt;/h1&gt;
 
 &lt;p&gt;Dynamo 是 Amazon 提出的&lt;strong&gt;高可用键值存储&lt;/strong&gt;系统。为了保证系统的高可用，&lt;em&gt;牺牲了一些特定场景下的一致性&lt;/em&gt;。Dynamo 使用了&lt;strong&gt;对象版本化（object versioning）&lt;/strong&gt;与&lt;strong&gt;应用协助解决冲突（application-assisted conflict resolution）&lt;/strong&gt;的机制。&lt;/p&gt;
 
@@ -986,7 +1399,7 @@
   &lt;li&gt;一般过去时属于过去时态的范畴&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;1---构成形式不同&quot;&gt;1 - 构成形式不同&lt;/h2&gt;
+&lt;h2 id=&quot;1-构成形式不同&quot;&gt;1-构成形式不同&lt;/h2&gt;
 
 &lt;p&gt;现在完成时的动词形式为：&lt;strong&gt;have (has) + 动词的过去分词&lt;/strong&gt;；一般过去时的动词形式为：&lt;strong&gt;动词的过去式&lt;/strong&gt;。&lt;/p&gt;
 
@@ -995,7 +1408,7 @@
   &lt;li&gt;现在完成时：Maria has never read any Chinese stories.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;2---强调对象不同&quot;&gt;2 - 强调对象不同&lt;/h2&gt;
+&lt;h2 id=&quot;2-强调对象不同&quot;&gt;2-强调对象不同&lt;/h2&gt;
 
 &lt;p&gt;现在完成时：&lt;/p&gt;
 
@@ -1022,7 +1435,7 @@
   &lt;li&gt;I have seen the film.（现在我仍记得电影的内容）&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;3---时间状语不同&quot;&gt;3 - 时间状语不同&lt;/h2&gt;
+&lt;h2 id=&quot;3-时间状语不同&quot;&gt;3-时间状语不同&lt;/h2&gt;
 
 &lt;p&gt;一般过去时常与 &lt;strong&gt;&lt;em&gt;具体的时间状语&lt;/em&gt;&lt;/strong&gt; 连用，而现在完成时通常与 &lt;strong&gt;&lt;em&gt;模糊的时间状语&lt;/em&gt;&lt;/strong&gt; 连用，或 &lt;strong&gt;&lt;em&gt;无时间状语&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
 
@@ -1625,687 +2038,4 @@ in +（已过去的）某年/ 月, on +（已过去的）某天, at +（已过�
 &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;malloc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 请求 size 个字节的动态内存；如果分配成功则返回分配内存的第一个字节的线性地址&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;free&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 释放 malloc 分配的起始地址为 addr 的线性区&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;brk&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 直接修改堆的大小，返回线性区的新的结束地址&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">1-概述</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/linux_kernel/chapter_3/lk_1.png" /><media:content medium="image" url="http://localhost:4000/linux_kernel/chapter_3/lk_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Linux Kernel: Memory Addressing</title><link href="http://localhost:4000/linux-kernel-2.html" rel="alternate" type="text/html" title="Linux Kernel: Memory Addressing" /><published>2021-11-20T00:00:00+08:00</published><updated>2021-11-20T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-2</id><content type="html" xml:base="http://localhost:4000/linux-kernel-2.html">&lt;h1 id=&quot;1-内存地址&quot;&gt;1-内存地址&lt;/h1&gt;
-
-&lt;p&gt;我们偶尔会引用内存地址（Memory Address）访问内存单元内容；在 x86 处理器中，需要区分以下三种不同的地址：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;逻辑地址（logical address）
-    &lt;ul&gt;
-      &lt;li&gt;在机器语言指令中用来指定一个操作数或者指令的地址。在 x86 中需要将程序分为若干段，每个逻辑地址都由一个段（segment）和偏移量（offset）组成&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;线性地址（linear address）or 虚拟地址（virtual address）
-    &lt;ul&gt;
-      &lt;li&gt;用一个 32 位无符号整数表示 4GB 的虚拟内存地址；通常用 16 进制数字表示，0x00000000 ~ 0xffffffff&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;物理地址（physical address）
-    &lt;ul&gt;
-      &lt;li&gt;用于内存芯片级内存单元寻址；物理地址由 32 位或者 36 位无符号整数表示&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;内存控制单元（MMU）通过分段单元（segmentation unit）的硬件电路把逻辑地址转换为线性地址，之后通过分页单元（paging unit）的硬件电路把线性地址转换为物理地址。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_2/lk_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;在多处理器系统中，所有 CPU 共享同一内存，因此多个 CPU 可以并发地访问 RAM 芯片。由于 RAM 芯片上的读写操作必须串行执行，所以一种所谓的内存仲裁器来控制并发访问。&lt;/p&gt;
-
-&lt;h1 id=&quot;2-linux-分段&quot;&gt;2-Linux 分段&lt;/h1&gt;
-
-&lt;p&gt;Linux 以非常有限的方式使用分段，实际上分段与分页在某种程度上有点多余，因为它们都用来划分进程的物理空间：分段可以给每个进程分配不同的线性地址空间；分页可以把同一个线性地址空间映射到不同的物理空间。与分段相比，Linux 更常用分页的方式：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;当所有进程使用相同的段寄存器值时，内存管理比较简单，即所有进程能够共享同样的一组线性地址&lt;/li&gt;
-  &lt;li&gt;使用分页的方式能够将 Linux 移植到大多数处理器平台上&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;在 Linux 中，逻辑地址与线性地址时一致的，逻辑地址的偏移量字段值与相应的线性地址值总是一致的。&lt;/p&gt;
-
-&lt;h1 id=&quot;3-硬件中的分页&quot;&gt;3-硬件中的分页&lt;/h1&gt;
-
-&lt;p&gt;分页单元（paging unit）把线性地址转换成物理地址。&lt;/p&gt;
-
-&lt;p&gt;线性地址被分成以固定长度为单位的组，称为页（page）。页内部连续的线性地址被映射到连续的物理地址中。这样，内核可以指定一个页的物理地址及页的存取权限，而不用指定页所包含的全部线性地址的的存取权限，提高了效率。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;按照约定，&lt;strong&gt;页既指一组线性地址，也指包含在这组地址中的数据&lt;/strong&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;分页单元把所有的 RAM 分成固定长度的页框（page frame，物理页）。页框与页的长度一致，因此每个页框包含一个页。页框是一个存储区域，是主存的一部分。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;页只是一个数据块，可以存放在任何页框或者磁盘中&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;把线性地址映射到物理地址的数据结构称为页表（page table）。&lt;strong&gt;页表存放在主存中，并在启用分页单元之间必须由内核对页表进行适当的初始化&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;3-1-常规分页&quot;&gt;3-1 常规分页&lt;/h2&gt;
-
-&lt;p&gt;Intel 处理器的分页单元处理 4KB 的页。32 位的线性地址被分成 3 个域：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Directory（目录：高 10 位）&lt;/li&gt;
-  &lt;li&gt;Table（页表：中间 10 位）&lt;/li&gt;
-  &lt;li&gt;Offset（偏移量：低 12 位）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;线性地址的转换非为两步，每一步都基于一种转换表，第一种转换表称为页目录表（page directory），第二种转换表称为页表（page table）。&lt;/p&gt;
-
-&lt;p&gt;这种二级模式主要用于减少每个进程页表所需的 RAM 数量。每个活动进程必须有一个分配给它的页目录；不过，&lt;strong&gt;*没必要马上为进程的所有页表都分配 RAM*&lt;/strong&gt;。只有在进程实际需要一个页表时才会给该页表分配 RAM。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;不同的进程共享同一个线性地址空间集合，每个进程只使用 32 位地址空间的子集&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;进程正在使用的页目录的物理地址存放在控制寄存器 cr3 中。线性地址的 Directory 字段决定页目录中的目录项，而&lt;strong&gt;目录项指定适当的页表&lt;/strong&gt;；线性地址中的 Table 字段又决定页表中的表项，而&lt;strong&gt;表项包含页所在页框的物理地址&lt;/strong&gt;；线性地址中的 Offset 字段决定&lt;strong&gt;页框内的相对地址&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_2/lk_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;线性地址通过分页单元转换为物理地址&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;页目录项与页表项具有相同的结构，每项都包含下面的字段：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Present 标志：1 表示所指的的页（页表）在主存中；0 表示该页不在主存中，触发缺页异常&lt;/li&gt;
-  &lt;li&gt;Field：&lt;strong&gt;包含页框物理地址的最高 20 位&lt;/strong&gt;的字段；&lt;strong&gt;*如果这个字段指向一个页目录，相应的页框就会包含一个页表；如果该字段指向一个页表，则相应的页框就包含有一页的数据*&lt;/strong&gt;。由于一个页框有 4KB 的容量，因此该字段指定的物理地址必须是 4096 的倍数（物理地址的最低 12 位总是 0）&lt;/li&gt;
-  &lt;li&gt;Accessed 标志：当分页单元对相应页框进行寻址时设置该标志&lt;/li&gt;
-  &lt;li&gt;Dirty 标志：只应用于页表项中；当对一个页框进行写操作时，设置该标志&lt;/li&gt;
-  &lt;li&gt;Read &amp;amp; Write 标志：页或者页表的存取权限&lt;/li&gt;
-  &lt;li&gt;User &amp;amp; Supervisor 标志：访问页表或者页所需要的特权级（硬件保护方案）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;3-2-硬件保护方案&quot;&gt;3-2 硬件保护方案&lt;/h2&gt;
-
-&lt;p&gt;与页和页表相关的特权级有两种：如果 User &amp;amp; Supervisor 标志为 0，只有处理器处于内核态时才能对页进行寻址，如果 User &amp;amp; Supervisor 标志为 1，则总能对页进行寻址。&lt;/p&gt;
-
-&lt;p&gt;存取权限有两种：如果页目录项或者页表项的 Read &amp;amp; Write 标志被设为 0，则说明相应的页表或者页是只读的，否则是可读写的。&lt;/p&gt;
-
-&lt;h2 id=&quot;3-3-分页寻址流程&quot;&gt;3-3 分页寻址流程&lt;/h2&gt;
-
-&lt;p&gt;假设内核给一个进程分配的线性地址空间范围是 0x20000000 ~ 0x2003ffff（我们不需要关心包含这些页的页框的物理地址）。&lt;/p&gt;
-
-&lt;p&gt;假设进程需要读取线性地址 0x20021406 中的字节：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;Directory 字段的 0x80 用于选择页目录的第 0x80 目录项，该目录项指向那个与该进程相关的页表&lt;/li&gt;
-  &lt;li&gt;Table 字段的 0x21 用于选择页表的第 0x21 表项，该表项指向包含所需页的页框&lt;/li&gt;
-  &lt;li&gt;Offset 字段 0x406 用于在目标页框中读取偏移量为 0x406 中的字节&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;如果页表第 ox21 表项的 Present 标志为 0，则该页就不在主存中，此时会产生缺页异常，需要给其分配一个空闲页框之后再读取。另外，当进程试图访问 0x20000000 ~ 0x2003ffff 之外的线性地址时，会产生另一种缺页异常。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;当新的进程被调度时，必须为新进程重置 MMU，刷新 TLB，清除以前进程的痕迹&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_2/lk_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;由于只给该进程分配了第 0x80 个目录项，因此页目录的其余 1023 项都置为 0；同时，页表中只有前 64 个表项有意义，则其余的 960 个表项也都置为 0。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;3-4-分页相关的工作&quot;&gt;3-4 分页相关的工作&lt;/h2&gt;
-
-&lt;p&gt;操作系统需要在进程创建时，进程执行时，缺页中断时和进程终止时四个时间段做一些与分页相关的工作。&lt;/p&gt;
-
-&lt;h3 id=&quot;3-4-1-进程创建&quot;&gt;3-4-1 进程创建&lt;/h3&gt;
-
-&lt;p&gt;新进程创建时，操作系统需要确定程序和数据在初始化时有多大，并为其创建一个页表：在内存中为页表分配空间并对其进行初始化。当进程被换出时，页表不需要驻留在内存中，但是当进程运行时，必须在内存中。&lt;/p&gt;
-
-&lt;h3 id=&quot;3-4-2-进程执行&quot;&gt;3-4-2 进程执行&lt;/h3&gt;
-
-&lt;p&gt;当调度一个进程执行时，必须为新进程重置 MMU，刷新 TLB；新进程的页表必须成为当前页表。&lt;/p&gt;
-
-&lt;h3 id=&quot;3-4-3-缺页中断&quot;&gt;3-4-3 缺页中断&lt;/h3&gt;
-
-&lt;p&gt;发生缺页中断时，操作系统必须能够知道是哪个虚拟地址造成的缺页中断；并计算出需要哪个页面，在磁盘上对该页面进行定位。操作系统需要找到合适的页框来存放新的页面，必要时置换出老页面，然后把页面读入到页框。最后重新执行引起缺页中断的指令。&lt;/p&gt;
-
-&lt;h3 id=&quot;3-4-4-进程终止&quot;&gt;3-4-4 进程终止&lt;/h3&gt;
-
-&lt;p&gt;进程退出时，操作系统需要释放进程的页表，页面和页面在磁盘上所占的空间。如果某些页面时与其他线程共享的，当最后一个进程终止时才需要释放。&lt;/p&gt;
-
-&lt;h2 id=&quot;3-5-转换后援缓冲器tlb&quot;&gt;3-5 转换后援缓冲器（TLB）&lt;/h2&gt;
-
-&lt;p&gt;x86 处理器中包含了一个被称为转换后援缓冲器（Translation Lookaside Buffer）的高速缓存用于加快线性地址的转换。当一个线性地址被第一次使用时，通过慢速访问 RAM 中的页表计算出相应的物理地址。同时，物理地址被存放在一个 TLB 表项（TLB Entry）中，以便以后对同一个线性地址的引用可以快速得到转换。&lt;/p&gt;
-
-&lt;p&gt;在多处理器系统中，每个 CPU 都有自己的 TLB，被称为该 CPU 的本地 TLB。当 CPU 的 cr3 控制寄存器被修改时，硬件自动使本地 TLB 中的所有项都失效。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;当新的一组页表被启用时，TLB 指向的使旧数据&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h1 id=&quot;4-linux-中的分页&quot;&gt;4-Linux 中的分页&lt;/h1&gt;
-
-&lt;p&gt;Linux 采用了中同时适用 32 位与 64 位系统的普通分页模型。对 32 位系统来说，两级页表已经够了，但是 64 位系统需要更多数量的分页级别；Linux 采用了 4 级分页模型：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;页全局目录&lt;/li&gt;
-  &lt;li&gt;页上级目录&lt;/li&gt;
-  &lt;li&gt;页中间目录&lt;/li&gt;
-  &lt;li&gt;页表&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;线性地址被分成 5 部分；页全局目录包含若干页上级目录的地址，页上级目录包含若干页中间目录的地址，页中间目录包含若干页表的地址，每个页表项又指向一个页框。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_2/lk_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Linux 进程的处理很大程度上依赖于分页；从线性地址到物理地址的转换使得：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;给每个进程分配一块不同的物理地址空间，有效防止寻址错误&lt;/li&gt;
-  &lt;li&gt;区别&lt;strong&gt;页（即一组数据）与页框（即主存中的物理地址&lt;/strong&gt;）之间的不同。从而允许存放在某个页框中的一个页，然后保存到磁盘上，以后重新装入该页时又可以被装在不同的页框中。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;每个进程都有自己的页全局目录与页表集。&lt;strong&gt;*当发生进程切换时，Linux 把 cr3 控制器的内容保存在前一个执行进程的描述符中，然后把下一个要执行进程的描述符的值装载到 cr3 寄存器中*&lt;/strong&gt;。因此当新进程重新开始在 CPU 上执行时，分页单元指向一组正确的页表。&lt;/p&gt;
-
-&lt;h2 id=&quot;4-1-物理内存布局&quot;&gt;4-1 物理内存布局&lt;/h2&gt;
-
-&lt;p&gt;在初始化阶段，内核需要指定哪些物理地址范围对内核可用，而哪些范围不可用。内核将下列页框标记为保留：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;在不可用的物理地址范围内的页框&lt;/li&gt;
-  &lt;li&gt;含有内核代码和已初始化的数据结构的页框&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;em&gt;保留页框中的页绝对不会被动态分配或者交换到磁盘上&lt;/em&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_2/lk_5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;前 768 个页框（3 MB）&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;4-2-进程页表&quot;&gt;4-2 进程页表&lt;/h2&gt;
-
-&lt;p&gt;进程的线性地址空间分为两部分：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;0x00000000 ~ 0xbffffff 的范围，无论进程运行在用户态还是内核态都可以寻址&lt;/li&gt;
-  &lt;li&gt;0xc00000000 ~ 0xffffffff 的范围，只有内核态才能寻址&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;当进程运行在用户态时，其产生的线性地址小于 0xc0000000；当进程运行在内核态时，执行内核代码，所产生的地址大于或等于 0xc0000000。但是，有时内核为了检索或者存放数据必须访问用户态线性地址空间。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;页全局目录的第一部分表项映射的线性地址小于 0xc0000000，具体值依赖于特定进程&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;4-3-内核页表&quot;&gt;4-3 内核页表&lt;/h2&gt;
-
-&lt;p&gt;内核维持着一组自己使用的页表，驻留在所谓的主内核页全局目录（master kernel page global directory）中。&lt;/p&gt;
-
-&lt;p&gt;内核初始化自己的页表分为两个阶段：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;内核创建一个有限的地址空间，该地址空间仅能够将内核装入 RAM 和对其初始化的核心数据结构&lt;/li&gt;
-  &lt;li&gt;内核充分利用剩余的 RAM 并适当建立分页表&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;4-4-处理-tlb&quot;&gt;4-4 处理 TLB&lt;/h2&gt;
-
-&lt;p&gt;一般来说，任何进程切换都意味着更换活动页表集。相对于过期页表，本地 TLB 表项必须被刷新；这个过程在内核把新的页全局目录的地址写入 cr3 控制器时会自动完成。不过在有些情况下将避免 TLB 被刷新：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;两个使用相同页表集的普通进程之间执行进程切换时&lt;/li&gt;
-  &lt;li&gt;一个普通进程与一个内核线程之间执行进程切换时。内核线程并不拥有自己的页表集，他们使用刚在 CPU 傻姑娘执行过的普通进程的页表集&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">1-内存地址</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/linux_kernel/chapter_2/lk_1.png" /><media:content medium="image" url="http://localhost:4000/linux_kernel/chapter_2/lk_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Linux Kernel: Abstract</title><link href="http://localhost:4000/linux-kernel-1.html" rel="alternate" type="text/html" title="Linux Kernel: Abstract" /><published>2021-10-27T00:00:00+08:00</published><updated>2021-10-27T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-1</id><content type="html" xml:base="http://localhost:4000/linux-kernel-1.html">&lt;h1 id=&quot;1-操作系统基本概念&quot;&gt;1. 操作系统基本概念&lt;/h1&gt;
-
-&lt;p&gt;操作系统是一个基本程序的集合，在这个集合中，最重要的程序称为内核（Kernel）。当操作系统启动时，内核被装载到 RAM 中。内核为操作系统提供了主要功能，一般把“内核”作为“操作系统”的同义词。&lt;/p&gt;
-
-&lt;p&gt;操作系统有两个目标：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;与硬件交互&lt;/strong&gt;：为硬件平台上的低层可编程部件提供服务&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;为用户程序提供执行环境&lt;/strong&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;当用户程序想要使用硬件资源时，需要向操作系统发送请求；内核对这个请求进行评估，如果允许使用该硬件资源，则由内核代表与相关硬件进行交互。为了实现这种机制，操作系统依靠特殊的硬件机制来禁止用户程序直接与硬件交互；CPU 至少引入了两种执行模式：用户程序的非特权模式 &amp;amp; 内核的特权模式；在 Unix 中分别称为&lt;strong&gt;用户态&lt;/strong&gt;（User Model）&amp;amp; &lt;strong&gt;内核态&lt;/strong&gt;（Kernel Model）。&lt;/p&gt;
-
-&lt;h2 id=&quot;11-多用户系统&quot;&gt;1.1 多用户系统&lt;/h2&gt;
-
-&lt;p&gt;多用户系统（Multiuser System）是指能够&lt;strong&gt;并发&lt;/strong&gt;且&lt;strong&gt;独立&lt;/strong&gt;地执行分别属于多个用户的应用程序的系统。&lt;/p&gt;
-
-&lt;p&gt;并发是多个应用程序能同时处于活动状态并且竞争各种资源，如 CPU，内存，硬盘等。独立是指每个应用程序能够执行自己的任务而不需要考虑其他应用程序的行为。&lt;/p&gt;
-
-&lt;p&gt;多用户系统需要具备以下特点：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;用户身份认证机制&lt;/li&gt;
-  &lt;li&gt;应用程序运行的保护机制：防止不同用户程序之间的干扰&lt;/li&gt;
-  &lt;li&gt;分配给每个用户的资源的记账机制&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;上述安全机制的实现与 CPU 特权模式相关；Unix 是多用户系统&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;12-用户与组&quot;&gt;1.2 用户与组&lt;/h2&gt;
-
-&lt;p&gt;在多用户系统中，每个用户在机器上都有私用空间，比如磁盘空间。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;操作系统需要保证用户空间的私有部分仅仅对其拥有者是可见的&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;每个用户在操作系统中都有一个唯一标识，叫做用户标识符（User ID）；同时，为了与其他用户有选择地共享资料，每个用户可以是一个或者多个用户组的成员，组由用户组标识符唯一标识（User Group ID）。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;每个文件也与一个用户组对应：比如同组用户可以读，其他用户不可读&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;Unix 系统中存在一个 root 用户，操作系统不对其进行进行任何限制，root 能够访问系统中的任何一个文件，干涉任意一个用户程序。&lt;/p&gt;
-
-&lt;h2 id=&quot;13-进程&quot;&gt;1.3 进程&lt;/h2&gt;
-
-&lt;p&gt;进程（Process）是操作系统对正在运行程序的一个抽象。一个进程可以看作“&lt;strong&gt;程序执行的一个实例&lt;/strong&gt;”或者“&lt;strong&gt;一个运行程序的执行上下文&lt;/strong&gt;”。&lt;/p&gt;
-
-&lt;p&gt;每个进程都有一个地址空间（Address Space）：&lt;em&gt;允许进程引用的内存地址集合&lt;/em&gt;。&lt;/p&gt;
-
-&lt;p&gt;在多用户系统中，多个进程能够并发执行，并且能够竞争系统资源；这种允许进程并发活动的系统被称为&lt;strong&gt;多道程序系统&lt;/strong&gt;或者&lt;strong&gt;多处理系统&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;进程与程序之间的关系：&lt;strong&gt;几个进程能够并发地执行同一个程序，而一个进程能够顺序执行多个程序&lt;/strong&gt;&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;在单处理器系统上，在某一个时刻只能有一个进程占用 CPU；操作系统中的调度程序（Scheduler）用于协调进程的执行。在不同的操作系统中，进程的执行方式分为两种：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;非抢占式：只有当进程自愿放弃 CPU 时，调度程序才能被调用&lt;/li&gt;
-  &lt;li&gt;抢占式：CPU 可以被其他进程抢占；比如，操作系统记录每个进程占有 CPU 的时间，并周期性地激活调度程序&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Unix 是具有&lt;strong&gt;抢占式进程的多处理系统&lt;/strong&gt;&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;Unix 采用进程/内核模式。每个进程都认为自己是系统中的唯一进程，独占操作系统所提供的服务。当进程发出系统调用时，硬件就会把特权模式由用户态切换到内核态，之后进程以有限的目的开始一个内核过程的执行。当请求调用结束，内核过程迫使硬件返回到用户态，然后进程从系统调用的下一条指令继续执行。&lt;/p&gt;
-
-&lt;h1 id=&quot;2-unix-文件系统概述&quot;&gt;2. Unix 文件系统概述&lt;/h1&gt;
-
-&lt;h2 id=&quot;21-文件&quot;&gt;2.1 文件&lt;/h2&gt;
-
-&lt;p&gt;Unix 文件是以字节序列组成的信息载体，内核并不解释文件的内容。文件被组织成一个树形结构的命名空间中：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_1/lk_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;除了叶子节点外，其他节点都表示目录名；目录节点包含它下面的文件及目录所有的信息。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;文件名长度一般限制在 255 个字符内；同一个目录下的文件名不能相同&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;Unix 进程有一个当前工作目录，属于进程执行上下文，&lt;strong&gt;用于标识进程所用的文件目录&lt;/strong&gt;。同时，进程使用路径名（Path Name）标识特定的文件。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;”.”表示当前工作目录；“..”表示父目录&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;22-软链接与硬链接&quot;&gt;2.2 软链接与硬链接&lt;/h2&gt;
-
-&lt;p&gt;包含在目录中的&lt;strong&gt;文件名就是一个文件的硬链接&lt;/strong&gt;（Hard Link），简称链接。&lt;/p&gt;
-
-&lt;p&gt;在同一个目录或者不同的目录中，同&lt;strong&gt;一个文件可以有多个链接，因此对应多个文件名&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;一个文件可以对应多个文件名，而一个文件名就是一个链接&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ln &lt;/span&gt;P1 P2  &lt;span class=&quot;c&quot;&gt;# 为由路径 P1 标识的文件创建一个路径名为 P2 的硬链接&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;硬链接有两个限制：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;不允许给目录创建硬链接&lt;/strong&gt;：会使得目录树变成环形图，导致不能通过文件名定位文件&lt;/li&gt;
-  &lt;li&gt;只有在同一个文件系统中的文件之间才能创建链接：Unix 系统中可能包含了多种文件系统&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;为了突破上面的两个限制，引入了&lt;strong&gt;软链接&lt;/strong&gt;（Soft Link），也称为符号链接。符号链接是&lt;em&gt;短文件（软链接也是文件）&lt;/em&gt;，&lt;em&gt;包含另一个文件的任意一个路径名&lt;/em&gt;。路径名可以指向任意文件系统的任意文件或者目录，甚至可以指向一个不存在的文件。&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ln&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; P1 P2 &lt;span class=&quot;c&quot;&gt;# 创建一个路径名为 P2 的软链接，P2 指向路径名 P1；对 P2 的引用都自动转化为对 P1 的引用&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;总结：硬链接相当于对源文件的直接引用，软链接是对源文件的间接引用。&lt;/p&gt;
-
-&lt;h2 id=&quot;22-文件类型&quot;&gt;2.2 文件类型&lt;/h2&gt;
-
-&lt;p&gt;Unix 文件类型分为：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;普通文件&lt;/li&gt;
-  &lt;li&gt;目录&lt;/li&gt;
-  &lt;li&gt;符号链接&lt;/li&gt;
-  &lt;li&gt;面向块的设备文件&lt;/li&gt;
-  &lt;li&gt;面向字符的设备文件&lt;/li&gt;
-  &lt;li&gt;管道 &amp;amp; 命名管道&lt;/li&gt;
-  &lt;li&gt;套接字&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;前三种是基本的文件类型；设备文件与 IO 设备及相关驱动程序有关；管道与套接字是用于进程间通信的特殊文件。&lt;/p&gt;
-
-&lt;h2 id=&quot;23-文件描述符与索引节点&quot;&gt;2.3 文件描述符与索引节点&lt;/h2&gt;
-
-&lt;p&gt;Unix 文件的内容与文件描述信息是分开存储的：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;文件内容是由字节序列组成，不包含任何控制信息，如文件长度等&lt;/li&gt;
-  &lt;li&gt;文件的描述信息存储在&lt;strong&gt;索引节点&lt;/strong&gt;（Index Node）中，每个文件都有自己的索引节点；文件系统用索引节点来标识文件&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;索引节点中包含的信息有：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;文件类型&lt;/li&gt;
-  &lt;li&gt;与文件相关的硬链接个数&lt;/li&gt;
-  &lt;li&gt;以字节为单位的文件长度&lt;/li&gt;
-  &lt;li&gt;在文件系统中用于标识文件的索引节点号&lt;/li&gt;
-  &lt;li&gt;文件拥有者的 UID&lt;/li&gt;
-  &lt;li&gt;文件的用户组 ID&lt;/li&gt;
-  &lt;li&gt;访问权限和文件模式&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;24-文件操作的系统调用&quot;&gt;2.4 文件操作的系统调用&lt;/h2&gt;
-
-&lt;p&gt;当用户访问文件内容时，实际上是访问存储在硬件块设备上的数据。由于处于用户态的进程不能直接与底层硬件交互，所以每次文件操作必须在内核态下进行。&lt;/p&gt;
-
-&lt;h3 id=&quot;241-打开文件&quot;&gt;2.4.1 打开文件&lt;/h3&gt;
-
-&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;fd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;flag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// flag 指定打开文件的方式（读，写，追加）&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;该系统调用创建一个“打开文件”对象，并返回文件描述符。&lt;/p&gt;
-
-&lt;p&gt;其中，打开文件对象包括：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;文件操作的一些数据结构：表示文件当前位置的 offset；指定文件打开方式的一组标识&lt;/li&gt;
-  &lt;li&gt;进程可以调用的一些内核函数指针&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;文件描述符表示进程与打开文件之间的交互，而打开的文件对象包含了与这种交互相关的数据。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;strong&gt;同一个打开文件对象可以由同一个进程的几个文件描述符标识&lt;/strong&gt;&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;多个进程同时打开一个文件时，文件系统会给每个进程分配一个单独的打开文件对象与单独的文件描述符。&lt;/p&gt;
-
-&lt;h3 id=&quot;242-访问打开的文件&quot;&gt;2.4.2 访问打开的文件&lt;/h3&gt;
-
-&lt;p&gt;对于普通的 Unix 文件，可以顺序访问，也可以随机访问；默认是顺序访问。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;内核把文件指针存放在打开文件对象中&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;read（）&lt;/code&gt;与 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;write()&lt;/code&gt; 是从文件指针的当前位置开始操作；如果需要更新文件指针的值，必须显示调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lseek()&lt;/code&gt;。&lt;/p&gt;
-
-&lt;h3 id=&quot;243-关闭文件&quot;&gt;2.4.3 关闭文件&lt;/h3&gt;
-
-&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;res&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;该方法用于释放与文件描述符相对应的打开文件对象。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;进程终止时，内核会关闭所有仍然打开的文件&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;244-重命名与删除文件&quot;&gt;2.4.4 重命名与删除文件&lt;/h3&gt;
-
-&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;res&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;oldPath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;newPath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 更新了文件链接的名字&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;res&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unlink&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pathName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 减少文件链接数，删除了对应的目录项；当链接数为 0 时，文件才会被真正删除&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;删除与重命名文件时，并不需要打开文件。这两个操作并没有对文件的内容进行更新，而是对目录的内容进行了更新。&lt;/p&gt;
-
-&lt;h1 id=&quot;3-unix-内核概述&quot;&gt;3. Unix 内核概述&lt;/h1&gt;
-
-&lt;h2 id=&quot;31-进程内核模式&quot;&gt;3.1 进程/内核模式&lt;/h2&gt;
-
-&lt;p&gt;正如之前描述的，CPU 既可以运行在用户态，也可以运行在内核态。当应用程序在用户态下执行时，不能直接访问内核的数据机构与程序；当应用程序运行在内核态下是，便没有这些限制。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;CPU 模型为从用户态转换到内核态提供了特殊的指令，反之亦然&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;进程是动态的实体，通常只有有限的生命周期。&lt;/p&gt;
-
-&lt;p&gt;内核本身并不是进程，而是进程的管理者。对于进程/内核模式假设：&lt;strong&gt;请求内核服务的进程使用系统调用（System Call）的特殊编程机制。每个系统调用都设置了一组识别进程请求的参数，然后执行与硬件相关的 CPU 指令完成从用户态到内核态的转换&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;除了用户进程外，Unix 系统还包括了几个内核线程的特权进程，特点如下：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;以内核态运行在内核地址空间&lt;/li&gt;
-  &lt;li&gt;不与用户直接交互&lt;/li&gt;
-  &lt;li&gt;系统启动时创建，一直处于活跃状态直到系统关闭&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_1/lk_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;有几种方式可以使进程进行用户态与内核态的转换：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;进程进行系统调用&lt;/li&gt;
-  &lt;li&gt;正在执行进程的 CPU 发出一个异常（Exception）信号（如无效的指令），由内核代表产生异常的进程处理异常&lt;/li&gt;
-  &lt;li&gt;外围设备向 CPU 发出一个中断信号（Interrupt）以通知时间的发生（如 IO 操作已完成）；中断信号交由内核中的中断处理程序来处理&lt;/li&gt;
-  &lt;li&gt;内核线程被执行：内核线程运行在内核态&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;32-进程实现&quot;&gt;3.2 进程实现&lt;/h2&gt;
-
-&lt;p&gt;每个进程都由一个&lt;strong&gt;进程描述符&lt;/strong&gt;（Process Descriptor）表示，该描述符包含了进程当前状态的信息。&lt;/p&gt;
-
-&lt;p&gt;当进程暂停时，就把相关寄存器中的内容保存在进程描述符中，寄存器包括：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;程序计数器 &amp;amp; 栈指针寄存器&lt;/li&gt;
-  &lt;li&gt;通用寄存器&lt;/li&gt;
-  &lt;li&gt;浮点寄存器&lt;/li&gt;
-  &lt;li&gt;包含 CPU 状态信息的处理器控制寄存器&lt;/li&gt;
-  &lt;li&gt;用来跟踪进程对 RAM 访问的内存管理寄存器&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;当进程被重新恢复执行时，内核将进程描述符中对应的字段装载到 CPU 寄存器中。&lt;/p&gt;
-
-&lt;p&gt;当进程等待某一个事件时，会被置入进程描述符等待队列中等待事件的发生。&lt;/p&gt;
-
-&lt;h2 id=&quot;33-可重入内核&quot;&gt;3.3 可重入内核&lt;/h2&gt;
-
-&lt;p&gt;Unix 内核是可重入（Reentrant）的，是指多个进程可以同时在内核态下执行。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;在单处理器系统上只有一个进程在运行，但是&lt;em&gt;可以有多个进程在内核态下被阻塞&lt;/em&gt;，比如等待 CPU或者 IO 操作完成&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;如果发生硬件中断，可重入内核就可以挂起正在执行的进程去响应中断，即使该进程正处于内核态。这种实现方式能够提高发出中断的设备控制器的吞吐量，否则该设备需要一直等待 CPU 直到 CPU 重新从内核态切换为用户态。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;内核控制路径（Kernel Control Path）是指内核处理系统调用，异常或者中断所执行的指令序列&lt;/strong&gt;。而可重入性内核可以使得 CPU 交错执行内核控制路径。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_1/lk_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;上图显示了交错与非交错的内核控制路径；其中&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;User：在用户态下运行一个进程&lt;/li&gt;
-  &lt;li&gt;Excp：运行一个异常处理程序或者系统调用程序&lt;/li&gt;
-  &lt;li&gt;Intr：运行一个中断处理程序&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;34-进程地址空间&quot;&gt;3.4 进程地址空间&lt;/h2&gt;
-
-&lt;p&gt;进程运行在私有地址空间中。处于用户态的进程涉及到私有栈，数据区，代码区；处于内核态的进程访问内核的数据区，代码区，但是使用另外的私有栈。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;每个内核控制路径都引用自己的私有内核栈&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;进程间也能共享部分地址空间，实现进程间通信。另外，Linux 支持存在在磁盘上的文件部分映射到进程的部分地址空间中。&lt;/p&gt;
-
-&lt;h2 id=&quot;35-同步与临界区&quot;&gt;3.5 同步与临界区&lt;/h2&gt;
-
-&lt;p&gt;为了实现可重入内核，需要引入同步机制，以&lt;strong&gt;防止不同的内核控制路径对同一个数据结构的访问出现不一致的状态&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;对全局变量的安全访问一般是通过原子操作（Atomic Operation）实现。&lt;strong&gt;临界区&lt;/strong&gt;（Critical Region）是指存在这样一段代码，进入这段代码的进程必须完成，之后另一个进程才能进入。&lt;/p&gt;
-
-&lt;p&gt;常见的几种同步内核控制路径的方式：&lt;/p&gt;
-
-&lt;h3 id=&quot;351-非抢占式内核&quot;&gt;3.5.1 非抢占式内核&lt;/h3&gt;
-
-&lt;p&gt;当进程在内核态执行时，不能被任意挂起，也不能被其他进程抢占。这样，在单处理器系统中，中断或者异常处理程序便不能修改内核数据结构，保证了数据的一致性。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;局限&lt;/strong&gt;：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;对于多处理器系统，非抢占式方式仍然不能避免不同 CPU 上的内核控制路径并发访问同一个数据结构&lt;/li&gt;
-  &lt;li&gt;非抢占式内核会降低系统的执行效率&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;352-禁止中断&quot;&gt;3.5.2 禁止中断&lt;/h3&gt;
-
-&lt;p&gt;单处理器系统中还有一种同步机制：&lt;strong&gt;在进入临界区前禁止所有硬件中断，离开后再重新启用中断&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;局限&lt;/strong&gt;：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;如果临界区执行耗时比较大，那么在较长时间内会使得硬件处于冻结状态&lt;/li&gt;
-  &lt;li&gt;禁止中断只会对本地 CPU 起作用，在多处理器系统中，还需要结合其他同步方式&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;353-信号量&quot;&gt;3.5.3 信号量&lt;/h3&gt;
-
-&lt;p&gt;信号量（Semaphore）是一个广泛使用的同步机制；其仅仅是一个与数据结构（临界区）相关的计数器，所有内核线程在访问这个数据结构之前都需要检查信号量。信号量可以看作一个对象，组成如下：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;一个整数变量&lt;/li&gt;
-  &lt;li&gt;一个等待进程的链表&lt;/li&gt;
-  &lt;li&gt;两个原子方法：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;down()&lt;/code&gt; &amp;amp; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;up()&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;down()&lt;/code&gt;：对信号量的值减 1，如果新值小于 0，那么就会把正在运行的进程加入到该信号量链表中，然后阻塞该进程（调用调度程序）&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;up()&lt;/code&gt;：对信号量的值加 1，如果新值大于或者等于 0，则激活该信号量链表中的一个或者多个进程&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;执行流程如下&lt;/strong&gt;：&lt;/p&gt;
-
-&lt;p&gt;每个需要保护的数据结构（临界区）都有一个相关的信号量，初始值为 1。当内核控制路径试图访问该数据结构时，首先对信号量执行 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;down()&lt;/code&gt; 操作，如果信号量的新值不是负值，则允许访问；否则将内核控制路径的进程阻塞并添加到信号量链表中。当另一个进程访问数据结构结束时，执行 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;up()&lt;/code&gt; 操作，同时允许信号量链表中的一个或者多个进程继续执行。&lt;/p&gt;
-
-&lt;h3 id=&quot;354-自旋锁&quot;&gt;3.5.4 自旋锁&lt;/h3&gt;
-
-&lt;p&gt;信号量机制虽然有效，但是会比较耗时：内核需要将进程插入到信号量链表中，之后再挂起进程。在完成这两个操作时，其他的内核控制路径可能已经释放了信号量。因此对于执行临界区耗时较小的情况来说，可以推荐使用&lt;strong&gt;自旋锁&lt;/strong&gt;（Spin Lock）。&lt;/p&gt;
-
-&lt;p&gt;自旋锁与信号量类似，但是没有进程链表；&lt;strong&gt;&lt;em&gt;当一个进程发现锁被其他进程持有时，它就执行一个紧凑的循环执行进行自旋，直到锁能够被获取&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h3 id=&quot;355-避免死锁&quot;&gt;3.5.5 避免死锁&lt;/h3&gt;
-
-&lt;p&gt;当使用内核信号量比较多的情况时，很可能会出现死锁（DeadLock）的状态：受影响的进程或者内核控制路径完全处于冻结的状态。&lt;/p&gt;
-
-&lt;p&gt;为了减少内核控制路径交错执行时出现死锁的概率，有些操作系统通过&lt;em&gt;按规定的顺序请求信号量来避免死锁&lt;/em&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;36-信号与进程间通信&quot;&gt;3.6 信号与进程间通信&lt;/h2&gt;
-
-&lt;p&gt;Unix 信号（Signal）是一种&lt;strong&gt;把系统事件上报给进程的机制&lt;/strong&gt;。系统事件分为两种&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;&lt;em&gt;异步通告&lt;/em&gt;&lt;/strong&gt;：如终端输入 ctrl-c，内核会向前台进程发出中断信号&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;&lt;em&gt;同步错误或者异常&lt;/em&gt;&lt;/strong&gt;：如进程访问内存非法地址时，内核会向进程发送异常信号&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;进程对收到的信号的处理方式有：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;忽略该信号&lt;/li&gt;
-  &lt;li&gt;异步地执行一个指定的过程（信号处理程序）&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;同时，如果进程不指定处理方式，内核就会根据信号类型的不同，有五种默认的执行操作：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;终止进程&lt;/li&gt;
-  &lt;li&gt;将进程上下文与地址空间 core dump，并终止进程&lt;/li&gt;
-  &lt;li&gt;忽略信号&lt;/li&gt;
-  &lt;li&gt;挂起进程&lt;/li&gt;
-  &lt;li&gt;恢复进程&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Unix 在用户态下的进程间通信机制有：&lt;strong&gt;信号量，消息队列，共享内存&lt;/strong&gt;等。&lt;/p&gt;
-
-&lt;p&gt;该信号量与内核中的信号量类似，之不过是在用户态下；消息队列可以通过指定的队列允许进程之间交换消息；共享内存为进程之间交换和共享数据提供了最快的方式。&lt;/p&gt;
-
-&lt;h2 id=&quot;37-进程管理&quot;&gt;3.7 进程管理&lt;/h2&gt;
-
-&lt;p&gt;系统调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fork()&lt;/code&gt;：创建新的进程；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;_exit()&lt;/code&gt;：终止进程；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;exec()&lt;/code&gt;：装入一个新的程序。&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fork()&lt;/code&gt; 创建子进程时，使用的是写时复制技术，把内存页的复制延迟到最后一刻。&lt;/p&gt;
-
-&lt;h2 id=&quot;38-内存管理&quot;&gt;3.8 内存管理&lt;/h2&gt;
-
-&lt;h3 id=&quot;381-虚拟内存&quot;&gt;3.8.1 虚拟内存&lt;/h3&gt;
-
-&lt;p&gt;虚拟内存（Virtual Memory）是一种抽象，作为一种逻辑层处于应用程序内存请求与硬件内存管理单元（Memory Management Unit）之间；虚拟内存的优势有：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;多个进程可以并发执行&lt;/li&gt;
-  &lt;li&gt;应用程序所需的内存大于实际可用物理内存时也可以运行&lt;/li&gt;
-  &lt;li&gt;程序只有部分代码装入内存时进程也可以执行&lt;/li&gt;
-  &lt;li&gt;允许进程访问可用物理内存的子集&lt;/li&gt;
-  &lt;li&gt;程序可重定位（可以把程序放在物理内存的任何地方）&lt;/li&gt;
-  &lt;li&gt;进程可以共享库函数或者内存映像&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;虚拟内存系统主要是虚拟地址空间（Virtual Address Space）的概念。&lt;strong&gt;当进程使用虚拟地址时，内核与 MMU 协同定位其在内存中的实际物理地址&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;虚拟内存通过把可用 RAM 划分成大小为 4KB or 8KB 的&lt;strong&gt;页框&lt;/strong&gt;，并且引入&lt;strong&gt;页表&lt;/strong&gt;来指定&lt;strong&gt;虚拟地址与物理地址之间的对应关系&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;一块连续的虚拟地址请求可以通过分配一组非连续的物理地址页框来实现&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;381-进程虚拟地址空间处理&quot;&gt;3.8.1 进程虚拟地址空间处理&lt;/h3&gt;
-
-&lt;p&gt;进程的虚拟地址空间包括了进程可以引用的所有虚拟内存地址。内核分配个进程的虚拟地址空间由以下内存区组成：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;程序可执行代码&lt;/li&gt;
-  &lt;li&gt;程序的初始化数据 &amp;amp; 未初始化数据&lt;/li&gt;
-  &lt;li&gt;初始程序栈（用户态栈）&lt;/li&gt;
-  &lt;li&gt;共享库&lt;/li&gt;
-  &lt;li&gt;堆（程序动态请求的内存）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;通过&lt;strong&gt;请求调页&lt;/strong&gt;（Demand Paging）的内存分配策略可以使得进程在其页还没有加载到内存时就可以执行；当进程访问一个不存在的页时，MMU 就会产生一个异常，之后异常处理程序会为其分配一个空闲页框并加载数据。&lt;/p&gt;
-
-&lt;h2 id=&quot;39-设备驱动程序&quot;&gt;3.9 设备驱动程序&lt;/h2&gt;
-
-&lt;p&gt;内核通过设备驱动程序与 IO 设备交互。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;设备驱动程序包含在内核中&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_1/lk_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;通过设备驱动程序，内核可以以统一的方式对待所有的设备，并且通过相同的接口访问这些设备。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">1. 操作系统基本概念</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/linux_kernel/chapter_1/lk_1.png" /><media:content medium="image" url="http://localhost:4000/linux_kernel/chapter_1/lk_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">1-概述</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/linux_kernel/chapter_3/lk_1.png" /><media:content medium="image" url="http://localhost:4000/linux_kernel/chapter_3/lk_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>
