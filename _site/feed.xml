@@ -1,5 +1,301 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-02-19T21:27:42+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
-</subtitle><author><name>kkzhang</name></author><entry><title type="html">Redis Cluster Tutorial</title><link href="http://localhost:4000/redis-cluster-tutorial.html" rel="alternate" type="text/html" title="Redis Cluster Tutorial" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-tutorial</id><content type="html" xml:base="http://localhost:4000/redis-cluster-tutorial.html">&lt;h2 id=&quot;1-introduction&quot;&gt;1-Introduction&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-02-24T22:45:21+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
+</subtitle><author><name>kkzhang</name></author><entry><title type="html">Redis Cluster Specification</title><link href="http://localhost:4000/redis-cluster-specification.html" rel="alternate" type="text/html" title="Redis Cluster Specification" /><published>2022-02-19T00:00:00+08:00</published><updated>2022-02-19T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-specification</id><content type="html" xml:base="http://localhost:4000/redis-cluster-specification.html">&lt;h1 id=&quot;1-main-properties-and-rationales-of-the-design&quot;&gt;1-Main properties and rationales of the design&lt;/h1&gt;
+
+&lt;h2 id=&quot;1-1-redis-cluster-goals&quot;&gt;1-1 &lt;strong&gt;Redis Cluster goals&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;Redis Cluster 是 Redis 的分布式实现，按照优先级有以下目标：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;高性能&lt;/strong&gt;（high performance）&lt;/li&gt;
+  &lt;li&gt;支持&lt;strong&gt;线性扩展&lt;/strong&gt;（linear scalability）至 1000 个节点&lt;/li&gt;
+  &lt;li&gt;没有代理；集群节点间通过&lt;strong&gt;异步复制数据&lt;/strong&gt;；不支持数据合并操作&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;可接受的写入安全：在网络分区情况下，系统尽可能保存访问到多数派分区的 Client 的写操作。不过，存在一个小的时间窗口，在此期间的写入操作可能会丢失（&lt;em&gt;failover 前的写入可能会在 failover 过程中丢失&lt;/em&gt;）。如果 Client 的写入操作连接到少数派分区，则这个丢失时间窗口会更大。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;网络分区时，集群节点被划分成多数派分区（majority），少数派分区（minority）&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;可用性：Redis Cluster 在&lt;strong&gt;大部分 master 节点可用，并且对少部分不可用的 master，每一个 master 至少有一个当前可用的 slave&lt;/strong&gt; 场景下能够保证集群的可用性。&lt;/p&gt;
+
+    &lt;p&gt;另外，通过使用 &lt;strong&gt;replicas migration&lt;/strong&gt; 技术，当前没有 slave 的 master 会从当前拥有多个 slave 的 master 接受到一个新 slave 来确保可用性。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;1-2-implemented-subset&quot;&gt;1-2 &lt;strong&gt;**Implemented subset&lt;/strong&gt;**&lt;/h2&gt;
+
+&lt;p&gt;Redis Cluster 实现了所有在非分布式 Redis 版本中的单 key 命令；但是对于使用多个 key 的复杂操作没有实现，比如 set 中的 unions &amp;amp; intersections 操作。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;不支持多个 key 的复杂操作是为了避免 key-value 在不同的 Cluster 节点间移动，使得情况更加复杂&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;不过，Redis Cluster 实现了被称为 &lt;strong&gt;Hash Tags&lt;/strong&gt; 的概念：多个 key 可以通过相同的 hash tag 存储在相同的 hash slot 中，从而避免了 key 的迁移。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在手动 resharding 期间，多 key 操作可能变的不可用&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;除了支持的命令不同，Redis Cluster 只支持 database 0，并不像单机版 Redis 支持多个数据库。&lt;/p&gt;
+
+&lt;h3 id=&quot;1-2-1-why-merge-operations-are-avoided&quot;&gt;1-2-1 &lt;strong&gt;**Why merge operations are avoided&lt;/strong&gt;**&lt;/h3&gt;
+
+&lt;p&gt;Redis Cluster 设计是避免在多个节点中存在相同 key-value 对的冲突版本，因为 Redis 中的值通常都是比较大的，数据类型也是语义复杂的，传输和合并这样的值将会影响性能。&lt;/p&gt;
+
+&lt;h2 id=&quot;1-3-clients-and-servers-roles-in-the-redis-cluster-protocol&quot;&gt;1-3 &lt;strong&gt;**Clients and Servers roles in the Redis Cluster protocol&lt;/strong&gt;**&lt;/h2&gt;
+
+&lt;p&gt;Cluster 节点主要任务有：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;数据维护&lt;/li&gt;
+  &lt;li&gt;集群状态获取&lt;/li&gt;
+  &lt;li&gt;将 key 映射到正确的 Cluster 节点&lt;/li&gt;
+  &lt;li&gt;自动发现其他 Cluster 节点&lt;/li&gt;
+  &lt;li&gt;检测异常 Cluster 节点&lt;/li&gt;
+  &lt;li&gt;当某个 master 节点故障时，提升其副本为 master 节点，以保证 Cluster 正常运行&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;为了实现上述功能，所有 Redis Cluster 节点间通过 &lt;strong&gt;Redis Cluster Bus&lt;/strong&gt; 互相连接：由 TCP bus 及二进制协议组成。节点间通过 &lt;strong&gt;Gossip 协议传递集群信息&lt;/strong&gt;，以此来实现新节点发现，节点探活及标定特定状态等功能。&lt;/p&gt;
+
+&lt;p&gt;由于 Cluster 节点不能代理请求，因此 Client 在收到重定向异常（MOVED, ASK）时，需要将请求重定向到其他节点。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Client 通过缓存 key → cluster node 的映射关系，减少重定向，提高执行效率&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;1-4-write-safety&quot;&gt;1-4 &lt;strong&gt;**Write safety&lt;/strong&gt;**&lt;/h2&gt;
+
+&lt;p&gt;Redis Cluster 通过&lt;strong&gt;节点间异步复制数据&lt;/strong&gt;，及 &lt;strong&gt;last failover wins&lt;/strong&gt; 避免合并功能 。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;last failover wins 指当 master 节点故障时，通过 failover 机制选取的新 master 节点将直接覆盖之前 master 节点的数据，并同步给其他 slaves（新 master 节点中的数据可能不是最新的，或者有所缺失）。通过 last failover wins 机制，最后选举出的新 master 副本数据会覆盖其他所有副本数据。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;在网络分区期间，会存在一个写操作丢失的时间窗口。&lt;em&gt;对于发生在 master 节点多数派（majority）分区的写操作丢失窗口与少数派（minority）的丢失窗口是不同的&lt;/em&gt;。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;对于发生在多数派 master 的写操作，Redis Cluster 会尽量保存；但是以下两种场景除外：
+    &lt;ol&gt;
+      &lt;li&gt;client 写操作请求到达 master 节点，当 master 执行完成并回复 client 成功之后，master 出现异常而不可访问；但是之前的写操作并未通过异步复制到其他 slaves 中。如果 master 不可访问的时间较长而导致其中的一个 slave 被选举成新的 master，那么之前的写操作将会丢失。&lt;/li&gt;
+      &lt;li&gt;由于网络分区，某个 master 不可被访问。网络分区触发了一轮选举，导致其中的一个 slave 被选举成新的 master。网络分区恢复之后，old master 变成 new master 的 slave 之前，一个 client 通过过期的路由表对 old master 节点进行写入，此时的写入将会被全部丢失。&lt;/li&gt;
+    &lt;/ol&gt;
+
+    &lt;p&gt;不过，对于第二种场景，在一些安全机制的条件下很难发生：&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;少数派 master 与多数派 master 无法通信达到一定的时间后，将拒绝 client 的写操作请求&lt;/li&gt;
+      &lt;li&gt;当网络分区恢复后，该 master 仍需要继续拒绝写入一段时间用来感知 Cluster 的配置变化，因此留给 client 的时间窗口很小&lt;/li&gt;
+      &lt;li&gt;在分区恢复之后，其他节点会尽快尝试访问新加入的节点（携带最新的 Cluster 配置信息）&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;对于发生在少数派 master 的写操作拥有更大的丢失窗口
+    &lt;ul&gt;
+      &lt;li&gt;如果少数派 master 节点通过 failover 转移到多数派 master 节点的分区，那么所有发送到少数派分区的写操作都将会被永久丢失&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;发生 failover 的前提是，其中的 master 节点至少在 NODE_TIMEOUT 时间内无法被多数派 master 节点访问&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;分区故障时间小于 NODE_TIMEOUT，则不会出现写操作数据丢失&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;分区故障时间大于 NODE_TIMEOUT，则对少数派 master 的写入操作将全部丢失&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;不过少数派 master 会在进入不可用状态之后拒绝写入请求&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;1-5-availability&quot;&gt;1-5 &lt;strong&gt;**Availability&lt;/strong&gt;**&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Redis Cluster 能容忍集群中少数节点不可访问，但不适合要求大量网络分块的应用&lt;/strong&gt;（如多机房部署）。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;集群在少数派分区侧不可用&lt;/li&gt;
+  &lt;li&gt;对于多数派 master 分区，如果其他每个不可访问的 master 节点都至少有一个 slave 节点可达，那么在经过 NODE_TIMEOUT 重新选举之后，多数派分区仍然可用&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;为了提高集群可用性，Redis Cluster 支持 Replicas Migration：&lt;/strong&gt;自动将转移副本节点到孤立的 master 节点（不再拥有 slave 的 master）；每次 failover 成功之后，都会重新配置 slave 副本分布以提高下一次故障期间的可用性。&lt;/p&gt;
+
+&lt;h1 id=&quot;2-overview-of-redis-cluster-main-components&quot;&gt;2-&lt;strong&gt;Overview of Redis Cluster main components&lt;/strong&gt;&lt;/h1&gt;
+
+&lt;h2 id=&quot;2-1-keys-distribution-model&quot;&gt;2-1 &lt;strong&gt;**Keys distribution model&lt;/strong&gt;**&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;key 的空间范围被划分为 16834 个 slot&lt;/strong&gt;，间接使得一个集群的最大上限为 16834 个 master 节点。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;一般建议最大节点数少于 1000&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Cluster 中的每个 master 节点处理 16834 个 hash slot 的其中一部分子集。当 Cluster 处于稳定状态时，每个 hash slot 只会由一个节点提供服务。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;没有出现 slot 迁移的情况被认为是稳定状态&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;将 key 映射为对应的 hash slot 方法为：&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;HASH_SLOT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CRC16&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mod&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;16384&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;2-2-keys-hash-tags&quot;&gt;2-2 &lt;strong&gt;**Keys hash tags&lt;/strong&gt;**&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Hash Tags 提供了一种将多个 key 分配到同一个 hash slot 的方式&lt;/strong&gt;。通过 Hash Tags 可以在 Redis Cluster 中实现对多个 key 的同时操作。&lt;/p&gt;
+
+&lt;p&gt;Hash Tags 的规则如下：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;key 包含一个 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;{&lt;/code&gt; 字符&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;并且&lt;/em&gt; 如果在这个&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;{&lt;/code&gt;的右面有一个&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;}&lt;/code&gt;字符&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;并且&lt;/em&gt; 如果在&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;{&lt;/code&gt;和&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;}&lt;/code&gt;之间存在至少一个字符&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;那么，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;{ }&lt;/code&gt; 之间的字符将被用来计算 hash slot。如 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;{user1000}.following&lt;/code&gt;和&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;{user1000}.followers&lt;/code&gt;这两个 key 会被分配到相同的 hash slot 中，因为只有&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;user1000&lt;/code&gt;会被用来计算 hash slot 值。&lt;/p&gt;
+
+&lt;h2 id=&quot;2-3-cluster-nodes-attributes&quot;&gt;2-3 &lt;strong&gt;**Cluster nodes attributes&lt;/strong&gt;**&lt;/h2&gt;
+
+&lt;p&gt;集群中的&lt;strong&gt;每个节点都有全局唯一 ID 标识&lt;/strong&gt;。启动时生成，并持久化在配置文件中，一般不会改变。&lt;/p&gt;
+
+&lt;p&gt;每个节点还维护集群中其他节点的信息，包括：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;node id&lt;/li&gt;
+  &lt;li&gt;ip &amp;amp; port&lt;/li&gt;
+  &lt;li&gt;标签&lt;/li&gt;
+  &lt;li&gt;master node id（如果节点是 slave）&lt;/li&gt;
+  &lt;li&gt;最后一次被挂起的 ping 的发送时间 &amp;amp; 最后一次收到 pong 的时间&lt;/li&gt;
+  &lt;li&gt;该节点的当前 &lt;strong&gt;configuration epoch&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;该节点维护的 hash slots&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-4-the-cluster-bus&quot;&gt;2-4 The Cluster bus&lt;/h2&gt;
+
+&lt;p&gt;每个集群节点使用额外的 TCP 端口用于与集群中的其他节点交互；集群节点间的交互只使用 Cluster bus 及 Cluster bus 协议：一种二进制协议。&lt;/p&gt;
+
+&lt;h2 id=&quot;2-5-cluster-topology&quot;&gt;2-5 &lt;strong&gt;**Cluster topology&lt;/strong&gt;**&lt;/h2&gt;
+
+&lt;p&gt;Redis Cluster 是全网拓扑，&lt;strong&gt;每个节点都与其他节点维护 TCP 连接&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;N 个节点的集群中，每个节点有 N-1 个传出 TCP 连接，同时有 N-1 个传入 TCP 连接&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;集群节点间使用 &lt;strong&gt;Gossip 协议&lt;/strong&gt;和&lt;strong&gt;配置更新机制&lt;/strong&gt;来避免正常情况下节点间交互过多的消息。&lt;/p&gt;
+
+&lt;h2 id=&quot;2-6-nodes-handshake&quot;&gt;2-6 &lt;strong&gt;**Nodes handshake&lt;/strong&gt;**&lt;/h2&gt;
+
+&lt;p&gt;对于 Cluster bus port 连接，节点总是接受并回复 ping 请求，即使该 ping 请求来自一个不可信任的节点。但是如果发送节点被认为不是集群的一部分，那么该节点的其他数据包都会被丢弃。&lt;/p&gt;
+
+&lt;p&gt;通过两种方式可以判断一个节点是不是集群节点：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;节点出现在 MEET 消息中&lt;/strong&gt;：MEET 消息会强制接收者接受一个节点作为集群的一部分&lt;/p&gt;
+
+    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;n&quot;&gt;CLUSTER&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MEET&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ip&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;port&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;节点出现在一个被信任的节点的 Gossip 消息中&lt;/strong&gt;：A 节点是被信任的集群节点，B 出现在 A 的Gossip 消息中，那么 C 收到 A 的消息后也会把 B 标记为集群节点&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;一旦我们将某个节点加入了连接图中，那么最终所有节点会自动形成一张全连接图（fully connected graph），即&lt;strong&gt;集群可以自动发现其他节点&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;该机制使得集群更加健壮，可以防止不同的 Cluster 在 IP 地址变更或者其他网络相关事件导致意外混合&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;3-redirection-and-resharding&quot;&gt;3-&lt;strong&gt;Redirection and resharding&lt;/strong&gt;&lt;/h1&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Main properties and rationales of the design</summary></entry><entry><title type="html">同位语从句</title><link href="http://localhost:4000/appositive-clause.html" rel="alternate" type="text/html" title="同位语从句" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/appositive-clause</id><content type="html" xml:base="http://localhost:4000/appositive-clause.html">&lt;h2 id=&quot;1-同位语&quot;&gt;1-同位语&lt;/h2&gt;
+
+&lt;p&gt;一个名词（或其它形式）&lt;strong&gt;&lt;em&gt;对另一个名词或代词进行解释或补充说明&lt;/em&gt;&lt;/strong&gt;，这个名词（或其它形式）就是同位语。&lt;/p&gt;
+
+&lt;p&gt;同位语与被它限定的词的格式要一致，并常常紧挨在一起。同位语除表示其同位成分的全部意义外，还可以表示部分意义。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Mr. Smith, our new teacher, is very kind to us.&lt;/li&gt;
+  &lt;li&gt;He told me that his brother John was a world-famous doctor.(John 是 brother 的同位语)&lt;/li&gt;
+  &lt;li&gt;Yesterday I talked to my English teacher, Mr. James.&lt;/li&gt;
+  &lt;li&gt;We Chinese people are brave and hard-working.(Chinese people 是 we 的同位语)&lt;/li&gt;
+  &lt;li&gt;He is interested in sports, especially ball games.(ball games 是 sports 的同位语)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-同位语从句&quot;&gt;2-同位语从句&lt;/h2&gt;
+
+&lt;p&gt;同位语从句指的是在复合句中充当同位语的从句，属于名词性从句的范畴。&lt;/p&gt;
+
+&lt;p&gt;同位语从句用来&lt;em&gt;对其前面的抽象名词进行解释说明&lt;/em&gt;，被解释说明的词和同位语在逻辑上是&lt;strong&gt;主表关系&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;2-1-先行词&quot;&gt;2-1 先行词&lt;/h3&gt;
+
+&lt;p&gt;可以连接同位语从句的名词有：&lt;strong&gt;news，idea，fact，promise，question，doubt，thought，hope，message，suggestion，words(消息)，possibility, decision&lt;/strong&gt; 等(一般的”抽象”名词)。&lt;/p&gt;
+
+&lt;h3 id=&quot;2-2-引导词&quot;&gt;2-2 引导词&lt;/h3&gt;
+
+&lt;p&gt;引导同位语从句的词语通常有连词 that, whethe, 连接代词和连接副词等。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;that 连接从句时，&lt;strong&gt;从句为一个句意完整的陈述句&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;that 不能省略，没有具体的含义，&lt;strong&gt;&lt;em&gt;不充当句子成分，只起连接作用&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;The idea &lt;em&gt;that you can do this work well without thinking&lt;/em&gt; is quite wrong.(that 引导的从句作 idea 的同位语)&lt;/li&gt;
+      &lt;li&gt;We heard the news &lt;em&gt;that our team had won&lt;/em&gt;.(news 的同位语)&lt;/li&gt;
+      &lt;li&gt;They were worried over the fact &lt;em&gt;that you were sick&lt;/em&gt;.(fact 的同位语)&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;在某些名词(如 &lt;strong&gt;demand, wish, suggestion, resolution&lt;/strong&gt;等) 后面的同位语从句要&lt;strong&gt;用虚拟语气&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;There was a suggestion &lt;em&gt;that Brown should be dropped from the team&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;引导同位语从句的连词 that 通常不省略，但在&lt;em&gt;非正式文体中也可以省去&lt;/em&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;He grabbed his suitcase and gave the impression &lt;em&gt;he was boarding the Tokyo plane&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;whether 引导同位语从句&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;if 不能引导同位语从句&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;There is some doubt &lt;em&gt;whether he will come&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;Answer my question &lt;em&gt;whether you are coming&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;The question &lt;em&gt;whether it is right or wrong&lt;/em&gt; depends on the result.&lt;/li&gt;
+      &lt;li&gt;We are not investigating the question &lt;em&gt;whether he is trustworthy&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;连接代词 what, who, whom, whose 引导同位语从句
+    &lt;ul&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;what size shoes she wears&lt;/em&gt;.(what 作 size 的定语)&lt;/li&gt;
+      &lt;li&gt;The question &lt;em&gt;who will take his place&lt;/em&gt; is still not clear.(who 作同位语从句的主语)&lt;/li&gt;
+      &lt;li&gt;Have you any idea &lt;em&gt;what time it starts&lt;/em&gt;?&lt;/li&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;who can really understand my complicated mind&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;连接副词 where, when, why, how 引导同位语从句
+    &lt;ul&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;when he will come back&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;It is a question &lt;em&gt;how he does it&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;He had no idea &lt;em&gt;why she left&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;You have no idea &lt;em&gt;how worried I was&lt;/em&gt;!&lt;/li&gt;
+      &lt;li&gt;We haven’t yet settled the question &lt;em&gt;where we are going to spend our summer vacation&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-同位语</summary></entry><entry><title type="html">Redis Cluster Tutorial</title><link href="http://localhost:4000/redis-cluster-tutorial.html" rel="alternate" type="text/html" title="Redis Cluster Tutorial" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-tutorial</id><content type="html" xml:base="http://localhost:4000/redis-cluster-tutorial.html">&lt;h2 id=&quot;1-introduction&quot;&gt;1-Introduction&lt;/h2&gt;
 
 &lt;p&gt;Redis Cluster 支持&lt;strong&gt;数据自动在多个 Redis 节点间分片&lt;/strong&gt;。&lt;/p&gt;
 
@@ -126,90 +422,7 @@
 
 &lt;h2 id=&quot;6-appendix&quot;&gt;6-Appendix&lt;/h2&gt;
 
-&lt;p&gt;原文地址：&lt;a href=&quot;https://redis.io/topics/cluster-tutorial#:~:text=Redis%20Cluster%20provides%20a%20way,are%20not%20able%20to%20communicate&quot;&gt;redis-io&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Introduction</summary></entry><entry><title type="html">同位语从句</title><link href="http://localhost:4000/appositive-clause.html" rel="alternate" type="text/html" title="同位语从句" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/appositive-clause</id><content type="html" xml:base="http://localhost:4000/appositive-clause.html">&lt;h2 id=&quot;1-同位语&quot;&gt;1-同位语&lt;/h2&gt;
-
-&lt;p&gt;一个名词（或其它形式）&lt;strong&gt;&lt;em&gt;对另一个名词或代词进行解释或补充说明&lt;/em&gt;&lt;/strong&gt;，这个名词（或其它形式）就是同位语。&lt;/p&gt;
-
-&lt;p&gt;同位语与被它限定的词的格式要一致，并常常紧挨在一起。同位语除表示其同位成分的全部意义外，还可以表示部分意义。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Mr. Smith, our new teacher, is very kind to us.&lt;/li&gt;
-  &lt;li&gt;He told me that his brother John was a world-famous doctor.(John 是 brother 的同位语)&lt;/li&gt;
-  &lt;li&gt;Yesterday I talked to my English teacher, Mr. James.&lt;/li&gt;
-  &lt;li&gt;We Chinese people are brave and hard-working.(Chinese people 是 we 的同位语)&lt;/li&gt;
-  &lt;li&gt;He is interested in sports, especially ball games.(ball games 是 sports 的同位语)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-同位语从句&quot;&gt;2-同位语从句&lt;/h2&gt;
-
-&lt;p&gt;同位语从句指的是在复合句中充当同位语的从句，属于名词性从句的范畴。&lt;/p&gt;
-
-&lt;p&gt;同位语从句用来&lt;em&gt;对其前面的抽象名词进行解释说明&lt;/em&gt;，被解释说明的词和同位语在逻辑上是&lt;strong&gt;主表关系&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h3 id=&quot;2-1-先行词&quot;&gt;2-1 先行词&lt;/h3&gt;
-
-&lt;p&gt;可以连接同位语从句的名词有：&lt;strong&gt;news，idea，fact，promise，question，doubt，thought，hope，message，suggestion，words(消息)，possibility, decision&lt;/strong&gt; 等(一般的”抽象”名词)。&lt;/p&gt;
-
-&lt;h3 id=&quot;2-2-引导词&quot;&gt;2-2 引导词&lt;/h3&gt;
-
-&lt;p&gt;引导同位语从句的词语通常有连词 that, whethe, 连接代词和连接副词等。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;that 连接从句时，&lt;strong&gt;从句为一个句意完整的陈述句&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;that 不能省略，没有具体的含义，&lt;strong&gt;&lt;em&gt;不充当句子成分，只起连接作用&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;The idea &lt;em&gt;that you can do this work well without thinking&lt;/em&gt; is quite wrong.(that 引导的从句作 idea 的同位语)&lt;/li&gt;
-      &lt;li&gt;We heard the news &lt;em&gt;that our team had won&lt;/em&gt;.(news 的同位语)&lt;/li&gt;
-      &lt;li&gt;They were worried over the fact &lt;em&gt;that you were sick&lt;/em&gt;.(fact 的同位语)&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;在某些名词(如 &lt;strong&gt;demand, wish, suggestion, resolution&lt;/strong&gt;等) 后面的同位语从句要&lt;strong&gt;用虚拟语气&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;There was a suggestion &lt;em&gt;that Brown should be dropped from the team&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;引导同位语从句的连词 that 通常不省略，但在&lt;em&gt;非正式文体中也可以省去&lt;/em&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;He grabbed his suitcase and gave the impression &lt;em&gt;he was boarding the Tokyo plane&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;whether 引导同位语从句&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;if 不能引导同位语从句&lt;/p&gt;
-    &lt;/blockquote&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;There is some doubt &lt;em&gt;whether he will come&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;Answer my question &lt;em&gt;whether you are coming&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;The question &lt;em&gt;whether it is right or wrong&lt;/em&gt; depends on the result.&lt;/li&gt;
-      &lt;li&gt;We are not investigating the question &lt;em&gt;whether he is trustworthy&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;连接代词 what, who, whom, whose 引导同位语从句
-    &lt;ul&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;what size shoes she wears&lt;/em&gt;.(what 作 size 的定语)&lt;/li&gt;
-      &lt;li&gt;The question &lt;em&gt;who will take his place&lt;/em&gt; is still not clear.(who 作同位语从句的主语)&lt;/li&gt;
-      &lt;li&gt;Have you any idea &lt;em&gt;what time it starts&lt;/em&gt;?&lt;/li&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;who can really understand my complicated mind&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;连接副词 where, when, why, how 引导同位语从句
-    &lt;ul&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;when he will come back&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;It is a question &lt;em&gt;how he does it&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;He had no idea &lt;em&gt;why she left&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;You have no idea &lt;em&gt;how worried I was&lt;/em&gt;!&lt;/li&gt;
-      &lt;li&gt;We haven’t yet settled the question &lt;em&gt;where we are going to spend our summer vacation&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-同位语</summary></entry><entry><title type="html">定语从句</title><link href="http://localhost:4000/attributive-clause.html" rel="alternate" type="text/html" title="定语从句" /><published>2022-02-11T00:00:00+08:00</published><updated>2022-02-11T00:00:00+08:00</updated><id>http://localhost:4000/attributive-clause</id><content type="html" xml:base="http://localhost:4000/attributive-clause.html">&lt;h2 id=&quot;1-基本概念&quot;&gt;1-基本概念&lt;/h2&gt;
+&lt;p&gt;原文地址：&lt;a href=&quot;https://redis.io/topics/cluster-tutorial#:~:text=Redis%20Cluster%20provides%20a%20way,are%20not%20able%20to%20communicate&quot;&gt;redis-io&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Introduction</summary></entry><entry><title type="html">定语从句</title><link href="http://localhost:4000/attributive-clause.html" rel="alternate" type="text/html" title="定语从句" /><published>2022-02-11T00:00:00+08:00</published><updated>2022-02-11T00:00:00+08:00</updated><id>http://localhost:4000/attributive-clause</id><content type="html" xml:base="http://localhost:4000/attributive-clause.html">&lt;h2 id=&quot;1-基本概念&quot;&gt;1-基本概念&lt;/h2&gt;
 
 &lt;h3 id=&quot;1-1-定义&quot;&gt;1-1 定义&lt;/h3&gt;
 
@@ -848,73 +1061,7 @@
   &lt;li&gt;连接词 that 引导宾语从句在句中无词义，不充当句子成份，多数情况下可以省略。&lt;/li&gt;
   &lt;li&gt;whether 和 if 都可引导宾语从句，但 whether 后可紧跟 or not；whether 从句可作介词的宾语。&lt;/li&gt;
   &lt;li&gt;如果从句太长，可以用形式宾语it。&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍</summary></entry><entry><title type="html">过去完成时</title><link href="http://localhost:4000/perfect-past-tense.html" rel="alternate" type="text/html" title="过去完成时" /><published>2022-01-20T00:00:00+08:00</published><updated>2022-01-20T00:00:00+08:00</updated><id>http://localhost:4000/perfect-past-tense</id><content type="html" xml:base="http://localhost:4000/perfect-past-tense.html">&lt;h2 id=&quot;含义与结构&quot;&gt;含义与结构&lt;/h2&gt;
-
-&lt;p&gt;过去完成时表示&lt;strong&gt;&lt;em&gt;过去某一时间或动作&lt;/em&gt;&lt;/strong&gt;以前已经发生或完成了的动作，对过去的某一点造成的某种影响或是结果，用来指&lt;strong&gt;在另一个过去动作之前就已经完成了的事件&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;动作发生的时间是”过去的过去”，侧重事情的结果。&lt;/p&gt;
-
-&lt;p&gt;基本结构为：&lt;strong&gt;主语+had+动词过去分词&lt;/strong&gt;（done）&lt;/p&gt;
-
-&lt;h2 id=&quot;用法&quot;&gt;用法&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;表示在&lt;strong&gt;过去某一时刻或动作以前完成了的动作&lt;/strong&gt;，表示“过去的过去”；可以用 &lt;strong&gt;by, before&lt;/strong&gt; 等介词短语或一个时间状语从句来表示，也可以用一个表示过去的动作来表示，还可能通过上下文来表示。
-    &lt;ul&gt;
-      &lt;li&gt;&lt;strong&gt;By&lt;/strong&gt; the time I got outside, the bus had already left.&lt;/li&gt;
-      &lt;li&gt;She had studied English for six years &lt;strong&gt;before&lt;/strong&gt; she went to college.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;表示由过去的某一时刻开始，一直&lt;strong&gt;延续到过去另一时间&lt;/strong&gt;的动作或状态，常和 &lt;strong&gt;for, since&lt;/strong&gt; 构成的时间状语连用。
-    &lt;ul&gt;
-      &lt;li&gt;He had lived in the house &lt;strong&gt;for&lt;/strong&gt; five years.&lt;/li&gt;
-      &lt;li&gt;He said he had worked in that factory &lt;strong&gt;since&lt;/strong&gt; 1949.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;叙述过去发生的事情，在已叙述了过去发生的事情后，反过来&lt;strong&gt;追述或补述以前发生的动作&lt;/strong&gt;时，常使用过去完成时。
-    &lt;ul&gt;
-      &lt;li&gt;Mr. Smith died yesterday. He had been a good friend of mine.&lt;/li&gt;
-      &lt;li&gt;I didn’t know a thing about the verbs, for I had not studied my lesson.（因为我没有好好学习，作为补充）&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;在含有定语从句的&lt;strong&gt;主从复合句&lt;/strong&gt;中，如果&lt;strong&gt;叙述的是过去的事&lt;/strong&gt;，&lt;strong&gt;先发生的动作常用过去完成时&lt;/strong&gt;。
-    &lt;ul&gt;
-      &lt;li&gt;I returned the book that I had borrowed.&lt;/li&gt;
-      &lt;li&gt;She found the key that she had lost.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;过去完成时常常&lt;strong&gt;用在 told, said, knew, heard, thought 等动词后的宾语从句&lt;/strong&gt;（或间接引语）中，这时从句中的动作发生在主句表示的过去的动作之前。
-    &lt;ul&gt;
-      &lt;li&gt;He said that he had known her well.&lt;/li&gt;
-      &lt;li&gt;I thought I had sent the letter a week before.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;含有时间状语从句，对于过去不同时间发生的两个动作，&lt;strong&gt;发生在前的动作，用过去完成时；发生在后的动作，用一般过去时&lt;/strong&gt;。如 &lt;strong&gt;when, before, after, as soon as, till/until 引导的从句。&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;&lt;strong&gt;When&lt;/strong&gt; I woke up, it had already stopped raining.&lt;/li&gt;
-      &lt;li&gt;She didn’t go to bed &lt;strong&gt;until&lt;/strong&gt; she had finished her work.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;需要注意的是，如果&lt;strong&gt;两个动作紧接着发生&lt;/strong&gt;，则常常不用过去完成时，特别是在包含 &lt;strong&gt;before&lt;/strong&gt; 和&lt;strong&gt;after&lt;/strong&gt; 的复合句中，因为这时&lt;em&gt;从句的动作和主句的动作发生的先后顺序已经非常明确&lt;/em&gt;，可以用一般过去时代替过去完成时。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;After he arrived in England, Marx worked hard to improve his English.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;动词 &lt;strong&gt;think, want, hope, mean, plan, intend 等用过去完成时来表示过去未曾实现&lt;/strong&gt;的想法，希望，打算或意图等。
-    &lt;ul&gt;
-      &lt;li&gt;They &lt;strong&gt;had wanted&lt;/strong&gt; to help but could not get there in time.&lt;/li&gt;
-      &lt;li&gt;We &lt;strong&gt;had hoped&lt;/strong&gt; to be able to come and see you.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;过去完成时还可用在 &lt;strong&gt;hardly…when…, no sooner…than…, It was the first (second, etc) time (that)…&lt;/strong&gt; 等固定句型中。
-    &lt;ul&gt;
-      &lt;li&gt;Hardly had he begun to speak when the audience interrupted him.（一 … 就 …，倒装句）&lt;/li&gt;
-      &lt;li&gt;No sooner had he arrived than he went away again.（一 … 就 …，倒装句）&lt;/li&gt;
-      &lt;li&gt;It was the third time that he had been out of work that year.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">含义与结构</summary></entry><entry><title type="html">such &amp;amp; so</title><link href="http://localhost:4000/such-and-so.html" rel="alternate" type="text/html" title="such &amp;amp; so" /><published>2022-01-20T00:00:00+08:00</published><updated>2022-01-20T00:00:00+08:00</updated><id>http://localhost:4000/such-and-so</id><content type="html" xml:base="http://localhost:4000/such-and-so.html">&lt;p&gt;such 和 so 都可以&lt;strong&gt;表示程度&lt;/strong&gt;，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。&lt;/p&gt;
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍</summary></entry><entry><title type="html">such &amp;amp; so</title><link href="http://localhost:4000/such-and-so.html" rel="alternate" type="text/html" title="such &amp;amp; so" /><published>2022-01-20T00:00:00+08:00</published><updated>2022-01-20T00:00:00+08:00</updated><id>http://localhost:4000/such-and-so</id><content type="html" xml:base="http://localhost:4000/such-and-so.html">&lt;p&gt;such 和 so 都可以&lt;strong&gt;表示程度&lt;/strong&gt;，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;such 为形容词，一般&lt;strong&gt;修饰名词&lt;/strong&gt;&lt;/li&gt;
@@ -995,7 +1142,73 @@
       &lt;li&gt;I feel very happy that I have such a lot of friends.&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">such 和 so 都可以表示程度，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。</summary></entry><entry><title type="html">Dynamo: Amazon’s Highly Available Key-value Store</title><link href="http://localhost:4000/dynamo.html" rel="alternate" type="text/html" title="Dynamo: Amazon’s Highly Available Key-value Store" /><published>2022-01-18T00:00:00+08:00</published><updated>2022-01-18T00:00:00+08:00</updated><id>http://localhost:4000/dynamo</id><content type="html" xml:base="http://localhost:4000/dynamo.html">&lt;h1 id=&quot;1-abstract&quot;&gt;1-Abstract&lt;/h1&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">such 和 so 都可以表示程度，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。</summary></entry><entry><title type="html">过去完成时</title><link href="http://localhost:4000/perfect-past-tense.html" rel="alternate" type="text/html" title="过去完成时" /><published>2022-01-20T00:00:00+08:00</published><updated>2022-01-20T00:00:00+08:00</updated><id>http://localhost:4000/perfect-past-tense</id><content type="html" xml:base="http://localhost:4000/perfect-past-tense.html">&lt;h2 id=&quot;含义与结构&quot;&gt;含义与结构&lt;/h2&gt;
+
+&lt;p&gt;过去完成时表示&lt;strong&gt;&lt;em&gt;过去某一时间或动作&lt;/em&gt;&lt;/strong&gt;以前已经发生或完成了的动作，对过去的某一点造成的某种影响或是结果，用来指&lt;strong&gt;在另一个过去动作之前就已经完成了的事件&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;动作发生的时间是”过去的过去”，侧重事情的结果。&lt;/p&gt;
+
+&lt;p&gt;基本结构为：&lt;strong&gt;主语+had+动词过去分词&lt;/strong&gt;（done）&lt;/p&gt;
+
+&lt;h2 id=&quot;用法&quot;&gt;用法&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;表示在&lt;strong&gt;过去某一时刻或动作以前完成了的动作&lt;/strong&gt;，表示“过去的过去”；可以用 &lt;strong&gt;by, before&lt;/strong&gt; 等介词短语或一个时间状语从句来表示，也可以用一个表示过去的动作来表示，还可能通过上下文来表示。
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;By&lt;/strong&gt; the time I got outside, the bus had already left.&lt;/li&gt;
+      &lt;li&gt;She had studied English for six years &lt;strong&gt;before&lt;/strong&gt; she went to college.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;表示由过去的某一时刻开始，一直&lt;strong&gt;延续到过去另一时间&lt;/strong&gt;的动作或状态，常和 &lt;strong&gt;for, since&lt;/strong&gt; 构成的时间状语连用。
+    &lt;ul&gt;
+      &lt;li&gt;He had lived in the house &lt;strong&gt;for&lt;/strong&gt; five years.&lt;/li&gt;
+      &lt;li&gt;He said he had worked in that factory &lt;strong&gt;since&lt;/strong&gt; 1949.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;叙述过去发生的事情，在已叙述了过去发生的事情后，反过来&lt;strong&gt;追述或补述以前发生的动作&lt;/strong&gt;时，常使用过去完成时。
+    &lt;ul&gt;
+      &lt;li&gt;Mr. Smith died yesterday. He had been a good friend of mine.&lt;/li&gt;
+      &lt;li&gt;I didn’t know a thing about the verbs, for I had not studied my lesson.（因为我没有好好学习，作为补充）&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;在含有定语从句的&lt;strong&gt;主从复合句&lt;/strong&gt;中，如果&lt;strong&gt;叙述的是过去的事&lt;/strong&gt;，&lt;strong&gt;先发生的动作常用过去完成时&lt;/strong&gt;。
+    &lt;ul&gt;
+      &lt;li&gt;I returned the book that I had borrowed.&lt;/li&gt;
+      &lt;li&gt;She found the key that she had lost.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;过去完成时常常&lt;strong&gt;用在 told, said, knew, heard, thought 等动词后的宾语从句&lt;/strong&gt;（或间接引语）中，这时从句中的动作发生在主句表示的过去的动作之前。
+    &lt;ul&gt;
+      &lt;li&gt;He said that he had known her well.&lt;/li&gt;
+      &lt;li&gt;I thought I had sent the letter a week before.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;含有时间状语从句，对于过去不同时间发生的两个动作，&lt;strong&gt;发生在前的动作，用过去完成时；发生在后的动作，用一般过去时&lt;/strong&gt;。如 &lt;strong&gt;when, before, after, as soon as, till/until 引导的从句。&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;When&lt;/strong&gt; I woke up, it had already stopped raining.&lt;/li&gt;
+      &lt;li&gt;She didn’t go to bed &lt;strong&gt;until&lt;/strong&gt; she had finished her work.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;需要注意的是，如果&lt;strong&gt;两个动作紧接着发生&lt;/strong&gt;，则常常不用过去完成时，特别是在包含 &lt;strong&gt;before&lt;/strong&gt; 和&lt;strong&gt;after&lt;/strong&gt; 的复合句中，因为这时&lt;em&gt;从句的动作和主句的动作发生的先后顺序已经非常明确&lt;/em&gt;，可以用一般过去时代替过去完成时。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;After he arrived in England, Marx worked hard to improve his English.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;动词 &lt;strong&gt;think, want, hope, mean, plan, intend 等用过去完成时来表示过去未曾实现&lt;/strong&gt;的想法，希望，打算或意图等。
+    &lt;ul&gt;
+      &lt;li&gt;They &lt;strong&gt;had wanted&lt;/strong&gt; to help but could not get there in time.&lt;/li&gt;
+      &lt;li&gt;We &lt;strong&gt;had hoped&lt;/strong&gt; to be able to come and see you.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;过去完成时还可用在 &lt;strong&gt;hardly…when…, no sooner…than…, It was the first (second, etc) time (that)…&lt;/strong&gt; 等固定句型中。
+    &lt;ul&gt;
+      &lt;li&gt;Hardly had he begun to speak when the audience interrupted him.（一 … 就 …，倒装句）&lt;/li&gt;
+      &lt;li&gt;No sooner had he arrived than he went away again.（一 … 就 …，倒装句）&lt;/li&gt;
+      &lt;li&gt;It was the third time that he had been out of work that year.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">含义与结构</summary></entry><entry><title type="html">Dynamo: Amazon’s Highly Available Key-value Store</title><link href="http://localhost:4000/dynamo.html" rel="alternate" type="text/html" title="Dynamo: Amazon’s Highly Available Key-value Store" /><published>2022-01-18T00:00:00+08:00</published><updated>2022-01-18T00:00:00+08:00</updated><id>http://localhost:4000/dynamo</id><content type="html" xml:base="http://localhost:4000/dynamo.html">&lt;h1 id=&quot;1-abstract&quot;&gt;1-Abstract&lt;/h1&gt;
 
 &lt;p&gt;Dynamo 是 Amazon 提出的&lt;strong&gt;高可用键值存储&lt;/strong&gt;系统。为了保证系统的高可用，&lt;em&gt;牺牲了一些特定场景下的一致性&lt;/em&gt;。Dynamo 使用了&lt;strong&gt;对象版本化（object versioning）&lt;/strong&gt;与&lt;strong&gt;应用协助解决冲突（application-assisted conflict resolution）&lt;/strong&gt;的机制。&lt;/p&gt;
 
@@ -1602,368 +1815,4 @@ in +（已过去的）某年/ 月, on +（已过去的）某天, at +（已过�
     &lt;/ul&gt;
   &lt;/li&gt;
   &lt;li&gt;如果上述关键词都没有出现的话，就看是描述一个过去的事实或动作，还是表示强调已经完成了的事件对现在产生的影响。&lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">现在完成时与一般过去时是英语中用法极为灵活的两种时态，它们属于不同时间的两种时态：</summary></entry><entry><title type="html">Linux Kernel: Processes</title><link href="http://localhost:4000/linux-kernel-4.html" rel="alternate" type="text/html" title="Linux Kernel: Processes" /><published>2021-11-28T00:00:00+08:00</published><updated>2021-11-28T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-4</id><content type="html" xml:base="http://localhost:4000/linux-kernel-4.html">&lt;p&gt;进程被定义为&lt;strong&gt;程序执行的一个实例&lt;/strong&gt;。在 Linux 中，通常把进程称为任务（task）或者线程（thread）。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;如果有 n 个用户同时运行 vim 命令，那么就会有 n 个独立的进程；尽管它们共享同一个可执行代码&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h1 id=&quot;1-进程--轻量级进程--线程&quot;&gt;1-进程 &amp;amp; 轻量级进程 &amp;amp; 线程&lt;/h1&gt;
-
-&lt;p&gt;从内核角度来看，&lt;strong&gt;进程是系统资源（CPU 时间，内存等）分配的实体&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;当一个进程创建时，几乎与父进程相同。子进程接受父进程地址空间的一个逻辑拷贝，并从进程创建系统调用的下一条指令开始执行与父进程相同的代码。尽管父子进程可以共享含有程序代码的页，但是它们有各自独立的数据拷贝（堆 &amp;amp; 栈），因此，子进程对一个内存单元的修改对父进程是不可见的（反之亦然）。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;父子进程的地址空间采用 copy on write 机制&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;现代 Unix 系统支持多线程应用程序：一个进程由几个用户线程组成，&lt;strong&gt;每个线程都代表进程的一个执行流&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;大部分多线程应用程序都是基于 POSIX thread 标准库实现&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;从 Linux 内核来看，多线程应用程序仅仅是一个普通的进程。&lt;strong&gt;&lt;em&gt;多线程应用程序多个执行流的创建，处理，调度等都是在用户态进行的&lt;/em&gt;&lt;/strong&gt;。这种实现方式存在不足：假设一个应用进程中存在两个线程，A 线程在执行部分流程之后需要暂停执行，并等待 B 线程的执行结果。如果 A 线程只是简单的触发阻塞系统调用，试图将 CPU 交给 B，那么 B 线程也会被阻塞（它们同属于一个进程）。相反，A 线程必须使用比较复杂的非阻塞技术来确保进程仍然是可运行的。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Linux 使用轻量级进程（lightweight process）来实现对多线程应用程序更好的支持&lt;/strong&gt;。两个轻量级进程基本上可以共享一些资源，如地址空间，打开的文件等。只要其中一个轻量级进程修改了共享资源，另一个就能立即查看这种修改。&lt;/p&gt;
-
-&lt;p&gt;实现多线程应用程序的一个简单方式就是&lt;strong&gt;把轻量级进程与每个线程关联起来&lt;/strong&gt;。线程之间可以通过简单共享同一内存地址空间，同一打开文件集等来访问相同的应用程序数据结构集；同时，每个线程都可以由内核单独调度，以便阻塞一个线程的同时，另一个线程仍然是可运行的。&lt;/p&gt;
-
-&lt;h1 id=&quot;2-进程描述符&quot;&gt;2-进程描述符&lt;/h1&gt;
-
-&lt;p&gt;进程描述符包含了与进程相关的所有信息，类型为 task_struct。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_4/lk_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;2-1-进程状态&quot;&gt;2-1 进程状态&lt;/h2&gt;
-
-&lt;p&gt;进程描述符中的 state 字段标识了进程当前所处的状态（某一时刻只能处于一种状态下）。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;可运行状态（TASK_RUNNING）
-    &lt;ul&gt;
-      &lt;li&gt;进程要么正在 CPU 上执行，要么准备执行&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;可中断的等待状态（TASK_INTERRUPTIBLE）
-    &lt;ul&gt;
-      &lt;li&gt;&lt;strong&gt;进程被挂起（休眠），直到某个条件变成真&lt;/strong&gt;。产生一个硬件中断，释放进程正等待的系统资源或者传递一个信号都可以是唤醒进程的条件（进程的状态被重新置为 TASK_RUNNING）&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;不可中断的等待状态（TASK_UNINTERRUPTIBLE）
-    &lt;ul&gt;
-      &lt;li&gt;与可中断的等待状态蕾西，但是有一点不同，把信号传递到休眠进程并不能改变进程的状态（该状态只会在一些特定的情况下使用）&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;暂停状态（TASK_STOPPED）
-    &lt;ul&gt;
-      &lt;li&gt;进程的执行被暂停：当进程收到 SIGSTOP, SIGTSTP, SIGTTIN or SIGTTOU 信号后，进入暂停状态&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;跟踪状态（TASK_TRACED）
-    &lt;ul&gt;
-      &lt;li&gt;进程的执行已由 debugger 程序暂停&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;僵死状态（TASK_ZOMBIE）
-    &lt;ul&gt;
-      &lt;li&gt;进程的执行被终止，但是父进程还没有发布 wait4() or waitpid() 系统调用来返回有关死亡进程的信息&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;僵死撤销状态（EXIT_DEAD）
-    &lt;ul&gt;
-      &lt;li&gt;最终状态：由于父进程刚发出 wait4() or waitpid() 系统调用，因而进程被系统删除&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-2-标识进程&quot;&gt;2-2 标识进程&lt;/h2&gt;
-
-&lt;p&gt;一般来说，每个能够被独立调度的执行上下文都必须拥有它自己的进程描述符。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;即使是轻量级进程也有 task_struct 结构&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;进程与进程描述符之间一一对应，因此&lt;strong&gt;常用 32 位的进程描述符地址（线性地址）标识一个进程&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;进程描述符指针指向该地址&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;此外，Unix 操作系统还使用&lt;strong&gt;进程标识符 processID（PID）&lt;/strong&gt;来标识进程，PID 存放在进程描述符的 pid 字段中。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;PID 被顺序编号，并且被循环使用&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Linux 把不同的 PID 与系统中的每个进程或者轻量级进程相关联；同时 Unix 希望同一组中的线程有共同的 PID（一个多线程应用程序的所有线程拥有相同的 PID）。因此，Linux 引入线程组的方式，一个线程组的所有线程使用和该线程组的领头线程（thread group leader）相同的 PID，即该组中的第一个轻量级进程的 PID，被存放在进程描述符中的 tgid 字段中。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;一个多线程应用的所有线程共享同一个 PID&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;2-2-1-进程描述符处理&quot;&gt;2-2-1 进程描述符处理&lt;/h3&gt;
-
-&lt;p&gt;内核把进程描述符存放在动态内存中，而不是分配给内核的内存区。对每个进程，Linux 都把两个不同的数据结构紧凑地存放在一个单独为进程分配的存储区域内：1. 与进程描述符相关的小数据结构 thread_info，线程描述符; 2. 内核态的进程堆栈。这块存储区域通常占据两个页框。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_4/lk_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;分别通过 task 与 thread_info 字段使 thread_info 结构与 task_struct 结构互相关联&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;2-2-2-进程链表&quot;&gt;2-2-2 进程链表&lt;/h3&gt;
-
-&lt;p&gt;进程链表是一个双向链表，如下图：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_4/lk_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;进程双向链表把所有的进程描述符链接起来&lt;/strong&gt;；每个 task_struct 结构都包含一个 list_head类型的 tasks 字段，该类型的 pre &amp;amp; next 字段分别指向前面和后面的 task_struct 元素。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;进程链表的头是 init_task 描述符，它是 0 进程的进程描述符&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;2-2-3-task_running-状态的进程链表&quot;&gt;2-2-3 TASK_RUNNING 状态的进程链表&lt;/h3&gt;
-
-&lt;p&gt;当内核试图切换新的进程在 CPU 上运行时，必须只考虑可运行进程（即处在 TASK_RUNNING 状态的进程）。&lt;/p&gt;
-
-&lt;p&gt;早期的 Linux 版本把所有可运行的进程都放在同一个运行队列中，导致维护链表中的进程按照优先级排序开销过大。Linux 2.6 实现的运行队列期望调度程序能够在&lt;strong&gt;固定的时间内选出最佳可运行的进程&lt;/strong&gt;（与队列中可运行的进程数无关）。&lt;/p&gt;
-
-&lt;p&gt;为了实现该目的，建立多个可运行进程链表，&lt;strong&gt;每种进程优先权对应一个不同的链表&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;一共有 140 个不同的队列&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;2-3-进程间的关系&quot;&gt;2-3 进程间的关系&lt;/h2&gt;
-
-&lt;p&gt;程序创建的进程具有父子关系，一个父进程的多个子进程之间具有兄弟关系。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;进程 0 和进程 1 是由内核创建的，进程 1 （init）是所有进程的祖先&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_4/lk_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;进程之间还存在其他关系：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;一个进程可能是一个进程组或者登录会话的领头进程&lt;/li&gt;
-  &lt;li&gt;也可能是一个线程组的领头进程&lt;/li&gt;
-  &lt;li&gt;也可能跟踪其他进程的执行&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-4-如何组织进程&quot;&gt;2-4 如何组织进程&lt;/h2&gt;
-
-&lt;p&gt;Linux 对不同状态的进程有不同的组织方式：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;运行队列链表把处于 TASK_RUNNING 状态的所有进程组织在一起&lt;/li&gt;
-  &lt;li&gt;没有为 TASK_STOPPED, EXIT_ZOMBIE 和 EXIT_DEAD 状态的进程专门建立链表：对这些状态的进程访问比较简单&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;根据不同的特殊事件把处于 TASK_INTERRUPTIBLE 和 TASK_UNINTERRUPTIBLE 状态的进程细分为很多类别，每一类都对应一个特殊的事件&lt;/em&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;2-4-1-等待队列&quot;&gt;2-4-1 等待队列&lt;/h3&gt;
-
-&lt;p&gt;进程必须经常等待某些事件的发生，例如，等待一个磁盘操作的终止，等待释放系统资源或者等待事件经过固定的间隔；等待队列实现了在事件上的&lt;strong&gt;条件等待：希望等待特定事件的进程把自己放进合适的等待队列中，并放弃控制权。因此，等待队列表示一组休眠的进程，当某一条件变成真时，由内核唤醒它们&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;等待队列在中断处理，进程同步及定时方面由很大作用&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;等待队列也是由双向链表实现，其元素包括指向进程描述符的指针。每个等待队列都有一个等待队列头(wait queue head)，而等待队列头是一个类型为 wait_queue_head_t 的数据结构：&lt;/p&gt;
-
-&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__wait_queue_head&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;spinlock&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 自旋锁&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list_head&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;task_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 双向链表：等待进程链表的头&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;等待队列是由中断处理程序和一些内核函数修改的，因此必须对其双向链表进行保护以避免并发带来的异常。同步操作是通过等待队列头中的自旋锁实现的。&lt;/p&gt;
-
-&lt;p&gt;等待队列链表中的元素类型为 wait_queue_t:&lt;/p&gt;
-
-&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__wait_queue&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-	&lt;span class=&quot;kt&quot;&gt;unsigned&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;flags&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;task_struct&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;task&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 进程描述符&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;wait_queue_func_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list_head&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;task_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;等待队列中的每个元素代表一个休眠的进程，该进程等待某一事件的发生；进程描述符地址存放在 task 字段中；task_list 字段表示等待相同事件的进程链表；func 字段表示进程应该用什么方式唤醒。&lt;/p&gt;
-
-&lt;p&gt;等待队列中的进程有两种类型：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;互斥进程（flags = 1）：由内核有选择地唤醒
-    &lt;ul&gt;
-      &lt;li&gt;如等待访问临界区资源的进程&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;非互斥进程（flags = 0）：总是在内核事件发生时唤醒，即一次会唤醒全部非互斥进程
-    &lt;ul&gt;
-      &lt;li&gt;比如等待磁盘传输结束的一组进程，一旦磁盘传输完成，所有等待进程都会被唤醒&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;2-4-2-等待队列的操作&quot;&gt;2-4-2 等待队列的操作&lt;/h3&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;通过调用特定函数（add_wait_queue(), add_wait_queue_exclusive() 等）可以把进程添加到等待队列或者从等待队列中移除（remove_wait_queue()）&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;需要等待某个条件的进程可以调用以下函数将自己添加到等待队列中：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;sleep_on()：该函数把当前进程的状态设置为 TASK_UNINTERRUPTIBLE，并把它插入到特定的等待队列。之后，它调用调度程序，而调度程序重新开始另一个程序的执行。当休眠的进程被唤醒时，调度程序重新开始执行 sleep_on() 函数，把该进程从等待队列中删除&lt;/p&gt;
-
-    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sleep_on&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait_queue_head_t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;wait_queue_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;init_waitqueue_entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;current_state&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TASK_UNINTERRUPTIBLE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;add_wait_queue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//插入等待队列的头部&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;schedule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 调用调度程序执行其他进程&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;remove_wait_queue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 被唤醒后重新执行&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;interruptible_sleep_on()：与 sleep_on() 函数一样，只不过是把进程的状态设置为 TASK_INTERRUPTIBLE；因此，&lt;em&gt;接受一个信号就可以唤醒当前进程&lt;/em&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;sleep_on_timeout() &amp;amp; interruptible_sleep_on_timeout() 与上面的函数类似，但是允许调用者定义一个时间间隔，&lt;em&gt;过了这个时间间隔之后，进程将由内核唤醒&lt;/em&gt;。为了实现该功能，这两个方法调用的时 schedule_timeout() 函数而不是 schedule() 函数&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;prepare_to_wait(), prepare_to_wait_exclusive() 和 finish_wait() 函数提供了另一种途径使得当前进程在一个等待队列中休眠；典型用法如下：&lt;/p&gt;
-
-    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;prepare_to_wait_exclusive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TASK_INTERRUPTIBLE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;condition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;schedule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;finish_wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wq&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 进程被唤醒后从该处执行&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;wait_event() &amp;amp; wait_event_interruptible() 使得调用进程在等待队列上休眠，直到修改了给定条件为止&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;内核通过调用以下函数将等待队列中的进程唤醒并把状态设置为 TASK_RUNNING&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;wake_up()：扫描等待队列中的所有进程，并通过 func 字段试图唤醒进程。该函数总是先唤醒非互斥进程，再唤醒互斥进程：非互斥进程位于双向链表的开始位置&lt;/p&gt;
-
-    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;wake_up&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wait_queue_head_t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;q&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;sturct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list_head&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tmp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;wait_queue_t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;curr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;list_for_each&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tmp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;q&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;task_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
-		&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;curr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TASK_INTERRUBPIBLE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TASK_UNITERRUPRIBLE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;curr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;flags&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-			&lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-	&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;wake_up_all() &amp;amp; wake_up_nr() 等方法&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;一个等待队列中同时包含互斥进程与非互斥进程的情况很罕见&lt;/p&gt;
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-5-进程资源限制&quot;&gt;2-5 进程资源限制&lt;/h2&gt;
-
-&lt;p&gt;每个进程都有一组相关的进程资源限制（resource limit），限制指定了进程能够使用的系统资源数量。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;RLIMIT_AS: 进程地址空间的最大数（字节为单位）&lt;/li&gt;
-  &lt;li&gt;RLIMIT_RSS: 进程所拥有的页框最大数&lt;/li&gt;
-  &lt;li&gt;RLIMIT_CPU: 进程使用 CPU 的最长时间（秒为单位）&lt;/li&gt;
-  &lt;li&gt;RLIMIT_DATA: 堆大小的最大值&lt;/li&gt;
-  &lt;li&gt;RLIMIT_STACK: 栈大小的最大值（字节为单位）&lt;/li&gt;
-  &lt;li&gt;RLIMIT_NOFILE: 打开文件描述符的最大值&lt;/li&gt;
-  &lt;li&gt;RLIMIT_SIGPENDING: 进程挂起信号的最大数&lt;/li&gt;
-  &lt;li&gt;RLIMIT_NPROC: 用户能够拥有的进程最大数&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;3-进程切换&quot;&gt;3-进程切换&lt;/h1&gt;
-
-&lt;p&gt;为了控制进程的执行，内核必须能够挂起正在 CPU 上运行的进程，并恢复以前挂起的摸个进程的执行；这种行为被称为&lt;strong&gt;进程切换&lt;/strong&gt;（process switch）或者上下文切换（context switch）。&lt;/p&gt;
-
-&lt;h2 id=&quot;3-1-硬件上下文&quot;&gt;3-1 硬件上下文&lt;/h2&gt;
-
-&lt;p&gt;每个进程可以拥有自己的地址空间，但是所有进程需要共享 CPU 寄存器。因此，在进程恢复运行之前，需要确保每个寄存器装入了挂起进程的值；这组数据被称为硬件上下文（hardware context）。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;硬件上下文是进程可执行上下文的子集&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;在 Linux 中，进程硬件上下文的一部分存放在 TSS 段（Task State Segment，任务状态段），而剩余部分存放在内核态堆栈中。&lt;/p&gt;
-
-&lt;p&gt;进程切换只发生在内核态。在执行进程切换之前，用户态进程使用的所有寄存器内容已保存在内核态堆栈上。&lt;/p&gt;
-
-&lt;h2 id=&quot;3-2-执行进程切换&quot;&gt;3-2 执行进程切换&lt;/h2&gt;
-
-&lt;p&gt;进程切换只能发生在 schedule() 函数中；每个进程切换由两步组成：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;切换页全局目录以安装一个新的地址空间&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;切换内核态堆栈和硬件上下文&lt;/strong&gt;（硬件上下文提供了内核执行新进程所需要的素有信息，包含 CPU 寄存器）&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h1 id=&quot;4-创建进程&quot;&gt;4-创建进程&lt;/h1&gt;
-
-&lt;p&gt;传统的 Unix 操作系统以统一的方式对待所有进程：子进程复制父进程所拥有的资源。这种效率比较低，因为子进程需要拷贝父进程所有的地址空间，实际上，子进程几乎不必读或者修改父进程所拥有的资源；在很多情况下，子进程立即调用 execve()，并清除父进程拷贝过来的地址空间。&lt;/p&gt;
-
-&lt;p&gt;现代 Unix 内核通过引入三种不同的机制解决这个问题：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;写时复制（copy on write）技术允许父子进程读取相同的物理页&lt;/strong&gt;。只要两者中有一个试图写一个物理页，内核就把这个页的内容拷贝到一个新的物理页，并把这个新的物理页分配给正在写的进程。&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;轻量级进程允许父子进程共享每进程在内核的很多数据结构&lt;/strong&gt;，如页表（用户态地址空间），打开的文件表及信号处理。&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;vfork() 系统调用创建的进程能共享其父进程的内存地址空间&lt;/strong&gt;。为了防止父进程重写子进程所需要的数据，阻塞父进程的执行，直到子进程退出或执行一个新的程序为止。&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;4-1-相关系统调用&quot;&gt;4-1 相关系统调用&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;clone(): 轻量级进程是由 clone() 函数创建&lt;/li&gt;
-  &lt;li&gt;传统的 fork() 调用是用 clone() 实现的，不过对于一些标志都清除&lt;/li&gt;
-  &lt;li&gt;vfork() 也是用 clone 实现，也是一些参数的不同&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;4-2-内核线程&quot;&gt;4-2 内核线程&lt;/h2&gt;
-
-&lt;p&gt;一些系统进程只运行在内核态，所以现代操作系统把它们的函数委托给&lt;strong&gt;内核线程&lt;/strong&gt;（kernel thread）。内核线程用于执行一些周期性的任务：刷新磁盘高速缓存，交换出不用的页框，维护网络连接等。内核线程不受不必要的用户态上下文的拖累；在以下方面不同于普通进程：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;*内核线程只运行在内核态*&lt;/strong&gt;，而普通进程既可以运行在用户态，也可以运行在内核态&lt;/li&gt;
-  &lt;li&gt;因为只运行在内核态，所以只使用大于 PAGE_OFFSET 的线性地址空间。而普通进程不管是处于用户态还是内核态，可以使用 4GB 的线性地址空间。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;4-2-1-进程-0&quot;&gt;4-2-1 进程 0&lt;/h3&gt;
-
-&lt;p&gt;所有进程的祖先叫做进程 0，它是在 Linux 的初始化阶段从无到有创建的一个内核线程。&lt;/p&gt;
-
-&lt;h3 id=&quot;4-2-2-进程-1&quot;&gt;4-2-2 进程 1&lt;/h3&gt;
-
-&lt;p&gt;由进程 0 创建的内核线程执行 init() 函数，init() 依次完成内核初始化。&lt;/p&gt;
-
-&lt;h1 id=&quot;5-撤销进程&quot;&gt;5-撤销进程&lt;/h1&gt;
-
-&lt;p&gt;进程终止一般是调用 exit() 函数，用于释放所分配的资源。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;exit_group(): 终止整个线程组，即基于多线程的应用&lt;/li&gt;
-  &lt;li&gt;exit(): 终止某个线程&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">进程被定义为程序执行的一个实例。在 Linux 中，通常把进程称为任务（task）或者线程（thread）。</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/linux_kernel/chapter_4/lk_1.png" /><media:content medium="image" url="http://localhost:4000/linux_kernel/chapter_4/lk_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">现在完成时与一般过去时是英语中用法极为灵活的两种时态，它们属于不同时间的两种时态：</summary></entry></feed>

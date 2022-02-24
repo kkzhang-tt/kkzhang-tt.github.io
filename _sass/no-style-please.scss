@@ -25,7 +25,7 @@ html { height: 100%; }
 
 body {
   color: black;
-  font-family: monospace;
+  font-family: Sans-Serif Workhorse;
   font-size: 16px;
   line-height: 1.4;
   margin: 0;
@@ -97,3 +97,8 @@ img {
   display: block;
   margin: 0 auto;
 }
+
+a:link {color:blue;}
+a:visited {color: blue;}
+a:hover {color:blue;}
+a:active {color:blue;}
