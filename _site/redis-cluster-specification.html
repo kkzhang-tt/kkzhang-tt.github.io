@@ -35,7 +35,7 @@
 
   <h1 id="1-main-properties-and-rationales-of-the-design">1-Main properties and rationales of the design</h1>
 
-<h2 id="1-1-redis-cluster-goals">1-1 <strong>Redis Cluster goals</strong></h2>
+<h2 id="1-1-redis-cluster-goals">1-1 Redis Cluster goals</h2>
 
 <p>Redis Cluster 是 Redis 的分布式实现，按照优先级有以下目标：</p>
 
@@ -57,27 +57,29 @@
   </li>
 </ul>
 
-<h2 id="1-2-implemented-subset">1-2 <strong>**Implemented subset</strong>**</h2>
+<h2 id="1-2-implemented-subset">1-2 Implemented subset</h2>
 
 <p>Redis Cluster 实现了所有在非分布式 Redis 版本中的单 key 命令；但是对于使用多个 key 的复杂操作没有实现，比如 set 中的 unions &amp; intersections 操作。</p>
 
 <blockquote>
   <p>不支持多个 key 的复杂操作是为了避免 key-value 在不同的 Cluster 节点间移动，使得情况更加复杂</p>
+
 </blockquote>
 
 <p>不过，Redis Cluster 实现了被称为 <strong>Hash Tags</strong> 的概念：多个 key 可以通过相同的 hash tag 存储在相同的 hash slot 中，从而避免了 key 的迁移。</p>
 
 <blockquote>
   <p>在手动 resharding 期间，多 key 操作可能变的不可用</p>
+
 </blockquote>
 
 <p>除了支持的命令不同，Redis Cluster 只支持 database 0，并不像单机版 Redis 支持多个数据库。</p>
 
-<h3 id="1-2-1-why-merge-operations-are-avoided">1-2-1 <strong>**Why merge operations are avoided</strong>**</h3>
+<h3 id="1-2-1-why-merge-operations-are-avoided">1-2-1 Why merge operations are avoided</h3>
 
 <p>Redis Cluster 设计是避免在多个节点中存在相同 key-value 对的冲突版本，因为 Redis 中的值通常都是比较大的，数据类型也是语义复杂的，传输和合并这样的值将会影响性能。</p>
 
-<h2 id="1-3-clients-and-servers-roles-in-the-redis-cluster-protocol">1-3 <strong>**Clients and Servers roles in the Redis Cluster protocol</strong>**</h2>
+<h2 id="1-3-clients-and-servers-roles-in-the-redis-cluster-protocol">1-3 Clients and Servers roles in the Redis Cluster protocol</h2>
 
 <p>Cluster 节点主要任务有：</p>
 
@@ -96,9 +98,10 @@
 
 <blockquote>
   <p>Client 通过缓存 key → cluster node 的映射关系，减少重定向，提高执行效率</p>
+
 </blockquote>
 
-<h2 id="1-4-write-safety">1-4 <strong>**Write safety</strong>**</h2>
+<h2 id="1-4-write-safety">1-4 Write safety</h2>
 
 <p>Redis Cluster 通过<strong>节点间异步复制数据</strong>，及 <strong>last failover wins</strong> 避免合并功能 。</p>
 
@@ -110,11 +113,10 @@
 <p>在网络分区期间，会存在一个写操作丢失的时间窗口。<em>对于发生在 master 节点多数派（majority）分区的写操作丢失窗口与少数派（minority）的丢失窗口是不同的</em>。</p>
 
 <ol>
-  <li>对于发生在多数派 master 的写操作，Redis Cluster 会尽量保存；但是以下两种场景除外：
-    <ol>
-      <li>client 写操作请求到达 master 节点，当 master 执行完成并回复 client 成功之后，master 出现异常而不可访问；但是之前的写操作并未通过异步复制到其他 slaves 中。如果 master 不可访问的时间较长而导致其中的一个 slave 被选举成新的 master，那么之前的写操作将会丢失。</li>
-      <li>由于网络分区，某个 master 不可被访问。网络分区触发了一轮选举，导致其中的一个 slave 被选举成新的 master。网络分区恢复之后，old master 变成 new master 的 slave 之前，一个 client 通过过期的路由表对 old master 节点进行写入，此时的写入将会被全部丢失。</li>
-    </ol>
+  <li>
+    <p>对于发生在多数派 master 的写操作，Redis Cluster 会尽量保存；但是以下两种场景除外：
+ a. client 写操作请求到达 master 节点，当 master 执行完成并回复 client 成功之后，master 出现异常而不可访问；但是之前的写操作并未通过异步复制到其他 slaves 中。如果 master 不可访问的时间较长而导致其中的一个 slave 被选举成新的 master，那么之前的写操作将会丢失。
+ b. 由于网络分区，某个 master 不可被访问。网络分区触发了一轮选举，导致其中的一个 slave 被选举成新的 master。网络分区恢复之后，old master 变成 new master 的 slave 之前，一个 client 通过过期的路由表对 old master 节点进行写入，此时的写入将会被全部丢失。</p>
 
     <p>不过，对于第二种场景，在一些安全机制的条件下很难发生：</p>
 
@@ -124,7 +126,8 @@
       <li>在分区恢复之后，其他节点会尽快尝试访问新加入的节点（携带最新的 Cluster 配置信息）</li>
     </ul>
   </li>
-  <li>对于发生在少数派 master 的写操作拥有更大的丢失窗口
+  <li>
+    <p>对于发生在少数派 master 的写操作拥有更大的丢失窗口</p>
     <ul>
       <li>如果少数派 master 节点通过 failover 转移到多数派 master 节点的分区，那么所有发送到少数派分区的写操作都将会被永久丢失</li>
     </ul>
@@ -144,7 +147,7 @@
   </li>
 </ul>
 
-<h2 id="1-5-availability">1-5 <strong>**Availability</strong>**</h2>
+<h2 id="1-5-availability">1-5 Availability</h2>
 
 <p><strong>Redis Cluster 能容忍集群中少数节点不可访问，但不适合要求大量网络分块的应用</strong>（如多机房部署）。</p>
 
@@ -155,9 +158,9 @@
 
 <p><strong>为了提高集群可用性，Redis Cluster 支持 Replicas Migration：</strong>自动将转移副本节点到孤立的 master 节点（不再拥有 slave 的 master）；每次 failover 成功之后，都会重新配置 slave 副本分布以提高下一次故障期间的可用性。</p>
 
-<h1 id="2-overview-of-redis-cluster-main-components">2-<strong>Overview of Redis Cluster main components</strong></h1>
+<h1 id="2-overview-of-redis-cluster-main-components">2-Overview of Redis Cluster main components</h1>
 
-<h2 id="2-1-keys-distribution-model">2-1 <strong>**Keys distribution model</strong>**</h2>
+<h2 id="2-1-keys-distribution-model">2-1 Keys distribution model</h2>
 
 <p><strong>key 的空间范围被划分为 16834 个 slot</strong>，间接使得一个集群的最大上限为 16834 个 master 节点。</p>
 
@@ -178,7 +181,7 @@
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">HASH_SLOT</span> <span class="o">=</span> <span class="n">CRC16</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="n">mod</span> <span class="mi">16384</span>
 </code></pre></div></div>
 
-<h2 id="2-2-keys-hash-tags">2-2 <strong>**Keys hash tags</strong>**</h2>
+<h2 id="2-2-keys-hash-tags">2-2 Keys hash tags</h2>
 
 <p><strong>Hash Tags 提供了一种将多个 key 分配到同一个 hash slot 的方式</strong>。通过 Hash Tags 可以在 Redis Cluster 中实现对多个 key 的同时操作。</p>
 
@@ -192,7 +195,7 @@
 
 <p>那么，<code class="language-plaintext highlighter-rouge">{ }</code> 之间的字符将被用来计算 hash slot。如 <code class="language-plaintext highlighter-rouge">{user1000}.following</code>和<code class="language-plaintext highlighter-rouge">{user1000}.followers</code>这两个 key 会被分配到相同的 hash slot 中，因为只有<code class="language-plaintext highlighter-rouge">user1000</code>会被用来计算 hash slot 值。</p>
 
-<h2 id="2-3-cluster-nodes-attributes">2-3 <strong>**Cluster nodes attributes</strong>**</h2>
+<h2 id="2-3-cluster-nodes-attributes">2-3 Cluster nodes attributes</h2>
 
 <p>集群中的<strong>每个节点都有全局唯一 ID 标识</strong>。启动时生成，并持久化在配置文件中，一般不会改变。</p>
 
@@ -212,17 +215,18 @@
 
 <p>每个集群节点使用额外的 TCP 端口用于与集群中的其他节点交互；集群节点间的交互只使用 Cluster bus 及 Cluster bus 协议：一种二进制协议。</p>
 
-<h2 id="2-5-cluster-topology">2-5 <strong>**Cluster topology</strong>**</h2>
+<h2 id="2-5-cluster-topology">2-5 Cluster topology</h2>
 
 <p>Redis Cluster 是全网拓扑，<strong>每个节点都与其他节点维护 TCP 连接</strong>。</p>
 
 <blockquote>
   <p>N 个节点的集群中，每个节点有 N-1 个传出 TCP 连接，同时有 N-1 个传入 TCP 连接</p>
+
 </blockquote>
 
 <p>集群节点间使用 <strong>Gossip 协议</strong>和<strong>配置更新机制</strong>来避免正常情况下节点间交互过多的消息。</p>
 
-<h2 id="2-6-nodes-handshake">2-6 <strong>**Nodes handshake</strong>**</h2>
+<h2 id="2-6-nodes-handshake">2-6 Nodes handshake</h2>
 
 <p>对于 Cluster bus port 连接，节点总是接受并回复 ping 请求，即使该 ping 请求来自一个不可信任的节点。但是如果发送节点被认为不是集群的一部分，那么该节点的其他数据包都会被丢弃。</p>
 
@@ -230,7 +234,7 @@
 
 <ol>
   <li>
-    <p><strong>节点出现在 MEET 消息中</strong>：MEET 消息会强制接收者接受一个节点作为集群的一部分</p>
+    <p><strong>节点出现在 <code class="language-plaintext highlighter-rouge">MEET</code> 消息中</strong>：<code class="language-plaintext highlighter-rouge">MEET</code> 消息会强制接收者接受一个节点作为集群的一部分</p>
 
     <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">CLUSTER</span> <span class="n">MEET</span> <span class="n">ip</span> <span class="n">port</span>
 </code></pre></div>    </div>
@@ -244,9 +248,344 @@
 
 <blockquote>
   <p>该机制使得集群更加健壮，可以防止不同的 Cluster 在 IP 地址变更或者其他网络相关事件导致意外混合</p>
+
 </blockquote>
 
-<h1 id="3-redirection-and-resharding">3-<strong>Redirection and resharding</strong></h1>
+<h1 id="3-redirection-and-resharding">3-Redirection and resharding</h1>
+
+<p>Redis Client 可以向集群中的任意节点发送查询请求，包括 slave 节点。</p>
+
+<p>收到请求的集群节点会分析该查询请求：</p>
+
+<ol>
+  <li>
+    <p>如果请求是可以接受的，则会判断 key 所属的 hash slot 及对应的节点</p>
+
+    <blockquote>
+      <p>可以接受的请求是指：a. 请求中只包含一个 key；b. 多个 key 同属一个 hash slot</p>
+
+    </blockquote>
+  </li>
+  <li>如果目标 hash slot 被当前节点管理，则直接处理请求</li>
+  <li>
+    <p>否则，当前节点回复一个 <strong><code class="language-plaintext highlighter-rouge">MOVED</code> 异常：</strong><em>异常包含了 key 所属的 hash slot 及管理该 hash slot 的节点（IP + Port）</em>。</p>
+
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="nx">x</span><span class="w">
+ </span><span class="nt">-MOVED</span><span class="w"> </span><span class="mi">3999</span><span class="w"> </span><span class="mf">127.0</span><span class="o">.</span><span class="nf">0</span><span class="o">.</span><span class="nf">1</span><span class="p">:</span><span class="mi">6381</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Client 收到重定向的回复之后，需要向指定的 IP + Port 重新补发查询请求。</p>
+
+    <blockquote>
+      <p>如果在补发请求之前，集群配置再次发生了变化，导致刚才的节点不再管理对应的 hash slot，那么也会返回 <code class="language-plaintext highlighter-rouge">MOVED</code> 异常，Client 仍需要再次补发请求</p>
+
+    </blockquote>
+  </li>
+  <li>
+    <p>对于 <code class="language-plaintext highlighter-rouge">MOVED</code> 异常，Client 除了重新补发，还<strong>需要缓存 hash slot 与集群节点的映射关系</strong>，以提高之后请求的效率。不过，该策略不是强制的，Client 还可以通过 <code class="language-plaintext highlighter-rouge">CLUSTER NODES</code> 命令<strong>全量刷新 hash slot 与集群节点的映射关系并缓存</strong>。</p>
+
+    <blockquote>
+      <p>当 Cluster 处于稳定状态时，所有的 Client 最终都可以维护 hash slot → cluster nodes 的映射关系，减少重定向的概率，提升集群处理的效率。</p>
+
+    </blockquote>
+  </li>
+</ol>
+
+<p>除了 <code class="language-plaintext highlighter-rouge">MOVED</code> 重定向，Client 需要能够处理 <code class="language-plaintext highlighter-rouge">ASK</code> 重定向。</p>
+
+<h2 id="3-2-cluster-live-reconfiguration">3-2 Cluster live reconfiguration</h2>
+
+<p>为了支持 Cluster 动态重新配置，需要实现 <strong>hash slot 在集群节点间迁移能力</strong>。slot 迁移的场景有：</p>
+
+<ul>
+  <li>添加节点：需要将一些已经存在 hash slot 集合迁移到新节点上</li>
+  <li>删除节点：将被删除节点上的所有 hash slot 集合转移到其他节点</li>
+  <li>集群 rebalance：将给定的 hash slot 集合在节点间移动</li>
+</ul>
+
+<p><strong>hash slot 迁移的核心是分布在该 slot 上的 key 集合迁移</strong>。</p>
+
+<p>下面是一些 slot 迁移的命令：</p>
+
+<ul>
+  <li><em>CLUSTER ADDSLOTS slot1 [slot2] … [slotN]</em></li>
+  <li><em>CLUSTER DELSLOTS slot1 [slot2] … [slotN]</em></li>
+  <li><em>CLUSTER SETSLOT slot NODE node</em></li>
+  <li><em>CLUSTER SETSLOT slot MIGRATING node</em></li>
+  <li><em>CLUSTER SETSLOT slot IMPORTING node</em></li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">ADDSLOTS</code>和<code class="language-plaintext highlighter-rouge">DELSLOTS</code>只是用来简单地在 Redis Cluster 节点上分配或移除 slot。<strong>在分配了 hash slots 之后，节点会通过 Gossip 协议在集群中传播这些信息</strong>。</p>
+
+<p><code class="language-plaintext highlighter-rouge">SETSLOT slot NODE node</code> 用来给特定的节点分配 slot。</p>
+
+<p><code class="language-plaintext highlighter-rouge">CLUSTER SETSLOT slot MIGRATING node</code> 与 <code class="language-plaintext highlighter-rouge">CLUSTER SETSLOT slot IMPORTING node</code> 命令用于将 hash slot 从一个节点迁移到另一个节点。迁移过程总涉及到两个特殊的状态：<strong>MIGRATING</strong> &amp; <strong>IMPORTING</strong>。</p>
+
+<ul>
+  <li>当 hash slot 处于 <strong>MIGRATING</strong> 状态时，如果某个查询请求的 key 在该 slot 中，则当前节点会处理该查询请求；否则，节点就会通过 <strong><code class="language-plaintext highlighter-rouge">ASK</code></strong> 命令重定向到迁移的目标节点</li>
+  <li>当 hash slot 处于 <strong>IMPORTING</strong> 状态时，如果某个查询请求后紧跟着 <strong><code class="language-plaintext highlighter-rouge">ASKING</code></strong> 命令，则该请求就会被执行；否则，该请求就会通过 <strong><code class="language-plaintext highlighter-rouge">MOVED</code></strong> 命令重定向到管理该 hash slot 的真正节点</li>
+</ul>
+
+<h3 id="3-2-1-migration-process">3-2-1 Migration process</h3>
+
+<p>假设 Redis Cluster 中存在 A，B 两个节点，我们期望将 hash slot 8 从 A 迁移到 B，则：</p>
+
+<ul>
+  <li>向 B 发送命令 <em>CLUSTER SETSLOT 8 IMPORTING A</em></li>
+  <li>向 A 发送命令 <em>CLUSTER SETSLOT 8 MIGRATING B</em></li>
+</ul>
+
+<p>所有其他节点在收到一个对属于 hash slot 8 的 key 的查询时，仍然会继续将 Client 重定向到 A，会导致：</p>
+
+<ul>
+  <li>所有对已经存在的 key 查询将会被 A 处理</li>
+  <li>所有在 A 上不存在的 key 都会被 B 处理，因为 A 会将其重定向到 B（<strong><code class="language-plaintext highlighter-rouge">ASK</code></strong>）</li>
+  <li>将<strong>不会在 A 上创建新的 key</strong></li>
+</ul>
+
+<blockquote>
+  <p>在 key 的迁移过程中，从 Client 的视角来看，同一个 key 只会存在 A or B 中。</p>
+
+</blockquote>
+
+<h2 id="3-3-ask-redirection">3-3 ASK redirection</h2>
+
+<p>在 slot 迁移过程中，使用的是 <strong><code class="language-plaintext highlighter-rouge">ASK</code></strong> 命令进行重定向，为什么不使用 <strong><code class="language-plaintext highlighter-rouge">MOVED</code></strong> 命令进行重定向？</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">**MOVED**</code> 表明<strong>目标 hash slot 永久地被一个不同的节点所管理</strong>，并且以后的请求也应该继续指向该节点；而 <strong><code class="language-plaintext highlighter-rouge">ASK</code></strong> 表明<strong>只是下次查询需要发送给另一个特定节点</strong>。</li>
+  <li>
+    <p>我们期望 Client 总是<strong>先尝试访问 A，然后在有必要的时候再访问 B</strong>。因为同一个 hash slot 中有很多 key，可能某次查询的 key 已经不在 A 上了，需要再次重定向到 B 查询；但是可能下次查询的 key 仍然在 A 上。</p>
+
+    <blockquote>
+      <p><strong><code class="language-plaintext highlighter-rouge">ASK</code></strong> 重定向只发生在 hash slot 迁移过程中，对 Cluster 的影响可以接受</p>
+
+    </blockquote>
+  </li>
+</ul>
+
+<p>一般来说，<code class="language-plaintext highlighter-rouge">ASKING</code> 命令会为 client 设置一个<strong>单次标签(one-time flag)</strong>，以允许该 client 可以访问处于 <code class="language-plaintext highlighter-rouge">**IMPORTING**</code> 状态的 slot 一次。</p>
+
+<p>从 client 的视角来看，当收到 <strong><code class="language-plaintext highlighter-rouge">ASK</code></strong> 重定向命令之后：</p>
+
+<ul>
+  <li>仅仅将这条查询重定向到指定的新节点，<strong>之后的命令还是继续发送给老的节点</strong></li>
+  <li>重定向查询必须以一条<code class="language-plaintext highlighter-rouge">ASKING</code>命令开始</li>
+  <li>暂时不要在本地将 hash slot 8 映射为节点 B</li>
+</ul>
+
+<p>当 hash slot 8 迁移完成之后，A 会返回一个 <strong><code class="language-plaintext highlighter-rouge">MOVED</code></strong> 重定向命令，client 需要在本地更新 hash slot 8 的映射节点为 B。</p>
+
+<h2 id="3-4-clients-first-connection-and-handling-of-redirections">3-4 Clients first connection and handling of redirections</h2>
+
+<p>Redis Cluster 的 Client 如果不将 hash slots → cluster nodes 的映射关系缓存在本地，那么每次查询都需要根据 <code class="language-plaintext highlighter-rouge">MOVED</code> 重定向找到正确的节点，效率会很低。为了提高查询效率，Client 需要将 slots → nodes 的映射缓存在本地，但是该缓存并不总是最新的。</p>
+
+<p>在以下两个场景中 Client 需要获取全量的 hash slots → cluster nodes 的映射关系：</p>
+
+<ol>
+  <li><strong>启动阶段初始化 slots 配置信息</strong></li>
+  <li><strong>收到 <code class="language-plaintext highlighter-rouge">MOVED</code> 的重定向信息</strong></li>
+</ol>
+
+<blockquote>
+  <p>Client 在收到 MOVED 重定向时，通常会有多个 slots 发生了变动（比如 slave 晋升，该节点的 slots 会重新映射），此时 Client 全量更新 slots 会使问题处理起来比较简单</p>
+
+</blockquote>
+
+<h2 id="3-5-multiple-keys-operations">3-5 Multiple keys operations</h2>
+
+<p>通过使用 hash tags 可以对多个 key 进行操作。</p>
+
+<p>不过，在 resharding 期间，多个 key 操作可能会不可用：</p>
+
+<ul>
+  <li>如果这些 key 在同一个节点上，则可以继续可用</li>
+  <li>
+    <p>如果这些 key 在不同的节点上，则不可用</p>
+
+    <blockquote>
+      <p>请求的多 key 所属的 slot 在迁移过程中，这些 <strong>key 可能同时分布在源节点与目标节点</strong>上</p>
+
+    </blockquote>
+  </li>
+</ul>
+
+<h2 id="3-6-scaling-reads-using-replica-nodes">3-6 Scaling reads using replica nodes</h2>
+
+<p>slave 节点默认不可读，<strong>所有对 slave 节点的读请求都会被重定向到 master 节点</strong>（返回 MOVED 异常）。不过可以通过 READONLY 命令将 slave 节点设置为可读。</p>
+
+<h1 id="4-fault-tolerance">4-Fault Tolerance</h1>
+
+<h2 id="4-1-heartbeat-and-gossip-messages">4-1 Heartbeat and gossip messages</h2>
+
+<p>Redis Cluster 存在两种<strong>心跳包（heartbeat packets）</strong>，分别称为 <strong>ping</strong> 包 &amp; <strong>pong</strong> 包。这两种心跳包结构相同，并且都会携带重要的配置信息。</p>
+
+<ul>
+  <li>当节点收到 ping 包时，总会回复一个 pong 包</li>
+  <li>有时节点为了尽快将自身的配置信息发送出去，会直接向其他节点发送 pong 包</li>
+</ul>
+
+<p>每个节点会随机挑选一些节点并发送一些 ping 包（<strong>Gossip 协议</strong>），每个节点在指定时间范围内发送的 ping 包与接收到的 pong 包是一个常数。</p>
+
+<blockquote>
+  <p>会主动对 <em>NODE_TIMEOUT/2 时间内没有发送过 ping 或者从其接收到 pong</em> 的节点发送 ping 包</p>
+
+</blockquote>
+
+<h2 id="4-2-heartbeat-packet-content">4-2 Heartbeat packet content</h2>
+
+<p>ping &amp; pong 包的内容包含两部分：</p>
+
+<ol>
+  <li>
+    <p><strong>包头（header）</strong>：该部分不仅可以用于 ping &amp; pong 消息，也可以用于其他类型消息（如重新选举消息）</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>内容</th>
+          <th>备注</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Node ID</td>
+          <td>节点创建时生成，并在 Redis Cluster 生命周期内保持不变</td>
+        </tr>
+        <tr>
+          <td>currentEpoch &amp; configEpoch</td>
+          <td>由 Redis Cluster 用来加载分布式算法；如果发送者是 slave 节点，则 configEpoch 就是其 master 的 configEpoch</td>
+        </tr>
+        <tr>
+          <td>node flags</td>
+          <td>表明发送者是 slave 还是 master；同时包含一些其他信息</td>
+        </tr>
+        <tr>
+          <td>hash slots 的 bitmap</td>
+          <td>如果发送者是 slave，则表示其 master 的 hash slots 的 bitmap</td>
+        </tr>
+        <tr>
+          <td>TCP Port</td>
+          <td>用于接受命令的普通端口（+10000 表示 Redis Cluster Bus 端口）</td>
+        </tr>
+        <tr>
+          <td>Cluster state</td>
+          <td>发送者视角下的集群状态（down or ok）</td>
+        </tr>
+        <tr>
+          <td>master Node ID</td>
+          <td>master 节点的 Node ID（如果发送者是 slave）</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p><strong>Gossip section</strong>：仅存在 ping &amp; pong 中；包含<strong><em>发送者视角下集群中其他节点状态，用于故障检测 &amp; 节点发现</em></strong></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>内容</th>
+          <th>备注</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Redis Cluster 中其他节点信息</td>
+          <td>包含 Node ID, IP, Port, Node flags(FAIL, PFAIL)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <blockquote>
+      <p>Gossip section 段中包含的节点数与集群大小成正比</p>
+    </blockquote>
+  </li>
+</ol>
+
+<h2 id="4-3-failure-detection">4-3 Failure detection</h2>
+
+<p>Redis Cluster 故障检测机制用来<strong>识别一个 master or slave 节点对集群中大部分 master 节点是否是可达的（reachable）</strong>。如果一个 master 节点不可达，则会将其一个 slave 节点晋升为 master；<strong><em>如果无法将 slave 晋升为 master，则集群会被置为 error 状态，并停止接受客户端的请求</em></strong>。</p>
+
+<blockquote>
+  <p>选举过程需要 master 节点参与</p>
+
+</blockquote>
+
+<p>如何定义不可达？</p>
+
+<ul>
+  <li>一个已经发送出去，但是没有接收到对方回复的 ping 被称为活跃 ping（active ping）。如果一个活跃 ping 挂起时间超过 <code class="language-plaintext highlighter-rouge">NODE_TIMEOUT</code>，则认为接收方不可达。</li>
+  <li><code class="language-plaintext highlighter-rouge">NODE_TIMEOUT</code> 必须大于正常的网络往返时间。为了增加可靠性，在 <code class="language-plaintext highlighter-rouge">NODE_TIMEOUT/2</code> 时间过后如果还没收到回复，会尝试联系其他节点，确保自身连接的活跃性。</li>
+</ul>
+
+<h3 id="4-3-1-pfail--fail">4-3-1 PFAIL &amp; FAIL</h3>
+
+<p>Redis Cluster 每个节点都会保存其他节点的一些 flags 信息，其中有两个 flag 用于<strong>故障检测：<code class="language-plaintext highlighter-rouge">FAIL &amp; PFAIL</code></strong>。</p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">PFAIL</code> flag (possible fail)</p>
+
+    <p>可能故障，是一个不需要确认的故障类型。</p>
+
+    <p>当节点发现某个节点失联超过 <code class="language-plaintext highlighter-rouge">NODE_TIMEOUT</code> 时，会在本地将其标记为 <code class="language-plaintext highlighter-rouge">PFAIL</code>。</p>
+
+    <blockquote>
+      <p>检测节点与被检测节点都可以是 master 或者 slave</p>
+
+    </blockquote>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">FAIL</code> flag（fail）</p>
+
+    <p><code class="language-plaintext highlighter-rouge">PFAIL</code> 只是每个节点针对其他节点状态的本地信息，不能以此来判断是否进行选举。为了确认节点确实不可达了，需要将 <code class="language-plaintext highlighter-rouge">PFAIL</code> 升级为 <code class="language-plaintext highlighter-rouge">FAIL</code>。</p>
+  </li>
+</ol>
+
+<h3 id="4-3-2-pfail--fail">4-3-2 PFAIL → FAIL</h3>
+
+<p>每个 Gossip 消息中都会包含当前节点已知的一部分其他节点的状态（是否 <code class="language-plaintext highlighter-rouge">PFAIL</code>），节点之间会交换自己已知信息；将 <code class="language-plaintext highlighter-rouge">PFAIL</code> 升级为 <code class="language-plaintext highlighter-rouge">FAIL</code>的流程为：</p>
+
+<ul>
+  <li>节点 A 检测到 B 节点不可达，将其标记为 <code class="language-plaintext highlighter-rouge">PFAIL</code></li>
+  <li>节点 A 通过 Gossip 消息收集大部分 master 节点对 B 节点状态标记的 flag</li>
+  <li>多数 master 节点在 <code class="language-plaintext highlighter-rouge">NODE_TIMEOUT * 2</code> 时间范围内将 B 标记为 <code class="language-plaintext highlighter-rouge">PFAIL</code> or <code class="language-plaintext highlighter-rouge">FAIL</code></li>
+  <li>A 将 B 标记为 <code class="language-plaintext highlighter-rouge">FAIL</code></li>
+  <li>A <strong>发送一个 <code class="language-plaintext highlighter-rouge">FAIL</code> 消息给所有可达节点</strong></li>
+  <li><strong>FAIL 消息会强制所有接收到消息的节点将不可达节点 B 标记为 FAIL</strong>，而不管自己当前是否已经将 B 标记为 PFAIL</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">FAIL</code> flag 是单向（one way）的：只能 <code class="language-plaintext highlighter-rouge">PFAIL</code> → <code class="language-plaintext highlighter-rouge">FAIL</code>。不过 <code class="language-plaintext highlighter-rouge">FAIL</code> flag 可以在以下情况中被清除：</p>
+
+<ol>
+  <li><strong>节点重新可达，并且该节点是 slave</strong>：因为 slave 节点不会发生故障转移（failover）</li>
+  <li><strong>节点重新可达，并且没有管理任何 hash slots 的 master 节点</strong>：这种节点实际上没有参与集群管理，需要等待被配置后加入集群</li>
+  <li><strong>节点重新可达，且为 master 节点，同时在较长时间内（N * NODE_TIMEOUT）没有检测到有 slave 节点晋升</strong>：此时最好将其作为 master 节点重新加入集群</li>
+</ol>
+
+<p><code class="language-plaintext highlighter-rouge">PFAIL → FAIL</code> 的转换过程使用了<strong>弱一致性</strong>（weak agreement）:</p>
+
+<ol>
+  <li>节点在一段时间内收集其他 master 节点的视图，即使多数 master 达成一致，也只能说明在不同的时间，不同的节点达成一致，无法确定在什么时刻获得了多数 master 的一致结果。不过，过期的结果会被抛弃掉（<code class="language-plaintext highlighter-rouge">NODE_TIMEOUT * 2</code> ），所以<strong>可以确定多数 master 节点一定是在某个时间窗口内达成一致</strong>。</li>
+  <li><code class="language-plaintext highlighter-rouge">FAIL</code> 消息虽然可以强制其他节点接受该判断结果，但是无法保证消息被所有节点接收到：如出现了网络分区</li>
+</ol>
+
+<h3 id="4-3-3-conner-case">4-3-3 Conner case</h3>
+
+<p><strong>Redis Cluster 所有节点最终会对一个给定的节点状态达成一致</strong>。两个由于集群脑裂引起的场景：</p>
+
+<ol>
+  <li>如果多数派 master 将一个节点标记为 FAIL，那么所有其他节点最终也会将该 master 标记为 FAIL：在指定的时间窗口内，集群中会有足够多的失败报告</li>
+  <li>如果少数派 master 节点将一个节点标记为 FAIL，并不会发生 failover，最终该 FAIL 状态会被清除：在 N*NODE_TIMEOUT 内没有晋升</li>
+</ol>
+
+<h3 id="4-3-4-moreover">4-3-4 Moreover</h3>
+
+<p><code class="language-plaintext highlighter-rouge">FAIL</code> flag 只是一种触发机制，用于触发执行 slave 晋升操作。slave 也可以在发现 master 不可达之后主动启动晋升操作，并尝试获得多数 master 节点的同意。</p>
+
+<p><code class="language-plaintext highlighter-rouge">FAIL</code> 机制虽然有些复杂，但是可以使得集群意识到自己处于一个 error 状态，从而拒绝写操作；而且可以减少由于 slave 自身问题触发错误的选举尝试。</p>
 
 </article>
       </div>
