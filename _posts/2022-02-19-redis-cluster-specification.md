@@ -399,3 +399,112 @@ Redis Cluster 每个节点都会保存其他节点的一些 flags 信息，其�
 `FAIL` flag 只是一种触发机制，用于触发执行 slave 晋升操作。slave 也可以在发现 master 不可达之后主动启动晋升操作，并尝试获得多数 master 节点的同意。
 
 `FAIL` 机制虽然有些复杂，但是可以使得集群意识到自己处于一个 error 状态，从而拒绝写操作；而且可以减少由于 slave 自身问题触发错误的选举尝试。
+
+# 5-Configuration handling, propagation, and failovers
+
+## 5-1 Cluster current epoch
+
+Redis Cluster 使用类似 Raft 算法中 `term` 的概念，被称为 **`epoch`**。
+
+**`epoch`** **相当于集群的逻辑时钟，为事件提供递增的版本号**。当多个节点的信息冲突时，可以通过 `epoch` 判断哪个信息是最新的。
+
+> `currentEpoch` 是一个 64 位无符号整数，用于标识集群 `epoch`；所有节点中最大的 `configEpoch` 即为集群  `currentEpoch`
+> 
+
+节点创建时，所有 Redis Cluster 节点（master or slave）都将自己的 `currentEpoch` 设置为 0。当从其他节点收到消息时，如果发送方的 `epoch` 大于当前节点的 `epoch`，则**将自身的 `epoch` 更新为发送方的 `epoch`**。这样，最终所有节点都会与拥有最大 `currentEpoch` 的节点保持一致。
+
+`currentEpoch` 被设计用于，*当集群状态变化时，某个节点请求其他节点的同意来执行一些操作*（如 slave → master）；拥有较大 `epoch` 的节点总能获得相对较小节点的同意。
+
+## 5-2 Configuration epoch
+
+当 master 节点被创建时，其 `configEpoch` 被置为 0。新的 `configEpoch` 将会在 slave 晋升为 master 之后被创建。
+
+> `configEpoch` 由 master 节点创建，在 failover 时产生一个新的，递增唯一值
+> 
+
+在 Redis Cluster 处于稳定状态时，slave 的 `configEpoch` 为其与 master 节点交互时从 master 节点获取的（与 master 保持一致，不过可能会有所延迟）。
+
+master 与 slave 节点交互时都会携带自己的 `configEpoch`，并且会广播给集群中其他节点。当某些节点的 `configEpoch` 发生变化时，收到该消息的节点会将最新的 `configEpoch` 持久化到各自的本地配置文件中。
+
+## 5-3 Replica election and promotion
+
+**选举 & 晋升总是由 slave 节点发起与处理**，master 节点在选举过程中参与投票。
+
+1. 选举的条件？
+    1. master 处于 `FAIL` 状态
+    2. master 至少管理一个 hash slot
+    3. slave 与 master 的复制链接断开时间少于给定值：用于确保晋升的 slave 数据尽可能新
+2. 什么时候触发选举？
+    - 当 master 在至少一个 slave 视图中处于 `FAIL` 状态时，且 slave 要求晋升为 master，就会触发选举流程
+        
+        > **多个 slave 都可以发起选举流程，但是只有一个 slave 能赢得选举**
+        
+3. 选举流程？
+    1. slave 增加自己的 `currentEpoch`
+    2. slave 向集群所有 master 节点广播 `FAILOVER_AUTH_REQUEST` 包请求选票，并且在 `NODE_TIMEOUT * 2` 时间内等待所有 master 节点的回复
+    3. master 收到投票请求后，如果准备将选票投给对应的 slave，则回复 `FAILOVER_AUTH_ACK`，并且在 `NODE_TIMEOUT * 2` 时间内不能给其他 slave 进行投票
+        
+        > 避免多个 slave 赢得选票
+        
+    4. slave 抛弃那些 epoch 比自己发送选票请求时的 `currentEpoch` 小的 `FAILOVER_AUTH_ACK`
+        
+        > 避免计算上一次选举的选票
+         
+    5. 如果 slave 在 `NODE_TIMEOUT * 2` 时间内赢得了大部分 master 节点的选票，则其赢得选举；否则将会在  `NODE_TIMEOUT * 4` 时间后再次尝试
+    6. slave 赢得选举后会新增 `configEpoch`，该 `configEpoch` 会比其他 master 节点更大。随后会在 ping & pong 中广播该 `configEpoch.`为了加速配置更新，新 master 会向其他节点直接发送 pong 包
+
+## 5-4 Masters reply to replica vote request
+
+在选举过程中，master 需要为接收到的 `FAILOVER_AUTH_REQUEST` 请求进行投票，投票的条件为：
+
+1. **master 只会对每个 epoch 投票一次，并且拒绝比上次投票更小的 epoch 请求**：`lastVoteEpoch` 保存在 master 节点本地
+2. 请求的 `currentEpoch` 如果小于当前 master  的 `currentEpoch`，则会被忽略
+3. 请求的 `configEpoch` 如果小于其所属 master 的 `configEpoch`，则也会被忽略。由于 slave 的 `configEpoch` 从其 master 获取，这种情况说明 slave 并不是比较新的
+4. salve 所属的 master 被当前 master 标记为 `FAIL`
+
+## 5-5 Hash slots configuration propagation
+
+Redis Cluster 提供一种机制，用于在集群中传播每个节点管理的 hash slot 配置信息。
+
+有两种传播 hash slot 配置信息的方式：
+
+1. 心跳包：ping & pong 消息的发送方总会携带自己或者其 master 管理的 hash slot 信息
+2. `UPDATE` 消息：心跳包的接收方如果发现发送方的消息过期，则会回复 `UPDATE` 消息，**强制对方更新其过期信息**。（`UPDATE` 消息中包含了最新的配置信息）
+
+当新的 Redis Cluster 节点创建时，其本地 hash slots 映射表初始化为 NULL，基本如下：
+
+```c
+0 -> NULL
+1 -> NULL
+2 -> NULL
+...
+16383 -> NULL
+```
+
+hash slots 配置的传播规则如下：
+
+1. 如果在 A 节点的本地一个 hash slot 没有被分配（NULL），此时有 B 节点声明了该 slot，则修改 A 本地的 hash slot 映射关系将该 slot 绑定为 B
+2. 如果 A 节点中一个 hash slot 已经被 C 分配，此时 B 的广播消息中的 configEpoch 比 C 节点的 configEpoch 大，则将该 hash slot 绑定为 B
+    
+    > 最终所有节点一定会通过节点间的消息广播就 `configEpoch` 最大的节点获得 slot 的管理权达成一致；这一机制被称为 **last failover wins(最后故障转移者胜)**
+    
+
+由于以上规则，当一个过期的节点收到 `UPDATE` 消息时，会根据最新消息更新自己的配置。
+
+当一个 master 节点在分区后重新加入集群时，会将自己从属于新的 master 节点，并更新自身配置。
+
+## 5-6 Replica migration
+
+备份迁移是一种 slave 自动重配的过程，用来将备份节点迁移到当前已经没有可用 slave 的 master上，提高集群可用性。
+
+假设 A 只有一个 slave A，可能的迁移场景为：
+
+- A发生故障，A1 被晋升。
+- C2 迁移为 A1 的 slave，否则 A1 将会没有任何 slave
+- 一段时间后 A1 也发生了故障
+- C2 被晋升为新的 master 以替代 A1
+- 此时，集群还能正常提供服务。
+
+# 6-Appendix
+
+原文：[https://redis.io/topics/cluster-spec](https://redis.io/topics/cluster-spec)

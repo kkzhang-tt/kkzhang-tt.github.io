@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-02-25T23:15:03+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-02-26T18:08:25+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
 </subtitle><author><name>kkzhang</name></author><entry><title type="html">Redis Cluster Specification</title><link href="http://localhost:4000/redis-cluster-specification.html" rel="alternate" type="text/html" title="Redis Cluster Specification" /><published>2022-02-19T00:00:00+08:00</published><updated>2022-02-19T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-specification</id><content type="html" xml:base="http://localhost:4000/redis-cluster-specification.html">&lt;h1 id=&quot;1-main-properties-and-rationales-of-the-design&quot;&gt;1-Main properties and rationales of the design&lt;/h1&gt;
 
 &lt;h2 id=&quot;1-1-redis-cluster-goals&quot;&gt;1-1 Redis Cluster goals&lt;/h2&gt;
@@ -551,7 +551,150 @@
 
 &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FAIL&lt;/code&gt; flag 只是一种触发机制，用于触发执行 slave 晋升操作。slave 也可以在发现 master 不可达之后主动启动晋升操作，并尝试获得多数 master 节点的同意。&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FAIL&lt;/code&gt; 机制虽然有些复杂，但是可以使得集群意识到自己处于一个 error 状态，从而拒绝写操作；而且可以减少由于 slave 自身问题触发错误的选举尝试。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Main properties and rationales of the design</summary></entry><entry><title type="html">同位语从句</title><link href="http://localhost:4000/appositive-clause.html" rel="alternate" type="text/html" title="同位语从句" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/appositive-clause</id><content type="html" xml:base="http://localhost:4000/appositive-clause.html">&lt;h2 id=&quot;1-同位语&quot;&gt;1-同位语&lt;/h2&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FAIL&lt;/code&gt; 机制虽然有些复杂，但是可以使得集群意识到自己处于一个 error 状态，从而拒绝写操作；而且可以减少由于 slave 自身问题触发错误的选举尝试。&lt;/p&gt;
+
+&lt;h1 id=&quot;5-configuration-handling-propagation-and-failovers&quot;&gt;5-Configuration handling, propagation, and failovers&lt;/h1&gt;
+
+&lt;h2 id=&quot;5-1-cluster-current-epoch&quot;&gt;5-1 Cluster current epoch&lt;/h2&gt;
+
+&lt;p&gt;Redis Cluster 使用类似 Raft 算法中 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;term&lt;/code&gt; 的概念，被称为 &lt;strong&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;epoch&lt;/code&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;epoch&lt;/code&gt;&lt;/strong&gt; &lt;strong&gt;相当于集群的逻辑时钟，为事件提供递增的版本号&lt;/strong&gt;。当多个节点的信息冲突时，可以通过 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;epoch&lt;/code&gt; 判断哪个信息是最新的。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;currentEpoch&lt;/code&gt; 是一个 64 位无符号整数，用于标识集群 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;epoch&lt;/code&gt;；所有节点中最大的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt; 即为集群  &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;currentEpoch&lt;/code&gt;&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;节点创建时，所有 Redis Cluster 节点（master or slave）都将自己的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;currentEpoch&lt;/code&gt; 设置为 0。当从其他节点收到消息时，如果发送方的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;epoch&lt;/code&gt; 大于当前节点的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;epoch&lt;/code&gt;，则&lt;strong&gt;将自身的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;epoch&lt;/code&gt; 更新为发送方的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;epoch&lt;/code&gt;&lt;/strong&gt;。这样，最终所有节点都会与拥有最大 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;currentEpoch&lt;/code&gt; 的节点保持一致。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;currentEpoch&lt;/code&gt; 被设计用于，&lt;em&gt;当集群状态变化时，某个节点请求其他节点的同意来执行一些操作&lt;/em&gt;（如 slave → master）；拥有较大 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;epoch&lt;/code&gt; 的节点总能获得相对较小节点的同意。&lt;/p&gt;
+
+&lt;h2 id=&quot;5-2-configuration-epoch&quot;&gt;5-2 Configuration epoch&lt;/h2&gt;
+
+&lt;p&gt;当 master 节点被创建时，其 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt; 被置为 0。新的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt; 将会在 slave 晋升为 master 之后被创建。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt; 由 master 节点创建，在 failover 时产生一个新的，递增唯一值&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;在 Redis Cluster 处于稳定状态时，slave 的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt; 为其与 master 节点交互时从 master 节点获取的（与 master 保持一致，不过可能会有所延迟）。&lt;/p&gt;
+
+&lt;p&gt;master 与 slave 节点交互时都会携带自己的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt;，并且会广播给集群中其他节点。当某些节点的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt; 发生变化时，收到该消息的节点会将最新的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt; 持久化到各自的本地配置文件中。&lt;/p&gt;
+
+&lt;h2 id=&quot;5-3-replica-election-and-promotion&quot;&gt;5-3 Replica election and promotion&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;选举 &amp;amp; 晋升总是由 slave 节点发起与处理&lt;/strong&gt;，master 节点在选举过程中参与投票。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;选举的条件？
+    &lt;ol&gt;
+      &lt;li&gt;master 处于 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FAIL&lt;/code&gt; 状态&lt;/li&gt;
+      &lt;li&gt;master 至少管理一个 hash slot&lt;/li&gt;
+      &lt;li&gt;slave 与 master 的复制链接断开时间少于给定值：用于确保晋升的 slave 数据尽可能新&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;什么时候触发选举？
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;当 master 在至少一个 slave 视图中处于 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FAIL&lt;/code&gt; 状态时，且 slave 要求晋升为 master，就会触发选举流程&lt;/p&gt;
+
+        &lt;blockquote&gt;
+          &lt;p&gt;&lt;strong&gt;多个 slave 都可以发起选举流程，但是只有一个 slave 能赢得选举&lt;/strong&gt;&lt;/p&gt;
+        &lt;/blockquote&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;选举流程？
+    &lt;ol&gt;
+      &lt;li&gt;slave 增加自己的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;currentEpoch&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;slave 向集群所有 master 节点广播 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FAILOVER_AUTH_REQUEST&lt;/code&gt; 包请求选票，并且在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NODE_TIMEOUT * 2&lt;/code&gt; 时间内等待所有 master 节点的回复&lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;master 收到投票请求后，如果准备将选票投给对应的 slave，则回复 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FAILOVER_AUTH_ACK&lt;/code&gt;，并且在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NODE_TIMEOUT * 2&lt;/code&gt; 时间内不能给其他 slave 进行投票&lt;/p&gt;
+
+        &lt;blockquote&gt;
+          &lt;p&gt;避免多个 slave 赢得选票&lt;/p&gt;
+        &lt;/blockquote&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;slave 抛弃那些 epoch 比自己发送选票请求时的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;currentEpoch&lt;/code&gt; 小的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FAILOVER_AUTH_ACK&lt;/code&gt;&lt;/p&gt;
+
+        &lt;blockquote&gt;
+          &lt;p&gt;避免计算上一次选举的选票&lt;/p&gt;
+        &lt;/blockquote&gt;
+      &lt;/li&gt;
+      &lt;li&gt;如果 slave 在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NODE_TIMEOUT * 2&lt;/code&gt; 时间内赢得了大部分 master 节点的选票，则其赢得选举；否则将会在  &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NODE_TIMEOUT * 4&lt;/code&gt; 时间后再次尝试&lt;/li&gt;
+      &lt;li&gt;slave 赢得选举后会新增 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt;，该 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt; 会比其他 master 节点更大。随后会在 ping &amp;amp; pong 中广播该 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch.&lt;/code&gt;为了加速配置更新，新 master 会向其他节点直接发送 pong 包&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;5-4-masters-reply-to-replica-vote-request&quot;&gt;5-4 Masters reply to replica vote request&lt;/h2&gt;
+
+&lt;p&gt;在选举过程中，master 需要为接收到的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FAILOVER_AUTH_REQUEST&lt;/code&gt; 请求进行投票，投票的条件为：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;master 只会对每个 epoch 投票一次，并且拒绝比上次投票更小的 epoch 请求&lt;/strong&gt;：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lastVoteEpoch&lt;/code&gt; 保存在 master 节点本地&lt;/li&gt;
+  &lt;li&gt;请求的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;currentEpoch&lt;/code&gt; 如果小于当前 master  的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;currentEpoch&lt;/code&gt;，则会被忽略&lt;/li&gt;
+  &lt;li&gt;请求的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt; 如果小于其所属 master 的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt;，则也会被忽略。由于 slave 的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt; 从其 master 获取，这种情况说明 slave 并不是比较新的&lt;/li&gt;
+  &lt;li&gt;salve 所属的 master 被当前 master 标记为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FAIL&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;5-5-hash-slots-configuration-propagation&quot;&gt;5-5 Hash slots configuration propagation&lt;/h2&gt;
+
+&lt;p&gt;Redis Cluster 提供一种机制，用于在集群中传播每个节点管理的 hash slot 配置信息。&lt;/p&gt;
+
+&lt;p&gt;有两种传播 hash slot 配置信息的方式：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;心跳包：ping &amp;amp; pong 消息的发送方总会携带自己或者其 master 管理的 hash slot 信息&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;UPDATE&lt;/code&gt; 消息：心跳包的接收方如果发现发送方的消息过期，则会回复 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;UPDATE&lt;/code&gt; 消息，&lt;strong&gt;强制对方更新其过期信息&lt;/strong&gt;。（&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;UPDATE&lt;/code&gt; 消息中包含了最新的配置信息）&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;当新的 Redis Cluster 节点创建时，其本地 hash slots 映射表初始化为 NULL，基本如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;16383&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;hash slots 配置的传播规则如下：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;如果在 A 节点的本地一个 hash slot 没有被分配（NULL），此时有 B 节点声明了该 slot，则修改 A 本地的 hash slot 映射关系将该 slot 绑定为 B&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;如果 A 节点中一个 hash slot 已经被 C 分配，此时 B 的广播消息中的 configEpoch 比 C 节点的 configEpoch 大，则将该 hash slot 绑定为 B&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;最终所有节点一定会通过节点间的消息广播就 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;configEpoch&lt;/code&gt; 最大的节点获得 slot 的管理权达成一致；这一机制被称为 &lt;strong&gt;last failover wins(最后故障转移者胜)&lt;/strong&gt;&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;由于以上规则，当一个过期的节点收到 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;UPDATE&lt;/code&gt; 消息时，会根据最新消息更新自己的配置。&lt;/p&gt;
+
+&lt;p&gt;当一个 master 节点在分区后重新加入集群时，会将自己从属于新的 master 节点，并更新自身配置。&lt;/p&gt;
+
+&lt;h2 id=&quot;5-6-replica-migration&quot;&gt;5-6 Replica migration&lt;/h2&gt;
+
+&lt;p&gt;备份迁移是一种 slave 自动重配的过程，用来将备份节点迁移到当前已经没有可用 slave 的 master上，提高集群可用性。&lt;/p&gt;
+
+&lt;p&gt;假设 A 只有一个 slave A，可能的迁移场景为：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;A发生故障，A1 被晋升。&lt;/li&gt;
+  &lt;li&gt;C2 迁移为 A1 的 slave，否则 A1 将会没有任何 slave&lt;/li&gt;
+  &lt;li&gt;一段时间后 A1 也发生了故障&lt;/li&gt;
+  &lt;li&gt;C2 被晋升为新的 master 以替代 A1&lt;/li&gt;
+  &lt;li&gt;此时，集群还能正常提供服务。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;6-appendix&quot;&gt;6-Appendix&lt;/h1&gt;
+
+&lt;p&gt;原文：&lt;a href=&quot;https://redis.io/topics/cluster-spec&quot;&gt;https://redis.io/topics/cluster-spec&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Main properties and rationales of the design</summary></entry><entry><title type="html">同位语从句</title><link href="http://localhost:4000/appositive-clause.html" rel="alternate" type="text/html" title="同位语从句" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/appositive-clause</id><content type="html" xml:base="http://localhost:4000/appositive-clause.html">&lt;h2 id=&quot;1-同位语&quot;&gt;1-同位语&lt;/h2&gt;
 
 &lt;p&gt;一个名词（或其它形式）&lt;strong&gt;&lt;em&gt;对另一个名词或代词进行解释或补充说明&lt;/em&gt;&lt;/strong&gt;，这个名词（或其它形式）就是同位语。&lt;/p&gt;
 
