@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>编程珠玑: 编写正确的程序</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.1" />
+<meta property="og:title" content="编程珠玑: 编写正确的程序" />
+<meta name="author" content="kkzhang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="二分搜索" />
+<meta property="og:description" content="二分搜索" />
+<link rel="canonical" href="http://localhost:4000/programming-pearls-4.html" />
+<meta property="og:url" content="http://localhost:4000/programming-pearls-4.html" />
+<meta property="og:site_name" content="Find a needle in haystack" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-02-27T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="编程珠玑: 编写正确的程序" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"kkzhang"},"headline":"编程珠玑: 编写正确的程序","dateModified":"2022-02-27T00:00:00+08:00","@type":"BlogPosting","datePublished":"2022-02-27T00:00:00+08:00","description":"二分搜索","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/programming-pearls-4.html"},"url":"http://localhost:4000/programming-pearls-4.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Find a needle in haystack" /><link rel="shortcut icon" type="image/x-icon" href="/logo.ico" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head><body a="auto">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/">../</a><article>
+  <p class="post-meta">
+    <time datetime="2022-02-27 00:00:00 +0800">2022-02-27</time>
+  </p>
+  
+  <h1>编程珠玑: 编写正确的程序</h1>
+
+  <h2 id="二分搜索">二分搜索</h2>
+
+<p>二分搜索的目标是确定在排序数组 x[0…n-1] 中是否存在目标元素 t，如果存在则返回对应的索引 p，否则返回 -1。</p>
+
+<p>该算法实现思路为：通过<strong>持续跟踪数组中包含元素 t 的范围</strong>（如果 t 存在数组中）。</p>
+
+<ol>
+  <li>一开始，该范围是整个数组</li>
+  <li>通过将 t 与数组的中间项进行比较并抛弃一半的范围来缩小目标范围</li>
+  <li>持续步骤 2，直到在数组中找到 t 或者确定包含 t 的范围为空时为止</li>
+</ol>
+
+<p>在包含 n 个元素的数组中，二分搜索需要执行 $logn$ 次比较操作。</p>
+
+<blockquote>
+  <p>线性搜索需要 $n/2$ 次比较</p>
+
+</blockquote>
+
+<h2 id="编写程序">编写程序</h2>
+
+<p>二分搜索的思想为：<strong>如果 t 在 x[0…n-1] 中，那么 t 一定存在于 x 的某个特定范围内</strong>。</p>
+
+<p>通过使用<strong>循环不变式</strong> <code class="language-plaintext highlighter-rouge">mustbe(range)</code> 来表示：如果 t 在数组中，那么其一定在 range 内。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">init</span> <span class="n">range</span> <span class="n">to</span> <span class="mi">0</span><span class="o">...</span><span class="na">n</span><span class="o">-</span><span class="mi">1</span>
+<span class="n">loop</span> 
+    <span class="o">{</span><span class="nl">invariant:</span> <span class="n">mustbe</span><span class="o">(</span><span class="n">range</span><span class="o">)}</span>
+    <span class="k">if</span> <span class="n">range</span> <span class="n">is</span> <span class="n">empty</span><span class="o">,</span> 
+        <span class="k">break</span> <span class="n">and</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="n">cumpute</span> <span class="n">m</span><span class="o">,</span> <span class="n">the</span> <span class="n">middle</span> <span class="n">of</span> <span class="n">the</span> <span class="n">range</span>
+    <span class="n">use</span> <span class="n">m</span> <span class="n">as</span> <span class="n">a</span> <span class="n">probe</span> <span class="n">to</span> <span class="n">shrink</span> <span class="n">the</span> <span class="n">range</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="n">is</span> <span class="n">found</span> <span class="n">during</span> <span class="n">the</span> <span class="n">shrinking</span> <span class="n">process</span><span class="o">,</span> <span class="k">break</span> <span class="n">and</span> <span class="n">report</span> <span class="n">its</span> <span class="n">position</span>
+</code></pre></div></div>
+
+<p>循环不变式是程序状态的断言（assertion），在循环迭代之前和之后，该断言都为真。</p>
+
+<p>range 用下标<code class="language-plaintext highlighter-rouge">（l, u）</code>表示，<code class="language-plaintext highlighter-rouge">mustbe(l,u)</code> 表示：如果 t 在数组中，则一定在 <code class="language-plaintext highlighter-rouge">x[l...u]</code> 内。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">l</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">u</span> <span class="o">=</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+<span class="nl">loop:</span>
+    <span class="o">{</span><span class="nl">invariant:</span> <span class="n">mustbe</span><span class="o">(</span><span class="n">l</span><span class="o">,</span><span class="n">u</span><span class="o">)}</span>
+    <span class="k">if</span> <span class="n">l</span> <span class="o">&gt;</span> <span class="n">u</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span> <span class="k">break</span><span class="o">;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="o">(</span><span class="n">l</span> <span class="o">+</span> <span class="n">u</span><span class="o">)/</span><span class="mi">2</span>
+    <span class="k">case</span><span class="o">:</span>
+        <span class="n">x</span><span class="o">[</span><span class="n">m</span><span class="o">]</span> <span class="o">&lt;</span> <span class="nl">t:</span> <span class="n">l</span> <span class="o">=</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="n">x</span><span class="o">[</span><span class="n">m</span><span class="o">]</span> <span class="o">=</span> <span class="nl">t:</span> <span class="k">return</span> <span class="n">m</span><span class="o">;</span>
+        <span class="n">x</span><span class="o">[</span><span class="n">m</span><span class="o">]</span> <span class="o">&gt;</span> <span class="nl">t:</span> <span class="n">u</span> <span class="o">=</span> <span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p>在上面的伪代码中，如果 <code class="language-plaintext highlighter-rouge">x[m] &lt; t</code>，那么 <code class="language-plaintext highlighter-rouge">x[0] ≤ x[1] ... ≤ x[m] &lt; t</code>，所以 t 不会存在 <code class="language-plaintext highlighter-rouge">x[0...m]</code> 范围内。将该结论与已知条件 t 存在 <code class="language-plaintext highlighter-rouge">x[l...u]</code> 之内，可知 t 一定在 <code class="language-plaintext highlighter-rouge">x[m+1, u]</code> 之内，即为 <code class="language-plaintext highlighter-rouge">mustbe(m+1, u)</code>。因此，通过将 l 设为 m+1 可以再次确立不变式 <code class="language-plaintext highlighter-rouge">mustbe(l, u)</code>。</p>
+
+<h2 id="理解程序">理解程序</h2>
+
+<p>上述代码的正确性分为 3 个部分，每部分都与循环不变式相关：</p>
+
+<ol>
+  <li>
+    <p><strong>初始化</strong></p>
+
+    <p>循环初次执行时，不变式为真。</p>
+  </li>
+  <li>
+    <p><strong>保持</strong></p>
+
+    <p>如果某次迭代开始的时候 &amp; 循环体执行的时候，不变式都为真，那么，循环体执行完毕的时候不变式仍为真。</p>
+  </li>
+  <li>
+    <p><strong>终止</strong></p>
+
+    <p>循环能够终止，并且可以得到期望的结果（需要用到不变式所确立的事实）。</p>
+  </li>
+</ol>
+
+<h2 id="代码">代码</h2>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 迭代</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">binarySearch</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">l</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">u</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="k">while</span> <span class="o">(</span><span class="n">l</span> <span class="o">&lt;=</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// mustbe(l, u)</span>
+        <span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="o">(</span><span class="n">l</span> <span class="o">+</span> <span class="n">u</span><span class="o">)</span> <span class="o">/</span> <span class="mi">2</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">x</span><span class="o">[</span><span class="n">m</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">x</span><span class="o">[</span><span class="n">m</span><span class="o">]</span> <span class="o">==</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">m</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="c1">// 递归</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">binarySearch</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">binarySearch</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">t</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="mi">1</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">binarySearch</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">t</span><span class="o">,</span> <span class="kt">int</span> <span class="n">l</span><span class="o">,</span> <span class="kt">int</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">l</span> <span class="o">&gt;</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="o">(</span><span class="n">l</span> <span class="o">+</span> <span class="n">u</span><span class="o">)</span> <span class="o">/</span> <span class="mi">2</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">x</span><span class="o">[</span><span class="n">m</span><span class="o">]</span> <span class="o">==</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">m</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">x</span><span class="o">[</span><span class="n">m</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nf">binarySearch</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">t</span><span class="o">,</span> <span class="n">l</span><span class="o">,</span> <span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nf">binarySearch</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">t</span><span class="o">,</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="o">,</span> <span class="n">u</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,10 +1,10 @@
 ---
 
 layout: post
-title: "【编程珠玑】开篇"
+title: "编程珠玑: 开篇"
 author: "kkzhang"
 category: "algrithom"
-image: pp_1.jpg
+
 ---
 
 ## 问题引入

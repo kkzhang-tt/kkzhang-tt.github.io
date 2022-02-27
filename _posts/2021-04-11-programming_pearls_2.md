@@ -1,10 +1,10 @@
 ---
 
 layout: post
-title: "【编程珠玑】啊哈！算法"
+title: "编程珠玑: 啊哈！算法"
 author: "kkzhang"
 category: algrithom
-image: pp_2.jpg
+
 ---
 
 ## 三个问题

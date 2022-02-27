@@ -1,5 +1,119 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-02-27T16:59:10+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
-</subtitle><author><name>kkzhang</name></author><entry><title type="html">Redis Cluster Specification</title><link href="http://localhost:4000/redis-cluster-specification.html" rel="alternate" type="text/html" title="Redis Cluster Specification" /><published>2022-02-19T00:00:00+08:00</published><updated>2022-02-19T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-specification</id><content type="html" xml:base="http://localhost:4000/redis-cluster-specification.html">&lt;h1 id=&quot;1-main-properties-and-rationales-of-the-design&quot;&gt;1-Main properties and rationales of the design&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-02-27T19:05:35+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
+</subtitle><author><name>kkzhang</name></author><entry><title type="html">编程珠玑: 编写正确的程序</title><link href="http://localhost:4000/programming-pearls-4.html" rel="alternate" type="text/html" title="编程珠玑: 编写正确的程序" /><published>2022-02-27T00:00:00+08:00</published><updated>2022-02-27T00:00:00+08:00</updated><id>http://localhost:4000/programming_pearls_4</id><content type="html" xml:base="http://localhost:4000/programming-pearls-4.html">&lt;h2 id=&quot;二分搜索&quot;&gt;二分搜索&lt;/h2&gt;
+
+&lt;p&gt;二分搜索的目标是确定在排序数组 x[0…n-1] 中是否存在目标元素 t，如果存在则返回对应的索引 p，否则返回 -1。&lt;/p&gt;
+
+&lt;p&gt;该算法实现思路为：通过&lt;strong&gt;持续跟踪数组中包含元素 t 的范围&lt;/strong&gt;（如果 t 存在数组中）。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;一开始，该范围是整个数组&lt;/li&gt;
+  &lt;li&gt;通过将 t 与数组的中间项进行比较并抛弃一半的范围来缩小目标范围&lt;/li&gt;
+  &lt;li&gt;持续步骤 2，直到在数组中找到 t 或者确定包含 t 的范围为空时为止&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;在包含 n 个元素的数组中，二分搜索需要执行 $logn$ 次比较操作。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;线性搜索需要 $n/2$ 次比较&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;编写程序&quot;&gt;编写程序&lt;/h2&gt;
+
+&lt;p&gt;二分搜索的思想为：&lt;strong&gt;如果 t 在 x[0…n-1] 中，那么 t 一定存在于 x 的某个特定范围内&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;通过使用&lt;strong&gt;循环不变式&lt;/strong&gt; &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mustbe(range)&lt;/code&gt; 来表示：如果 t 在数组中，那么其一定在 range 内。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;init&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;range&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;loop&lt;/span&gt; 
+    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;invariant:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mustbe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;range&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;empty&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;cumpute&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;middle&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;range&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;probe&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;shrink&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;range&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;found&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;during&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;shrinking&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;process&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;report&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;its&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;position&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;循环不变式是程序状态的断言（assertion），在循环迭代之前和之后，该断言都为真。&lt;/p&gt;
+
+&lt;p&gt;range 用下标&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;（l, u）&lt;/code&gt;表示，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mustbe(l,u)&lt;/code&gt; 表示：如果 t 在数组中，则一定在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[l...u]&lt;/code&gt; 内。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nl&quot;&gt;loop:&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;invariant:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mustbe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;t:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;t:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;t:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;在上面的伪代码中，如果 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[m] &amp;lt; t&lt;/code&gt;，那么 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[0] ≤ x[1] ... ≤ x[m] &amp;lt; t&lt;/code&gt;，所以 t 不会存在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[0...m]&lt;/code&gt; 范围内。将该结论与已知条件 t 存在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[l...u]&lt;/code&gt; 之内，可知 t 一定在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[m+1, u]&lt;/code&gt; 之内，即为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mustbe(m+1, u)&lt;/code&gt;。因此，通过将 l 设为 m+1 可以再次确立不变式 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mustbe(l, u)&lt;/code&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;理解程序&quot;&gt;理解程序&lt;/h2&gt;
+
+&lt;p&gt;上述代码的正确性分为 3 个部分，每部分都与循环不变式相关：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;初始化&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;循环初次执行时，不变式为真。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;保持&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;如果某次迭代开始的时候 &amp;amp; 循环体执行的时候，不变式都为真，那么，循环体执行完毕的时候不变式仍为真。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;终止&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;循环能够终止，并且可以得到期望的结果（需要用到不变式所确立的事实）。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;代码&quot;&gt;代码&lt;/h2&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// 迭代&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;binarySearch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// mustbe(l, u)&lt;/span&gt;
+        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// 递归&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;binarySearch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;binarySearch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;binarySearch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;binarySearch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;binarySearch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">二分搜索</summary></entry><entry><title type="html">Redis Cluster Specification</title><link href="http://localhost:4000/redis-cluster-specification.html" rel="alternate" type="text/html" title="Redis Cluster Specification" /><published>2022-02-19T00:00:00+08:00</published><updated>2022-02-19T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-specification</id><content type="html" xml:base="http://localhost:4000/redis-cluster-specification.html">&lt;h1 id=&quot;1-main-properties-and-rationales-of-the-design&quot;&gt;1-Main properties and rationales of the design&lt;/h1&gt;
 
 &lt;h2 id=&quot;1-1-redis-cluster-goals&quot;&gt;1-1 Redis Cluster goals&lt;/h2&gt;
 
@@ -694,90 +808,7 @@
 
 &lt;h1 id=&quot;6-appendix&quot;&gt;6-Appendix&lt;/h1&gt;
 
-&lt;p&gt;原文：&lt;a href=&quot;https://redis.io/topics/cluster-spec&quot;&gt;https://redis.io/topics/cluster-spec&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Main properties and rationales of the design</summary></entry><entry><title type="html">同位语从句</title><link href="http://localhost:4000/appositive-clause.html" rel="alternate" type="text/html" title="同位语从句" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/appositive-clause</id><content type="html" xml:base="http://localhost:4000/appositive-clause.html">&lt;h2 id=&quot;1-同位语&quot;&gt;1-同位语&lt;/h2&gt;
-
-&lt;p&gt;一个名词（或其它形式）&lt;strong&gt;&lt;em&gt;对另一个名词或代词进行解释或补充说明&lt;/em&gt;&lt;/strong&gt;，这个名词（或其它形式）就是同位语。&lt;/p&gt;
-
-&lt;p&gt;同位语与被它限定的词的格式要一致，并常常紧挨在一起。同位语除表示其同位成分的全部意义外，还可以表示部分意义。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Mr. Smith, our new teacher, is very kind to us.&lt;/li&gt;
-  &lt;li&gt;He told me that his brother John was a world-famous doctor.(John 是 brother 的同位语)&lt;/li&gt;
-  &lt;li&gt;Yesterday I talked to my English teacher, Mr. James.&lt;/li&gt;
-  &lt;li&gt;We Chinese people are brave and hard-working.(Chinese people 是 we 的同位语)&lt;/li&gt;
-  &lt;li&gt;He is interested in sports, especially ball games.(ball games 是 sports 的同位语)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-同位语从句&quot;&gt;2-同位语从句&lt;/h2&gt;
-
-&lt;p&gt;同位语从句指的是在复合句中充当同位语的从句，属于名词性从句的范畴。&lt;/p&gt;
-
-&lt;p&gt;同位语从句用来&lt;em&gt;对其前面的抽象名词进行解释说明&lt;/em&gt;，被解释说明的词和同位语在逻辑上是&lt;strong&gt;主表关系&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h3 id=&quot;2-1-先行词&quot;&gt;2-1 先行词&lt;/h3&gt;
-
-&lt;p&gt;可以连接同位语从句的名词有：&lt;strong&gt;news，idea，fact，promise，question，doubt，thought，hope，message，suggestion，words(消息)，possibility, decision&lt;/strong&gt; 等(一般的”抽象”名词)。&lt;/p&gt;
-
-&lt;h3 id=&quot;2-2-引导词&quot;&gt;2-2 引导词&lt;/h3&gt;
-
-&lt;p&gt;引导同位语从句的词语通常有连词 that, whethe, 连接代词和连接副词等。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;that 连接从句时，&lt;strong&gt;从句为一个句意完整的陈述句&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;that 不能省略，没有具体的含义，&lt;strong&gt;&lt;em&gt;不充当句子成分，只起连接作用&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;The idea &lt;em&gt;that you can do this work well without thinking&lt;/em&gt; is quite wrong.(that 引导的从句作 idea 的同位语)&lt;/li&gt;
-      &lt;li&gt;We heard the news &lt;em&gt;that our team had won&lt;/em&gt;.(news 的同位语)&lt;/li&gt;
-      &lt;li&gt;They were worried over the fact &lt;em&gt;that you were sick&lt;/em&gt;.(fact 的同位语)&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;在某些名词(如 &lt;strong&gt;demand, wish, suggestion, resolution&lt;/strong&gt;等) 后面的同位语从句要&lt;strong&gt;用虚拟语气&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;There was a suggestion &lt;em&gt;that Brown should be dropped from the team&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;引导同位语从句的连词 that 通常不省略，但在&lt;em&gt;非正式文体中也可以省去&lt;/em&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;He grabbed his suitcase and gave the impression &lt;em&gt;he was boarding the Tokyo plane&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;whether 引导同位语从句&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;if 不能引导同位语从句&lt;/p&gt;
-    &lt;/blockquote&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;There is some doubt &lt;em&gt;whether he will come&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;Answer my question &lt;em&gt;whether you are coming&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;The question &lt;em&gt;whether it is right or wrong&lt;/em&gt; depends on the result.&lt;/li&gt;
-      &lt;li&gt;We are not investigating the question &lt;em&gt;whether he is trustworthy&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;连接代词 what, who, whom, whose 引导同位语从句
-    &lt;ul&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;what size shoes she wears&lt;/em&gt;.(what 作 size 的定语)&lt;/li&gt;
-      &lt;li&gt;The question &lt;em&gt;who will take his place&lt;/em&gt; is still not clear.(who 作同位语从句的主语)&lt;/li&gt;
-      &lt;li&gt;Have you any idea &lt;em&gt;what time it starts&lt;/em&gt;?&lt;/li&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;who can really understand my complicated mind&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;连接副词 where, when, why, how 引导同位语从句
-    &lt;ul&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;when he will come back&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;It is a question &lt;em&gt;how he does it&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;He had no idea &lt;em&gt;why she left&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;You have no idea &lt;em&gt;how worried I was&lt;/em&gt;!&lt;/li&gt;
-      &lt;li&gt;We haven’t yet settled the question &lt;em&gt;where we are going to spend our summer vacation&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-同位语</summary></entry><entry><title type="html">Redis Cluster Tutorial</title><link href="http://localhost:4000/redis-cluster-tutorial.html" rel="alternate" type="text/html" title="Redis Cluster Tutorial" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-tutorial</id><content type="html" xml:base="http://localhost:4000/redis-cluster-tutorial.html">&lt;h2 id=&quot;1-introduction&quot;&gt;1-Introduction&lt;/h2&gt;
+&lt;p&gt;原文：&lt;a href=&quot;https://redis.io/topics/cluster-spec&quot;&gt;https://redis.io/topics/cluster-spec&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Main properties and rationales of the design</summary></entry><entry><title type="html">Redis Cluster Tutorial</title><link href="http://localhost:4000/redis-cluster-tutorial.html" rel="alternate" type="text/html" title="Redis Cluster Tutorial" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-tutorial</id><content type="html" xml:base="http://localhost:4000/redis-cluster-tutorial.html">&lt;h2 id=&quot;1-introduction&quot;&gt;1-Introduction&lt;/h2&gt;
 
 &lt;p&gt;Redis Cluster 支持&lt;strong&gt;数据自动在多个 Redis 节点间分片&lt;/strong&gt;。&lt;/p&gt;
 
@@ -904,7 +935,90 @@
 
 &lt;h2 id=&quot;6-appendix&quot;&gt;6-Appendix&lt;/h2&gt;
 
-&lt;p&gt;原文地址：&lt;a href=&quot;https://redis.io/topics/cluster-tutorial#:~:text=Redis%20Cluster%20provides%20a%20way,are%20not%20able%20to%20communicate&quot;&gt;redis-io&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Introduction</summary></entry><entry><title type="html">定语从句</title><link href="http://localhost:4000/attributive-clause.html" rel="alternate" type="text/html" title="定语从句" /><published>2022-02-11T00:00:00+08:00</published><updated>2022-02-11T00:00:00+08:00</updated><id>http://localhost:4000/attributive-clause</id><content type="html" xml:base="http://localhost:4000/attributive-clause.html">&lt;h2 id=&quot;1-基本概念&quot;&gt;1-基本概念&lt;/h2&gt;
+&lt;p&gt;原文地址：&lt;a href=&quot;https://redis.io/topics/cluster-tutorial#:~:text=Redis%20Cluster%20provides%20a%20way,are%20not%20able%20to%20communicate&quot;&gt;redis-io&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Introduction</summary></entry><entry><title type="html">同位语从句</title><link href="http://localhost:4000/appositive-clause.html" rel="alternate" type="text/html" title="同位语从句" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/appositive-clause</id><content type="html" xml:base="http://localhost:4000/appositive-clause.html">&lt;h2 id=&quot;1-同位语&quot;&gt;1-同位语&lt;/h2&gt;
+
+&lt;p&gt;一个名词（或其它形式）&lt;strong&gt;&lt;em&gt;对另一个名词或代词进行解释或补充说明&lt;/em&gt;&lt;/strong&gt;，这个名词（或其它形式）就是同位语。&lt;/p&gt;
+
+&lt;p&gt;同位语与被它限定的词的格式要一致，并常常紧挨在一起。同位语除表示其同位成分的全部意义外，还可以表示部分意义。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Mr. Smith, our new teacher, is very kind to us.&lt;/li&gt;
+  &lt;li&gt;He told me that his brother John was a world-famous doctor.(John 是 brother 的同位语)&lt;/li&gt;
+  &lt;li&gt;Yesterday I talked to my English teacher, Mr. James.&lt;/li&gt;
+  &lt;li&gt;We Chinese people are brave and hard-working.(Chinese people 是 we 的同位语)&lt;/li&gt;
+  &lt;li&gt;He is interested in sports, especially ball games.(ball games 是 sports 的同位语)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-同位语从句&quot;&gt;2-同位语从句&lt;/h2&gt;
+
+&lt;p&gt;同位语从句指的是在复合句中充当同位语的从句，属于名词性从句的范畴。&lt;/p&gt;
+
+&lt;p&gt;同位语从句用来&lt;em&gt;对其前面的抽象名词进行解释说明&lt;/em&gt;，被解释说明的词和同位语在逻辑上是&lt;strong&gt;主表关系&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;2-1-先行词&quot;&gt;2-1 先行词&lt;/h3&gt;
+
+&lt;p&gt;可以连接同位语从句的名词有：&lt;strong&gt;news，idea，fact，promise，question，doubt，thought，hope，message，suggestion，words(消息)，possibility, decision&lt;/strong&gt; 等(一般的”抽象”名词)。&lt;/p&gt;
+
+&lt;h3 id=&quot;2-2-引导词&quot;&gt;2-2 引导词&lt;/h3&gt;
+
+&lt;p&gt;引导同位语从句的词语通常有连词 that, whethe, 连接代词和连接副词等。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;that 连接从句时，&lt;strong&gt;从句为一个句意完整的陈述句&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;that 不能省略，没有具体的含义，&lt;strong&gt;&lt;em&gt;不充当句子成分，只起连接作用&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;The idea &lt;em&gt;that you can do this work well without thinking&lt;/em&gt; is quite wrong.(that 引导的从句作 idea 的同位语)&lt;/li&gt;
+      &lt;li&gt;We heard the news &lt;em&gt;that our team had won&lt;/em&gt;.(news 的同位语)&lt;/li&gt;
+      &lt;li&gt;They were worried over the fact &lt;em&gt;that you were sick&lt;/em&gt;.(fact 的同位语)&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;在某些名词(如 &lt;strong&gt;demand, wish, suggestion, resolution&lt;/strong&gt;等) 后面的同位语从句要&lt;strong&gt;用虚拟语气&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;There was a suggestion &lt;em&gt;that Brown should be dropped from the team&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;引导同位语从句的连词 that 通常不省略，但在&lt;em&gt;非正式文体中也可以省去&lt;/em&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;He grabbed his suitcase and gave the impression &lt;em&gt;he was boarding the Tokyo plane&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;whether 引导同位语从句&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;if 不能引导同位语从句&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;There is some doubt &lt;em&gt;whether he will come&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;Answer my question &lt;em&gt;whether you are coming&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;The question &lt;em&gt;whether it is right or wrong&lt;/em&gt; depends on the result.&lt;/li&gt;
+      &lt;li&gt;We are not investigating the question &lt;em&gt;whether he is trustworthy&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;连接代词 what, who, whom, whose 引导同位语从句
+    &lt;ul&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;what size shoes she wears&lt;/em&gt;.(what 作 size 的定语)&lt;/li&gt;
+      &lt;li&gt;The question &lt;em&gt;who will take his place&lt;/em&gt; is still not clear.(who 作同位语从句的主语)&lt;/li&gt;
+      &lt;li&gt;Have you any idea &lt;em&gt;what time it starts&lt;/em&gt;?&lt;/li&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;who can really understand my complicated mind&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;连接副词 where, when, why, how 引导同位语从句
+    &lt;ul&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;when he will come back&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;It is a question &lt;em&gt;how he does it&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;He had no idea &lt;em&gt;why she left&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;You have no idea &lt;em&gt;how worried I was&lt;/em&gt;!&lt;/li&gt;
+      &lt;li&gt;We haven’t yet settled the question &lt;em&gt;where we are going to spend our summer vacation&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-同位语</summary></entry><entry><title type="html">定语从句</title><link href="http://localhost:4000/attributive-clause.html" rel="alternate" type="text/html" title="定语从句" /><published>2022-02-11T00:00:00+08:00</published><updated>2022-02-11T00:00:00+08:00</updated><id>http://localhost:4000/attributive-clause</id><content type="html" xml:base="http://localhost:4000/attributive-clause.html">&lt;h2 id=&quot;1-基本概念&quot;&gt;1-基本概念&lt;/h2&gt;
 
 &lt;h3 id=&quot;1-1-定义&quot;&gt;1-1 定义&lt;/h3&gt;
 
@@ -2214,87 +2328,4 @@
 
 &lt;p&gt;Dynamo 作为一个高可用，高可扩展的数据仓库，提供了期望的可用性和性能等级，可以正确地处理服务器故障、数据中心故障和网络分裂；支持增量扩展；允许&lt;strong&gt;客户端应用可以通过对 N、R 和 W 三个参数进行调优来达到期望的性能、可用性和持久性等级&lt;/strong&gt;。&lt;/p&gt;
 
-&lt;p&gt;Dynamo 表明了&lt;strong&gt;最终一致性存储系统可以作为高可用应用（highly available applications）的一块基石。&lt;/strong&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Abstract</summary></entry><entry><title type="html">现在完成时与一般过去时</title><link href="http://localhost:4000/present-progressive-and-past-tense.html" rel="alternate" type="text/html" title="现在完成时与一般过去时" /><published>2022-01-16T00:00:00+08:00</published><updated>2022-01-16T00:00:00+08:00</updated><id>http://localhost:4000/present-progressive-and-past-tense</id><content type="html" xml:base="http://localhost:4000/present-progressive-and-past-tense.html">&lt;p&gt;现在完成时与一般过去时是英语中用法极为灵活的两种时态，它们属于不同时间的两种时态：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;现在完成时属于现在时态的范畴&lt;/li&gt;
-  &lt;li&gt;一般过去时属于过去时态的范畴&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;1-构成形式不同&quot;&gt;1-构成形式不同&lt;/h2&gt;
-
-&lt;p&gt;现在完成时的动词形式为：&lt;strong&gt;have (has) + 动词的过去分词&lt;/strong&gt;；一般过去时的动词形式为：&lt;strong&gt;动词的过去式&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;一般过去时：Jack’s mother took him to school every day when he was in primary school.&lt;/li&gt;
-  &lt;li&gt;现在完成时：Maria has never read any Chinese stories.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-强调对象不同&quot;&gt;2-强调对象不同&lt;/h2&gt;
-
-&lt;p&gt;现在完成时：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;用来表示之前已发生或完成的动作或状态，其结果和现在有联系，现在完成时的&lt;strong&gt;&lt;em&gt;动作或状态发生在过去，但它的影响现在还存在&lt;/em&gt;&lt;/strong&gt;。&lt;/li&gt;
-  &lt;li&gt;强调过去的事情对现在的影响，&lt;strong&gt;&lt;em&gt;强调的是影响&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;一般过去时：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;表示过去的事实，不表示和现在的关系。&lt;/li&gt;
-  &lt;li&gt;表示过去某时发生的动作或单纯叙述过去的事情，&lt;strong&gt;&lt;em&gt;强调动作&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;示例：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Yesterday I went to the zoo.（仅说明昨天去了动物园，与现在无关）&lt;/li&gt;
-  &lt;li&gt;Li Lei has read the book.（强调对现在的影响，那本书的内容已经了解）&lt;/li&gt;
-  &lt;li&gt;Mr Green bought a new computer yesterday.（强调的是格林先生买新电脑的时间是昨天）&lt;/li&gt;
-  &lt;li&gt;Mr Green has bought a new computer.（重点是格林先生现在有了一台新电脑）&lt;/li&gt;
-  &lt;li&gt;I saw the film three days ago.（强调是三天前，而不是别的什么时候看的电影）&lt;/li&gt;
-  &lt;li&gt;I have seen the film.（现在我仍记得电影的内容）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;3-时间状语不同&quot;&gt;3-时间状语不同&lt;/h2&gt;
-
-&lt;p&gt;一般过去时常与 &lt;strong&gt;&lt;em&gt;具体的时间状语&lt;/em&gt;&lt;/strong&gt; 连用，而现在完成时通常与 &lt;strong&gt;&lt;em&gt;模糊的时间状语&lt;/em&gt;&lt;/strong&gt; 连用，或 &lt;strong&gt;&lt;em&gt;无时间状语&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;一般过去时：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;Yesterday, Last week / month / year / night/ Monday, yesterday morning / afternoon / evening,
-just now = a moment ago, …ago, the day before yesterday, 
-in +（已过去的）某年/ 月, on +（已过去的）某天, at +（已过去的）几点钟&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;现在完成时：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;可以和带有 &lt;strong&gt;&lt;em&gt;since 或 for 等表示一段时间的状语&lt;/em&gt;&lt;/strong&gt; 连用, 表示动作或状态从某一时刻开始，一直持续到现在。&lt;/p&gt;
-
-    &lt;p&gt;在与 for 及 since 引导的一段时间状语连用时，句子的谓语动词必须是&lt;strong&gt;&lt;em&gt;延续性动词&lt;/em&gt;&lt;/strong&gt;，短暂性动词不可和一段时间连用。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;He has become a soldier for three years.（wrong）&lt;/li&gt;
-      &lt;li&gt;He has been a soldier for three years. (right)&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;往往与&lt;strong&gt;&lt;em&gt;表示不确定的过去时间状语&lt;/em&gt;&lt;/strong&gt;连用，如 &lt;strong&gt;already&lt;/strong&gt;(肯定句中)，&lt;strong&gt;yet&lt;/strong&gt;(否定，疑问，句末)，&lt;strong&gt;just&lt;/strong&gt;, &lt;strong&gt;before&lt;/strong&gt;, &lt;strong&gt;recently&lt;/strong&gt;, &lt;strong&gt;still&lt;/strong&gt;, &lt;strong&gt;lately&lt;/strong&gt;, &lt;strong&gt;never&lt;/strong&gt; 等
-    &lt;ul&gt;
-      &lt;li&gt;He has already obtained a scholarship.&lt;/li&gt;
-      &lt;li&gt;I haven’t seen much of him recently (lately).&lt;/li&gt;
-      &lt;li&gt;We have seen that film before.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;经常与&lt;strong&gt;&lt;em&gt;表示频率的时间状语&lt;/em&gt;&lt;/strong&gt;连用，如：&lt;strong&gt;often, sometimes, ever, never, twice, on several occasion&lt;/strong&gt; 等.
-    &lt;ul&gt;
-      &lt;li&gt;Have you ever been to Beijing?&lt;/li&gt;
-      &lt;li&gt;I have never heard Bunny say anything against her.&lt;/li&gt;
-      &lt;li&gt;George has met that gentleman on several occasions.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;如果上述关键词都没有出现的话，就看是描述一个过去的事实或动作，还是表示强调已经完成了的事件对现在产生的影响。&lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">现在完成时与一般过去时是英语中用法极为灵活的两种时态，它们属于不同时间的两种时态：</summary></entry></feed>
+&lt;p&gt;Dynamo 表明了&lt;strong&gt;最终一致性存储系统可以作为高可用应用（highly available applications）的一块基石。&lt;/strong&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Abstract</summary></entry></feed>
