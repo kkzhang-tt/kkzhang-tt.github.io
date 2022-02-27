@@ -4,9 +4,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>编程珠玑（二）</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+  <title>【编程珠玑】啊哈！算法</title><!-- Begin Jekyll SEO tag v2.7.1 -->
 <meta name="generator" content="Jekyll v3.9.1" />
-<meta property="og:title" content="编程珠玑（二）" />
+<meta property="og:title" content="【编程珠玑】啊哈！算法" />
 <meta name="author" content="kkzhang" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="三个问题" />
@@ -19,9 +19,9 @@
 <meta property="article:published_time" content="2021-04-11T00:00:00+08:00" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta property="twitter:image" content="http://localhost:4000/pp_2.jpg" />
-<meta property="twitter:title" content="编程珠玑（二）" />
+<meta property="twitter:title" content="【编程珠玑】啊哈！算法" />
 <script type="application/ld+json">
-{"author":{"@type":"Person","name":"kkzhang"},"headline":"编程珠玑（二）","dateModified":"2021-04-11T00:00:00+08:00","@type":"BlogPosting","datePublished":"2021-04-11T00:00:00+08:00","description":"三个问题","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/programming-pearls-2.html"},"image":"http://localhost:4000/pp_2.jpg","url":"http://localhost:4000/programming-pearls-2.html","@context":"https://schema.org"}</script>
+{"author":{"@type":"Person","name":"kkzhang"},"headline":"【编程珠玑】啊哈！算法","dateModified":"2021-04-11T00:00:00+08:00","@type":"BlogPosting","datePublished":"2021-04-11T00:00:00+08:00","description":"三个问题","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/programming-pearls-2.html"},"image":"http://localhost:4000/pp_2.jpg","url":"http://localhost:4000/programming-pearls-2.html","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Find a needle in haystack" /><link rel="shortcut icon" type="image/x-icon" href="/logo.ico" />
   <link rel="stylesheet" href="/assets/css/main.css" />
@@ -33,7 +33,7 @@
     <time datetime="2021-04-11 00:00:00 +0800">2021-04-11</time>
   </p>
   
-  <h1>编程珠玑（二）</h1>
+  <h1>【编程珠玑】啊哈！算法</h1>
 
   <h2 id="三个问题">三个问题</h2>
 
@@ -47,10 +47,11 @@
 
 <p><strong>二分搜索的初始条件是已知一个对象存在于一个给定的范围内，而一次探测操作可以帮助我们明确该对象是否低于，高于或者等于给定的位置</strong>。二分搜索通过重复探测当前范围的中点来定位对象，如果此次探测没有找到该对象，那么我们将当前范围减半，然后继续下一次探测。当我们找到需要的对象或者当前范围为空时停止。</p>
 
-<p>二分搜索比较常见的应用是在有序的数组中搜索元素。</p>
+<p>二分搜索比较常见的应用是<strong>在有序的数组中搜索元素</strong>。</p>
 
 <blockquote>
   <p>顺序搜索在搜索一个具有 n 个元素的表时，平均需要进行 n/2 次比较，二分搜索进行不超过 logn 次比较即可</p>
+
 </blockquote>
 
 <p>关于第一个问题，我们需要找出一个不存在该文件中的 32 位整数，<strong>如果有足够的内存，我们可以采用位图技术，使用  &gt; 500MB 的内存形成位图来表示已经看到的整数</strong>。</p>
@@ -67,26 +68,106 @@
 
 <p>我们从表示每个整数的 32 位的视角来考虑二分搜索。算法的第一趟最多读取 40 亿个输入整数，并把<strong>起始位为 0 的整数写入一个顺序文件，把起始位为 1 的整数写入另一个顺序文件</strong>。</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>											 <span class="o">---&gt;</span> <span class="n">为</span> <span class="mi">0</span> <span class="n">的位</span>
-<span class="n">当前输入</span> <span class="o">---&gt;</span> <span class="mi">0</span><span class="o">/</span><span class="mi">1</span> <span class="n">探测</span> <span class="o">--</span>
-                       <span class="o">---&gt;</span> <span class="n">为</span> <span class="mi">1</span> <span class="n">的位</span>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>											 ---&gt; 为 0 的位
+当前输入 ---&gt; 0/1 探测 --
+                       ---&gt; 为 1 的位
 </code></pre></div></div>
 
-<p>在这两个文件中，有一个文件最多包含 20 亿个整数，接下来把包含数据少的文件用作当前输入（如果两个文件数据大小相同，则随机选择一个文件，因为这两个文件都缺失数字）并重复探测过程，但是这次探测的是第二个位。</p>
+<p>在这两个文件中，有一个文件最多包含 20 亿个整数，接下来把包含数据少的文件用作当前输入并重复探测过程，但是这次探测的是第二个位。</p>
+
+<blockquote>
+  <p>如果两个文件数据大小相同，则随机选择一个文件，因为<strong><em>这两个文件都缺失数字</em></strong></p>
+
+</blockquote>
 
 <p>如果原始的输入文件包含 n 个元素，那么第一趟读取 n 个元素，第二趟最多读取 n/2 个元素，第三趟最多读取 n/4 个元素，以此类推，总运行时间正比于 n。</p>
 
 <blockquote>
   <p>通过排序文件并扫描，也能找到缺失的整数，但是运行时间是 O(nlogn)</p>
+
 </blockquote>
 
 <p>二分搜索还有很多别的应用，比如求根，随机二分搜索。</p>
 
 <h2 id="向量旋转">向量旋转</h2>
 
+<p>问题二解决思路有多种：</p>
+
+<ol>
+  <li>先将前 i 个元素复制到临时数组中，之后将剩余的 n-i 个元素左移 i 个位置，最后将临时数组中的前 i 个元素复制到原数组的后 i 个位置</li>
+  <li>定义一个方法 func(x)，该方法用于将数组 x 左旋一位（时间复杂度为 O(n)），之后重复调用该函数 i 次</li>
+  <li>
+    <p>将原数组 x 分为 ab 两段（a 的长度为 i，b 的长度为 n-i），那么原来的问题就变成将 ab 转化成 ba。<strong>首先对 a 求逆得到 a^rb，之后对 b 求逆得到 a^rb^r，最后对整体求逆得到 (a^rb^r)^r，此时正好为 ba。</strong></p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">reverse</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+ <span class="n">reverse</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+ <span class="n">reverse</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>第一种方法使用了额外的 i 长度的数组，会导致较大的内存消耗；方法二时间复杂度较大 O(i*n)；第三种方法完整代码为：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">reverse</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">i</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">reverse</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="n">reverse</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="n">reverse</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="mi">1</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">reverse</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">start</span><span class="o">,</span> <span class="kt">int</span> <span class="n">end</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">while</span> <span class="o">(</span><span class="n">start</span> <span class="o">&lt;</span> <span class="n">end</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">x</span><span class="o">[</span><span class="n">start</span><span class="o">];</span>
+        <span class="n">x</span><span class="o">[</span><span class="n">start</span><span class="o">]</span> <span class="o">=</span> <span class="n">x</span><span class="o">[</span><span class="n">end</span><span class="o">];</span>
+        <span class="n">x</span><span class="o">[</span><span class="n">end</span><span class="o">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">;</span>
+        <span class="n">start</span><span class="o">++;</span>
+        <span class="n">end</span><span class="o">--;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="扩展">扩展</h3>
+
+<p>如何将向量 abc 转换成向量 cba?</p>
+
+<p>存在恒等式：(a^rb^rc^r)^r = cba。因此，分别对 a, b, c 求逆，再对整体求逆，即可得到 cba.</p>
+
 <h2 id="排序">排序</h2>
 
+<p>第三个问题有一种思路：<strong><em>利用回溯算法找出给定单词中所有字母的排列</em></strong>，之后再与给定的单词进行比对。如果单词长度比较短，可以尝试，但是如果单词比较长，假设为 20 个字母，那么每个单词的排列组合共有 $20!$ 种。只是计算排列组合就需要消耗大量的时间，显然不可取。</p>
+
+<p>考虑以下思路：</p>
+
+<ol>
+  <li><strong>对每个单词进行标识</strong>，这样相同变位词类中的单词具有相同的标识</li>
+  <li>将相同标识的单词集合</li>
+</ol>
+
+<p>单词的标识也有不同的考虑：</p>
+
+<ul>
+  <li><strong>基于排序的标识</strong>：deposit 的标识是 deiopst，dopiest 的标识也是 deiopst</li>
+  <li>基于计数的标识：mississippi 的标识为 i4m1p2s4</li>
+</ul>
+
 <h2 id="原理">原理</h2>
+
+<ol>
+  <li>
+    <p>排序</p>
+
+    <p>排序用来产生有序的输出，用于将相等的元素集中在一起</p>
+  </li>
+  <li>
+    <p>二分搜索</p>
+
+    <p>可以高效地在<strong>有序表</strong>中查找元素，可用于基于内存或者磁盘排序。</p>
+  </li>
+  <li>
+    <p>标识</p>
+
+    <p>当使用等价关系来定义类时，通过<strong>定义一种标识使得同类中每一项都具有相同的标识</strong>，而其他类的标识则不同。</p>
+  </li>
+</ol>
 
 
 </article>
