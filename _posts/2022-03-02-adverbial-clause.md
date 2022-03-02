@@ -30,6 +30,7 @@ category: nglish-study
 | wherever | 无论什么地方 | 表示任何地方 |
 | anywhere | 任何地方 | 表示任何地方 |
 | everywhere | 到处 | 表示任何地方 |
+
 - We must camp where we can get water.
 - They will go where they are happy.
 - Wherever there is political upheaval, invariably there are refugees.

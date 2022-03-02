@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-03-02T23:43:05+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-03-02T23:47:32+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
 </subtitle><author><name>kkzhang</name></author><entry><title type="html">状语从句</title><link href="http://localhost:4000/adverbial-clause.html" rel="alternate" type="text/html" title="状语从句" /><published>2022-03-02T00:00:00+08:00</published><updated>2022-03-02T00:00:00+08:00</updated><id>http://localhost:4000/adverbial-clause</id><content type="html" xml:base="http://localhost:4000/adverbial-clause.html">&lt;h1 id=&quot;1-介绍&quot;&gt;1-介绍&lt;/h1&gt;
 &lt;p&gt;状语从句指句子用作状语时, 起副词作用的句子。它可以修饰谓语、非谓语动词、定语、状语或整个句子。根据其作用可分为时间、地点、原因、条件、目的、结果、让步、方式和比较等从句。
 状语从句一般由连词(从属连词)引导，也可以由词组引起。从句位于句首或句中时通常用逗号与主句隔开，位于句尾时可以不用逗号隔开。&lt;/p&gt;
@@ -18,12 +18,38 @@
 
 &lt;p&gt;常用引导词 &lt;strong&gt;where&lt;/strong&gt;，特殊引导词 &lt;strong&gt;wherever, anywhere, everywhere.&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;| 引导词 | 含义 | 说明 |
-| — | — | — |
-| where | 在……地方 | 通常表示一个确定的地方 |
-| wherever | 无论什么地方 | 表示任何地方 |
-| anywhere | 任何地方 | 表示任何地方 |
-| everywhere | 到处 | 表示任何地方 |&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;引导词&lt;/th&gt;
+      &lt;th&gt;含义&lt;/th&gt;
+      &lt;th&gt;说明&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;where&lt;/td&gt;
+      &lt;td&gt;在……地方&lt;/td&gt;
+      &lt;td&gt;通常表示一个确定的地方&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;wherever&lt;/td&gt;
+      &lt;td&gt;无论什么地方&lt;/td&gt;
+      &lt;td&gt;表示任何地方&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;anywhere&lt;/td&gt;
+      &lt;td&gt;任何地方&lt;/td&gt;
+      &lt;td&gt;表示任何地方&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;everywhere&lt;/td&gt;
+      &lt;td&gt;到处&lt;/td&gt;
+      &lt;td&gt;表示任何地方&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
 &lt;ul&gt;
   &lt;li&gt;We must camp where we can get water.&lt;/li&gt;
   &lt;li&gt;They will go where they are happy.&lt;/li&gt;
