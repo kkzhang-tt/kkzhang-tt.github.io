@@ -1,5 +1,444 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-02-27T19:05:35+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
-</subtitle><author><name>kkzhang</name></author><entry><title type="html">编程珠玑: 编写正确的程序</title><link href="http://localhost:4000/programming-pearls-4.html" rel="alternate" type="text/html" title="编程珠玑: 编写正确的程序" /><published>2022-02-27T00:00:00+08:00</published><updated>2022-02-27T00:00:00+08:00</updated><id>http://localhost:4000/programming_pearls_4</id><content type="html" xml:base="http://localhost:4000/programming-pearls-4.html">&lt;h2 id=&quot;二分搜索&quot;&gt;二分搜索&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-03-02T23:43:05+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
+</subtitle><author><name>kkzhang</name></author><entry><title type="html">状语从句</title><link href="http://localhost:4000/adverbial-clause.html" rel="alternate" type="text/html" title="状语从句" /><published>2022-03-02T00:00:00+08:00</published><updated>2022-03-02T00:00:00+08:00</updated><id>http://localhost:4000/adverbial-clause</id><content type="html" xml:base="http://localhost:4000/adverbial-clause.html">&lt;h1 id=&quot;1-介绍&quot;&gt;1-介绍&lt;/h1&gt;
+&lt;p&gt;状语从句指句子用作状语时, 起副词作用的句子。它可以修饰谓语、非谓语动词、定语、状语或整个句子。根据其作用可分为时间、地点、原因、条件、目的、结果、让步、方式和比较等从句。
+状语从句一般由连词(从属连词)引导，也可以由词组引起。从句位于句首或句中时通常用逗号与主句隔开，位于句尾时可以不用逗号隔开。&lt;/p&gt;
+
+&lt;h1 id=&quot;2-地点状语从句&quot;&gt;2-地点状语从句&lt;/h1&gt;
+&lt;h2 id=&quot;2-1-介绍&quot;&gt;2-1-介绍&lt;/h2&gt;
+
+&lt;p&gt;地点状语从句表示地点，方位，通常由 where 引导。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;He lives there. (there 做地点状语)&lt;/li&gt;
+  &lt;li&gt;He lives in Inner Mongolia. (in inner Mongolia 做地点状语)&lt;/li&gt;
+  &lt;li&gt;He lives where the climate is mild. (where … 做地点状语从句)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-2-引导词&quot;&gt;2-2-引导词&lt;/h2&gt;
+
+&lt;p&gt;常用引导词 &lt;strong&gt;where&lt;/strong&gt;，特殊引导词 &lt;strong&gt;wherever, anywhere, everywhere.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;| 引导词 | 含义 | 说明 |
+| — | — | — |
+| where | 在……地方 | 通常表示一个确定的地方 |
+| wherever | 无论什么地方 | 表示任何地方 |
+| anywhere | 任何地方 | 表示任何地方 |
+| everywhere | 到处 | 表示任何地方 |&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;We must camp where we can get water.&lt;/li&gt;
+  &lt;li&gt;They will go where they are happy.&lt;/li&gt;
+  &lt;li&gt;Wherever there is political upheaval, invariably there are refugees.&lt;/li&gt;
+  &lt;li&gt;We have sworn to fight cruelty wherever we find it.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-3-地点状语从句与定语从句的区别&quot;&gt;2-3-地点状语从句与定语从句的区别&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;where 引导定语从句时，where 是关系副词，并且 &lt;strong&gt;where 在从句中作地点状语&lt;/strong&gt;，&lt;strong&gt;前面有表示地点的先行词&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;The bookshop where I bought this book is not far from here.&lt;/li&gt;
+      &lt;li&gt;This is the house where I lived two years ago.&lt;/li&gt;
+      &lt;li&gt;We will start at the point where we left off.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;where 引导状语从句时，where 是从属连词。&lt;strong&gt;where 引导的从句修饰主句的谓语动词，并且 where 前面没有表示地点的先行词&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Wuhan lies where the Changjiang River and the Hanjiang River meet.&lt;/li&gt;
+      &lt;li&gt;Make a mark where you have any doubts or questions.&lt;/li&gt;
+      &lt;li&gt;I found my books where I had left them.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;有时 where 引导的地点状语从句兼有抽象条件含义，&lt;strong&gt;可放在主句的前面&lt;/strong&gt;，而 where 引导的定语从句则不能
+    &lt;ul&gt;
+      &lt;li&gt;Where there is a will, there is a way.&lt;/li&gt;
+      &lt;li&gt;Where there is water, there is life.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;在有些情况下，where 引导的定语从句可转换为 where 引导的地点状语从句
+    &lt;ul&gt;
+      &lt;li&gt;A tall building was put up at the place where there used to be a desert
+  = A tall building was put up where there used to be a desert.&lt;/li&gt;
+      &lt;li&gt;Bamboo grows best in places where it is warm and where it rains often.
+  = Bamboo grows best where it is warm and where it rains often.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;3-时间状语从句&quot;&gt;3-时间状语从句&lt;/h1&gt;
+&lt;h2 id=&quot;3-1-介绍&quot;&gt;3-1-介绍&lt;/h2&gt;
+
+&lt;p&gt;时间状语从句用表示时间的连词连接一个句子作状语。连接时间状语从句的连接词有: &lt;strong&gt;when, before, after, while, as soon as, until, since&lt;/strong&gt; 等。&lt;/p&gt;
+
+&lt;h2 id=&quot;3-2-连接词&quot;&gt;3-2-连接词&lt;/h2&gt;
+
+&lt;h3 id=&quot;3-2-1-when&quot;&gt;3-2-1 when&lt;/h3&gt;
+
+&lt;p&gt;when 表示 “当…的时候”。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;既可以表示时间段，也可以表示时间点&lt;/li&gt;
+  &lt;li&gt;从句既可用延续性动词，也可用非延续性动词&lt;/li&gt;
+  &lt;li&gt;从句动作&lt;strong&gt;既可与主句的动作同时发生，又可在主句的动作之前或之后发生&lt;/strong&gt;
+例句：
+    &lt;ul&gt;
+      &lt;li&gt;When I met the Gills, I had been gardening for nearly ten years.&lt;/li&gt;
+      &lt;li&gt;I’ll start to think about it when I have to write my report.&lt;/li&gt;
+      &lt;li&gt;It was raining when we arrived.&lt;/li&gt;
+      &lt;li&gt;When I came home, my wife was cooking dinner.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;如果 when 引导的时间状语从句的主语与主句的主语相同，并且从句的谓语动词为 be 动词时，可以省略主语 &amp;amp; be 动词&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;When (you are) in trouble, ask her for help.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;如果 when 引导的从句的主语与主句的主语相同，可以用 &lt;strong&gt;“when + 分词” 代替状语从句&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;When I came into the room ( When coming into the room), I found him lying there asleep.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;3-2-2-while&quot;&gt;3-2-2 while&lt;/h3&gt;
+
+&lt;p&gt;while 表示 “当…的时候”。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;只能表示一段时间，不能表示时间点&lt;/li&gt;
+  &lt;li&gt;从句的谓语动词只能是延续性的&lt;/li&gt;
+  &lt;li&gt;从句动作&lt;strong&gt;只能与主句同时发生或者存在&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;例句：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Don’t interrupt him while he is thinking.&lt;/li&gt;
+  &lt;li&gt;While Jim was mending his bike, Lin Tao came to see him.&lt;/li&gt;
+  &lt;li&gt;She got married while working as a waitress.&lt;/li&gt;
+  &lt;li&gt;You can’t do your homework while you’re watching TV.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;3-2-3-as&quot;&gt;3-2-3 as&lt;/h3&gt;
+
+&lt;p&gt;as 表示 “当…时，一边…一边”。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;侧重两个动作同时发生&lt;/strong&gt;（包括同一个主语同时进行两个动作）；或者一种动作随着另一个动作的变化而变化。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Another policeman has been injured as fighting continued this morning.&lt;/li&gt;
+  &lt;li&gt;I slipped on the ice as I ran home.&lt;/li&gt;
+  &lt;li&gt;I saw him as he was getting off the bus.&lt;/li&gt;
+  &lt;li&gt;As the wind rose, the noise increased.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;4-条件状语从句&quot;&gt;4-条件状语从句&lt;/h1&gt;
+&lt;h2 id=&quot;4-1-介绍&quot;&gt;4-1-介绍&lt;/h2&gt;
+
+&lt;p&gt;条件是指某一事情实现之后（状语从句中的动作），其他事情才会发生（主句中的动作），通常表示“如果”。
+&lt;strong&gt;在句子中做条件状语的从句叫做条件状语从句（通常置于句首或句尾）。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;引导条件状语从句的常用连词是 if，表示“如果”。其他连词有：&lt;strong&gt;unless&lt;/strong&gt;（除非），&lt;strong&gt;as/so long as&lt;/strong&gt;（只要）， &lt;strong&gt;providing/provided that&lt;/strong&gt;（假如），&lt;strong&gt;supposing that&lt;/strong&gt;, &lt;strong&gt;in case,&lt;/strong&gt; &lt;strong&gt;on condition that&lt;/strong&gt; 等。&lt;/p&gt;
+
+&lt;h2 id=&quot;4-2-连接词&quot;&gt;4-2-连接词&lt;/h2&gt;
+
+&lt;h3 id=&quot;4-2-1-if&quot;&gt;4-2-1 if&lt;/h3&gt;
+
+&lt;p&gt;if 引导的条件状语从句分为两类：一种是真实条件句，一种是虚拟条件句。&lt;/p&gt;
+
+&lt;p&gt;if 引导的条件状语从句表示在某种条件下，某事发生的可能性大。&lt;/p&gt;
+
+&lt;p&gt;例句：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;If you ask him, he will help you.&lt;/li&gt;
+  &lt;li&gt;If you fail in the exam, you will let him down.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;if 引导的条件状语从句既可以放在主句之前，也可以放在主句之后。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;If it rains, we will stop playing. = We will stop playing if it rains.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;如果主句是将来时，从句要用一般现在时代替一般将来时&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;If he runs, he will get there in time.&lt;/li&gt;
+  &lt;li&gt;The cat will scratch you if you if you pull her tail.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;4-2-2-unless&quot;&gt;4-2-2 unless&lt;/h3&gt;
+
+&lt;p&gt;unless 表示“除非，若不，除非在……的时候”，等同于 if … not。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;You will fail to arrive there in time unless you start earlier.&lt;/li&gt;
+  &lt;li&gt;Unless it rains, the game will be played.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;4-2-3-as-long-as--so-long-as&quot;&gt;4-2-3 as long as &amp;amp; so long as&lt;/h3&gt;
+
+&lt;p&gt;as/so long as 表示“只要…”。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;As long as my heart still beats, I will go on working for the people.&lt;/li&gt;
+  &lt;li&gt;As long as the green hills are there, one need not worry about firewood.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;4-2-4-in-case&quot;&gt;4-2-4 in case&lt;/h3&gt;
+
+&lt;p&gt;in case 表示“如果，万一”。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;In case I forget, please remind me about it.&lt;/li&gt;
+  &lt;li&gt;Dad brought a notebook along to the beach, in case he was seized by sudden inspiration.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;4-2-5-on-condition-that&quot;&gt;4-2-5 on condition that&lt;/h3&gt;
+
+&lt;p&gt;on condition (that) 表示“在…条件下”，引导的条件是&lt;strong&gt;主句发生的前提条件或者唯一条件&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;I can tell you the truth on condition that you promise to keep a secret.&lt;/li&gt;
+  &lt;li&gt;You can go swimming on condition (that) you don’t go too far from the river bank.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;4-2-6-supposing&quot;&gt;4-2-6 supposing&lt;/h3&gt;
+
+&lt;p&gt;supposing 表示“如果，假设”，引导的条件状语从句表示一种假设的条件。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Supposing it rains, shall we continue the sports meeting?&lt;/li&gt;
+  &lt;li&gt;Supposing anything should go wrong, what would you do then?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;4-2-7-provided-that&quot;&gt;4-2-7 provided that&lt;/h3&gt;
+
+&lt;p&gt;provided (that) 表示“假如，除非，以…为条件”，引导的从句表示一种假设条件。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;He will sign the contract provided we offer more favorable terms.&lt;/li&gt;
+  &lt;li&gt;He won’t be against us in the meeting provided that we ask for his advice in advance.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;5-原因状语从句&quot;&gt;5-原因状语从句&lt;/h1&gt;
+&lt;h2 id=&quot;5-1-介绍&quot;&gt;5-1-介绍&lt;/h2&gt;
+
+&lt;p&gt;原因状语从句用来解释某件事发生的原因，最常用的从属连词为 &lt;strong&gt;because&lt;/strong&gt;，强调原因。&lt;/p&gt;
+
+&lt;p&gt;除此之外，还有其他从属连词：&lt;strong&gt;as, since, for, now (that), when, seeing (that), considering (that), given (that), in that, for the reason that&lt;/strong&gt; 等。&lt;/p&gt;
+
+&lt;h2 id=&quot;5-2-连接词&quot;&gt;5-2-连接词&lt;/h2&gt;
+
+&lt;h3 id=&quot;5-2-1-because&quot;&gt;5-2-1 because&lt;/h3&gt;
+
+&lt;p&gt;because 引导的原因状语从句一般放在主句后面。当从句放在主句前面时，需要用逗号隔开；而从句在后面时，可用或者不用逗号分隔。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;We didn’t go for an outing last Saturday, &lt;strong&gt;&lt;em&gt;because&lt;/em&gt;&lt;/strong&gt; it was raining hard the whole day.&lt;/li&gt;
+  &lt;li&gt;We didn’t go for an outing last Saturday &lt;strong&gt;&lt;em&gt;because&lt;/em&gt;&lt;/strong&gt; it was raining hard the whole day.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Because&lt;/em&gt;&lt;/strong&gt; it was raining hard the whole day, we didn’t go for an outing last Saturday.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;because 的&lt;strong&gt;语气一般比较强&lt;/strong&gt;，常用来回答 why 引导的疑问句。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Why didn’t you come to my birthday party last night? - Because my sister was ill. I had to take care of her the whole night.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;because 不能与 so 连用&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;because of 也表示原因，为介词短语，后跟名词，代词，动名词及其短语。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;He can’t go to school &lt;strong&gt;&lt;em&gt;because of&lt;/em&gt;&lt;/strong&gt; his illness.&lt;/li&gt;
+  &lt;li&gt;He can’t go to school &lt;strong&gt;&lt;em&gt;because&lt;/em&gt;&lt;/strong&gt; he is ill.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;not because&lt;/strong&gt; 结构中的否定词有时用来否定主句，有时用来否定从句，容易引起歧义。如果想明否定主句，最好在 because 从句前用逗号隔开。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;I didn’t go there yesterday, because I was afraid.（因为害怕，所以没去）&lt;/li&gt;
+  &lt;li&gt;I went there yesterday, not because I was afraid.（去那里，并不是因为害怕）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;5-2-2-since&quot;&gt;5-2-2 since&lt;/h3&gt;
+
+&lt;p&gt;since 可以理解为“既然”，用来表示双方已知的，显然的理由；相当于 now that，不过更为正式；语气比 because 弱，&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;since 引导的原因状语从句常放在主句之前&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Since&lt;/em&gt;&lt;/strong&gt; you are free today, can you help me with the housework?&lt;/li&gt;
+  &lt;li&gt;Now that you are grown up, you should rely on yourself.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;since 除了引导原因状语从句，还可以在后面接时间或者过去发生的事情，表示“自从…以来”。此时，&lt;strong&gt;从句常用一般过去时，主句常用完成时&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;I have lived here since 2015.&lt;/li&gt;
+  &lt;li&gt;She has learned English since she was two years old.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;5-2-3-as&quot;&gt;5-2-3 as&lt;/h3&gt;
+
+&lt;p&gt;as 引导原因状语从句时，表示“附带说明的，双方已知的原因”，语气比 since 弱。位置比较灵活，但是常放在主句之前。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;As the wage of the job was low, there were few applicants for it.&lt;/li&gt;
+  &lt;li&gt;As you are tired, you had better take a rest.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;除了引导原因状语从句，as 也可以用来引导时间状语从句与方式状语从句&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;A sudden chill of horror sweeps over her as she feels the drip of saliva upon her hand.（时间状语从句）&lt;/li&gt;
+  &lt;li&gt;She did it as I had told her to.（方式状语从句）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;5-2-4-for&quot;&gt;5-2-4 for&lt;/h3&gt;
+
+&lt;p&gt;for 表示原因，但是并&lt;strong&gt;不构成主句行为发生的直接原因&lt;/strong&gt;，只是提供一些辅助性的补充说明。&lt;/p&gt;
+
+&lt;p&gt;for 引导并列句，且只能放在主句之后并用逗号隔开。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;It must have rained last night, for the street is wet all over.（主句与从句不构成直接因果关系）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;5-2-5-其他连接词&quot;&gt;5-2-5 其他连接词&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;She is much more mobile &lt;strong&gt;&lt;em&gt;now that&lt;/em&gt;&lt;/strong&gt; she has a car.（既然）&lt;/li&gt;
+  &lt;li&gt;I won’t tell you &lt;strong&gt;&lt;em&gt;when&lt;/em&gt;&lt;/strong&gt; you won’t listen.（既然）&lt;/li&gt;
+  &lt;li&gt;He looks young &lt;strong&gt;&lt;em&gt;considering&lt;/em&gt;&lt;/strong&gt; his age.（考虑到）&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Given that&lt;/em&gt;&lt;/strong&gt; he was still a boy, I forgave him.（考虑到）&lt;/li&gt;
+  &lt;li&gt;We aren’t going &lt;strong&gt;&lt;em&gt;for the simple reason that&lt;/em&gt;&lt;/strong&gt; we can’t afford it.（因为）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;6-目的状语从句&quot;&gt;6-目的状语从句&lt;/h1&gt;
+&lt;h2 id=&quot;6-1-介绍&quot;&gt;6-1-介绍&lt;/h2&gt;
+
+&lt;p&gt;目的状语从句：在句子中充当目的状语的从句，主要用来补充说明主句中&lt;strong&gt;谓语动词发生的目的&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;如：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;He got up early &lt;strong&gt;&lt;em&gt;so as to&lt;/em&gt;&lt;/strong&gt; catch the first morning bus.（so as to… 做目的状语）&lt;/li&gt;
+  &lt;li&gt;He got up early &lt;strong&gt;&lt;em&gt;so that&lt;/em&gt;&lt;/strong&gt; he could catch the first morning bus.（so that… 做目的状语从句）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;6-2-连接词&quot;&gt;6-2-连接词&lt;/h2&gt;
+
+&lt;p&gt;连接目的状语从句的连接词有：&lt;strong&gt;so that, in order that, for fear that, in case&lt;/strong&gt; 等。&lt;/p&gt;
+
+&lt;p&gt;目的状语从句的谓语动中通常含有：may, could, will, might, can, should, would 等情态动词。&lt;/p&gt;
+
+&lt;h3 id=&quot;6-2-1-so-that&quot;&gt;6-2-1 so that&lt;/h3&gt;
+
+&lt;p&gt;so that 表示“以便，为了”。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;I set up the computer so that they could work from home.&lt;/li&gt;
+  &lt;li&gt;I’ll give you all the facts so that you can judge for yourself.&lt;/li&gt;
+  &lt;li&gt;They put a screen around his bed so that the doctor could examine him.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;so that 有时可以&lt;strong&gt;省略 so&lt;/strong&gt;，只用 that 连接。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Bring it closer (so) that I may see it better.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;当主句与从句的主语相同时，可以用 &lt;strong&gt;so as to do 短语替代 so that&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;One should learn from past mistakes &lt;strong&gt;&lt;em&gt;so that&lt;/em&gt;&lt;/strong&gt; he or she can avoid falling into the same old trap again.&lt;/li&gt;
+  &lt;li&gt;One should learn from past mistakes &lt;strong&gt;&lt;em&gt;so as to&lt;/em&gt;&lt;/strong&gt; avoid falling into the same old trap again.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;需要注意 so that 与 so … that 的区别：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;so that 表示目的状语从句：
+    &lt;ul&gt;
+      &lt;li&gt;He went to bed very early last night &lt;strong&gt;&lt;em&gt;so that&lt;/em&gt;&lt;/strong&gt; he could get up early this morning.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;so … that 表示结果状语从句：
+    &lt;ul&gt;
+      &lt;li&gt;He stayed up &lt;strong&gt;&lt;em&gt;so&lt;/em&gt;&lt;/strong&gt; late last night &lt;strong&gt;&lt;em&gt;that&lt;/em&gt;&lt;/strong&gt; he couldn’t get up early this morning.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;6-2-2-in-order-that&quot;&gt;6-2-2 in order that&lt;/h3&gt;
+
+&lt;p&gt;in order that 表示“为了，以便”。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;They flew there &lt;strong&gt;&lt;em&gt;in order that&lt;/em&gt;&lt;/strong&gt; they might be in time to attend the opening ceremony.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;In order that&lt;/em&gt;&lt;/strong&gt; we might get there on time, we should set out early.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;当主句与从句的主语相同时，可用 &lt;strong&gt;in order to do 短语代替 in order that 从句&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;I came &lt;strong&gt;&lt;em&gt;in order that&lt;/em&gt;&lt;/strong&gt; I could see Jack.&lt;/li&gt;
+  &lt;li&gt;I came &lt;strong&gt;&lt;em&gt;in order to&lt;/em&gt;&lt;/strong&gt; see Jack.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;6-2-3-for-fear-that&quot;&gt;6-2-3 for fear that&lt;/h3&gt;
+
+&lt;p&gt;for fear that 表示“以免，唯恐”。&lt;/p&gt;
+
+&lt;p&gt;如果从句的情态动词时 should 时，此时 should 可以省略。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;He told us to keep quiet &lt;strong&gt;&lt;em&gt;for fear that&lt;/em&gt;&lt;/strong&gt; we might disturb others.&lt;/li&gt;
+  &lt;li&gt;We hurried along &lt;strong&gt;&lt;em&gt;for fear that&lt;/em&gt;&lt;/strong&gt; we (should) be late.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;当主句与从句的主语相同时，可以用 &lt;strong&gt;for fear of doing 短语代替 for fear that 从句&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;We spoke quietly &lt;strong&gt;&lt;em&gt;for fear that&lt;/em&gt;&lt;/strong&gt; we should wake the guards.&lt;/li&gt;
+  &lt;li&gt;We spoke quietly &lt;strong&gt;&lt;em&gt;for fear of&lt;/em&gt;&lt;/strong&gt; waking the guards.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;6-2-4-in-case&quot;&gt;6-2-4 in case&lt;/h3&gt;
+
+&lt;p&gt;in case 表示“以防，万一”。&lt;/p&gt;
+
+&lt;p&gt;从句一般使用情态动词 should，且 should 可省略；从句表示虚拟语气。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;They watched him closely &lt;strong&gt;&lt;em&gt;in case&lt;/em&gt;&lt;/strong&gt; he (should) escape.&lt;/li&gt;
+  &lt;li&gt;I stopped suddenly &lt;strong&gt;&lt;em&gt;in case&lt;/em&gt;&lt;/strong&gt; he (should) think that I was showing off.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;in case 还可以表示“假如，如果”。此时引导的从句不再使用虚拟语气，一般也不使用情态动词&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;In case she comes back, let me know immediately.&lt;/li&gt;
+  &lt;li&gt;I keep a warm coat at work in case it suddenly turns cold.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;in case of 表示“假如，如果发生”。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;In case of fire, ring the alarm bell.&lt;/li&gt;
+  &lt;li&gt;We have an auxiliary generator in case of power cuts.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="nglish-study" /><summary type="html">1-介绍 状语从句指句子用作状语时, 起副词作用的句子。它可以修饰谓语、非谓语动词、定语、状语或整个句子。根据其作用可分为时间、地点、原因、条件、目的、结果、让步、方式和比较等从句。 状语从句一般由连词(从属连词)引导，也可以由词组引起。从句位于句首或句中时通常用逗号与主句隔开，位于句尾时可以不用逗号隔开。</summary></entry><entry><title type="html">编程珠玑: 编写正确的程序</title><link href="http://localhost:4000/programming-pearls-4.html" rel="alternate" type="text/html" title="编程珠玑: 编写正确的程序" /><published>2022-02-27T00:00:00+08:00</published><updated>2022-02-27T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-4</id><content type="html" xml:base="http://localhost:4000/programming-pearls-4.html">&lt;h2 id=&quot;二分搜索&quot;&gt;二分搜索&lt;/h2&gt;
 
 &lt;p&gt;二分搜索的目标是确定在排序数组 x[0…n-1] 中是否存在目标元素 t，如果存在则返回对应的索引 p，否则返回 -1。&lt;/p&gt;
 
@@ -808,7 +1247,90 @@
 
 &lt;h1 id=&quot;6-appendix&quot;&gt;6-Appendix&lt;/h1&gt;
 
-&lt;p&gt;原文：&lt;a href=&quot;https://redis.io/topics/cluster-spec&quot;&gt;https://redis.io/topics/cluster-spec&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Main properties and rationales of the design</summary></entry><entry><title type="html">Redis Cluster Tutorial</title><link href="http://localhost:4000/redis-cluster-tutorial.html" rel="alternate" type="text/html" title="Redis Cluster Tutorial" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-tutorial</id><content type="html" xml:base="http://localhost:4000/redis-cluster-tutorial.html">&lt;h2 id=&quot;1-introduction&quot;&gt;1-Introduction&lt;/h2&gt;
+&lt;p&gt;原文：&lt;a href=&quot;https://redis.io/topics/cluster-spec&quot;&gt;https://redis.io/topics/cluster-spec&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Main properties and rationales of the design</summary></entry><entry><title type="html">同位语从句</title><link href="http://localhost:4000/appositive-clause.html" rel="alternate" type="text/html" title="同位语从句" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/appositive-clause</id><content type="html" xml:base="http://localhost:4000/appositive-clause.html">&lt;h2 id=&quot;1-同位语&quot;&gt;1-同位语&lt;/h2&gt;
+
+&lt;p&gt;一个名词（或其它形式）&lt;strong&gt;&lt;em&gt;对另一个名词或代词进行解释或补充说明&lt;/em&gt;&lt;/strong&gt;，这个名词（或其它形式）就是同位语。&lt;/p&gt;
+
+&lt;p&gt;同位语与被它限定的词的格式要一致，并常常紧挨在一起。同位语除表示其同位成分的全部意义外，还可以表示部分意义。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Mr. Smith, our new teacher, is very kind to us.&lt;/li&gt;
+  &lt;li&gt;He told me that his brother John was a world-famous doctor.(John 是 brother 的同位语)&lt;/li&gt;
+  &lt;li&gt;Yesterday I talked to my English teacher, Mr. James.&lt;/li&gt;
+  &lt;li&gt;We Chinese people are brave and hard-working.(Chinese people 是 we 的同位语)&lt;/li&gt;
+  &lt;li&gt;He is interested in sports, especially ball games.(ball games 是 sports 的同位语)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-同位语从句&quot;&gt;2-同位语从句&lt;/h2&gt;
+
+&lt;p&gt;同位语从句指的是在复合句中充当同位语的从句，属于名词性从句的范畴。&lt;/p&gt;
+
+&lt;p&gt;同位语从句用来&lt;em&gt;对其前面的抽象名词进行解释说明&lt;/em&gt;，被解释说明的词和同位语在逻辑上是&lt;strong&gt;主表关系&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;2-1-先行词&quot;&gt;2-1 先行词&lt;/h3&gt;
+
+&lt;p&gt;可以连接同位语从句的名词有：&lt;strong&gt;news，idea，fact，promise，question，doubt，thought，hope，message，suggestion，words(消息)，possibility, decision&lt;/strong&gt; 等(一般的”抽象”名词)。&lt;/p&gt;
+
+&lt;h3 id=&quot;2-2-引导词&quot;&gt;2-2 引导词&lt;/h3&gt;
+
+&lt;p&gt;引导同位语从句的词语通常有连词 that, whethe, 连接代词和连接副词等。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;that 连接从句时，&lt;strong&gt;从句为一个句意完整的陈述句&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;that 不能省略，没有具体的含义，&lt;strong&gt;&lt;em&gt;不充当句子成分，只起连接作用&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;The idea &lt;em&gt;that you can do this work well without thinking&lt;/em&gt; is quite wrong.(that 引导的从句作 idea 的同位语)&lt;/li&gt;
+      &lt;li&gt;We heard the news &lt;em&gt;that our team had won&lt;/em&gt;.(news 的同位语)&lt;/li&gt;
+      &lt;li&gt;They were worried over the fact &lt;em&gt;that you were sick&lt;/em&gt;.(fact 的同位语)&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;在某些名词(如 &lt;strong&gt;demand, wish, suggestion, resolution&lt;/strong&gt;等) 后面的同位语从句要&lt;strong&gt;用虚拟语气&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;There was a suggestion &lt;em&gt;that Brown should be dropped from the team&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;引导同位语从句的连词 that 通常不省略，但在&lt;em&gt;非正式文体中也可以省去&lt;/em&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;He grabbed his suitcase and gave the impression &lt;em&gt;he was boarding the Tokyo plane&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;whether 引导同位语从句&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;if 不能引导同位语从句&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;There is some doubt &lt;em&gt;whether he will come&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;Answer my question &lt;em&gt;whether you are coming&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;The question &lt;em&gt;whether it is right or wrong&lt;/em&gt; depends on the result.&lt;/li&gt;
+      &lt;li&gt;We are not investigating the question &lt;em&gt;whether he is trustworthy&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;连接代词 what, who, whom, whose 引导同位语从句
+    &lt;ul&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;what size shoes she wears&lt;/em&gt;.(what 作 size 的定语)&lt;/li&gt;
+      &lt;li&gt;The question &lt;em&gt;who will take his place&lt;/em&gt; is still not clear.(who 作同位语从句的主语)&lt;/li&gt;
+      &lt;li&gt;Have you any idea &lt;em&gt;what time it starts&lt;/em&gt;?&lt;/li&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;who can really understand my complicated mind&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;连接副词 where, when, why, how 引导同位语从句
+    &lt;ul&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;when he will come back&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;It is a question &lt;em&gt;how he does it&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;He had no idea &lt;em&gt;why she left&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;You have no idea &lt;em&gt;how worried I was&lt;/em&gt;!&lt;/li&gt;
+      &lt;li&gt;We haven’t yet settled the question &lt;em&gt;where we are going to spend our summer vacation&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-同位语</summary></entry><entry><title type="html">Redis Cluster Tutorial</title><link href="http://localhost:4000/redis-cluster-tutorial.html" rel="alternate" type="text/html" title="Redis Cluster Tutorial" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-tutorial</id><content type="html" xml:base="http://localhost:4000/redis-cluster-tutorial.html">&lt;h2 id=&quot;1-introduction&quot;&gt;1-Introduction&lt;/h2&gt;
 
 &lt;p&gt;Redis Cluster 支持&lt;strong&gt;数据自动在多个 Redis 节点间分片&lt;/strong&gt;。&lt;/p&gt;
 
@@ -935,90 +1457,7 @@
 
 &lt;h2 id=&quot;6-appendix&quot;&gt;6-Appendix&lt;/h2&gt;
 
-&lt;p&gt;原文地址：&lt;a href=&quot;https://redis.io/topics/cluster-tutorial#:~:text=Redis%20Cluster%20provides%20a%20way,are%20not%20able%20to%20communicate&quot;&gt;redis-io&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Introduction</summary></entry><entry><title type="html">同位语从句</title><link href="http://localhost:4000/appositive-clause.html" rel="alternate" type="text/html" title="同位语从句" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/appositive-clause</id><content type="html" xml:base="http://localhost:4000/appositive-clause.html">&lt;h2 id=&quot;1-同位语&quot;&gt;1-同位语&lt;/h2&gt;
-
-&lt;p&gt;一个名词（或其它形式）&lt;strong&gt;&lt;em&gt;对另一个名词或代词进行解释或补充说明&lt;/em&gt;&lt;/strong&gt;，这个名词（或其它形式）就是同位语。&lt;/p&gt;
-
-&lt;p&gt;同位语与被它限定的词的格式要一致，并常常紧挨在一起。同位语除表示其同位成分的全部意义外，还可以表示部分意义。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Mr. Smith, our new teacher, is very kind to us.&lt;/li&gt;
-  &lt;li&gt;He told me that his brother John was a world-famous doctor.(John 是 brother 的同位语)&lt;/li&gt;
-  &lt;li&gt;Yesterday I talked to my English teacher, Mr. James.&lt;/li&gt;
-  &lt;li&gt;We Chinese people are brave and hard-working.(Chinese people 是 we 的同位语)&lt;/li&gt;
-  &lt;li&gt;He is interested in sports, especially ball games.(ball games 是 sports 的同位语)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-同位语从句&quot;&gt;2-同位语从句&lt;/h2&gt;
-
-&lt;p&gt;同位语从句指的是在复合句中充当同位语的从句，属于名词性从句的范畴。&lt;/p&gt;
-
-&lt;p&gt;同位语从句用来&lt;em&gt;对其前面的抽象名词进行解释说明&lt;/em&gt;，被解释说明的词和同位语在逻辑上是&lt;strong&gt;主表关系&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h3 id=&quot;2-1-先行词&quot;&gt;2-1 先行词&lt;/h3&gt;
-
-&lt;p&gt;可以连接同位语从句的名词有：&lt;strong&gt;news，idea，fact，promise，question，doubt，thought，hope，message，suggestion，words(消息)，possibility, decision&lt;/strong&gt; 等(一般的”抽象”名词)。&lt;/p&gt;
-
-&lt;h3 id=&quot;2-2-引导词&quot;&gt;2-2 引导词&lt;/h3&gt;
-
-&lt;p&gt;引导同位语从句的词语通常有连词 that, whethe, 连接代词和连接副词等。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;that 连接从句时，&lt;strong&gt;从句为一个句意完整的陈述句&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;that 不能省略，没有具体的含义，&lt;strong&gt;&lt;em&gt;不充当句子成分，只起连接作用&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;The idea &lt;em&gt;that you can do this work well without thinking&lt;/em&gt; is quite wrong.(that 引导的从句作 idea 的同位语)&lt;/li&gt;
-      &lt;li&gt;We heard the news &lt;em&gt;that our team had won&lt;/em&gt;.(news 的同位语)&lt;/li&gt;
-      &lt;li&gt;They were worried over the fact &lt;em&gt;that you were sick&lt;/em&gt;.(fact 的同位语)&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;在某些名词(如 &lt;strong&gt;demand, wish, suggestion, resolution&lt;/strong&gt;等) 后面的同位语从句要&lt;strong&gt;用虚拟语气&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;There was a suggestion &lt;em&gt;that Brown should be dropped from the team&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;引导同位语从句的连词 that 通常不省略，但在&lt;em&gt;非正式文体中也可以省去&lt;/em&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;He grabbed his suitcase and gave the impression &lt;em&gt;he was boarding the Tokyo plane&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;whether 引导同位语从句&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;if 不能引导同位语从句&lt;/p&gt;
-    &lt;/blockquote&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;There is some doubt &lt;em&gt;whether he will come&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;Answer my question &lt;em&gt;whether you are coming&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;The question &lt;em&gt;whether it is right or wrong&lt;/em&gt; depends on the result.&lt;/li&gt;
-      &lt;li&gt;We are not investigating the question &lt;em&gt;whether he is trustworthy&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;连接代词 what, who, whom, whose 引导同位语从句
-    &lt;ul&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;what size shoes she wears&lt;/em&gt;.(what 作 size 的定语)&lt;/li&gt;
-      &lt;li&gt;The question &lt;em&gt;who will take his place&lt;/em&gt; is still not clear.(who 作同位语从句的主语)&lt;/li&gt;
-      &lt;li&gt;Have you any idea &lt;em&gt;what time it starts&lt;/em&gt;?&lt;/li&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;who can really understand my complicated mind&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;连接副词 where, when, why, how 引导同位语从句
-    &lt;ul&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;when he will come back&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;It is a question &lt;em&gt;how he does it&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;He had no idea &lt;em&gt;why she left&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;You have no idea &lt;em&gt;how worried I was&lt;/em&gt;!&lt;/li&gt;
-      &lt;li&gt;We haven’t yet settled the question &lt;em&gt;where we are going to spend our summer vacation&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-同位语</summary></entry><entry><title type="html">定语从句</title><link href="http://localhost:4000/attributive-clause.html" rel="alternate" type="text/html" title="定语从句" /><published>2022-02-11T00:00:00+08:00</published><updated>2022-02-11T00:00:00+08:00</updated><id>http://localhost:4000/attributive-clause</id><content type="html" xml:base="http://localhost:4000/attributive-clause.html">&lt;h2 id=&quot;1-基本概念&quot;&gt;1-基本概念&lt;/h2&gt;
+&lt;p&gt;原文地址：&lt;a href=&quot;https://redis.io/topics/cluster-tutorial#:~:text=Redis%20Cluster%20provides%20a%20way,are%20not%20able%20to%20communicate&quot;&gt;redis-io&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Introduction</summary></entry><entry><title type="html">定语从句</title><link href="http://localhost:4000/attributive-clause.html" rel="alternate" type="text/html" title="定语从句" /><published>2022-02-11T00:00:00+08:00</published><updated>2022-02-11T00:00:00+08:00</updated><id>http://localhost:4000/attributive-clause</id><content type="html" xml:base="http://localhost:4000/attributive-clause.html">&lt;h2 id=&quot;1-基本概念&quot;&gt;1-基本概念&lt;/h2&gt;
 
 &lt;h3 id=&quot;1-1-定义&quot;&gt;1-1 定义&lt;/h3&gt;
 
@@ -1804,528 +2243,4 @@
       &lt;li&gt;It was the third time that he had been out of work that year.&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">含义与结构</summary></entry><entry><title type="html">Dynamo: Amazon’s Highly Available Key-value Store</title><link href="http://localhost:4000/dynamo.html" rel="alternate" type="text/html" title="Dynamo: Amazon’s Highly Available Key-value Store" /><published>2022-01-18T00:00:00+08:00</published><updated>2022-01-18T00:00:00+08:00</updated><id>http://localhost:4000/dynamo</id><content type="html" xml:base="http://localhost:4000/dynamo.html">&lt;h1 id=&quot;1-abstract&quot;&gt;1-Abstract&lt;/h1&gt;
-
-&lt;p&gt;Dynamo 是 Amazon 提出的&lt;strong&gt;高可用键值存储&lt;/strong&gt;系统。为了保证系统的高可用，&lt;em&gt;牺牲了一些特定场景下的一致性&lt;/em&gt;。Dynamo 使用了&lt;strong&gt;对象版本化（object versioning）&lt;/strong&gt;与&lt;strong&gt;应用协助解决冲突（application-assisted conflict resolution）&lt;/strong&gt;的机制。&lt;/p&gt;
-
-&lt;h1 id=&quot;2-introduction&quot;&gt;2-Introduction&lt;/h1&gt;
-
-&lt;p&gt;Amazon 的基础设施由数百万台设备组成，任何时刻都会有比例小但是数量不少的设备发生故障。因此，可以将故障看作是正常的，可预期的行为，&lt;em&gt;软件系统不应该因为硬件设备故障影响自身的可用性与性能&lt;/em&gt;。&lt;/p&gt;
-
-&lt;p&gt;Dynamo 的目标是实现一个&lt;strong&gt;永远可用（always available）&lt;/strong&gt;的系统：即使服务器故障或者网络异常，用户也能往自己的购物车里添加商品。基于以下技术保证了高可用性与高扩展性：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;数据通过&lt;strong&gt;一致性 Hash 进行分区与复制&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;通过&lt;strong&gt;对象版本化&lt;/strong&gt;实现一致性（最终一致性）&lt;/li&gt;
-  &lt;li&gt;数据副本之间的一致性通过“&lt;strong&gt;类似仲裁的技术&lt;/strong&gt;”与“&lt;strong&gt;去中心化的副本同步协议&lt;/strong&gt;”保证&lt;/li&gt;
-  &lt;li&gt;以 gossip 协议为基础的分布式&lt;strong&gt;故障检测与成员检测&lt;/strong&gt;协议&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Dynamo 系统通过组合不同的技术实现一个高度可用（high-available）的系统，并证明了最终一致性存储系统可以用于生产环境，满足应用的高可用要求。&lt;/p&gt;
-
-&lt;h1 id=&quot;3-background&quot;&gt;3-Background&lt;/h1&gt;
-
-&lt;p&gt;Amazon 电商平台由几百个服务组成，有些服务是无状态的（如聚合其他服务响应的服务），有些服务是有状态的（如基于存储在数据仓库中的状态，执行业务逻辑并产生响应的服务）。传统上，服务状态使用关系型数据库存储；但是，对很多&lt;strong&gt;持久状态的存储&lt;/strong&gt;需求来说，关系型数据库有一些局限性：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;该类型的服务大部分情况下只需要&lt;strong&gt;使用主键检索&lt;/strong&gt;，并不需要关系型数据库提供的复杂查询和管理功能&lt;/li&gt;
-  &lt;li&gt;关系型数据库的复制功能受限，而且通常通过&lt;strong&gt;牺牲可用性来换取一致性&lt;/strong&gt;；水平扩展（scale-out）不足&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;针对关系型数据库的不足，Dynamo 能够做到高度可用，有定义清晰的一致性窗口（clearly defined consistency window），易用的水平扩展方案。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Dynamo 支持独立部署，不同的业务使用不同的 Dynamo 系统&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;3-1-system-assumptions-and-requirements&quot;&gt;3-1-&lt;strong&gt;System Assumptions and Requirements&lt;/strong&gt;&lt;/h2&gt;
-
-&lt;p&gt;对接入 Dynamo 的服务有以下假设：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;查询模型（&lt;em&gt;Query Model&lt;/em&gt;）
-    &lt;ol&gt;
-      &lt;li&gt;通过&lt;em&gt;唯一 key&lt;/em&gt; 进行数据读写操作&lt;/li&gt;
-      &lt;li&gt;任何读写操作都&lt;em&gt;不会跨多个数据单元&lt;/em&gt;（data item）&lt;/li&gt;
-      &lt;li&gt;没有关系型 schema 需求&lt;/li&gt;
-      &lt;li&gt;需要存储的&lt;em&gt;文件较小&lt;/em&gt;（&amp;lt; 1MB）&lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-  &lt;li&gt;ACID 特性（&lt;em&gt;ACID Properties&lt;/em&gt;）
-    &lt;ol&gt;
-      &lt;li&gt;在数据库领域中，ACID 是保证事务可靠执行的保证；但是这些特性会牺牲系统的可用性。Dynamo 实现目标是：&lt;em&gt;允许通过牺牲一些一致性（C）提高可用性&lt;/em&gt;&lt;/li&gt;
-      &lt;li&gt;Dynamo &lt;em&gt;不提供任何隔离保证&lt;/em&gt;，只允许单个key 的更新操作&lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-  &lt;li&gt;效率（&lt;em&gt;Efficiency&lt;/em&gt;）
-    &lt;ol&gt;
-      &lt;li&gt;系统需要满足严格的 SLA（通过 TP999 衡量）；并允许业务自定义配置 Dynamo 以满足吞吐量 &amp;amp; 延迟的需求&lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;3-2-design-considerations&quot;&gt;3-2-&lt;strong&gt;Design Considerations&lt;/strong&gt;&lt;/h2&gt;
-
-&lt;p&gt;&lt;em&gt;为了达到强一致性，一般数据库会采用同步复制算法&lt;/em&gt;。这类算法在某些故障场景下牺牲了可用性，如当数据出现冲突，则暂时禁止对该数据的访问，直到冲突解决。&lt;/p&gt;
-
-&lt;p&gt;分布式系统是无法同时满足 C（强一致性），A（高可用性），P（网络故障容忍）三个特性；因此，在不同的业务场景下需要选择不同的特性：是强一致性还是高可用性。&lt;/p&gt;
-
-&lt;p&gt;在服务器与网络故障比较高的场景下，可以通过&lt;strong&gt;乐观复制&lt;/strong&gt;（optimistic replication）提高可用性：在后台通过异步同步将数据变更复制到其他节点，能够容忍并发更新与操作异常。不过这种方式虽然能够提高可用性，但是会导致数据冲突，需要检测并修复冲突。那么：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;什么时候解决冲突&lt;/li&gt;
-  &lt;li&gt;由谁解决冲突&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Dynamo 被设计为&lt;strong&gt;最终一致性数据仓库（eventually consistent data store）&lt;/strong&gt;，所有的数据变更最后都会同步到所有副本&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;什么时候解决冲突&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;解决冲突的时机有两个：读时 &amp;amp; 写时。&lt;/p&gt;
-
-    &lt;p&gt;传统数据库在写时解决冲突，可以使得读操作比较简单。这种方式在&lt;em&gt;系统不能访问大部分（或者全部）副本时，就会拒绝写&lt;/em&gt;。&lt;/p&gt;
-
-    &lt;p&gt;Dynamo 期望保证&lt;strong&gt;永远可写&lt;/strong&gt;（always writeable），所以在&lt;em&gt;数据读取时解决冲突&lt;/em&gt;，以保证写操作不会被拒绝。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;谁解决冲突&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;冲突解决方也有两个：业务服务 &amp;amp; 数据库。&lt;/p&gt;
-
-    &lt;p&gt;如果由数据库来解决，只能执行一些简单的策略，如最后写有效（last write wins）。&lt;/p&gt;
-
-    &lt;p&gt;由于业务服务能够更了解数据的作用，可以更加&lt;em&gt;灵活地选择对用户体验最好的冲突解决算法&lt;/em&gt;，如合并冲突的版本。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;其他设计原则&lt;/p&gt;
-    &lt;ol&gt;
-      &lt;li&gt;&lt;strong&gt;增量扩展性（Incremental scalability）&lt;/strong&gt;：支持逐个节点扩容，并减小对系统的影响&lt;/li&gt;
-      &lt;li&gt;&lt;strong&gt;对称性（Symmetry）&lt;/strong&gt;：&lt;em&gt;每个节点的职责应该是相同的&lt;/em&gt;；对称性简化了系统的运维&lt;/li&gt;
-      &lt;li&gt;&lt;strong&gt;去中心化（Decentralization）&lt;/strong&gt;：去中心化是对称性的进一步扩展；系统应该是去中心化，点对点的，而不是集中控制；&lt;em&gt;去中心化能够使得系统更加简单，更具可扩展性 &amp;amp; 可用性&lt;/em&gt;&lt;/li&gt;
-      &lt;li&gt;异构性（Heterogeneity）：负载的分布要与节点的承载能力成正比&lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;传统复制型关系数据库将关注点都放在保证副本强一致性上；虽然强一致性可以&lt;strong&gt;给应用的写操作提供方便的编程模型&lt;/strong&gt;， 但&lt;em&gt;导致系统的扩展性和可用性非常受限，无法处理网络分裂的情况。&lt;/em&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;4-system-architecture&quot;&gt;4-System Architecture&lt;/h1&gt;
-
-&lt;p&gt;Dynamo 使用的分布式系统技术有：&lt;strong&gt;分区&lt;/strong&gt;（partition），&lt;strong&gt;复制&lt;/strong&gt;（replication），&lt;strong&gt;版本化&lt;/strong&gt;（versioning），&lt;strong&gt;成员管理&lt;/strong&gt;（membership），&lt;strong&gt;故障处理&lt;/strong&gt;（failure handling），&lt;strong&gt;规模扩展&lt;/strong&gt;（scaling）。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/dynamo/dynamo_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;下表展示了这些技术的优势：&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;问题&lt;/th&gt;
-      &lt;th&gt;技术&lt;/th&gt;
-      &lt;th&gt;优势&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;数据分区&lt;/td&gt;
-      &lt;td&gt;一致性 Hash&lt;/td&gt;
-      &lt;td&gt;增量可扩展性&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;写操作高可用&lt;/td&gt;
-      &lt;td&gt;读时协调（冲突解决）的向量时钟&lt;/td&gt;
-      &lt;td&gt;版本大小与更新频率解耦&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;短时故障处理&lt;/td&gt;
-      &lt;td&gt;宽松的选举和 hinted handoff&lt;/td&gt;
-      &lt;td&gt;部分副本不可用时，仍然可以保证高可用性和持久性&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;持久故障恢复&lt;/td&gt;
-      &lt;td&gt;基于 Merkle tree 的逆熵&lt;/td&gt;
-      &lt;td&gt;后台同步版本不一致的副本&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;成员管理与故障检测&lt;/td&gt;
-      &lt;td&gt;基于 Gossip 协议的成员管理协议和故障检测&lt;/td&gt;
-      &lt;td&gt;保持了架构的对称性：无需一个中心组件（centralized registry）来存储成员和节点状态等信息&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;h2 id=&quot;4-1-system-interface&quot;&gt;4-1 System Interface&lt;/h2&gt;
-
-&lt;p&gt;Dynamo 系统提供两个简单的接口：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;get(key)&lt;/li&gt;
-  &lt;li&gt;put(key)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get(key)&lt;/code&gt; 会&lt;em&gt;定位到存储系统中 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;key&lt;/code&gt; 对应的所有对象副本&lt;/em&gt;，&lt;strong&gt;返回对象（&lt;/strong&gt;可能是单个对象，也可能是一个对象列表: 有冲突情况下，包括了所有版本），&lt;strong&gt;以及一个 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;context&lt;/code&gt;（ 上下文）&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;put(key)&lt;/code&gt; 确定对象应该存放的位置，然后写到相应的磁盘（put 请求会携带 context 上报）。&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;context&lt;/code&gt; 包含了系统中对象的元数据，例如&lt;strong&gt;对象的版本&lt;/strong&gt;，对调用方是不透明的（ opaque）。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;上下文信息是和对象存储在一起的，这样系统容易验证 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;put&lt;/code&gt; 请求的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;context&lt;/code&gt; 是否合法&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;Dynamo 将调用方提供的 key 和对象都视为不透明的字节序列（opaque array of bytes） 。它对 key 应用 MD5 Hash 得到一个 128bit 的 ID，并根据这个 ID 计算应该存储到哪些节点。&lt;/p&gt;
-
-&lt;h2 id=&quot;4-2-partitioning-algorithm&quot;&gt;4-2 &lt;strong&gt;Partitioning Algorithm&lt;/strong&gt;&lt;/h2&gt;
-
-&lt;p&gt;Dynamo 的一个核心需求是：支持数据&lt;strong&gt;增量扩展&lt;/strong&gt;（scale incrementally）。为了实现该目标，需要将数据分散到系统中的不同节点上。Dynamo 采取的方案是&lt;strong&gt;一致性 Hash&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;在一致性哈希中，哈希函数的&lt;strong&gt;输出是一个固定的范围，&lt;/strong&gt;通常作为一个&lt;strong&gt;循环空间，或称环（ring）&lt;/strong&gt;。&lt;strong&gt;每个节点都会随机分配一个在这个循环空间内的值&lt;/strong&gt;，这个值代表了节点在这个环上的位置。&lt;/p&gt;
-
-&lt;p&gt;如何确定一条数据对应的存储节点：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;对 key 进行哈希得到一个哈希值&lt;/li&gt;
-  &lt;li&gt;在环上沿着顺时针方向找到第一个&lt;strong&gt;所带的值比这个哈希值更大的节点&lt;/strong&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;每个节点要负责环上从它自己到它的下一个节点之间的区域。&lt;strong&gt;一致性哈希的主要好处是 ：添加或删除节点只会影响相邻的节点，其他节点不受影响。&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;不过基础的一致性 Hash 算法有些问题：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;给每个节点分配一个随机位置会导致数据与负载的非均匀分配&lt;/li&gt;
-  &lt;li&gt;未考虑节点的异构（不同节点配置不同，对应的性能也不同）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Dynamo 使用&lt;strong&gt;虚拟节点&lt;/strong&gt;（virtual node）进行优化：&lt;strong&gt;一个物理节点对应多个虚拟节点，每个虚拟节点分散到环上的不同位置&lt;/strong&gt;，能够有效进行负载的均匀分配。&lt;/p&gt;
-
-&lt;p&gt;引用了虚拟节点之后：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;节点不可用时，其负载会均匀分散到其他可用节点上&lt;/li&gt;
-  &lt;li&gt;新增节点会获得与其他节点大致相同的负载&lt;/li&gt;
-  &lt;li&gt;一个物理节点对应的虚拟节点数目可以根据其实际性能来决定，可以充分考虑机器的异构性&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;4-3-replication&quot;&gt;4-3 &lt;strong&gt;Replication&lt;/strong&gt;&lt;/h2&gt;
-
-&lt;p&gt;为了实现高可用性和持久性，Dynamo 将数据复制到 N 台机器上（N 可配）。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;每个 key &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;k&lt;/code&gt;，会被分配一个 Coordinator（协调者）&lt;/strong&gt;节点。 Coordinator &lt;strong&gt;负责落到它管理的范围内的数据的复制&lt;/strong&gt;。Coordinator 除了自己存储一份之外，还会在环上顺时针方向的其他 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;N-1&lt;/code&gt; 个节点复制一份副本。因此在系统中，每个节点要负责从它自己往后的一共 N 个节点。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/dynamo/dynamo_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;在图中，K 不仅存储在节点 B 中，还存储在节点 C，D 中。由于每个节点会保存其前继节点中的数据，所以节点 D 中包含的 Key 范围为 (A, D]，C 的范围为 (A, C]。&lt;/p&gt;
-
-&lt;p&gt;在 Dynamo 中有一个&lt;strong&gt;优先列表&lt;/strong&gt;（preference list）概念：&lt;em&gt;存储某个特定 key 的所有节点组成一个列表&lt;/em&gt;&lt;strong&gt;。对于给定的 key，每个节点都能决定哪些节点可以进入这个列表&lt;/strong&gt;。为了应对节点失效的情况，preference list 会包含&lt;strong&gt;超过&lt;/strong&gt; N 个节点。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;every node in the system can determine which nodes should be in this list for any particular key. To account for node failures, preference list contains more than N nodes.&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;由于引入了虚拟节点，存储一个 key 的 N 个节点，实际上对应的物理节点可能少于 N 个（例如，一个节点可能会占用环上的不止一个节点）。为了避免这个问题 ，preference list 在选择节点的时候会跳过一些位置，以&lt;strong&gt;保证 list 里面的节点都在不同的物理节点上&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;4-4-data-versioning&quot;&gt;4-4 &lt;strong&gt;Data Versioning&lt;/strong&gt;&lt;/h2&gt;
-
-&lt;p&gt;Dynamo 提供&lt;strong&gt;最终一致性&lt;/strong&gt;，所有数据变更操作会在后台异步传递给其他副本。&lt;/p&gt;
-
-&lt;p&gt;在这种情况下，当 put(key) 返回时，最新数据可能还没有复制到 preference list 中的所有副本。此时进行 get(key) 操作可能不会获取到最新的数据，那么之后的更新操作会在旧数据上进行。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;异步更新在没有故障的情况下会有一个耗时上限，但是如果存在故障（如网络分区），所有副本的更新耗时可能会无限大&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;Dynamo 为了保证&lt;strong&gt;始终可写&lt;/strong&gt;的特性，需要容忍这种不一致性，&lt;strong&gt;将不同更新结果都保留，并在之后的步骤中处理更新冲突&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;加入用户向购物车中添加商品 A，之后查询购物车为空并重新添加商品 B，此时 Dynamo 需要将 A，B 两个商品都保留并在之后解决冲突&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;4-4-1-how-to-fix-conflicts&quot;&gt;4-4-1 How to Fix Conflicts&lt;/h3&gt;
-
-&lt;p&gt;为了实现该目标，&lt;strong&gt;&lt;em&gt;Dynamo 将每次更新结果都作为一个新的，不可变更的版本&lt;/em&gt;&lt;/strong&gt;，则系统中会&lt;strong&gt;同时存在多个不同的版本&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;在&lt;strong&gt;大部分情况下，新版本都包含旧版本的数据，而且系统自己可以判断哪个是权威版本&lt;/strong&gt; （syntactic reconciliation）；但是，在发生故障并且存在并发更新的场景下，版本会发生&lt;strong&gt;分叉&lt;/strong&gt;（version branching），导致&lt;strong&gt;对象版本冲突&lt;/strong&gt;。系统本身无法处理这种情况，需要&lt;strong&gt;客户端介入&lt;/strong&gt;，将多个分支合并成一个。&lt;/p&gt;
-
-&lt;p&gt;冲突的版本可能会有多个，并且每个版本都有自己的子历史版本，这些版本都需要系统来将其一致化。&lt;/p&gt;
-
-&lt;h3 id=&quot;4-4-2-vector-clock&quot;&gt;4-4-2 Vector Clock&lt;/h3&gt;
-
-&lt;p&gt;Dynamo 使用&lt;strong&gt;向量时钟&lt;/strong&gt;（vector clock）来&lt;strong&gt;跟踪同一对象不同版本之间的因果性&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;一个向量时钟就是一个 &lt;strong&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;(node, counter)&lt;/code&gt; 列表&lt;/strong&gt;，如 D [(node-1, 2), [node-2, 3], [node-3, 1]]。&lt;strong&gt;一个向量时钟关联了一个对象的所有版本&lt;/strong&gt;，可以通过其来判断对象的两个版本是否在并行的分支上，或者它们是否有因果关系。如果对象的第一个时钟上的所有 counter 都小于它的第二个时钟上的 counter，那第一个时钟就是第二的祖先，可以安全的删除；否则，这两个修改就是有冲突的，需要解决冲突。&lt;/p&gt;
-
-&lt;p&gt;客户端更新对象时，&lt;strong&gt;必须要先指定基于哪个版本进行更新&lt;/strong&gt;：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;执行 get(key) 操作获取 context 信息：包含了 vector clock&lt;/li&gt;
-  &lt;li&gt;基于指定的版本进行更新：携带 context&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;Dynamo 在收到客户端的读请求后，如果能够获取到多个版本，并且无法解决这些版本之间的冲突，那么 Dynamo 会返回所有的版本，并在 context 中携带各个版本对应的 vector clock 信息。&lt;strong&gt;客户端在收到多个版本之后，解决冲突，并基于指定版本更新，将多个分支重新合并为一个新分支&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/dynamo/dynamo_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;上图展示了 vector clock 的用法：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;客户端 A 创建一个新的对象，并且该 put 请求被节点 Sx 处理。Sx 增加该对象的序列号 1，并使用该序列号创建该对象的 vector clock。系统中此时存在对象 D1 及对应的 clock: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[(Sx, 1)]&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;客户端 A 更新该对象，假设更新请求被同一个节点 Sx 处理，那么系统中新增另一个对象 D2 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[(Sx, 2)]&lt;/code&gt;。由于 D2 继承自 D1，因此可以覆盖 D1。&lt;em&gt;Dynamo 异步复制数据，所以可能存在节点包含了 D1，但是并没有 D2&lt;/em&gt;。&lt;/li&gt;
-  &lt;li&gt;客户端 A 再次更新该对象（会先读并获取 D2），并且更新请求被另一个节点 Sy 处理；那么系统中就会存在对象 D3 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[(Sx, 2), (Sy, 1)]&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;客户端 B 读取了 D2 并尝试更新，并且该请求被另一个节点 Sz 处理；那么系统中就会存在对象 D4 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[(Sx2,  2),(Sx, 1)]&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;现在 Dynamo 系统中存在多个版本的对象：D1, D2, D3, D4
-    &lt;ol&gt;
-      &lt;li&gt;如果一个节点知道了 D1 或 D2 的存在，那么当其接收到 D4 时，能够判断 D1 或 D2 被新的数据（D4）覆盖了，此时可以直接回收 D1, D2&lt;/li&gt;
-      &lt;li&gt;如果一个节点知道 D3 的存在，那么当其收到 D4 时，会发现 D3, D4 是冲突的（没有因果关系）。&lt;em&gt;这两个版本都应该被保留，并且待客户端下次读的时候全部返回，交给客户端解决冲突&lt;/em&gt;&lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-  &lt;li&gt;客户端读取到了 D3, D4，返回的 context 综合了 D3, D4 的 clock: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[(Sx, 2),(Sy, 1),(Sz, 1)]&lt;/code&gt;。如果客户端解决冲突并在节点 Sx 进行协调写操作，那么 Sx 会更新自己的序列号，生成的新对象 D5 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[(Sx, 3),(Sy, 1),(Sz, 1)]&lt;/code&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;vector clock 存在一个问题：如果多个节点先后执行同一个对象的写操作，那么该对象的时钟向量就会变得很长。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;一般写操作只会被 preference list 中的前 N 个节点执行，长度可控&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;4-5-execution-of-get--and-put--operations&quot;&gt;4-5 Execution of Get () and Put () Operations&lt;/h2&gt;
-
-&lt;p&gt;在 Dynamo 中，&lt;strong&gt;任意节点都可以处理任意 key 的 get() &amp;amp; put() 请求&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;操作请求路由有两种方式：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;由负载均衡器根据节点的负载选择一个节点进行请求&lt;/li&gt;
-  &lt;li&gt;使用能够感知分区的客户端，将请求直接路由到 coordinator 节点&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;&lt;strong&gt;负责处理读写请求的节点被称为 coordinator&lt;/strong&gt;。一般情况下 coordinator 是 preference list 中&lt;strong&gt;前 N 个节点中的第一个&lt;/strong&gt;（注意 list 中的节点数大于 N）。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;如果请求是通过负载均衡器转发的，那么可能会被路由到任意一个节点上。此时，如果被路由的节点不是 preference list 中前 N 个节点的第一个节点，那么它不会处理该请求，而是将请求转发到 list 中第一个节点&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;strong&gt;读写操作需要 preference list 中前 N 个节点都处于健康状态&lt;/strong&gt;：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;如果前 N 个节点均健康，则取前 N 个节点&lt;/li&gt;
-  &lt;li&gt;如果前 N 个节点中存在不可用节点，则跳过，优先访问 list 中编号较小的节点&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;4-5-1-quorum-algrithom&quot;&gt;4-5-1 Quorum Algrithom&lt;/h3&gt;
-
-&lt;p&gt;为了保证副本的一致性，Dynamo 使用了一种类似仲裁系统（quorum systems）的一致性协议。 这个协议有两个配置参数：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;R&lt;/code&gt; 和 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;W&lt;/code&gt;：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;R&lt;/code&gt;：&lt;strong&gt;允许执行一次读操作所需的最少投票者&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;W&lt;/code&gt;：&lt;strong&gt;允许执行一次写操作所需的最少投票者&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;并且  &lt;strong&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;R + W &amp;gt; N&lt;/code&gt;&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;这种情况下， get or put 的延迟由 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;R&lt;/code&gt;（或 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;W&lt;/code&gt;）个&lt;strong&gt;副本中最慢的一个决 定&lt;/strong&gt;。因此，为了降低延迟，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;R&lt;/code&gt; 和 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;W&lt;/code&gt; 通常设置的比 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;N&lt;/code&gt; 小。&lt;/p&gt;
-
-&lt;h3 id=&quot;4-5-2-get--and-put--operations&quot;&gt;4-5-2 Get () and Put () Operations&lt;/h3&gt;
-
-&lt;p&gt;&lt;strong&gt;Put() 操作流程&lt;/strong&gt; ：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;coordinator 收到 put() 请求后，创建新的 vector clock，并将其保存在本地&lt;/li&gt;
-  &lt;li&gt;coordinator 将最新的版本对象&lt;em&gt;发送给 preference list 中前 N 个健康节点&lt;/em&gt;&lt;/li&gt;
-  &lt;li&gt;前 N 个节点中如果有至少 W-1 个节点返回成功，则该 put() 请求成功&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;&lt;strong&gt;Get() 操作流程&lt;/strong&gt; ：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;coordinator 收到 get() 请求后，向 preference list 中前 N 个健康节点查询该 key 对应的数据版本&lt;/li&gt;
-  &lt;li&gt;coordinator 收到 R 个响应之后，将结果返回给客户端
-    &lt;ol&gt;
-      &lt;li&gt;如果 coordinator 获取到了多个版本，会将&lt;strong&gt;没有因果关系的版本返回给客户端&lt;/strong&gt;，客户端需要对该结果进行&lt;strong&gt;冲突解决&lt;/strong&gt;，合并成最新版本，然后&lt;strong&gt;将结果重新回写 Dynamo&lt;/strong&gt;&lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;4-6-handling-failures-hinted-handoff&quot;&gt;4-6 Handling Failures: Hinted Handoff&lt;/h2&gt;
-&lt;p&gt;传统的仲裁算法无法保证 Dynamo 系统在节点失效或者网络分区的情况下仍然可用，持久性也会降低。&lt;/p&gt;
-
-&lt;p&gt;因此，Dynamo 采用&lt;strong&gt;宽松的仲裁机制&lt;/strong&gt;（sloppy quorum）：&lt;strong&gt;所有读写操作在 preference list 的前 N 个健康节点执行&lt;/strong&gt;（&lt;em&gt;前 N 个健康节点不一定是前 N 个节点，如果遇到不健康的节点，会顺延&lt;/em&gt;）。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/dynamo/dynamo_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;在之前数据分区的例子中，N =3。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;如果 A 节点临时不可用，那么本应该发送给 A 的更新请求会被发送到 D&lt;/li&gt;
-  &lt;li&gt;发送到 D 的副本的元数据中会提示 (hint) 这个副本本应该发送给 A&lt;/li&gt;
-  &lt;li&gt;该数据被 D 保存到本地一个独立的数据库中
-    &lt;ul&gt;
-      &lt;li&gt;D 有一个定时任务不断扫描，如果发现 A 重新变得可用了，就将数据发送给 A&lt;/li&gt;
-      &lt;li&gt;成功发送回 A 之后，D 可以将该数据从本地数据库中删除；以&lt;strong&gt;保证系统内的副本数保持不变&lt;/strong&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;通过 hinted handoff 机制，保证了&lt;strong&gt;在节点或者网络发生临时故障时，读写操作不会失败，提高了可用性与持久性&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;通过配置不同的 R 与 W，可以满足不同级别的可用性与持久性；W = 1 可用性最高，但是持久性较低&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;为了提高容灾等级，保证整个数据中心挂掉的情况下系统仍然可用，可以将 preference list 中的节点分散到不同的数据中心。&lt;/p&gt;
-
-&lt;h2 id=&quot;4-7-handling-permanent-failures-replica-synchronization&quot;&gt;4-7 Handling Permanent Failures: Replica Synchronization&lt;/h2&gt;
-
-&lt;p&gt;hinted handoff 机制在短时故障的场景下运行良好，但是对于长期故障的场景无法保证持久性：在 hinted 副本移交给本应该存储该副本的节点之前，该副本就不可用了，那么系统中的副本就会出现不一致的情况。&lt;/p&gt;
-
-&lt;p&gt;为了保证不同副本之间的一致性，&lt;strong&gt;Dynamo 实现一种逆熵（副本同步）协议来保证副本之间是同步的&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;为了&lt;em&gt;快速检测副本之间的不一致性，以及最小转移的数据量&lt;/em&gt;，Dynamo 使用了 Merkle tree。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Merkle tree 是一个 Hash tree：叶子节点是 key 对应的 value 的 hash 值；父节点是子节点的 hash&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;如果两棵树的根节点 hash 值相同，那么这两棵树的叶子节点肯定相同，则这两棵树是一致的；否则这两棵树存在不一致的数据，需要继续比较其子节点的 hash 值，直到找到不一致的子树。&lt;/p&gt;
-
-&lt;p&gt;Dynamo 系统的&lt;strong&gt;每个节点为每段 key range 维护了一个单独的 Merkle tree&lt;/strong&gt;。不同节点之间可以比较其维护的 key range 内的 key 是否一致。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;key range: 一致性 hash 环中每个节点维护的范围&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;这种方案的缺点是：&lt;em&gt;每当有节点加入或离开系统时，一些 key range 会变，因此对应的 tree 需要重新计算&lt;/em&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;4-8-membership-and-failure-detection&quot;&gt;4-8 Membership and Failure Detection&lt;/h2&gt;
-
-&lt;h3 id=&quot;4-8-1-ring-membership&quot;&gt;4-8-1 Ring Membership&lt;/h3&gt;
-
-&lt;p&gt;Dynamo 使用&lt;strong&gt;显示机制来向 hash ring 中增删节点&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;通常情况下节点不可用持续的时间都比较短，一个节点的临时不可用不能说明这个节点永久离开了系统，因此不应该在节点不可用时立即进行 re-partiton，或者修复无法访问的副本&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;管理员通过命令行手动添加或者删除节点，负责处理该请求的节点&lt;strong&gt;将成员变动的信息持久化到本地，并通过 gossip-based 算法广播成员变动信息&lt;/strong&gt;，保证成员信息的一致性。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;每个节点周期性地随机选择另一个节点，这两个节点互相交换自己拥有的成员信息，维护成员信息的一致性&lt;/em&gt;。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;节点启动时，计算自己的 token 集合（一致性 hash ring 上的 token range）&lt;/li&gt;
-  &lt;li&gt;将节点映射到 token 集合中（包含虚拟节点）&lt;/li&gt;
-  &lt;li&gt;将映射关系持久化到本地&lt;/li&gt;
-  &lt;li&gt;与其他节点交换自己维护的成员信息，从而不同节点保持一致&lt;/li&gt;
-  &lt;li&gt;通过 gossip-based 协议多次交换后，每个节点都会知道其他节点负责的 token 范围&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;成员信息的交换，既能保证维护信息的一致性，也能够使得&lt;strong&gt;每个节点都可以将任意 key 的读写操作直接发送给正确的节点处理&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h3 id=&quot;4-8-2-external-discovery&quot;&gt;4-8-2 External Discovery&lt;/h3&gt;
-
-&lt;p&gt;上述成员信息维护流程啃根会导致 Dynamo 在逻辑上的临时分裂：管理员添加 A 节点，A 维护了自己的 token 集合；之后管理员又将 B 添加到系统中，B 也维护了自己的 token 集合；但是 A，B 两个节点&lt;em&gt;无法感知对方的存在&lt;/em&gt;，就无法进行信息交换。&lt;/p&gt;
-
-&lt;p&gt;为了避免逻辑分裂，可以通过&lt;strong&gt;外部机制配置一些 Dynamo 节点作为种子节点&lt;/strong&gt;：&lt;em&gt;所有节点都知道种子节点的存在，并和种子节点交换自己的信息，最终所有节点都会感知对方的存在，避免逻辑分裂的可能&lt;/em&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;种子节点只是一个普通的 Dynamo 节点，不过是提前配置在配置中心或者配置文件中&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;4-8-3-failure-detection&quot;&gt;4-8-3 Failure Detection&lt;/h3&gt;
-
-&lt;p&gt;故障检测是一个&lt;strong&gt;纯本地概念&lt;/strong&gt;（pure local notion）的检测机制：只要节点 B 没有应答 A 的请求，那么 A 就认为 B 发生故障，不可访问。&lt;/p&gt;
-
-&lt;p&gt;如果 A 认为 B 是故障的，那么可以选择与 B 拥有同一个 partition 的其他节点（preference list 中的其他节点）来处理请求，并定期检查 B 是否再次可用。&lt;/p&gt;
-
-&lt;p&gt;故障检测的目的是为了&lt;em&gt;避免尝试与不可访问的节点持续通信&lt;/em&gt;，如：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;get(), put() 操作访问的节点&lt;/li&gt;
-  &lt;li&gt;转移 partition 和 临时副本(hinted replica) 时的目标节点&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;在没有客户端请求的情况下，节点之间并不需要知道对方是否故障；在客户端持续请求下，不同节点间会持续交互，此时如果对方不可访问，当前节点也会立马知道。&lt;/p&gt;
-
-&lt;h2 id=&quot;4-9-addingremoving-storage-nodes&quot;&gt;4-9 Adding/Removing Storage Nodes&lt;/h2&gt;
-
-&lt;p&gt;当新节点 X 添加到系统中后，它会获得一些&lt;strong&gt;随机分散在 hash ring 上的 token 集合&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/dynamo/dynamo_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;如 X 加入 A, B 节点之间，X 就会负责&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;(F, G], (G, A] and (A, X]&lt;/code&gt; 之间的 key。相应地，B, C, D 节点就不需要负责相应的 range 了。&lt;strong&gt;在收到 X 转移 key 的请求之后，B, C, D 会向 X 转移相应的 key&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;节点移除的分配顺序相反&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;通过这种方式，可以使得 key 在存储节点上均匀分布。同时，为了不重复转移 key range，需要在源节点与目标节点间添加确认机制。&lt;/p&gt;
-
-&lt;h1 id=&quot;5-implementation&quot;&gt;5-Implementation&lt;/h1&gt;
-
-&lt;p&gt;Dynamo 系统中的每个节点上有 3 个组件：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;request coordination（请求协调）组件&lt;/li&gt;
-  &lt;li&gt;成员验证 &amp;amp; 故障检测组件&lt;/li&gt;
-  &lt;li&gt;本地持久化存储引擎&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;5-1-local-storage&quot;&gt;5-1 Local Storage&lt;/h2&gt;
-
-&lt;p&gt;存储引擎组件设计为可插拔：&lt;strong&gt;为不同访问类型选择合适的存储引擎&lt;/strong&gt;。如 BDB 适合处理几十 KB 大小的对象，MySQL 适合处理更大的对象&lt;/p&gt;
-
-&lt;h2 id=&quot;5-2-request-coordination&quot;&gt;5-2 Request Coordination&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;Coordinator 构建在事件驱动的消息系统上，用于代替客户端执行读写请求&lt;/strong&gt;：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;读操作会从一个或者多个节点收集数据&lt;/li&gt;
-  &lt;li&gt;写操作会向一个或者多个节点存储数据&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Coordinator 会&lt;strong&gt;为每个请求创建一个状态机&lt;/strong&gt;：包含了&lt;em&gt;识别 key 对应的节点，发送请求，等待响应，重试，处理响应，组合响应，返回给客户端&lt;/em&gt;等逻辑。&lt;/p&gt;
-
-&lt;p&gt;每个状态机只会处理一个客户端请求，读操作流程为：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;发送读请求给其他 Dynamo 节点&lt;/li&gt;
-  &lt;li&gt;等待最少数量的响应
-    &lt;ol&gt;
-      &lt;li&gt;如果在一定时间内收到的响应数少于规定的，则认为请求失败&lt;/li&gt;
-      &lt;li&gt;如果满足规定数量，则收集对象的所有版本，并确定返回版本&lt;/li&gt;
-      &lt;li&gt;&lt;strong&gt;如果收到过期版本，则需要合并版本并回写给对应节点 —— 读修复(read repair)&lt;/strong&gt;&lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-  &lt;li&gt;生成上下文 context：包含版本向量时钟&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;即使读操作的结果已经响应给客户端，&lt;strong&gt;状态机也会等待一段时间，用于接受剩余节点可能的有效响应&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;对于写操作，如果&lt;strong&gt;&lt;em&gt;总是选择 preference list 中的第一个健康节点作为 coordinator，可以完成写操作的序列化&lt;/em&gt;&lt;/strong&gt;，但是会导致负载不均衡（操作请求的 key 不一定是均匀分布的）。为了解决这个问题，&lt;strong&gt;preference list 中的前 N 个健康节点都可以作为 coordinator&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;并且，每个写操作请求前都会先进行一次读操作，所以&lt;strong&gt;写操作的 coordinator 可以选择前一次读操作返回最快的节点&lt;/strong&gt;（该信息存储在读操作的 context 中）。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;该策略同时提高了“读取刚写入数据”的概率&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h1 id=&quot;6-conclusions&quot;&gt;6-Conclusions&lt;/h1&gt;
-
-&lt;p&gt;Dynamo 作为一个高可用，高可扩展的数据仓库，提供了期望的可用性和性能等级，可以正确地处理服务器故障、数据中心故障和网络分裂；支持增量扩展；允许&lt;strong&gt;客户端应用可以通过对 N、R 和 W 三个参数进行调优来达到期望的性能、可用性和持久性等级&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;Dynamo 表明了&lt;strong&gt;最终一致性存储系统可以作为高可用应用（highly available applications）的一块基石。&lt;/strong&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Abstract</summary></entry></feed>
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">含义与结构</summary></entry></feed>
