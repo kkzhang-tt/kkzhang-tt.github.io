@@ -14,8 +14,6 @@ entries:
     entries:
       - title: System Design
         url: system-design-archive.html
-      - title: DDIA
-        url: ddia-archive.html
       - title: Operating System
         url: os-archive.html
       - title: Algrithom
