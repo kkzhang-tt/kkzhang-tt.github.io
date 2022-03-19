@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "【译】Distributed Systems"
+title: "Distributed Systems"
 category: "system-design"
 author: "kkzhang"
 ---
