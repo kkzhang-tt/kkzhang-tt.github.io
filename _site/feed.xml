@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-03-19T19:43:15+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle>Code.
-</subtitle><author><name>kkzhang</name></author><entry><title type="html">Distributed Systems</title><link href="http://localhost:4000/distributed-systems.html" rel="alternate" type="text/html" title="Distributed Systems" /><published>2022-03-07T00:00:00+08:00</published><updated>2022-03-07T00:00:00+08:00</updated><id>http://localhost:4000/distributed-systems</id><content type="html" xml:base="http://localhost:4000/distributed-systems.html">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-03-26T18:29:36+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Distributed Systems</title><link href="http://localhost:4000/distributed-systems.html" rel="alternate" type="text/html" title="Distributed Systems" /><published>2022-03-07T00:00:00+08:00</published><updated>2022-03-07T00:00:00+08:00</updated><id>http://localhost:4000/distributed-systems</id><content type="html" xml:base="http://localhost:4000/distributed-systems.html">&lt;blockquote&gt;
   &lt;p&gt;翻译自 DDIA 作者 Martin Kleppmann 分布式系统课程：&lt;a href=&quot;https://www.youtube.com/watch?v=UEAMfLPZZhE&amp;amp;list=PLeKd45zvjcDFUEv_ohr_HdUFe97RItdiB&quot;&gt;视频&lt;/a&gt;; &lt;a href=&quot;https://www.cl.cam.ac.uk/teaching/2122/ConcDisSys/dist-sys-notes.pdf&quot;&gt;课件&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -2269,6 +2268,242 @@ service PaymentService {
 &lt;ul&gt;
   &lt;li&gt;In case of fire, ring the alarm bell.&lt;/li&gt;
   &lt;li&gt;We have an auxiliary generator in case of power cuts.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;7-结果状语从句&quot;&gt;7-结果状语从句&lt;/h1&gt;
+&lt;h2 id=&quot;7-1-介绍&quot;&gt;7-1-介绍&lt;/h2&gt;
+
+&lt;p&gt;结果状语从句：在复合句中表示&lt;strong&gt;主句动作所导致结果&lt;/strong&gt;的从句，用于补充说明主句谓语动词发生的结果；通常位于主句的后面。&lt;/p&gt;
+
+&lt;h2 id=&quot;7-2-连接词&quot;&gt;7-2-连接词&lt;/h2&gt;
+
+&lt;p&gt;引导结果状语从句的连词主要有：so that, so…that, such…that 等。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;so 用在形容词或副词之前，such 用在名词之前&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;7-2-1-so-that&quot;&gt;7-2-1 so that&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;so that 既可以引导目的状语从句，表示“为了，以便”；也可以引导结果状语从句，表示“因此，以至于”&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;当引导目的状语从句时，从句一般包含情态动词&lt;/strong&gt;；当引导结果状语从句时，一般不包含&lt;/p&gt;
+
+  &lt;ul&gt;
+    &lt;li&gt;You make friends with people and then make unreasonable demands &lt;strong&gt;&lt;em&gt;so tha&lt;/em&gt;&lt;/strong&gt;t they reject you.（结果状语从句）&lt;/li&gt;
+    &lt;li&gt;I’ll give you all the facts &lt;strong&gt;&lt;em&gt;so that&lt;/em&gt;&lt;/strong&gt; you can judge for yourself.（目的状语从句）&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;7-2-2-sosuchthat&quot;&gt;7-2-2 so/such…that&lt;/h3&gt;
+
+&lt;p&gt;so/such…that 表示“如此…以至于…”。so 是副词，修饰形容词或副词，such 是形容词，修饰名词。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;so + adj./adv. + that&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;He speaks &lt;strong&gt;&lt;em&gt;so fast tha&lt;/em&gt;&lt;/strong&gt;t no one can catch him.&lt;/li&gt;
+      &lt;li&gt;The ball struck him &lt;strong&gt;&lt;em&gt;so hard tha&lt;/em&gt;&lt;/strong&gt;t he nearly fell into the water.&lt;/li&gt;
+      &lt;li&gt;I was &lt;strong&gt;&lt;em&gt;so busy here that&lt;/em&gt;&lt;/strong&gt; I had no time to write a letter.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;so + adj./adv. + (a/an) + n +that&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;There is &lt;strong&gt;&lt;em&gt;so rapid an increase&lt;/em&gt;&lt;/strong&gt; in population that a food shortage is caused.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;such ＋ a(an) ＋ adj. ＋ 可数名词单数 ＋ that&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;He is &lt;strong&gt;&lt;em&gt;such a clever boy&lt;/em&gt;&lt;/strong&gt; &lt;strong&gt;&lt;em&gt;that&lt;/em&gt;&lt;/strong&gt; everybody likes him.&lt;/li&gt;
+      &lt;li&gt;He was &lt;strong&gt;&lt;em&gt;such an honest man that&lt;/em&gt;&lt;/strong&gt; he was praised by the teacher.&lt;/li&gt;
+      &lt;li&gt;He’s such a good person that we mustn’t blame him.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;such ＋ adj. ＋ 复数可数名词 ＋ that&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;He told us &lt;strong&gt;&lt;em&gt;such horrible stories that&lt;/em&gt;&lt;/strong&gt; we all scared.&lt;/li&gt;
+      &lt;li&gt;They are &lt;strong&gt;&lt;em&gt;such fine teachers that&lt;/em&gt;&lt;/strong&gt; we all hold them in great respect.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;such + adj. + 不可数名词 + that&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;He has made &lt;strong&gt;&lt;em&gt;such great progress that&lt;/em&gt;&lt;/strong&gt; the teachers are pleased with him.&lt;/li&gt;
+      &lt;li&gt;It is &lt;strong&gt;&lt;em&gt;such nice weather that&lt;/em&gt;&lt;/strong&gt; I would like to go to the beach.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;需要注意：&lt;strong&gt;so 与表示数量的代词 many, few, much, little 等连用已经形成固定搭配&lt;/strong&gt;， 这种情况下不能换用 such 的对应结构表示。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Our country has &lt;strong&gt;&lt;em&gt;so much coal&lt;/em&gt;&lt;/strong&gt; that she can export large quantities.&lt;/li&gt;
+  &lt;li&gt;There were &lt;strong&gt;&lt;em&gt;so many people&lt;/em&gt;&lt;/strong&gt; in the street watching the fire that firefighters could not get close to the building.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;当结果状语从句的主语与主句的主语相同时，&lt;strong&gt;可省略从句主语，从句谓语变非谓语&lt;/strong&gt;。此时 so… 就要换一个形式来陈述。&lt;strong&gt;so 是中性程度副词，如果从句是肯定句，那么 so 就要换为 enough&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;enough 只能在所修饰词的后面&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;He is so old that he can go to school alone. = He is old enough to go to school alone.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;8-让步状语从句&quot;&gt;8-让步状语从句&lt;/h1&gt;
+&lt;h2 id=&quot;8-1-介绍&quot;&gt;8-1-介绍&lt;/h2&gt;
+
+&lt;p&gt;让步状语从句一般翻译为 “尽管…”，“即使…”。&lt;/p&gt;
+
+&lt;p&gt;引导让步状语从句的连接词有：&lt;strong&gt;though, although, as, even though, whether … or …, no matter + 疑问词, 疑问词-ever, regardless of + 名词/名词短语/名词从句, despite, despite of&lt;/strong&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;需要注意，although，though 不可以与 but 连用，但是可以和 yet, still 连用&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;8-2-连接词&quot;&gt;8-2-连接词&lt;/h2&gt;
+
+&lt;h3 id=&quot;8-2-1-although--though&quot;&gt;8-2-1 although &amp;amp; though&lt;/h3&gt;
+
+&lt;p&gt;这两个连词都表示“虽然，尽管”，一般情况下可以互换使用。&lt;/p&gt;
+
+&lt;p&gt;though 通常用于口语，although 常用于正式情况。&lt;strong&gt;&lt;em&gt;两者均不可以和 but 连用，但是可以和 yet, still, nevertheless 连用&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Although/Though he was exhausted, he(still) kept on working.&lt;/li&gt;
+  &lt;li&gt;Although/Though he is known to only a few, his reputation among them is very great.&lt;/li&gt;
+  &lt;li&gt;Although/Though they’re expensive, they last forever and never go out of style.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;although 引导的让步状语从句通常位于主句之前，though 引导的让步状语从句位于主句前或者主句后均可。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;They’re very different, though they did seem to get on well when they met.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;8-2-2-as&quot;&gt;8-2-2 as&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;as 引导的让步状语从句必须用倒装&lt;/em&gt;&lt;/strong&gt;，而 though 引导的让步状语从句可用倒装，也可不用倒装。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;名词 + as/though + 主语 + 动词&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;King as he was, he was unhappy.&lt;/li&gt;
+      &lt;li&gt;Child as he is, he knows to help other.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;其中的动词常为&lt;strong&gt;&lt;em&gt;连系动词&lt;/em&gt;&lt;/strong&gt;，位于句首的名词为连系动词的表语。同时，位于句首的名词通常不用冠词。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Boy as/though he is, he likes to play with girls. = Though/Although he is a boy, he likes to play with girls.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;形容词 + as/though + 主语 + 动词&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Patient as he was，he didn’t like waiting that long.&lt;/li&gt;
+      &lt;li&gt;Beautiful though the necklace was，we thought it was over-priced.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;其中的动词也常为&lt;strong&gt;&lt;em&gt;连系动词&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;副词 + as/though + 主语 + 动词&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Much as I like Paris, I couldn’t live there.&lt;/li&gt;
+      &lt;li&gt;Fast as you read, you can’t finish the book in two days.&lt;/li&gt;
+      &lt;li&gt;Heavily as it is raining, the football game has been decided not to be put off.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;有时候会将 much as 当作一个复合连词看，整体引导让步状语从句。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Much as I admire him as a writer，I do not like him as a man.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;动词原型 + as/though + 主语 + 动词&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Object as you may, I’ll go.&lt;/li&gt;
+      &lt;li&gt;Try as he might, he couldn’t solve the problem.&lt;/li&gt;
+      &lt;li&gt;Lose money as I did, we got a lot of experience.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;&lt;strong&gt;&lt;em&gt;主语后面的动词常为 could, may, might, did 等情态动词或者助动词&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;如果表示陈述事实，则用 do, did 等助动词；如果表示情态含义，则用情态动词&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;8-2-3-whether&quot;&gt;8-2-3 whether&lt;/h3&gt;
+
+&lt;p&gt;由 whether 引导的让步状语从句旨在说明正反两方面的可能性都不会影响主句的意向或结果，所以&lt;strong&gt;&lt;em&gt;语气是比较强烈的&lt;/em&gt;&lt;/strong&gt;，从而也更加坚定了主句的内容。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;You’ll have to attend the ceremony whether you’re free or busy.&lt;/li&gt;
+  &lt;li&gt;Whether you believe it or not, it’s true.&lt;/li&gt;
+  &lt;li&gt;Whether or not they win this battle, they won’t win the war.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;8-2-4-no-matter--疑问词--疑问词-ever&quot;&gt;8-2-4 no matter + 疑问词 = 疑问词-ever&lt;/h3&gt;
+
+&lt;p&gt;这两个连接词均表示 “不管 … 都 …”，“…. 都 ….”，引导让步状语从句时两者可以互换。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;No matter what happened, he would not mind.&lt;/li&gt;
+  &lt;li&gt;Whatever happened, he would not mind.&lt;/li&gt;
+  &lt;li&gt;No matter who you are, you must keep the law.&lt;/li&gt;
+  &lt;li&gt;Whoever you are, you must keep the law.&lt;/li&gt;
+  &lt;li&gt;When anyone does something for you, no matter how small and no matter whether he’s a superior or servant, it’s proper to say “Thank you”.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;no matter + 疑问词只能引导状语从句，而疑问词-ever 还可以引导名词性从句&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Whatever (=No matter what) you say, I won’t believe you.(让步状语从句)&lt;/li&gt;
+  &lt;li&gt;I’ll eat whatever (≠no matter what) you give me.(宾语从句)&lt;/li&gt;
+  &lt;li&gt;Whoever comes will be welcome.(主语从句)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;while 有时也可以引导让步状语从句，通常位于句首&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;While I like the color, I don’t like the shape.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;8-2-5-even-though--even-if&quot;&gt;8-2-5 even though &amp;amp; even if&lt;/h3&gt;
+
+&lt;p&gt;两者均可以引导让步状语从句，但是有细微差别。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;even if 引导的状语从句通常是假设性的，表示“即使”，“纵然”，“就算”，“哪怕”
+    &lt;ul&gt;
+      &lt;li&gt;Even if I have to walk all the way I’ll get there.&lt;/li&gt;
+      &lt;li&gt;Even if it rains tomorrow, we won’t change our plan.&lt;/li&gt;
+      &lt;li&gt;Even if you saw him pick up the money, you can’t be sure he stole it.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;even though 引导的从句内容往往是真实的，用于引出不利于主句的信息，表示“尽管”，“虽然”
+    &lt;ul&gt;
+      &lt;li&gt;He went out even though it was raining.&lt;/li&gt;
+      &lt;li&gt;He’s the best teacher even though he has the least experience.&lt;/li&gt;
+      &lt;li&gt;Even though I didn’t know anybody at the party, I had a nice time.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;此时 even though 与 though, although 可以互换。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Even though/Though/Although we all tried our best, we lost the game.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;在实际运用中，even though 与 even if 可以不加区别地混用。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Even if /Even though she laughs at him, he likes her.&lt;/li&gt;
+  &lt;li&gt;We thoroughly understand each other, even if /even though we don’t always agree.&lt;/li&gt;
 &lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="nglish-study" /><summary type="html">1-介绍 状语从句指句子用作状语时, 起副词作用的句子。它可以修饰谓语、非谓语动词、定语、状语或整个句子。根据其作用可分为时间、地点、原因、条件、目的、结果、让步、方式和比较等从句。 状语从句一般由连词(从属连词)引导，也可以由词组引起。从句位于句首或句中时通常用逗号与主句隔开，位于句尾时可以不用逗号隔开。</summary></entry><entry><title type="html">编程珠玑: 编写正确的程序</title><link href="http://localhost:4000/programming-pearls-4.html" rel="alternate" type="text/html" title="编程珠玑: 编写正确的程序" /><published>2022-02-27T00:00:00+08:00</published><updated>2022-02-27T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-4</id><content type="html" xml:base="http://localhost:4000/programming-pearls-4.html">&lt;h2 id=&quot;二分搜索&quot;&gt;二分搜索&lt;/h2&gt;
 
 &lt;p&gt;二分搜索的目标是确定在排序数组 x[0…n-1] 中是否存在目标元素 t，如果存在则返回对应的索引 p，否则返回 -1。&lt;/p&gt;

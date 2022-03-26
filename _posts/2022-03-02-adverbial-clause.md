@@ -341,3 +341,165 @@ in case of 表示“假如，如果发生”。
 
 - In case of fire, ring the alarm bell.
 - We have an auxiliary generator in case of power cuts.
+
+# 7-结果状语从句
+## 7-1-介绍
+
+结果状语从句：在复合句中表示**主句动作所导致结果**的从句，用于补充说明主句谓语动词发生的结果；通常位于主句的后面。
+
+## 7-2-连接词
+
+引导结果状语从句的连词主要有：so that, so...that, such...that 等。
+
+> so 用在形容词或副词之前，such 用在名词之前
+
+### 7-2-1 so that
+
+**so that 既可以引导目的状语从句，表示“为了，以便”；也可以引导结果状语从句，表示“因此，以至于”**。
+
+> **当引导目的状语从句时，从句一般包含情态动词**；当引导结果状语从句时，一般不包含
+> 
+- You make friends with people and then make unreasonable demands ***so tha***t they reject you.（结果状语从句）
+- I'll give you all the facts ***so that*** you can judge for yourself.（目的状语从句）
+
+### 7-2-2 so/such...that
+
+so/such...that 表示“如此...以至于...”。so 是副词，修饰形容词或副词，such 是形容词，修饰名词。
+
+1. **so + adj./adv. + that**
+    - He speaks ***so fast tha***t no one can catch him.
+    - The ball struck him ***so hard tha***t he nearly fell into the water.
+    - I was ***so busy here that*** I had no time to write a letter.
+2. **so + adj./adv. + (a/an) + n +that**
+    - There is ***so rapid an increase*** in population that a food shortage is caused.
+3. **such ＋ a(an) ＋ adj. ＋ 可数名词单数 ＋ that**
+    - He is ***such a clever boy*** ***that*** everybody likes him.
+    - He was ***such an honest man that*** he was praised by the teacher.
+    - He's such a good person that we mustn't blame him.
+4. **such ＋ adj. ＋ 复数可数名词 ＋ that**
+    - He told us ***such horrible stories that*** we all scared.
+    - They are ***such fine teachers that*** we all hold them in great respect.
+5. **such + adj. + 不可数名词 + that**
+    - He has made ***such great progress that*** the teachers are pleased with him.
+    - It is ***such nice weather that*** I would like to go to the beach.
+
+需要注意：**so 与表示数量的代词 many, few, much, little 等连用已经形成固定搭配**， 这种情况下不能换用 such 的对应结构表示。
+
+- Our country has ***so much coal*** that she can export large quantities.
+- There were ***so many people*** in the street watching the fire that firefighters could not get close to the building.
+
+当结果状语从句的主语与主句的主语相同时，**可省略从句主语，从句谓语变非谓语**。此时 so... 就要换一个形式来陈述。**so 是中性程度副词，如果从句是肯定句，那么 so 就要换为 enough**。
+
+> enough 只能在所修饰词的后面
+
+- He is so old that he can go to school alone. = He is old enough to go to school alone.
+
+# 8-让步状语从句
+## 8-1-介绍
+
+让步状语从句一般翻译为 “尽管...”，“即使...”。
+
+引导让步状语从句的连接词有：**though, although, as, even though, whether ... or ..., no matter + 疑问词, 疑问词-ever, regardless of + 名词/名词短语/名词从句, despite, despite of**
+
+> 需要注意，although，though 不可以与 but 连用，但是可以和 yet, still 连用 
+
+## 8-2-连接词
+
+### 8-2-1 although & though
+
+这两个连词都表示“虽然，尽管”，一般情况下可以互换使用。
+
+though 通常用于口语，although 常用于正式情况。***两者均不可以和 but 连用，但是可以和 yet, still, nevertheless 连用***。
+
+- Although/Though he was exhausted, he(still) kept on working.
+- Although/Though he is known to only a few, his reputation among them is very great.
+- Although/Though they're expensive, they last forever and never go out of style.
+
+although 引导的让步状语从句通常位于主句之前，though 引导的让步状语从句位于主句前或者主句后均可。
+
+- They're very different, though they did seem to get on well when they met.
+
+### 8-2-2 as
+
+***as 引导的让步状语从句必须用倒装***，而 though 引导的让步状语从句可用倒装，也可不用倒装。
+
+1. **名词 + as/though + 主语 + 动词**
+    - King as he was, he was unhappy.
+    - Child as he is, he knows to help other.
+    
+    其中的动词常为***连系动词***，位于句首的名词为连系动词的表语。同时，位于句首的名词通常不用冠词。
+    
+    - Boy as/though he is, he likes to play with girls. = Though/Although he is a boy, he likes to play with girls.
+2. **形容词 + as/though + 主语 + 动词**
+    - Patient as he was，he didn’t like waiting that long.
+    - Beautiful though the necklace was，we thought it was over-priced.
+    
+    其中的动词也常为***连系动词***。
+    
+3. **副词 + as/though + 主语 + 动词**
+    - Much as I like Paris, I couldn’t live there.
+    - Fast as you read, you can’t finish the book in two days.
+    - Heavily as it is raining, the football game has been decided not to be put off.
+    
+    有时候会将 much as 当作一个复合连词看，整体引导让步状语从句。
+    
+    - Much as I admire him as a writer，I do not like him as a man.
+4. **动词原型 + as/though + 主语 + 动词**
+    - Object as you may, I’ll go.
+    - Try as he might, he couldn’t solve the problem.
+    - Lose money as I did, we got a lot of experience.
+    
+    ***主语后面的动词常为 could, may, might, did 等情态动词或者助动词***。
+    
+    > 如果表示陈述事实，则用 do, did 等助动词；如果表示情态含义，则用情态动词
+    > 
+
+### 8-2-3 whether
+
+由 whether 引导的让步状语从句旨在说明正反两方面的可能性都不会影响主句的意向或结果，所以***语气是比较强烈的***，从而也更加坚定了主句的内容。
+
+- You'll have to attend the ceremony whether you're free or busy.
+- Whether you believe it or not, it's true.
+- Whether or not they win this battle, they won't win the war.
+
+### 8-2-4 no matter + 疑问词 = 疑问词-ever
+
+这两个连接词均表示 “不管 ... 都 ...”，“.... 都 ....”，引导让步状语从句时两者可以互换。
+
+- No matter what happened, he would not mind.
+- Whatever happened, he would not mind.
+- No matter who you are, you must keep the law.
+- Whoever you are, you must keep the law.
+- When anyone does something for you, no matter how small and no matter whether he's a superior or servant, it's proper to say "Thank you".
+
+***no matter + 疑问词只能引导状语从句，而疑问词-ever 还可以引导名词性从句***。
+
+- Whatever (=No matter what) you say, I won't believe you.(让步状语从句)
+- I'll eat whatever (≠no matter what) you give me.(宾语从句)
+- Whoever comes will be welcome.(主语从句)
+
+***while 有时也可以引导让步状语从句，通常位于句首***。
+
+- While I like the color, I don’t like the shape.
+
+### 8-2-5 even though & even if
+
+两者均可以引导让步状语从句，但是有细微差别。
+
+1. even if 引导的状语从句通常是假设性的，表示“即使”，“纵然”，“就算”，“哪怕”
+    - Even if I have to walk all the way I'll get there.
+    - Even if it rains tomorrow, we won't change our plan.
+    - Even if you saw him pick up the money, you can't be sure he stole it.
+2. even though 引导的从句内容往往是真实的，用于引出不利于主句的信息，表示“尽管”，“虽然”
+    - He went out even though it was raining.
+    - He's the best teacher even though he has the least experience.
+    - Even though I didn't know anybody at the party, I had a nice time.
+    
+    此时 even though 与 though, although 可以互换。
+    
+    - Even though/Though/Although we all tried our best, we lost the game.
+
+在实际运用中，even though 与 even if 可以不加区别地混用。
+
+- Even if /Even though she laughs at him, he likes her.
+- We thoroughly understand each other, even if /even though we don't always agree.
