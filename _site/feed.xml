@@ -1,4 +1,771 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-03-26T18:29:36+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Distributed Systems</title><link href="http://localhost:4000/distributed-systems.html" rel="alternate" type="text/html" title="Distributed Systems" /><published>2022-03-07T00:00:00+08:00</published><updated>2022-03-07T00:00:00+08:00</updated><id>http://localhost:4000/distributed-systems</id><content type="html" xml:base="http://localhost:4000/distributed-systems.html">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-04-04T16:13:30+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">非谓语动词</title><link href="http://localhost:4000/non-predicate-verb.html" rel="alternate" type="text/html" title="非谓语动词" /><published>2022-04-04T00:00:00+08:00</published><updated>2022-04-04T00:00:00+08:00</updated><id>http://localhost:4000/non-predicate-verb</id><content type="html" xml:base="http://localhost:4000/non-predicate-verb.html">&lt;h1 id=&quot;1-什么是非谓语动词&quot;&gt;1-什么是非谓语动词&lt;/h1&gt;
+&lt;h2 id=&quot;1-1-介绍&quot;&gt;1-1-介绍&lt;/h2&gt;
+
+&lt;p&gt;非谓语动词，又叫非限定动词。非谓语动词是指在句子中不是谓语的动词，主要包括&lt;strong&gt;&lt;em&gt;不定式、动名词和分词（现在分词和过去分词）&lt;/em&gt;&lt;/strong&gt;，即动词的非谓语形式。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;动名词与现在分词虽然表现形式相同，但是起到的作用是有所区别的。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;动名词只具有名词词性，在句子中做主语或者宾语。现在分词具有动词词性（与 be 动词连用补足），形容词词性（作定语），副词词性（作状语）&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;非谓语动词除了不能独立作谓语外，可以承担句子的其他成分。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;非谓语动词中需要记住的口诀：&lt;strong&gt;&lt;em&gt;主动进行现在分词，被动完成过去分词，不定式表将来&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;需要注意的是，非谓语动词本身不能表示现在，过去，和将来。&lt;strong&gt;&lt;em&gt;非谓语动词表示进行，将来和完成时是相对于谓语动作来说的&lt;/em&gt;&lt;/strong&gt;：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;和谓语动作同时发生表示进行&lt;/li&gt;
+  &lt;li&gt;发生在谓语动作之后表示将来&lt;/li&gt;
+  &lt;li&gt;发生在谓语动作之前表示完成&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;1-1-1-不定式&quot;&gt;1-1-1 不定式&lt;/h3&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;基本形式&lt;/th&gt;
+      &lt;th&gt;被动式&lt;/th&gt;
+      &lt;th&gt;进行式&lt;/th&gt;
+      &lt;th&gt;完成式&lt;/th&gt;
+      &lt;th&gt;完成被动式&lt;/th&gt;
+      &lt;th&gt;完成进行式&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;to do&lt;/td&gt;
+      &lt;td&gt;to be done&lt;/td&gt;
+      &lt;td&gt;to be doing&lt;/td&gt;
+      &lt;td&gt;to have done&lt;/td&gt;
+      &lt;td&gt;to have been done&lt;/td&gt;
+      &lt;td&gt;to have been doing&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;表示主动，并且一般表示将来&lt;/td&gt;
+      &lt;td&gt;表示被动，并且一般表示将来&lt;/td&gt;
+      &lt;td&gt;表示主动和进行&lt;/td&gt;
+      &lt;td&gt;表示主动和完成&lt;/td&gt;
+      &lt;td&gt;表示被动和完成&lt;/td&gt;
+      &lt;td&gt;表示被动和完成进行&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The teacher told us to do morning exercises.(to do)&lt;/li&gt;
+  &lt;li&gt;The car to be bought is for his sister. (to be done)&lt;/li&gt;
+  &lt;li&gt;She pretended to be reading when the teacher came into the classroom. (to be doing)&lt;/li&gt;
+  &lt;li&gt;The thief is said to have escaped. (to have done)&lt;/li&gt;
+  &lt;li&gt;The thief is said to have been arrested. (to have been done)&lt;/li&gt;
+  &lt;li&gt;She is said to have been working in the factory over the last 20 years. (to have been doing)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;1-1-2-动名词&quot;&gt;1-1-2 动名词&lt;/h3&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;基本形式&lt;/th&gt;
+      &lt;th&gt;被动式&lt;/th&gt;
+      &lt;th&gt;完成式&lt;/th&gt;
+      &lt;th&gt;完成被动式&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;doing&lt;/td&gt;
+      &lt;td&gt;being done&lt;/td&gt;
+      &lt;td&gt;having done&lt;/td&gt;
+      &lt;td&gt;having been done&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;表示主动&lt;/td&gt;
+      &lt;td&gt;表示被动&lt;/td&gt;
+      &lt;td&gt;表示主动和完成&lt;/td&gt;
+      &lt;td&gt;表示被动和完成&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Travelling in space by ordinary people will be common in the future. (doing)&lt;/li&gt;
+  &lt;li&gt;Freddy and his band could go nowhere without being followed by their fans. (being done)&lt;/li&gt;
+  &lt;li&gt;I have no idea of his having done such a thing against you. (having done)&lt;/li&gt;
+  &lt;li&gt;Many customers complain of having been given short weight at that shop. (having been done)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;1-1-3-现在分词&quot;&gt;1-1-3 现在分词&lt;/h3&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;基本形式&lt;/th&gt;
+      &lt;th&gt;被动式&lt;/th&gt;
+      &lt;th&gt;完成式&lt;/th&gt;
+      &lt;th&gt;完成被动式&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;doing&lt;/td&gt;
+      &lt;td&gt;being done&lt;/td&gt;
+      &lt;td&gt;having done&lt;/td&gt;
+      &lt;td&gt;having been done&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;表示主动和进行&lt;/td&gt;
+      &lt;td&gt;表示被动和进行&lt;/td&gt;
+      &lt;td&gt;表示主动和完成&lt;/td&gt;
+      &lt;td&gt;表示被动和完成&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;He sat there，reading a newspaper. (doing)&lt;/li&gt;
+  &lt;li&gt;The area being studied may be rich in coal. (being done)&lt;/li&gt;
+  &lt;li&gt;Having finished my homework，I began to watch TV. (having done)&lt;/li&gt;
+  &lt;li&gt;Having been told many times，she still can’t remember it. (having been done)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;1-1-4-过去分词&quot;&gt;1-1-4 过去分词&lt;/h3&gt;
+
+&lt;p&gt;过去分词只有一种形式：done.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;及物动词的过去分词作表语，&lt;strong&gt;&lt;em&gt;与句子的主语是被动关系&lt;/em&gt;&lt;/strong&gt;，表示主语的状态。既表示被动，又强调已完成。
+    &lt;ul&gt;
+      &lt;li&gt;The cup is broken.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;不及物动词的过去分词作表语，&lt;strong&gt;&lt;em&gt;与句子的主语是主动关系&lt;/em&gt;&lt;/strong&gt;，表示主语的状态，同样强调动作的完成。
+    &lt;ul&gt;
+      &lt;li&gt;He is retired.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;2-动词不定式&quot;&gt;2-动词不定式&lt;/h1&gt;
+&lt;h2 id=&quot;2-1-介绍&quot;&gt;2-1-介绍&lt;/h2&gt;
+
+&lt;p&gt;动词不定式是一种非谓语动词形式，其结构为 &lt;strong&gt;to do&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;其中 to 不是介词，而是动词不定式的符号，称为小品词&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;动词不定式没有人称和数的变化，但有时态和语态的变化。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;动词不定式和其后面的名词等构成不定式短语&lt;/em&gt;，在句子中可以&lt;strong&gt;用作主语、表语、宾语、定语、状语、补足语、独立成分或与疑问词等连用&lt;/strong&gt; 。&lt;/p&gt;
+
+&lt;h2 id=&quot;2-2-时态--语态&quot;&gt;2-2-时态 &amp;amp; 语态&lt;/h2&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;不定式&lt;/th&gt;
+      &lt;th&gt;主动语态&lt;/th&gt;
+      &lt;th&gt;被动语态&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;一般式&lt;/td&gt;
+      &lt;td&gt;to do&lt;/td&gt;
+      &lt;td&gt;to be done&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;进行式&lt;/td&gt;
+      &lt;td&gt;to be doing&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;完成式&lt;/td&gt;
+      &lt;td&gt;to have done&lt;/td&gt;
+      &lt;td&gt;to have been done&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;完成进行式&lt;/td&gt;
+      &lt;td&gt;to have been doing&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;They pretended not to see us.&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;不定式的一般式表示与谓语动词动作 &lt;strong&gt;&lt;em&gt;几乎同时发生&lt;/em&gt;&lt;/strong&gt; 或者 &lt;strong&gt;&lt;em&gt;发生在谓语动词动作之后&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;He pretended to be sleeping.&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;不定式的进行式表示&lt;strong&gt;&lt;em&gt;在谓语动词动作发生的同时,不定式的动作也正在进行&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;She pretended to have known it before.&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;完成式表示不定式动作&lt;strong&gt;&lt;em&gt;发生在谓语动作之前&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;We’re happy to have been working with you.&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;完成进行式表示&lt;strong&gt;&lt;em&gt;谓语动作发生之前,不定式的动作一直在进行而且可能之后也继续&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-3-用法&quot;&gt;2-3-用法&lt;/h2&gt;
+
+&lt;h3 id=&quot;2-3-1-主语&quot;&gt;2-3-1 主语&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;To be a doctor is hard. &lt;/li&gt;
+  &lt;li&gt;To learn English well is not easy.  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;单个不定式作主语时，谓语动词用单数&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;动词不定式（短语）作主语时，为了避免句子的头重脚轻，可以&lt;strong&gt;用 “it” 作形式主语，而把真正的主语即动词不定式（短语）放在句子的后部&lt;/strong&gt;。如：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;It is not easy to learn English well.&lt;/li&gt;
+  &lt;li&gt;It is important for students to use English every day.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;2-3-2-宾语&quot;&gt;2-3-2 宾语&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;动词不定式当宾语的格式为：vt + to do.&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;动词不定式（短语）可以放在一些动词后面用作宾语，能以动词不定式作宾语的动词有：begin, start, want, forget, remember, learn, like, hate, love, ask , decide, expect, want, hope, wish, offer, fail, plan, learn, pretend, refuse, manage, help, agree, promise, prefer, mean 等等&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;I want to tell you a story.&lt;/li&gt;
+  &lt;li&gt;They begin to work at eight every morning.&lt;/li&gt;
+  &lt;li&gt;Don’t forget to lock the door.&lt;/li&gt;
+  &lt;li&gt;Would you like to go and have a picnic with us tomorrow?&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;如果 and 连接两个动词不定式，&lt;em&gt;第二个动词不定式一般省 “to”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;He wants to go and have a swim with us.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;若作宾语的动词不定式（短语）很长，可用 it 作形式宾语&lt;/strong&gt;（与形式主语类似）。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;I find it interesting to learn English with you.&lt;/li&gt;
+  &lt;li&gt;He found it hard to catch up with others.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;2-3-3-表语&quot;&gt;2-3-3 表语&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;表语，属于主语补足语，语法名词，是指说明主语的身份、性质、品性、特征和状态的词或从句。表语常由名词、形容词、介词短语、动名词、不定式、副词来充当，它&lt;em&gt;常位于系动词之后&lt;/em&gt;。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;不定式表示目的
+    &lt;ul&gt;
+      &lt;li&gt;The purpose of education is to develop a fine personality in children.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;表示事态发展的结果、预期的结果、不幸的命运
+    &lt;ul&gt;
+      &lt;li&gt;He was to perish in a shipwreck and to leave a wife and two children.&lt;/li&gt;
+      &lt;li&gt;You are to die at ninety-eight.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;用于第一人称疑问句，表示征求意见
+    &lt;ul&gt;
+      &lt;li&gt;What am I to say if they ask me the question?&lt;/li&gt;
+      &lt;li&gt;What am I to do if I have no money?&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;表示“同意、安排、命令、决定、劝告、意愿、禁止”等
+    &lt;ul&gt;
+      &lt;li&gt;They are to marry next week.&lt;/li&gt;
+      &lt;li&gt;Children are not to smoke.&lt;/li&gt;
+      &lt;li&gt;You must be patient and persistent if you are to succeed.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;不定式作表语，可用主动形式表示被动意义&lt;/em&gt;&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;She is to blame.&lt;/li&gt;
+      &lt;li&gt;Something is still to find out.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;2-3-4-定语&quot;&gt;2-3-4 定语&lt;/h3&gt;
+
+&lt;p&gt;动词不定式作定语，&lt;em&gt;放在所修饰的名词或代词后&lt;/em&gt;。与所修饰名词有如下关系:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;主谓关系&lt;/p&gt;
+
+    &lt;p&gt;不定式作定语表示主谓关系，指的是中心词是不定式的逻辑主语&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;He is not a man to tell a lie.&lt;/li&gt;
+      &lt;li&gt;See if you can get the car to start.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;动宾关系&lt;/p&gt;
+
+    &lt;p&gt;不定式作定语表示动宾关系，指的是中心词是不定式的逻辑宾语&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;We have a lot of work to do.&lt;/li&gt;
+      &lt;li&gt;I have some clothes to wash.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;当不定式与所修饰的中心词有动宾关系时，不定式的动词需为及物动词，若是不及物动词，不定式后需加上适当的介词。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;I need a pen to write with.&lt;/li&gt;
+      &lt;li&gt;Give me some paper to write on.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;同位关系&lt;/p&gt;
+
+    &lt;p&gt;不定式做定语表示同位关系，指的是不定式是中心词的内容，两者具有同位关系&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;I have a wish to go to college.&lt;/li&gt;
+      &lt;li&gt;I had a dream to fly in the sky like a bird.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;有时不表示任何特别关系&lt;/p&gt;
+
+    &lt;p&gt;有时不定式与被修饰的名词不存在主谓、动宾、同位关系的，此时被修饰的名词多是些抽象名词&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;We have no need to be afraid of them!&lt;/li&gt;
+      &lt;li&gt;The dog found out the way to open the door.&lt;/li&gt;
+      &lt;li&gt;I am sure of his ability to cope with this.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;2-3-5-状语&quot;&gt;2-3-5 状语&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;状语的作用：状语说明地点、时间、原因、目的、结果、条件、方向、程度、方式和伴随状语等。状语一般由副词、介词短语、分词和分词短语、不定式或相当于副词的词或短语来担当。其位置一般放在句首，但也可放在句末或句中。状语是一种用来修饰动词，形容词，副词或全句的词，说明时间，地点，程度，方式等概念。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;表示目的&lt;/p&gt;
+
+    &lt;p&gt;不定式用作目的状语时，常常翻译成”为了”，”目的是”。&lt;/p&gt;
+
+    &lt;p&gt;不定式用作目的状语&lt;strong&gt;&lt;em&gt;常放在句首和句末&lt;/em&gt;&lt;/strong&gt;。一般说来，用于句首属于强调性用法，即强调动词的目的。&lt;/p&gt;
+
+    &lt;p&gt;有时为了&lt;strong&gt;&lt;em&gt;特别强调目的状语，可以在不定式之前加上 in order 或 so as，即构成 in order to do sth.和 so as to do sth. 结构&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;To finish my work, I worked overtime late into the night last Friday.&lt;/li&gt;
+      &lt;li&gt;He worked day and night to get the money.&lt;/li&gt;
+      &lt;li&gt;She sold her hair to buy the watch chain.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;注意不定式放句首时，逻辑主语与句子主语要一致。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;wrong: To save money, every means has been tried.&lt;/li&gt;
+      &lt;li&gt;right: To save money, he has tried every means.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;表示结果&lt;/p&gt;
+
+    &lt;p&gt;不定式作结果状语只限于下面几个词：&lt;strong&gt;&lt;em&gt;learn（得知），find（发现），see（看见），hear（听见），to be told（被告知），make（使得&lt;/em&gt;&lt;/strong&gt;）等。&lt;/p&gt;
+
+    &lt;p&gt;only + 不定式常表示出乎意料的结果。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;I hurried to the library only to find it is closed.&lt;/li&gt;
+      &lt;li&gt;He arrived late only to find the train had gone.&lt;/li&gt;
+      &lt;li&gt;I visited him only to find him out.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;表示原因&lt;/p&gt;
+
+    &lt;p&gt;不定式作原因状语主要&lt;strong&gt;&lt;em&gt;用于表示情绪与心理状态的动词或形容词&lt;/em&gt;&lt;/strong&gt;，表示人对某事某物的反应如何，常译作“因……而……”。&lt;/p&gt;
+
+    &lt;p&gt;常见的这类形容词有 able（有能力的），afraid（害怕的），cruel（残忍的），possible（可能的），proud（自豪的），unable（没能力的），useless（没用的），willing（愿意的）等。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;I am so glad to hear the news .&lt;/li&gt;
+      &lt;li&gt;They were very sad to hear the news.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;表示程度&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;It’s too dark for us to see anything.&lt;/li&gt;
+      &lt;li&gt;The question is simple for him to answer.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;2-3-6-宾语补足语&quot;&gt;2-3-6 宾语补足语&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;宾语补足语指有些及物动词，接了宾语意义仍不完整，还需要有一个其他的句子成分，来补充说明宾语的意义、状态等，简称宾补。
+宾语和它的补足语构成复合宾语。而复合宾语的第一部分通常由名词或代词充当，第二部分表示第一部分的名词或代词发出的动作或身份、特征等。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;在复合宾语中，动词不定式可充当宾语补足语，如下动词常跟这种复合宾语: want, wish, ask, tell, order, beg, permit, help, advise, persuade, allow, prepare, cause, force, call on, wait for, invite…&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Father will not allow us to play on the street.&lt;/li&gt;
+  &lt;li&gt;We believe him to be guilty.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;此外，介词有时也与这种复合宾语连用:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;With a lot of work to do, he didn’t go to the cinema.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;有些动词如 make, let, see, watch, hear, feel, have 等与不带有 to 的不定式连用，但改为被动语态时，不定式要加 to&lt;/em&gt;&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;I saw him cross the road.&lt;/li&gt;
+  &lt;li&gt;He was seen to cross the road.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;3-动名词&quot;&gt;3-动名词&lt;/h1&gt;
+&lt;h2 id=&quot;3-1-介绍&quot;&gt;3-1-介绍&lt;/h2&gt;
+
+&lt;p&gt;动名词是由动词变化而来，一方面保留着动词的某些特征，具有动词的某些变化形式，用以表达名词所不能表达的较为复杂的意念；另一方面动名词在句子的用法及功能与名词类同: 在句子中可以作主语、宾语、表语、定语，它也可以被副词修饰或者用来支配宾语。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;既有动词的变化形式，又具有名词的用法&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;3-2-用法&quot;&gt;3-2-用法&lt;/h2&gt;
+
+&lt;h3 id=&quot;3-2-1-主语&quot;&gt;3-2-1 主语&lt;/h3&gt;
+
+&lt;p&gt;动名词做主语，&lt;strong&gt;谓语动词用单数&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;直接位于句首做主语&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Swimming is a good sport in summer.&lt;/li&gt;
+      &lt;li&gt;Fighting broke out between the South and the North.&lt;/li&gt;
+      &lt;li&gt;Breathing became difficult at that altitude.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;用 it 作形式主语&lt;/strong&gt;，把&lt;strong&gt;动名词&lt;/strong&gt;(真实主语)&lt;strong&gt;置于句尾作后置主语&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;动名词做主语时，不太常用 it 作先行主语，多见于某些形容词及名词之后。常见的能用于这种结构的形容词还有：good，better，wonderful, enjoyable，interesting，foolish，difficult，useless，senseless，worthwhile，等。但是 important，essential，necessary 等形容词不能用于上述结构。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;It is no use waiting for him any longer.&lt;/li&gt;
+      &lt;li&gt;It is no good learning without practice.&lt;/li&gt;
+      &lt;li&gt;It is dangerous using this method to measure the speed of light.&lt;/li&gt;
+      &lt;li&gt;It is worthwhile consulting your tutor about it again.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;用于 “&lt;strong&gt;There be” 结构&lt;/strong&gt;中
+    &lt;ul&gt;
+      &lt;li&gt;There is no saying when he’ll come. 很难说他何时回来&lt;/li&gt;
+      &lt;li&gt;There is no joking about such matters.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;用于&lt;strong&gt;布告形式的省略结构&lt;/strong&gt;中
+    &lt;ul&gt;
+      &lt;li&gt;No smoking. =  Smoking is not allowed here.&lt;/li&gt;
+      &lt;li&gt;No parking.  = parking is not allowed here.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;动名词的复合结构作主语&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;当动名词有自己的逻辑主语时，常可以在前面加上一个&lt;strong&gt;名词或代词的所有格&lt;/strong&gt;，构成动名词的复合结构(此时，名词或代词的所有格做动名词的逻辑主语)。&lt;/p&gt;
+
+      &lt;ul&gt;
+        &lt;li&gt;His coming to help was a great encouragement to us.&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;3-2-2-定语&quot;&gt;3-2-2 定语&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;动名词一般为名词性，很少做定语，不过在&lt;strong&gt;&lt;em&gt;一些特殊的情况下可以用来表示所修饰名词的用途&lt;/em&gt;&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;sleeping bag&lt;/li&gt;
+      &lt;li&gt;walking stick&lt;/li&gt;
+      &lt;li&gt;drinking water&lt;/li&gt;
+      &lt;li&gt;swimming pool&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;有些动名词已经转化成了形容词，常用作定语修饰物，表示“令人……的”，如 exciting, shocking, puzzling, confusing, disappointing, discouraging, boring, tiring, moving, touching, interesting, satisfying, frightening, amazing 等
+    &lt;ul&gt;
+      &lt;li&gt;That must be a terrifying experience.&lt;/li&gt;
+      &lt;li&gt;The experiment was an amazing success.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;3-2-3-宾语&quot;&gt;3-2-3 宾语&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;一些动词后用动名词作宾语，如 finish 完成，enjoy享受，mind介意，suggest建议，practise练习，admit 承认，advise 建议，allow 允许，appreciate 感激，avoid 避免，consider 考虑，delay 推迟，deny 否认，discuss 讨论，dislike 不喜欢，enjoy 喜爱，escape 逃脱，excuse 原谅，fancy 设想， forbid 禁止，forgive 原谅，imagine 想像，keep 保持，mention 提及，mind 介意 miss 没赶上，pardon 原谅，permit 允许， prevent 阻止，risk 冒险，understand 理解
+    &lt;ul&gt;
+      &lt;li&gt;I admit breaking the window.&lt;/li&gt;
+      &lt;li&gt;Try to imagine being on the moon.&lt;/li&gt;
+      &lt;li&gt;He tried to escape being punished.&lt;/li&gt;
+      &lt;li&gt;You shouldn’t keep thinking about it.&lt;/li&gt;
+      &lt;li&gt;Would you mind going with her?&lt;/li&gt;
+      &lt;li&gt;I can’t understand neglecting children like that.&lt;/li&gt;
+      &lt;li&gt;We only missed seeing each other by five minutes.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;有些动词短语后跟动名词作宾语，如 insist on, be worth，give up，object/objection to，put off，keep on，insist on，leave off，look forward to，think of, can’t help, be/get used to, spend…in ,can’t stand，feel like 等
+    &lt;ul&gt;
+      &lt;li&gt;Do you feel like going out for dinner with me tonight?&lt;/li&gt;
+      &lt;li&gt;Chinese people are looking forward to holding the 27th Olympic games.&lt;/li&gt;
+      &lt;li&gt;I am used to going to bed late and getting up late.&lt;/li&gt;
+      &lt;li&gt;The professor was quite used to students’ being late for his lecture.&lt;/li&gt;
+      &lt;li&gt;He put off making a decision till he had more information.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;3-2-4-表语&quot;&gt;3-2-4 表语&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;动名词作表语时句子&lt;strong&gt;主语常是表示无生命的事物名词或 what 引导的名词性从句&lt;/strong&gt;。表语动名词与主语通常是对等的关系，表示主语的内容，&lt;strong&gt;主语、表语可互换位置&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;如果句中的主语和表语同为动词时，要注意保持两个动词在形式上的一致。&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Your task is cleaning the windows. = Cleaning the windows is your task.&lt;/li&gt;
+      &lt;li&gt;What I hate most is being laughed at. = Being laughed at is what I hate most.&lt;/li&gt;
+      &lt;li&gt;The most popular pastime is playing chess. = Playing chess is the most popular pastime.&lt;/li&gt;
+      &lt;li&gt;The only thing that interests her is working. = Working is the only thing that interests her.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;4-现在分词&quot;&gt;4-现在分词&lt;/h1&gt;
+&lt;h2 id=&quot;4-1-介绍&quot;&gt;4-1-介绍&lt;/h2&gt;
+
+&lt;p&gt;分词分为现在分词与过去分词，均是非谓语动词。分词在句子中不能单独充当谓语，不过可以充当其他成分：定语，表语，补语，状语，并且&lt;strong&gt;&lt;em&gt;分词具有动词性质&lt;/em&gt;&lt;/strong&gt;，因此是类动词的一种。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;动名词只具有名词词性&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;现在分词一方面&lt;strong&gt;&lt;em&gt;具有动词特性，可以拥有自己的宾语与状语&lt;/em&gt;&lt;/strong&gt;；另一方面&lt;strong&gt;&lt;em&gt;具有形容词与副词的特性，可以充当定语，表语，补语，状语&lt;/em&gt;&lt;/strong&gt;。现在分词可以表示主动或者正在进行的动作。&lt;/p&gt;
+
+&lt;h2 id=&quot;4-2-时态与语态&quot;&gt;4-2-时态与语态&lt;/h2&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;时态&lt;/th&gt;
+      &lt;th&gt;主动语态&lt;/th&gt;
+      &lt;th&gt;被动语态&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;一般式&lt;/td&gt;
+      &lt;td&gt;doing&lt;/td&gt;
+      &lt;td&gt;being done&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;完成式&lt;/td&gt;
+      &lt;td&gt;having done&lt;/td&gt;
+      &lt;td&gt;having been done&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;否定式&lt;/td&gt;
+      &lt;td&gt;-ing 前加 not&lt;/td&gt;
+      &lt;td&gt;-ing 前加 not&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;现在分词的&lt;strong&gt;一般式通常表示其动作与谓语动词同时发生；完成式表示其动作在谓语动词的动作发生之前完成；被动式表示其逻辑主语为现在分词动作的承受者&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;She sat there reading a novel.&lt;/li&gt;
+  &lt;li&gt;Having finished her homework, the little girl began to watch TV.&lt;/li&gt;
+  &lt;li&gt;The building being built is our library.&lt;/li&gt;
+  &lt;li&gt;Having been warned by the teacher, the students didn’t make such mistakes.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;4-3-用法&quot;&gt;4-3-用法&lt;/h2&gt;
+
+&lt;h3 id=&quot;4-3-1-定语&quot;&gt;4-3-1 定语&lt;/h3&gt;
+
+&lt;p&gt;现在分词作定语，表示&lt;em&gt;正在进行的或主动的动作，也可以说明被修饰词的性质和特征&lt;/em&gt;。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;现在分词单独做定语，通常放在所修饰词之前
+    &lt;ul&gt;
+      &lt;li&gt;The sleeping boy is Tom.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;现在分词短语作定语，通常放在所修饰词的后面，类似于定语从句
+    &lt;ul&gt;
+      &lt;li&gt;Tell the children playing outside not to make noise.&lt;/li&gt;
+      &lt;li&gt;Tell the children who are playing outside not to make noise.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;4-3-2-表语&quot;&gt;4-3-2 表语&lt;/h3&gt;
+
+&lt;p&gt;现在分词作表语，通常表示主语的特征。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The story is moving.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;4-3-3-宾语补足语&quot;&gt;4-3-3 宾语补足语&lt;/h3&gt;
+
+&lt;p&gt;现在分词作宾语补足语，表示正在进行的或主动进行的动作，与&lt;strong&gt;&lt;em&gt;前边的宾语有逻辑上的“主表“或”主谓“关系&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;We all found his equipment interesting. (主表关系)&lt;/li&gt;
+  &lt;li&gt;I saw Mary going upstairs then. (主谓关系)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;4-3-4-状语&quot;&gt;4-3-4 状语&lt;/h3&gt;
+
+&lt;p&gt;现在分词作状语时，可作时间、条件、结果、原因和伴随状语，表示正在进行的或主动的动作。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;分词的逻辑主语就是主句的主语，因此要注意人称、时态和语态的一致性&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;作原因状语，相当于原因状语从句
+    &lt;ul&gt;
+      &lt;li&gt;Being ill, Mary didn’t come to school yesterday.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;作时间状语，相当于时间状语从句
+    &lt;ul&gt;
+      &lt;li&gt;Seeing their teacher coming, the students stopped talking.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;作条件状语，相当于条件状语从句
+    &lt;ul&gt;
+      &lt;li&gt;Working harder, you’ll be No. 1 in your class.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;作让步状语，相当于让步状语从句
+    &lt;ul&gt;
+      &lt;li&gt;Weighing almost two hundred pounds, the stone was moved by him alone.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;作结果状语，相当于结果状语从句
+    &lt;ul&gt;
+      &lt;li&gt;He died, leaving nothing but debts.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;作伴随状语，相当于伴随状语从句
+    &lt;ul&gt;
+      &lt;li&gt;Look at the people lying on the beach.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;作方式状语，相当于伴随状语从句
+    &lt;ul&gt;
+      &lt;li&gt;Please answer the question using another way.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;4-3-5-独立成分&quot;&gt;4-3-5 独立成分&lt;/h3&gt;
+
+&lt;p&gt;现在分词作独立成分，即独立主格。常见形式有：generally speaking(一般来说), Judging form/by (由…判断)。&lt;/p&gt;
+
+&lt;p&gt;独立主格没有主语和谓语，只有逻辑上的主语，因此，它在句法上不是句子，而是一个独立于句子成分外的独特结构形式。&lt;/p&gt;
+
+&lt;p&gt;独立主格结构可置于句首或者句尾，用逗号与主句隔开；形式为：&lt;strong&gt;名词/名词短语/代词 + 不定式/ing分词/ed分词/形容词/副词/介词短语（名词前也可以加with）&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;独立主格结构主要用于描绘性文字中，其作用相当于一个状语从句，常用来表示时间、原因、条件、行为方式或伴随情况等。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;表示时间
+    &lt;ul&gt;
+      &lt;li&gt;The meeting being over, all of us went home.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;表示条件
+    &lt;ul&gt;
+      &lt;li&gt;The condition being favorable, he may succeed.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;表示原因
+    &lt;ul&gt;
+      &lt;li&gt;There being no taxis, we had to walk.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;表示伴随情况
+    &lt;ul&gt;
+      &lt;li&gt;Almost all metals are good conductors, silver being the best of all.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;表示补充说明
+    &lt;ul&gt;
+      &lt;li&gt;We redoubled our efforts, each man working like two.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-什么是非谓语动词 1-1-介绍</summary></entry><entry><title type="html">Distributed Systems</title><link href="http://localhost:4000/distributed-systems.html" rel="alternate" type="text/html" title="Distributed Systems" /><published>2022-03-07T00:00:00+08:00</published><updated>2022-03-07T00:00:00+08:00</updated><id>http://localhost:4000/distributed-systems</id><content type="html" xml:base="http://localhost:4000/distributed-systems.html">&lt;blockquote&gt;
   &lt;p&gt;翻译自 DDIA 作者 Martin Kleppmann 分布式系统课程：&lt;a href=&quot;https://www.youtube.com/watch?v=UEAMfLPZZhE&amp;amp;list=PLeKd45zvjcDFUEv_ohr_HdUFe97RItdiB&quot;&gt;视频&lt;/a&gt;; &lt;a href=&quot;https://www.cl.cam.ac.uk/teaching/2122/ConcDisSys/dist-sys-notes.pdf&quot;&gt;课件&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -2504,7 +3271,7 @@ service PaymentService {
 &lt;ul&gt;
   &lt;li&gt;Even if /Even though she laughs at him, he likes her.&lt;/li&gt;
   &lt;li&gt;We thoroughly understand each other, even if /even though we don’t always agree.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="nglish-study" /><summary type="html">1-介绍 状语从句指句子用作状语时, 起副词作用的句子。它可以修饰谓语、非谓语动词、定语、状语或整个句子。根据其作用可分为时间、地点、原因、条件、目的、结果、让步、方式和比较等从句。 状语从句一般由连词(从属连词)引导，也可以由词组引起。从句位于句首或句中时通常用逗号与主句隔开，位于句尾时可以不用逗号隔开。</summary></entry><entry><title type="html">编程珠玑: 编写正确的程序</title><link href="http://localhost:4000/programming-pearls-4.html" rel="alternate" type="text/html" title="编程珠玑: 编写正确的程序" /><published>2022-02-27T00:00:00+08:00</published><updated>2022-02-27T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-4</id><content type="html" xml:base="http://localhost:4000/programming-pearls-4.html">&lt;h2 id=&quot;二分搜索&quot;&gt;二分搜索&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍 状语从句指句子用作状语时, 起副词作用的句子。它可以修饰谓语、非谓语动词、定语、状语或整个句子。根据其作用可分为时间、地点、原因、条件、目的、结果、让步、方式和比较等从句。 状语从句一般由连词(从属连词)引导，也可以由词组引起。从句位于句首或句中时通常用逗号与主句隔开，位于句尾时可以不用逗号隔开。</summary></entry><entry><title type="html">编程珠玑: 编写正确的程序</title><link href="http://localhost:4000/programming-pearls-4.html" rel="alternate" type="text/html" title="编程珠玑: 编写正确的程序" /><published>2022-02-27T00:00:00+08:00</published><updated>2022-02-27T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-4</id><content type="html" xml:base="http://localhost:4000/programming-pearls-4.html">&lt;h2 id=&quot;二分搜索&quot;&gt;二分搜索&lt;/h2&gt;
 
 &lt;p&gt;二分搜索的目标是确定在排序数组 x[0…n-1] 中是否存在目标元素 t，如果存在则返回对应的索引 p，否则返回 -1。&lt;/p&gt;
 
@@ -3313,90 +4080,7 @@ service PaymentService {
 
 &lt;h1 id=&quot;6-appendix&quot;&gt;6-Appendix&lt;/h1&gt;
 
-&lt;p&gt;原文：&lt;a href=&quot;https://redis.io/topics/cluster-spec&quot;&gt;https://redis.io/topics/cluster-spec&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Main properties and rationales of the design</summary></entry><entry><title type="html">同位语从句</title><link href="http://localhost:4000/appositive-clause.html" rel="alternate" type="text/html" title="同位语从句" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/appositive-clause</id><content type="html" xml:base="http://localhost:4000/appositive-clause.html">&lt;h2 id=&quot;1-同位语&quot;&gt;1-同位语&lt;/h2&gt;
-
-&lt;p&gt;一个名词（或其它形式）&lt;strong&gt;&lt;em&gt;对另一个名词或代词进行解释或补充说明&lt;/em&gt;&lt;/strong&gt;，这个名词（或其它形式）就是同位语。&lt;/p&gt;
-
-&lt;p&gt;同位语与被它限定的词的格式要一致，并常常紧挨在一起。同位语除表示其同位成分的全部意义外，还可以表示部分意义。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Mr. Smith, our new teacher, is very kind to us.&lt;/li&gt;
-  &lt;li&gt;He told me that his brother John was a world-famous doctor.(John 是 brother 的同位语)&lt;/li&gt;
-  &lt;li&gt;Yesterday I talked to my English teacher, Mr. James.&lt;/li&gt;
-  &lt;li&gt;We Chinese people are brave and hard-working.(Chinese people 是 we 的同位语)&lt;/li&gt;
-  &lt;li&gt;He is interested in sports, especially ball games.(ball games 是 sports 的同位语)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-同位语从句&quot;&gt;2-同位语从句&lt;/h2&gt;
-
-&lt;p&gt;同位语从句指的是在复合句中充当同位语的从句，属于名词性从句的范畴。&lt;/p&gt;
-
-&lt;p&gt;同位语从句用来&lt;em&gt;对其前面的抽象名词进行解释说明&lt;/em&gt;，被解释说明的词和同位语在逻辑上是&lt;strong&gt;主表关系&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h3 id=&quot;2-1-先行词&quot;&gt;2-1 先行词&lt;/h3&gt;
-
-&lt;p&gt;可以连接同位语从句的名词有：&lt;strong&gt;news，idea，fact，promise，question，doubt，thought，hope，message，suggestion，words(消息)，possibility, decision&lt;/strong&gt; 等(一般的”抽象”名词)。&lt;/p&gt;
-
-&lt;h3 id=&quot;2-2-引导词&quot;&gt;2-2 引导词&lt;/h3&gt;
-
-&lt;p&gt;引导同位语从句的词语通常有连词 that, whethe, 连接代词和连接副词等。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;that 连接从句时，&lt;strong&gt;从句为一个句意完整的陈述句&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;that 不能省略，没有具体的含义，&lt;strong&gt;&lt;em&gt;不充当句子成分，只起连接作用&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;The idea &lt;em&gt;that you can do this work well without thinking&lt;/em&gt; is quite wrong.(that 引导的从句作 idea 的同位语)&lt;/li&gt;
-      &lt;li&gt;We heard the news &lt;em&gt;that our team had won&lt;/em&gt;.(news 的同位语)&lt;/li&gt;
-      &lt;li&gt;They were worried over the fact &lt;em&gt;that you were sick&lt;/em&gt;.(fact 的同位语)&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;在某些名词(如 &lt;strong&gt;demand, wish, suggestion, resolution&lt;/strong&gt;等) 后面的同位语从句要&lt;strong&gt;用虚拟语气&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;There was a suggestion &lt;em&gt;that Brown should be dropped from the team&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;引导同位语从句的连词 that 通常不省略，但在&lt;em&gt;非正式文体中也可以省去&lt;/em&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;He grabbed his suitcase and gave the impression &lt;em&gt;he was boarding the Tokyo plane&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;whether 引导同位语从句&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;if 不能引导同位语从句&lt;/p&gt;
-    &lt;/blockquote&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;There is some doubt &lt;em&gt;whether he will come&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;Answer my question &lt;em&gt;whether you are coming&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;The question &lt;em&gt;whether it is right or wrong&lt;/em&gt; depends on the result.&lt;/li&gt;
-      &lt;li&gt;We are not investigating the question &lt;em&gt;whether he is trustworthy&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;连接代词 what, who, whom, whose 引导同位语从句
-    &lt;ul&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;what size shoes she wears&lt;/em&gt;.(what 作 size 的定语)&lt;/li&gt;
-      &lt;li&gt;The question &lt;em&gt;who will take his place&lt;/em&gt; is still not clear.(who 作同位语从句的主语)&lt;/li&gt;
-      &lt;li&gt;Have you any idea &lt;em&gt;what time it starts&lt;/em&gt;?&lt;/li&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;who can really understand my complicated mind&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;连接副词 where, when, why, how 引导同位语从句
-    &lt;ul&gt;
-      &lt;li&gt;I have no idea &lt;em&gt;when he will come back&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;It is a question &lt;em&gt;how he does it&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;He had no idea &lt;em&gt;why she left&lt;/em&gt;.&lt;/li&gt;
-      &lt;li&gt;You have no idea &lt;em&gt;how worried I was&lt;/em&gt;!&lt;/li&gt;
-      &lt;li&gt;We haven’t yet settled the question &lt;em&gt;where we are going to spend our summer vacation&lt;/em&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-同位语</summary></entry><entry><title type="html">Redis Cluster Tutorial</title><link href="http://localhost:4000/redis-cluster-tutorial.html" rel="alternate" type="text/html" title="Redis Cluster Tutorial" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-tutorial</id><content type="html" xml:base="http://localhost:4000/redis-cluster-tutorial.html">&lt;h2 id=&quot;1-introduction&quot;&gt;1-Introduction&lt;/h2&gt;
+&lt;p&gt;原文：&lt;a href=&quot;https://redis.io/topics/cluster-spec&quot;&gt;https://redis.io/topics/cluster-spec&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Main properties and rationales of the design</summary></entry><entry><title type="html">Redis Cluster Tutorial</title><link href="http://localhost:4000/redis-cluster-tutorial.html" rel="alternate" type="text/html" title="Redis Cluster Tutorial" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/redis-cluster-tutorial</id><content type="html" xml:base="http://localhost:4000/redis-cluster-tutorial.html">&lt;h2 id=&quot;1-introduction&quot;&gt;1-Introduction&lt;/h2&gt;
 
 &lt;p&gt;Redis Cluster 支持&lt;strong&gt;数据自动在多个 Redis 节点间分片&lt;/strong&gt;。&lt;/p&gt;
 
@@ -3523,7 +4207,90 @@ service PaymentService {
 
 &lt;h2 id=&quot;6-appendix&quot;&gt;6-Appendix&lt;/h2&gt;
 
-&lt;p&gt;原文地址：&lt;a href=&quot;https://redis.io/topics/cluster-tutorial#:~:text=Redis%20Cluster%20provides%20a%20way,are%20not%20able%20to%20communicate&quot;&gt;redis-io&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Introduction</summary></entry><entry><title type="html">定语从句</title><link href="http://localhost:4000/attributive-clause.html" rel="alternate" type="text/html" title="定语从句" /><published>2022-02-11T00:00:00+08:00</published><updated>2022-02-11T00:00:00+08:00</updated><id>http://localhost:4000/attributive-clause</id><content type="html" xml:base="http://localhost:4000/attributive-clause.html">&lt;h2 id=&quot;1-基本概念&quot;&gt;1-基本概念&lt;/h2&gt;
+&lt;p&gt;原文地址：&lt;a href=&quot;https://redis.io/topics/cluster-tutorial#:~:text=Redis%20Cluster%20provides%20a%20way,are%20not%20able%20to%20communicate&quot;&gt;redis-io&lt;/a&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1-Introduction</summary></entry><entry><title type="html">同位语从句</title><link href="http://localhost:4000/appositive-clause.html" rel="alternate" type="text/html" title="同位语从句" /><published>2022-02-13T00:00:00+08:00</published><updated>2022-02-13T00:00:00+08:00</updated><id>http://localhost:4000/appositive-clause</id><content type="html" xml:base="http://localhost:4000/appositive-clause.html">&lt;h2 id=&quot;1-同位语&quot;&gt;1-同位语&lt;/h2&gt;
+
+&lt;p&gt;一个名词（或其它形式）&lt;strong&gt;&lt;em&gt;对另一个名词或代词进行解释或补充说明&lt;/em&gt;&lt;/strong&gt;，这个名词（或其它形式）就是同位语。&lt;/p&gt;
+
+&lt;p&gt;同位语与被它限定的词的格式要一致，并常常紧挨在一起。同位语除表示其同位成分的全部意义外，还可以表示部分意义。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Mr. Smith, our new teacher, is very kind to us.&lt;/li&gt;
+  &lt;li&gt;He told me that his brother John was a world-famous doctor.(John 是 brother 的同位语)&lt;/li&gt;
+  &lt;li&gt;Yesterday I talked to my English teacher, Mr. James.&lt;/li&gt;
+  &lt;li&gt;We Chinese people are brave and hard-working.(Chinese people 是 we 的同位语)&lt;/li&gt;
+  &lt;li&gt;He is interested in sports, especially ball games.(ball games 是 sports 的同位语)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;2-同位语从句&quot;&gt;2-同位语从句&lt;/h2&gt;
+
+&lt;p&gt;同位语从句指的是在复合句中充当同位语的从句，属于名词性从句的范畴。&lt;/p&gt;
+
+&lt;p&gt;同位语从句用来&lt;em&gt;对其前面的抽象名词进行解释说明&lt;/em&gt;，被解释说明的词和同位语在逻辑上是&lt;strong&gt;主表关系&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;2-1-先行词&quot;&gt;2-1 先行词&lt;/h3&gt;
+
+&lt;p&gt;可以连接同位语从句的名词有：&lt;strong&gt;news，idea，fact，promise，question，doubt，thought，hope，message，suggestion，words(消息)，possibility, decision&lt;/strong&gt; 等(一般的”抽象”名词)。&lt;/p&gt;
+
+&lt;h3 id=&quot;2-2-引导词&quot;&gt;2-2 引导词&lt;/h3&gt;
+
+&lt;p&gt;引导同位语从句的词语通常有连词 that, whethe, 连接代词和连接副词等。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;that 连接从句时，&lt;strong&gt;从句为一个句意完整的陈述句&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;that 不能省略，没有具体的含义，&lt;strong&gt;&lt;em&gt;不充当句子成分，只起连接作用&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;The idea &lt;em&gt;that you can do this work well without thinking&lt;/em&gt; is quite wrong.(that 引导的从句作 idea 的同位语)&lt;/li&gt;
+      &lt;li&gt;We heard the news &lt;em&gt;that our team had won&lt;/em&gt;.(news 的同位语)&lt;/li&gt;
+      &lt;li&gt;They were worried over the fact &lt;em&gt;that you were sick&lt;/em&gt;.(fact 的同位语)&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;在某些名词(如 &lt;strong&gt;demand, wish, suggestion, resolution&lt;/strong&gt;等) 后面的同位语从句要&lt;strong&gt;用虚拟语气&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;There was a suggestion &lt;em&gt;that Brown should be dropped from the team&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;引导同位语从句的连词 that 通常不省略，但在&lt;em&gt;非正式文体中也可以省去&lt;/em&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;He grabbed his suitcase and gave the impression &lt;em&gt;he was boarding the Tokyo plane&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;whether 引导同位语从句&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;if 不能引导同位语从句&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;There is some doubt &lt;em&gt;whether he will come&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;Answer my question &lt;em&gt;whether you are coming&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;The question &lt;em&gt;whether it is right or wrong&lt;/em&gt; depends on the result.&lt;/li&gt;
+      &lt;li&gt;We are not investigating the question &lt;em&gt;whether he is trustworthy&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;连接代词 what, who, whom, whose 引导同位语从句
+    &lt;ul&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;what size shoes she wears&lt;/em&gt;.(what 作 size 的定语)&lt;/li&gt;
+      &lt;li&gt;The question &lt;em&gt;who will take his place&lt;/em&gt; is still not clear.(who 作同位语从句的主语)&lt;/li&gt;
+      &lt;li&gt;Have you any idea &lt;em&gt;what time it starts&lt;/em&gt;?&lt;/li&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;who can really understand my complicated mind&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;连接副词 where, when, why, how 引导同位语从句
+    &lt;ul&gt;
+      &lt;li&gt;I have no idea &lt;em&gt;when he will come back&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;It is a question &lt;em&gt;how he does it&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;He had no idea &lt;em&gt;why she left&lt;/em&gt;.&lt;/li&gt;
+      &lt;li&gt;You have no idea &lt;em&gt;how worried I was&lt;/em&gt;!&lt;/li&gt;
+      &lt;li&gt;We haven’t yet settled the question &lt;em&gt;where we are going to spend our summer vacation&lt;/em&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-同位语</summary></entry><entry><title type="html">定语从句</title><link href="http://localhost:4000/attributive-clause.html" rel="alternate" type="text/html" title="定语从句" /><published>2022-02-11T00:00:00+08:00</published><updated>2022-02-11T00:00:00+08:00</updated><id>http://localhost:4000/attributive-clause</id><content type="html" xml:base="http://localhost:4000/attributive-clause.html">&lt;h2 id=&quot;1-基本概念&quot;&gt;1-基本概念&lt;/h2&gt;
 
 &lt;h3 id=&quot;1-1-定义&quot;&gt;1-1 定义&lt;/h3&gt;
 
@@ -4162,85 +4929,4 @@ service PaymentService {
   &lt;li&gt;连接词 that 引导宾语从句在句中无词义，不充当句子成份，多数情况下可以省略。&lt;/li&gt;
   &lt;li&gt;whether 和 if 都可引导宾语从句，但 whether 后可紧跟 or not；whether 从句可作介词的宾语。&lt;/li&gt;
   &lt;li&gt;如果从句太长，可以用形式宾语it。&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍</summary></entry><entry><title type="html">such &amp;amp; so</title><link href="http://localhost:4000/such-and-so.html" rel="alternate" type="text/html" title="such &amp;amp; so" /><published>2022-01-20T00:00:00+08:00</published><updated>2022-01-20T00:00:00+08:00</updated><id>http://localhost:4000/such-and-so</id><content type="html" xml:base="http://localhost:4000/such-and-so.html">&lt;p&gt;such 和 so 都可以&lt;strong&gt;表示程度&lt;/strong&gt;，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;such 为形容词，一般&lt;strong&gt;修饰名词&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;so 为副词，一般&lt;strong&gt;修饰形容词或副词&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;such-用法&quot;&gt;such 用法&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;such + a/an + 可数名词单数
-    &lt;ul&gt;
-      &lt;li&gt;All of us have never seen &lt;strong&gt;&lt;em&gt;such an animal before&lt;/em&gt;&lt;/strong&gt;.&lt;/li&gt;
-      &lt;li&gt;He said he would rather be poor than get money &lt;strong&gt;&lt;em&gt;in such a way&lt;/em&gt;&lt;/strong&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;such + a/an + 形容词 + 可数名词单数
-    &lt;ul&gt;
-      &lt;li&gt;She is &lt;strong&gt;&lt;em&gt;such a good teacher&lt;/em&gt;&lt;/strong&gt; just as we expect.&lt;/li&gt;
-      &lt;li&gt;I really thank you for giving &lt;strong&gt;&lt;em&gt;such an exciting party&lt;/em&gt;&lt;/strong&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;such + 可数名词复数
-    &lt;ul&gt;
-      &lt;li&gt;&lt;strong&gt;&lt;em&gt;Such things&lt;/em&gt;&lt;/strong&gt; often happen in our daily life.&lt;/li&gt;
-      &lt;li&gt;I don’t think &lt;strong&gt;&lt;em&gt;such people&lt;/em&gt;&lt;/strong&gt; are dangerous.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;such + 形容词 + 可数名词复数
-    &lt;ul&gt;
-      &lt;li&gt;He told us &lt;strong&gt;&lt;em&gt;such funny stories&lt;/em&gt;&lt;/strong&gt; that we all couldn’t help laughing.&lt;/li&gt;
-      &lt;li&gt;He’s amazed to see &lt;strong&gt;&lt;em&gt;such beautiful fishes&lt;/em&gt;&lt;/strong&gt; under the sea.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;such + 不可数名词
-    &lt;ul&gt;
-      &lt;li&gt;When he knew &lt;strong&gt;&lt;em&gt;such news&lt;/em&gt;&lt;/strong&gt;, he began to cry.&lt;/li&gt;
-      &lt;li&gt;It’s dangerous to go swimming in &lt;strong&gt;&lt;em&gt;such weather&lt;/em&gt;&lt;/strong&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;such + 形容词 + 不可数名词
-    &lt;ul&gt;
-      &lt;li&gt;We are glad to see that he has made &lt;strong&gt;&lt;em&gt;such rapid progress&lt;/em&gt;&lt;/strong&gt; in English this term.&lt;/li&gt;
-      &lt;li&gt;I’ll remember &lt;strong&gt;&lt;em&gt;such delicious food&lt;/em&gt;&lt;/strong&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;so-用法&quot;&gt;so 用法&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;so + 形容词/副词
-    &lt;ul&gt;
-      &lt;li&gt;It’s &lt;strong&gt;&lt;em&gt;so cold&lt;/em&gt;&lt;/strong&gt; outside. We’d better wear warm clothes.&lt;/li&gt;
-      &lt;li&gt;He spoke &lt;strong&gt;&lt;em&gt;so fast&lt;/em&gt;&lt;/strong&gt; that I couldn’t follow.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;so + 形容词 + a/an + 可数名词单数
-    &lt;ul&gt;
-      &lt;li&gt;He’s &lt;strong&gt;&lt;em&gt;so kind a man&lt;/em&gt;&lt;/strong&gt; that everybody here likes him.&lt;/li&gt;
-      &lt;li&gt;It’s &lt;strong&gt;&lt;em&gt;so easy an exercise&lt;/em&gt;&lt;/strong&gt; that every one of us can do it.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;这种句式可以和 such + a/an + 形容词 + 可数名词单数换用：&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;I’ve never seen so amusing a film. = I’ve never seen such an amusing film.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;so + many/much/few/little + 可数名词复数/不可数名词
-    &lt;ul&gt;
-      &lt;li&gt;There are &lt;strong&gt;&lt;em&gt;so many visitors&lt;/em&gt;&lt;/strong&gt; in our school today.&lt;/li&gt;
-      &lt;li&gt;I have eaten &lt;strong&gt;&lt;em&gt;so much food&lt;/em&gt;&lt;/strong&gt;. I don’t want to eat any more.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;so many 已成固定搭配，a lot of 虽相当于 many，但 a lot of 为名词性的，只能用 such 搭配。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;I feel very happy that I have such a lot of friends.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">such 和 so 都可以表示程度，含有“如此、这/那样、这/那么”的意思，但它们在用法上有一定区别。</summary></entry></feed>
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍</summary></entry></feed>
