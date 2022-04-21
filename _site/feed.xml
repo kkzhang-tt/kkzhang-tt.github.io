@@ -1,4 +1,145 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-04-05T13:32:52+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">非谓语动词</title><link href="http://localhost:4000/non-predicate-verb.html" rel="alternate" type="text/html" title="非谓语动词" /><published>2022-04-04T00:00:00+08:00</published><updated>2022-04-04T00:00:00+08:00</updated><id>http://localhost:4000/non-predicate-verb</id><content type="html" xml:base="http://localhost:4000/non-predicate-verb.html">&lt;h1 id=&quot;1-什么是非谓语动词&quot;&gt;1-什么是非谓语动词&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-04-21T22:21:10+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Linux Kernel: System Calls</title><link href="http://localhost:4000/linux-kernel-system-calls.html" rel="alternate" type="text/html" title="Linux Kernel: System Calls" /><published>2022-04-21T00:00:00+08:00</published><updated>2022-04-21T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-system-calls</id><content type="html" xml:base="http://localhost:4000/linux-kernel-system-calls.html">&lt;p&gt;操作系统为用户态进程与硬件设备（如 CPU，磁盘，打印机等）进行交互提供了一组接口。这种方式有以下优点：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;编程更加容易：用户不需要学习底层硬件设备编程&lt;/li&gt;
+  &lt;li&gt;提高了系统安全性：内核在满足某个请求之前，可以检查该请求的正确性&lt;/li&gt;
+  &lt;li&gt;使程序更具可移植性：只要内核提供的接口相同，那么在任意内核上都可以正确编译 &amp;amp; 执行程序&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Unix 系统通过向内核发出系统调用（system call）实现了用户态进程与硬件设备之间的大部分接口。&lt;/p&gt;
+
+&lt;h1 id=&quot;1-posix-api-与系统调用&quot;&gt;1-POSIX API 与系统调用&lt;/h1&gt;
+
+&lt;p&gt;API 只是一个函数定义，说明了如何获得一个给定的服务；而&lt;strong&gt;系统调用是通过软中断向内核态发出一个明确的请求&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;libc 标准库定义的一些 API 引用了封装例程（wrapper routine），封装例程的目的就是为了发布系统调用。通常，&lt;strong&gt;每个系统调用对应一个封装例程，而封装例程定义了应用程序使用的 API&lt;/strong&gt;。但是反过来，&lt;strong&gt;一个 API 没必要对应一个特定的系统调用&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;API 可能直接提供用户态的服务；一个 API 实现可能调用多个系统调用；不同的 API 可能调用了同一个系统调用&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;POSIX API 标准只是针对 API，而不针对系统调用。从用户角度来看，API 与系统调用没有差别（可能函数名，参数等有所不同）；而从内核开发者的角度看，&lt;em&gt;系统调用属于内核，而用户态的库函数不属于内核&lt;/em&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;2-系统调用处理程序及服务例程&quot;&gt;2-系统调用处理程序及服务例程&lt;/h1&gt;
+
+&lt;p&gt;当用户态进程调用一个系统调用时，CPU 切换到内核态并开始执行一个内核函数；而系统调用最终会跳转到&lt;strong&gt;系统调用处理程序（system call handler）&lt;/strong&gt;的汇编语言语言函数。&lt;/p&gt;
+
+&lt;p&gt;每个系统调用都被一个&lt;strong&gt;系统调用号（system call number）&lt;/strong&gt;标识，因此进程在进行系统调用时需要传递该参数以识别所需的系统调用。&lt;/p&gt;
+
+&lt;p&gt;系统调用处理程序与其他异常处理程序的结构类似，执行以下操作：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;在内核态保存大多数寄存器的内容&lt;/strong&gt;（汇编语言编写，所有系统调用通用操作）&lt;/li&gt;
+  &lt;li&gt;调用名为&lt;strong&gt;系统调用服务例程（system call service routine）&lt;/strong&gt;的相应 C 函数来&lt;strong&gt;处理系统调用&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;退出系统调用处理程序：&lt;strong&gt;用保存在内核栈中的值加载寄存器&lt;/strong&gt;，CPU 从内核态切换回用户态（汇编语言实现，所有系统调用通用操作）&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;一般来说，xyz() 系统调用对应的系统调用服务例程的名字通常为 sys_xyz()&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_10/lk_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;上图展示了应用程序，封装例程，系统调用处理程序，系统调用服务例程之间的调用关系。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SYSCALL&lt;/code&gt; 与 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SYSEXIT&lt;/code&gt; 是汇编语言指令，分别把 CPU 从用户态切换到内核态和从内核态切换到用户态。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;内核中有一个&lt;strong&gt;系统调用分派表（dispatch table）&lt;/strong&gt;用于将系统调用号与相应的服务例程关联起来。&lt;/p&gt;
+
+&lt;h1 id=&quot;3-进入和退出系统调用&quot;&gt;3-进入和退出系统调用&lt;/h1&gt;
+
+&lt;p&gt;用户态进程有两种方式调用系统调用：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;执行 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;int $0x80&lt;/code&gt; 汇编指令&lt;/li&gt;
+  &lt;li&gt;执行 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sysenter&lt;/code&gt; 汇编指令&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;内核也有两种方式从系统调用退出，从而使 CPU 切回用户态：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;执行 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;iret&lt;/code&gt; 汇编指令&lt;/li&gt;
+  &lt;li&gt;执行 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sysexit&lt;/code&gt; 汇编指令&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;3-1-通过-int-0x80-指令发出系统调用&quot;&gt;3-1 通过 int $0x80 指令发出系统调用&lt;/h2&gt;
+
+&lt;p&gt;当用户态进程发出 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;int $0x80&lt;/code&gt; 指令时，CPU 切换到内核态并开始从地址 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;system_call&lt;/code&gt; 处（如上图）开始执行指令。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;system_call()&lt;/code&gt; 函数首先将系统调用号与所有可能用到的 CPU 寄存器保存到相应的栈中&lt;/li&gt;
+  &lt;li&gt;该函数在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ebx&lt;/code&gt; 中存放当前进程的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;thread_info&lt;/code&gt; 数据结构的地址&lt;/li&gt;
+  &lt;li&gt;检查 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;thread_info&lt;/code&gt; 结构中的相关字段&lt;/li&gt;
+  &lt;li&gt;对用户态进程传入的系统调用号进行有效性判断&lt;/li&gt;
+  &lt;li&gt;调用系统调用号对应的服务例程&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;当系统调用服务例程结束时，&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;system_call()&lt;/code&gt; 从 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;eax&lt;/code&gt; 寄存器获得服务例程的返回值&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;system_call()&lt;/code&gt; 关闭本地中断并检查当前进程的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;thread_info&lt;/code&gt; 结构中的相关标志（为了在返回用户态之前处理相关工作）&lt;/li&gt;
+  &lt;li&gt;跳转到 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;restore_all&lt;/code&gt; 标记处恢复保存在内核栈中的寄存器的值，并执行 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;iret&lt;/code&gt; 汇编指令开始重新执行用户态进程&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;3-2-通过-sysenter-指令发出系统调用&quot;&gt;3-2 通过 sysenter 指令发出系统调用&lt;/h2&gt;
+
+&lt;p&gt;汇编指令 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;int&lt;/code&gt; 需要执行几个一致性与安全检查，速度相对较慢；而 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sysenter&lt;/code&gt; 指令被称为快速系统调用，提供了一种从用户态快速切换到内核态的方法。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;标准库中的封装例程把系统调用号装入 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;eax&lt;/code&gt; 寄存器，并调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;__kernel_vsyscall()&lt;/code&gt; 函数&lt;/li&gt;
+  &lt;li&gt;函数 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;__kernel_vsyscall()&lt;/code&gt; 把 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ebp, edx, ecx&lt;/code&gt; 内容保存到用户态堆栈中（系统调用处理程序将使用这些寄存器），同时把用户栈指针拷贝到 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ebp&lt;/code&gt; 中，之后执行 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sysenter&lt;/code&gt; 指令&lt;/li&gt;
+  &lt;li&gt;CPU 从用户态切换到内核态，内核开始执行 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sysenter_entry()&lt;/code&gt; 函数&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;当系统调用服务例程结束时，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sysenter_entry()&lt;/code&gt; 函数执行与 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;system_call()&lt;/code&gt; 函数相同的操作。&lt;/p&gt;
+
+&lt;h1 id=&quot;4-参数传递&quot;&gt;4-参数传递&lt;/h1&gt;
+
+&lt;p&gt;与普通函数类似，系统调用也需要传参，可能是实际的值，可能是用户态进程地址空间的变量。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;每个系统调用至少包含系统调用号参数&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;普通函数的传参是把参数值写入程序栈（用户态或者内核态）实现的；而系统调用是一种横跨内核态与用户态的特殊函数，所以既不能使用用户态栈，也不能使用内核态栈。&lt;strong&gt;在发出系统调用之前，系统调用参数被写入 CPU 寄存器，之后在调用系统调用服务例程之前，内核再把存放在 CPU 中的参数拷贝到内核态堆栈中&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;为什么不直接将参数从用户态栈拷贝到内核态栈？&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;同时操作两个栈比较复杂&lt;/li&gt;
+  &lt;li&gt;寄存器的使用使得系统调用处理程序的结构与其他异常处理程序的结构类似&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;为了使用寄存器传递参数，对参数有些限制：参数长度不能超过寄存器的长度（32 位）；参数不能超过 6 个。&lt;/p&gt;
+
+&lt;p&gt;用于存放系统调用号与系统调用参数的寄存器分别为：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;eax&lt;/code&gt;(系统调用号),  &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ebx, ecx, edx, esi, ebp&lt;/code&gt;。&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sysenter_entry()&lt;/code&gt; 与 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;system_call()&lt;/code&gt; 会把这些寄存器的值保存在内核堆栈中。&lt;/p&gt;
+
+&lt;h2 id=&quot;4-1-验证参数&quot;&gt;4-1 验证参数&lt;/h2&gt;
+
+&lt;p&gt;在内核满足用户请求之前，需要检查所有系统调用参数。尤其对于表示地址的参数，内核必须检查该地址是否在进程的地址空间之内：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;验证该线性地址是否属于进程的地址空间&lt;/li&gt;
+  &lt;li&gt;验证该线性地址是否小于 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PAGE_OFFSET&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;4-2-访问进程地址空间&quot;&gt;4-2 访问进程地址空间&lt;/h2&gt;
+
+&lt;p&gt;系统调用服务例程需要频繁读写进程地址空间的数据。Linux 通过 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get_user()&lt;/code&gt; 和 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;put_user()&lt;/code&gt; 宏来使得访问更加容易：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get_user()&lt;/code&gt;: 从一个地址读取 1, 2 或 4 个连续字节&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;put_user()&lt;/code&gt;: 把这几种大小的内容写入一个地址中&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;5-内核封装例程&quot;&gt;5-内核封装例程&lt;/h1&gt;
+
+&lt;p&gt;尽管系统调用主要由用户态进程使用，但是也可以被内核线程调用，内核线程不能使用库函数（库函数属于用户态）。为了简化相应封装例程的声明，LInux 定义了 7 个从 _syscall0 到 _syscall6 的一组宏，每个宏对应着系统调用所用的参数个数。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">操作系统为用户态进程与硬件设备（如 CPU，磁盘，打印机等）进行交互提供了一组接口。这种方式有以下优点：</summary></entry><entry><title type="html">非谓语动词</title><link href="http://localhost:4000/non-predicate-verb.html" rel="alternate" type="text/html" title="非谓语动词" /><published>2022-04-04T00:00:00+08:00</published><updated>2022-04-04T00:00:00+08:00</updated><id>http://localhost:4000/non-predicate-verb</id><content type="html" xml:base="http://localhost:4000/non-predicate-verb.html">&lt;h1 id=&quot;1-什么是非谓语动词&quot;&gt;1-什么是非谓语动词&lt;/h1&gt;
 &lt;h2 id=&quot;1-1-介绍&quot;&gt;1-1-介绍&lt;/h2&gt;
 
 &lt;p&gt;非谓语动词，又叫非限定动词。非谓语动词是指在句子中不是谓语的动词，主要包括&lt;strong&gt;&lt;em&gt;不定式、动名词和分词（现在分词和过去分词）&lt;/em&gt;&lt;/strong&gt;，即动词的非谓语形式。&lt;/p&gt;
@@ -4741,192 +4882,4 @@ service PaymentService {
       &lt;/li&gt;
     &lt;/ol&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍</summary></entry><entry><title type="html">宾语从句</title><link href="http://localhost:4000/object-clause.html" rel="alternate" type="text/html" title="宾语从句" /><published>2022-02-08T00:00:00+08:00</published><updated>2022-02-08T00:00:00+08:00</updated><id>http://localhost:4000/object-clause</id><content type="html" xml:base="http://localhost:4000/object-clause.html">&lt;h2 id=&quot;1-介绍&quot;&gt;1-介绍&lt;/h2&gt;
-
-&lt;p&gt;定义：&lt;strong&gt;置于动词、介词等词性后面，在句子中起宾语作用的从句叫做宾语从句。&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;宾语从句分为三类：&lt;/strong&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;动词的宾语从句&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;介词的宾语从句&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;形容词的宾语从句&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;宾语从句语法需要关注三点：时态，语序，连词。&lt;/strong&gt;宾语从句的语序必须是陈述语序，谓语动词、介词、动词不定式，v.-ing形式后面都能带宾语从句，有些形容词(afraid，sure，glad等)之后也可以带宾语从句。&lt;/p&gt;
-
-&lt;h2 id=&quot;2-连接词&quot;&gt;2-连接词&lt;/h2&gt;
-
-&lt;p&gt;在复合句中作主句的宾语，连接词有：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;连词：that (that 常可省略), whether, if&lt;/li&gt;
-  &lt;li&gt;代词：who, whose, what, which&lt;/li&gt;
-  &lt;li&gt;副词：when ,where, how, why 等。&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;2-1-that-引导的宾语从句&quot;&gt;2-1 that 引导的宾语从句&lt;/h3&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;在非正式场合that可以省略&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;可跟 that 从句做宾语的动词有：&lt;strong&gt;say, think, insist, wish, hope, demand, imagine, wonder, know, suppose, see, believe, agree, admit, deny, expect, explain, order, command, feel, dream, suggest, hear, mean, notice, prefer, request, require, propose, declare, report&lt;/strong&gt; 等。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;The boy believes that he will travel through space to other planets.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;需要注意的是，&lt;strong&gt;当主句谓语动词是 think, believe, suppose, expect 等词，而宾语从句的意思是否定时，常把否定转移至主句表示。&lt;/strong&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;I don’t think it is right for him to treat you like that.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;在以下情况中 that 不能省略&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;当句中的动词后接&lt;em&gt;多于两个由 that 引导的宾语从句&lt;/em&gt;时，第一个 that 可省，但后面的 that 不可省。
-    &lt;ul&gt;
-      &lt;li&gt;He said (that) you were too young to understand the matter and that he was asked not to tell you.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;当&lt;em&gt;主句的谓语动词与 that 宾语从句之间有插入语&lt;/em&gt;时，that 一般不可省。
-    &lt;ul&gt;
-      &lt;li&gt;Just then I noticed, for the first time, that our master was wearing his fine green coat and his black silk cap.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;当 &lt;em&gt;that 从句是双宾语中的直接宾语&lt;/em&gt;时，that 不可省。
-    &lt;ul&gt;
-      &lt;li&gt;I can’t tell him that his mother died.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;许多带复合宾语的句子，&lt;em&gt;that 引导的宾语从句经常移到句子后部，而用 it 作形式宾语&lt;/em&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;I find it necessary that we should do the homework on time.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;2-2-whetherif-引导的宾语从句&quot;&gt;2-2 whether/if 引导的宾语从句&lt;/h3&gt;
-
-&lt;p&gt;由 whether/if 引导的宾语从句，实际上是&lt;em&gt;一般疑问句演变而来的，&lt;/em&gt;意思是“是否”，此时&lt;strong&gt;宾语从句要用陈述句语序&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;一般说来，在宾语从句中 whether 与 if 可以互换使用，但在特殊情况下 if 与 whether 是不能互换的。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;I wonder whether(if) they will come to our party.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;以下场景不能互换：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;只能用 whether，不能用 if 引导的宾语从句&lt;/strong&gt;
-    &lt;ol&gt;
-      &lt;li&gt;在带 to 的不定式前
-        &lt;ul&gt;
-          &lt;li&gt;We decided whether to walk there.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;在介词的后面
-        &lt;ul&gt;
-          &lt;li&gt;I’m thinking of whether we should go to see the film.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;在 discuss, decided 等动词后面的宾语从句
-        &lt;ul&gt;
-          &lt;li&gt;We discussed whether we had a sports meeting next week.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;直接与 or not 连用时
-        &lt;ul&gt;
-          &lt;li&gt;I can’t say whether or not they can come on time.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;只能用 if 不能用 whether 引导的宾语从句&lt;/strong&gt;
-    &lt;ol&gt;
-      &lt;li&gt;if 引导条件状语从句，意为“如果”
-        &lt;ul&gt;
-          &lt;li&gt;The students will go on a picnic if it is sunny.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;if 引导否定概念的宾语从句时
-        &lt;ul&gt;
-          &lt;li&gt;He asked if I didn’t come to school yesterday.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;引导状语从句 even if(即使)和 as if(好象)时
-        &lt;ul&gt;
-          &lt;li&gt;He talks as if he has known all about it.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;2-3-连接代词和连接副词引导的宾语从句&quot;&gt;2-3 连接代词和连接副词引导的宾语从句&lt;/h3&gt;
-
-&lt;p&gt;这样的宾语从句实际上是由&lt;em&gt;特殊疑问句变化而来的&lt;/em&gt;，&lt;strong&gt;宾语从句要用陈述句语序&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;用于这种结构的动词常常是：&lt;strong&gt;see, say, tell, ask, answer, know, decide, show, find out, imagine, suggest, doubt, wonder, discover, understand, inform, advise&lt;/strong&gt; 等。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;连接代词有：who, whom, whose, which, what，在&lt;strong&gt;句中担任主语、宾语、定语或者表语&lt;/strong&gt;。
-    &lt;ul&gt;
-      &lt;li&gt;Can you tell me whom you are waiting for?&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;连接副词有：when,where,why,how，在&lt;strong&gt;句中担任状语的成分&lt;/strong&gt;。
-    &lt;ul&gt;
-      &lt;li&gt;None of us knows where these new parts can be bought.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;3-语序&quot;&gt;3-语序&lt;/h2&gt;
-
-&lt;p&gt;无论主句是陈述句还是疑问句，&lt;strong&gt;宾语从句都必须使用陈述语序&lt;/strong&gt;，即“主句+连接词+宾语从句(主语+谓语+……)”句式。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Could you tell me who knows the answer?&lt;/li&gt;
-  &lt;li&gt;The small children don’t know what is in their stockings.&lt;/li&gt;
-  &lt;li&gt;He asked whose handwriting was the best in our class.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;4-时态&quot;&gt;4-时态&lt;/h2&gt;
-
-&lt;p&gt;含宾语从句的复合句，主句、从句谓语动词的时态呼应，包括以下几点：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;主句的谓语动词是一般现在时，从句的谓语动词可根据需要，选用相应的&lt;strong&gt;任何时态&lt;/strong&gt;。
-    &lt;ul&gt;
-      &lt;li&gt;I don’t know when he will come back.&lt;/li&gt;
-      &lt;li&gt;He tells me that his sister came back yesterday.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;主句的谓语动词是过去时，宾语从句的谓语动词只可根据需要，选用过去时态即&lt;strong&gt;一般过去时、过去进行时、过去将来时或过去完成时的某一种形式&lt;/strong&gt;。
-    &lt;ul&gt;
-      &lt;li&gt;The children didn’t know who he was.&lt;/li&gt;
-      &lt;li&gt;He asked his father how it happened.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;如果宾语从句所表示的是&lt;em&gt;客观事实、普遍真理、自然现象或习惯性动作&lt;/em&gt;等，不管主句用什么时态，&lt;em&gt;从句时态都用一般现在时&lt;/em&gt;。
-    &lt;ul&gt;
-      &lt;li&gt;The teacher said that the earth goes round the sun.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;5-总结&quot;&gt;5-总结&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;宾语从句可以作及物动词、介词及形容词的宾语。&lt;/li&gt;
-  &lt;li&gt;宾语从句的语序一律用陈述句语序。&lt;/li&gt;
-  &lt;li&gt;连接词 that 引导宾语从句在句中无词义，不充当句子成份，多数情况下可以省略。&lt;/li&gt;
-  &lt;li&gt;whether 和 if 都可引导宾语从句，但 whether 后可紧跟 or not；whether 从句可作介词的宾语。&lt;/li&gt;
-  &lt;li&gt;如果从句太长，可以用形式宾语it。&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍</summary></entry></feed>
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍</summary></entry></feed>

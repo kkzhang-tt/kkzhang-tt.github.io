@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Linux Kernel: System Calls</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.1" />
+<meta property="og:title" content="Linux Kernel: System Calls" />
+<meta name="author" content="kkzhang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="操作系统为用户态进程与硬件设备（如 CPU，磁盘，打印机等）进行交互提供了一组接口。这种方式有以下优点：" />
+<meta property="og:description" content="操作系统为用户态进程与硬件设备（如 CPU，磁盘，打印机等）进行交互提供了一组接口。这种方式有以下优点：" />
+<link rel="canonical" href="http://localhost:4000/linux-kernel-system-calls.html" />
+<meta property="og:url" content="http://localhost:4000/linux-kernel-system-calls.html" />
+<meta property="og:site_name" content="Find a needle in haystack" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-04-21T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Linux Kernel: System Calls" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"kkzhang"},"headline":"Linux Kernel: System Calls","dateModified":"2022-04-21T00:00:00+08:00","@type":"BlogPosting","datePublished":"2022-04-21T00:00:00+08:00","description":"操作系统为用户态进程与硬件设备（如 CPU，磁盘，打印机等）进行交互提供了一组接口。这种方式有以下优点：","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/linux-kernel-system-calls.html"},"url":"http://localhost:4000/linux-kernel-system-calls.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Find a needle in haystack" /><link rel="shortcut icon" type="image/x-icon" href="/logo.ico" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/">..</a><article>
+  <p class="post-meta">
+    <time datetime="2022-04-21 00:00:00 +0800">2022-04-21</time>
+  </p>
+  
+  <h1>Linux Kernel: System Calls</h1>
+
+  <p>操作系统为用户态进程与硬件设备（如 CPU，磁盘，打印机等）进行交互提供了一组接口。这种方式有以下优点：</p>
+
+<ol>
+  <li>编程更加容易：用户不需要学习底层硬件设备编程</li>
+  <li>提高了系统安全性：内核在满足某个请求之前，可以检查该请求的正确性</li>
+  <li>使程序更具可移植性：只要内核提供的接口相同，那么在任意内核上都可以正确编译 &amp; 执行程序</li>
+</ol>
+
+<p>Unix 系统通过向内核发出系统调用（system call）实现了用户态进程与硬件设备之间的大部分接口。</p>
+
+<h1 id="1-posix-api-与系统调用">1-POSIX API 与系统调用</h1>
+
+<p>API 只是一个函数定义，说明了如何获得一个给定的服务；而<strong>系统调用是通过软中断向内核态发出一个明确的请求</strong>。</p>
+
+<p>libc 标准库定义的一些 API 引用了封装例程（wrapper routine），封装例程的目的就是为了发布系统调用。通常，<strong>每个系统调用对应一个封装例程，而封装例程定义了应用程序使用的 API</strong>。但是反过来，<strong>一个 API 没必要对应一个特定的系统调用</strong>。</p>
+
+<blockquote>
+  <p>API 可能直接提供用户态的服务；一个 API 实现可能调用多个系统调用；不同的 API 可能调用了同一个系统调用</p>
+</blockquote>
+
+<p>POSIX API 标准只是针对 API，而不针对系统调用。从用户角度来看，API 与系统调用没有差别（可能函数名，参数等有所不同）；而从内核开发者的角度看，<em>系统调用属于内核，而用户态的库函数不属于内核</em>。</p>
+
+<h1 id="2-系统调用处理程序及服务例程">2-系统调用处理程序及服务例程</h1>
+
+<p>当用户态进程调用一个系统调用时，CPU 切换到内核态并开始执行一个内核函数；而系统调用最终会跳转到<strong>系统调用处理程序（system call handler）</strong>的汇编语言语言函数。</p>
+
+<p>每个系统调用都被一个<strong>系统调用号（system call number）</strong>标识，因此进程在进行系统调用时需要传递该参数以识别所需的系统调用。</p>
+
+<p>系统调用处理程序与其他异常处理程序的结构类似，执行以下操作：</p>
+
+<ol>
+  <li><strong>在内核态保存大多数寄存器的内容</strong>（汇编语言编写，所有系统调用通用操作）</li>
+  <li>调用名为<strong>系统调用服务例程（system call service routine）</strong>的相应 C 函数来<strong>处理系统调用</strong></li>
+  <li>退出系统调用处理程序：<strong>用保存在内核栈中的值加载寄存器</strong>，CPU 从内核态切换回用户态（汇编语言实现，所有系统调用通用操作）</li>
+</ol>
+
+<blockquote>
+  <p>一般来说，xyz() 系统调用对应的系统调用服务例程的名字通常为 sys_xyz()</p>
+</blockquote>
+
+<p><img src="/images/linux_kernel/chapter_10/lk_1.png" alt="" /></p>
+
+<p>上图展示了应用程序，封装例程，系统调用处理程序，系统调用服务例程之间的调用关系。</p>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">SYSCALL</code> 与 <code class="language-plaintext highlighter-rouge">SYSEXIT</code> 是汇编语言指令，分别把 CPU 从用户态切换到内核态和从内核态切换到用户态。</p>
+
+</blockquote>
+
+<p>内核中有一个<strong>系统调用分派表（dispatch table）</strong>用于将系统调用号与相应的服务例程关联起来。</p>
+
+<h1 id="3-进入和退出系统调用">3-进入和退出系统调用</h1>
+
+<p>用户态进程有两种方式调用系统调用：</p>
+
+<ol>
+  <li>执行 <code class="language-plaintext highlighter-rouge">int $0x80</code> 汇编指令</li>
+  <li>执行 <code class="language-plaintext highlighter-rouge">sysenter</code> 汇编指令</li>
+</ol>
+
+<p>内核也有两种方式从系统调用退出，从而使 CPU 切回用户态：</p>
+
+<ol>
+  <li>执行 <code class="language-plaintext highlighter-rouge">iret</code> 汇编指令</li>
+  <li>执行 <code class="language-plaintext highlighter-rouge">sysexit</code> 汇编指令</li>
+</ol>
+
+<h2 id="3-1-通过-int-0x80-指令发出系统调用">3-1 通过 int $0x80 指令发出系统调用</h2>
+
+<p>当用户态进程发出 <code class="language-plaintext highlighter-rouge">int $0x80</code> 指令时，CPU 切换到内核态并开始从地址 <code class="language-plaintext highlighter-rouge">system_call</code> 处（如上图）开始执行指令。</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">system_call()</code> 函数首先将系统调用号与所有可能用到的 CPU 寄存器保存到相应的栈中</li>
+  <li>该函数在 <code class="language-plaintext highlighter-rouge">ebx</code> 中存放当前进程的 <code class="language-plaintext highlighter-rouge">thread_info</code> 数据结构的地址</li>
+  <li>检查 <code class="language-plaintext highlighter-rouge">thread_info</code> 结构中的相关字段</li>
+  <li>对用户态进程传入的系统调用号进行有效性判断</li>
+  <li>调用系统调用号对应的服务例程</li>
+</ol>
+
+<p>当系统调用服务例程结束时，</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">system_call()</code> 从 <code class="language-plaintext highlighter-rouge">eax</code> 寄存器获得服务例程的返回值</li>
+  <li><code class="language-plaintext highlighter-rouge">system_call()</code> 关闭本地中断并检查当前进程的 <code class="language-plaintext highlighter-rouge">thread_info</code> 结构中的相关标志（为了在返回用户态之前处理相关工作）</li>
+  <li>跳转到 <code class="language-plaintext highlighter-rouge">restore_all</code> 标记处恢复保存在内核栈中的寄存器的值，并执行 <code class="language-plaintext highlighter-rouge">iret</code> 汇编指令开始重新执行用户态进程</li>
+</ol>
+
+<h2 id="3-2-通过-sysenter-指令发出系统调用">3-2 通过 sysenter 指令发出系统调用</h2>
+
+<p>汇编指令 <code class="language-plaintext highlighter-rouge">int</code> 需要执行几个一致性与安全检查，速度相对较慢；而 <code class="language-plaintext highlighter-rouge">sysenter</code> 指令被称为快速系统调用，提供了一种从用户态快速切换到内核态的方法。</p>
+
+<ol>
+  <li>标准库中的封装例程把系统调用号装入 <code class="language-plaintext highlighter-rouge">eax</code> 寄存器，并调用 <code class="language-plaintext highlighter-rouge">__kernel_vsyscall()</code> 函数</li>
+  <li>函数 <code class="language-plaintext highlighter-rouge">__kernel_vsyscall()</code> 把 <code class="language-plaintext highlighter-rouge">ebp, edx, ecx</code> 内容保存到用户态堆栈中（系统调用处理程序将使用这些寄存器），同时把用户栈指针拷贝到 <code class="language-plaintext highlighter-rouge">ebp</code> 中，之后执行 <code class="language-plaintext highlighter-rouge">sysenter</code> 指令</li>
+  <li>CPU 从用户态切换到内核态，内核开始执行 <code class="language-plaintext highlighter-rouge">sysenter_entry()</code> 函数</li>
+</ol>
+
+<p>当系统调用服务例程结束时，<code class="language-plaintext highlighter-rouge">sysenter_entry()</code> 函数执行与 <code class="language-plaintext highlighter-rouge">system_call()</code> 函数相同的操作。</p>
+
+<h1 id="4-参数传递">4-参数传递</h1>
+
+<p>与普通函数类似，系统调用也需要传参，可能是实际的值，可能是用户态进程地址空间的变量。</p>
+
+<blockquote>
+  <p>每个系统调用至少包含系统调用号参数</p>
+
+</blockquote>
+
+<p>普通函数的传参是把参数值写入程序栈（用户态或者内核态）实现的；而系统调用是一种横跨内核态与用户态的特殊函数，所以既不能使用用户态栈，也不能使用内核态栈。<strong>在发出系统调用之前，系统调用参数被写入 CPU 寄存器，之后在调用系统调用服务例程之前，内核再把存放在 CPU 中的参数拷贝到内核态堆栈中</strong>。</p>
+
+<p>为什么不直接将参数从用户态栈拷贝到内核态栈？</p>
+
+<ul>
+  <li>同时操作两个栈比较复杂</li>
+  <li>寄存器的使用使得系统调用处理程序的结构与其他异常处理程序的结构类似</li>
+</ul>
+
+<p>为了使用寄存器传递参数，对参数有些限制：参数长度不能超过寄存器的长度（32 位）；参数不能超过 6 个。</p>
+
+<p>用于存放系统调用号与系统调用参数的寄存器分别为：<code class="language-plaintext highlighter-rouge">eax</code>(系统调用号),  <code class="language-plaintext highlighter-rouge">ebx, ecx, edx, esi, ebp</code>。<code class="language-plaintext highlighter-rouge">sysenter_entry()</code> 与 <code class="language-plaintext highlighter-rouge">system_call()</code> 会把这些寄存器的值保存在内核堆栈中。</p>
+
+<h2 id="4-1-验证参数">4-1 验证参数</h2>
+
+<p>在内核满足用户请求之前，需要检查所有系统调用参数。尤其对于表示地址的参数，内核必须检查该地址是否在进程的地址空间之内：</p>
+
+<ul>
+  <li>验证该线性地址是否属于进程的地址空间</li>
+  <li>验证该线性地址是否小于 <code class="language-plaintext highlighter-rouge">PAGE_OFFSET</code></li>
+</ul>
+
+<h2 id="4-2-访问进程地址空间">4-2 访问进程地址空间</h2>
+
+<p>系统调用服务例程需要频繁读写进程地址空间的数据。Linux 通过 <code class="language-plaintext highlighter-rouge">get_user()</code> 和 <code class="language-plaintext highlighter-rouge">put_user()</code> 宏来使得访问更加容易：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">get_user()</code>: 从一个地址读取 1, 2 或 4 个连续字节</li>
+  <li><code class="language-plaintext highlighter-rouge">put_user()</code>: 把这几种大小的内容写入一个地址中</li>
+</ul>
+
+<h1 id="5-内核封装例程">5-内核封装例程</h1>
+
+<p>尽管系统调用主要由用户态进程使用，但是也可以被内核线程调用，内核线程不能使用库函数（库函数属于用户态）。为了简化相应封装例程的声明，LInux 定义了 7 个从 _syscall0 到 _syscall6 的一组宏，每个宏对应着系统调用所用的参数个数。</p>
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
