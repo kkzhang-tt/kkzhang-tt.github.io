@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Linux Kernel: Signals</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.1" />
+<meta property="og:title" content="Linux Kernel: Signals" />
+<meta name="author" content="kkzhang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="信号最早在 Unix 系统中被引入，用于在用户态进程间通信；内核也用信号通知进程系统所发生的事件。" />
+<meta property="og:description" content="信号最早在 Unix 系统中被引入，用于在用户态进程间通信；内核也用信号通知进程系统所发生的事件。" />
+<link rel="canonical" href="http://localhost:4000/linux-kernel-signals.html" />
+<meta property="og:url" content="http://localhost:4000/linux-kernel-signals.html" />
+<meta property="og:site_name" content="Find a needle in haystack" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-04-23T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Linux Kernel: Signals" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"kkzhang"},"headline":"Linux Kernel: Signals","dateModified":"2022-04-23T00:00:00+08:00","@type":"BlogPosting","datePublished":"2022-04-23T00:00:00+08:00","description":"信号最早在 Unix 系统中被引入，用于在用户态进程间通信；内核也用信号通知进程系统所发生的事件。","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/linux-kernel-signals.html"},"url":"http://localhost:4000/linux-kernel-signals.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Find a needle in haystack" /><link rel="shortcut icon" type="image/x-icon" href="/logo.ico" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/">..</a><article>
+  <p class="post-meta">
+    <time datetime="2022-04-23 00:00:00 +0800">2022-04-23</time>
+  </p>
+  
+  <h1>Linux Kernel: Signals</h1>
+
+  <p>信号最早在 Unix 系统中被引入，<strong>用于在用户态进程间通信；内核也用信号通知进程系统所发生的事件</strong>。</p>
+
+<h1 id="1-信号的作用">1-信号的作用</h1>
+
+<p><strong>信号（signal）</strong>是很短的消息，<strong>可以被发送到一个进程或者一组进程</strong>。发送给进程的唯一信息通常是一个数，以此来标识信号。</p>
+
+<p>使用信号有两个目的：</p>
+
+<ol>
+  <li><em>让进程知道已经发生了一个特定的事件</em></li>
+  <li><em>强迫进程执行其自己代码中的信号处理程序</em></li>
+</ol>
+
+<blockquote>
+  <p>这两个目的并不互斥</p>
+</blockquote>
+
+<p><img src="/images/linux_kernel/chapter_11/lk_1.png" alt="" /></p>
+
+<p>上图是 Linux 中前 31 个<strong>常规信号（regular signal）</strong>。除了常规信号，POSIX 标准还引入了新的信号，被称为<strong>实时信号（real-time signal）</strong>：在 Linux 中的编码范围为 32~64。</p>
+
+<ul>
+  <li>实时信号必须排队以便发送的多个信号能够被接收到</li>
+  <li>同种类型的常规信号并不排队：如果一个常规信号被连续发送多次，那么只有其中一个信号能够发送到接收进程</li>
+</ul>
+
+<blockquote>
+  <p>Linux 内核并不使用实时信号，但还是通过几个特定的系统调用完全实现了 POSIX 标准</p>
+</blockquote>
+
+<p><strong>许多系统调用允许应用进程发送信号，并决定应用进程如何响应所接收到的信号</strong>。下图是一些与信号相关的重要系统调用。</p>
+
+<p><img src="/images/linux_kernel/chapter_11/lk_2.png" alt="" /></p>
+
+<p>信号的一个比较重要的特点：<strong>信号可以随时被发送给状态不可预知的进程</strong>。</p>
+
+<ul>
+  <li>
+    <p>发送给非运行进程的信号必须由内核保存，直到进程恢复执行</p>
+  </li>
+  <li>
+    <p>阻塞一个信号要求信号的传递拖延，直到阻塞解除</p>
+
+    <blockquote>
+      <p>使得信号产生一段时间之后才能对其传递这一问题变得更加严重</p>
+    </blockquote>
+  </li>
+</ul>
+
+<p>内核将信号传递分为两个阶段：</p>
+
+<ol>
+  <li>
+    <p><strong>信号产生</strong></p>
+
+    <p>内核更新目标进程的数据结构以表示一个新信号已被发送</p>
+  </li>
+  <li>
+    <p><strong>信号传递</strong></p>
+
+    <p>内核强迫目标进程对信号做出反应：要么<em>改变目标进程的执行状态</em>，要么<em>开始执行一个特定的信号处理程序</em>，要么两者都是</p>
+  </li>
+</ol>
+
+<p><strong>每个产生的信号至多被传递一次</strong>。</p>
+
+<blockquote>
+  <p>信号是可消费资源，一旦已经被传递出去，那么进程描述符中有关这个信号的所有信息都被取消</p>
+</blockquote>
+
+<p><strong>挂起信号（pending signal）</strong>：已经产生但还没有被传递的信号。<em>任何时候，一个进程仅存在给定类型的一个挂起信号，同一进程同种类型的其他信号不会被排队，只是简单地丢弃</em>。但是，实时信号有所不同：同种类型的挂起信号可以有多个。</p>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,4 +1,74 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-04-21T22:21:10+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Linux Kernel: System Calls</title><link href="http://localhost:4000/linux-kernel-system-calls.html" rel="alternate" type="text/html" title="Linux Kernel: System Calls" /><published>2022-04-21T00:00:00+08:00</published><updated>2022-04-21T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-system-calls</id><content type="html" xml:base="http://localhost:4000/linux-kernel-system-calls.html">&lt;p&gt;操作系统为用户态进程与硬件设备（如 CPU，磁盘，打印机等）进行交互提供了一组接口。这种方式有以下优点：&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-04-23T13:10:34+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Linux Kernel: Signals</title><link href="http://localhost:4000/linux-kernel-signals.html" rel="alternate" type="text/html" title="Linux Kernel: Signals" /><published>2022-04-23T00:00:00+08:00</published><updated>2022-04-23T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-signals</id><content type="html" xml:base="http://localhost:4000/linux-kernel-signals.html">&lt;p&gt;信号最早在 Unix 系统中被引入，&lt;strong&gt;用于在用户态进程间通信；内核也用信号通知进程系统所发生的事件&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;1-信号的作用&quot;&gt;1-信号的作用&lt;/h1&gt;
+
+&lt;p&gt;&lt;strong&gt;信号（signal）&lt;/strong&gt;是很短的消息，&lt;strong&gt;可以被发送到一个进程或者一组进程&lt;/strong&gt;。发送给进程的唯一信息通常是一个数，以此来标识信号。&lt;/p&gt;
+
+&lt;p&gt;使用信号有两个目的：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;em&gt;让进程知道已经发生了一个特定的事件&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;强迫进程执行其自己代码中的信号处理程序&lt;/em&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;这两个目的并不互斥&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_11/lk_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;上图是 Linux 中前 31 个&lt;strong&gt;常规信号（regular signal）&lt;/strong&gt;。除了常规信号，POSIX 标准还引入了新的信号，被称为&lt;strong&gt;实时信号（real-time signal）&lt;/strong&gt;：在 Linux 中的编码范围为 32~64。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;实时信号必须排队以便发送的多个信号能够被接收到&lt;/li&gt;
+  &lt;li&gt;同种类型的常规信号并不排队：如果一个常规信号被连续发送多次，那么只有其中一个信号能够发送到接收进程&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Linux 内核并不使用实时信号，但还是通过几个特定的系统调用完全实现了 POSIX 标准&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;许多系统调用允许应用进程发送信号，并决定应用进程如何响应所接收到的信号&lt;/strong&gt;。下图是一些与信号相关的重要系统调用。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_11/lk_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;信号的一个比较重要的特点：&lt;strong&gt;信号可以随时被发送给状态不可预知的进程&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;发送给非运行进程的信号必须由内核保存，直到进程恢复执行&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;阻塞一个信号要求信号的传递拖延，直到阻塞解除&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;使得信号产生一段时间之后才能对其传递这一问题变得更加严重&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;内核将信号传递分为两个阶段：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;信号产生&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;内核更新目标进程的数据结构以表示一个新信号已被发送&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;信号传递&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;内核强迫目标进程对信号做出反应：要么&lt;em&gt;改变目标进程的执行状态&lt;/em&gt;，要么&lt;em&gt;开始执行一个特定的信号处理程序&lt;/em&gt;，要么两者都是&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;每个产生的信号至多被传递一次&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;信号是可消费资源，一旦已经被传递出去，那么进程描述符中有关这个信号的所有信息都被取消&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;挂起信号（pending signal）&lt;/strong&gt;：已经产生但还没有被传递的信号。&lt;em&gt;任何时候，一个进程仅存在给定类型的一个挂起信号，同一进程同种类型的其他信号不会被排队，只是简单地丢弃&lt;/em&gt;。但是，实时信号有所不同：同种类型的挂起信号可以有多个。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">信号最早在 Unix 系统中被引入，用于在用户态进程间通信；内核也用信号通知进程系统所发生的事件。</summary></entry><entry><title type="html">Linux Kernel: System Calls</title><link href="http://localhost:4000/linux-kernel-system-calls.html" rel="alternate" type="text/html" title="Linux Kernel: System Calls" /><published>2022-04-21T00:00:00+08:00</published><updated>2022-04-21T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-system-calls</id><content type="html" xml:base="http://localhost:4000/linux-kernel-system-calls.html">&lt;p&gt;操作系统为用户态进程与硬件设备（如 CPU，磁盘，打印机等）进行交互提供了一组接口。这种方式有以下优点：&lt;/p&gt;
 
 &lt;ol&gt;
   &lt;li&gt;编程更加容易：用户不需要学习底层硬件设备编程&lt;/li&gt;
@@ -4761,125 +4831,4 @@ service PaymentService {
       &lt;li&gt;The knowledge are from various fields and that which display the waves of human being.&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-基本概念</summary></entry><entry><title type="html">表语从句</title><link href="http://localhost:4000/predicative-clause.html" rel="alternate" type="text/html" title="表语从句" /><published>2022-02-09T00:00:00+08:00</published><updated>2022-02-09T00:00:00+08:00</updated><id>http://localhost:4000/predicative-clause</id><content type="html" xml:base="http://localhost:4000/predicative-clause.html">&lt;h2 id=&quot;1-介绍&quot;&gt;1-介绍&lt;/h2&gt;
-
-&lt;p&gt;表语从句放在连系动词之后，充当复合句中的表语。&lt;/p&gt;
-
-&lt;p&gt;表语从句( Predicative Clause )就是指一个&lt;strong&gt;句子作为表语，说明主语是什么或者怎么样&lt;/strong&gt;，由名词、形容词或相当于名词或形容词的词或短语充当，和&lt;strong&gt;连系动词一起构成谓语&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;2-构成&quot;&gt;2-构成&lt;/h2&gt;
-
-&lt;p&gt;主语+连系动词+句子作表语(表语从句)&lt;/p&gt;
-
-&lt;h2 id=&quot;3-引导表语从句的关联词&quot;&gt;3-引导表语从句的关联词&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;引导表语从句的&lt;strong&gt;连系动词&lt;/strong&gt;有：&lt;strong&gt;be，look，seem，sound，appea&lt;/strong&gt;r 等
-    &lt;ul&gt;
-      &lt;li&gt;China is no longer what she used to be.&lt;/li&gt;
-      &lt;li&gt;The question remains whether they will be able to help us.&lt;/li&gt;
-      &lt;li&gt;At that time，it seemed as if I couldn’t think of the right word.&lt;/li&gt;
-      &lt;li&gt;It seems to me that we should answer for this. (在我看来…)&lt;/li&gt;
-      &lt;li&gt;It appears to her that he wants to teach us all he has. (在她看来…)&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;从属连词 whether，as，as if / though&lt;/strong&gt; 引导表语从句
-    &lt;ul&gt;
-      &lt;li&gt;He looked just as he had looked ten years before.&lt;/li&gt;
-      &lt;li&gt;It sounds as if someone is knocking at the door.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;从属连词 that&lt;/strong&gt; 引导表语从句
-    &lt;ul&gt;
-      &lt;li&gt;The trouble is that I have lost his address.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;because，why&lt;/strong&gt; 引导表语从句
-    &lt;ul&gt;
-      &lt;li&gt;That’s because he didn’t understand me.（强调原因；那是因为…）&lt;/li&gt;
-      &lt;li&gt;That’s why he got angry with me.（强调结果；那是为什么…）&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;what 引导的主语从句&lt;strong&gt;表示结果&lt;/strong&gt;或&lt;strong&gt;名词 reason 作主语&lt;/strong&gt;时，后面的表语从句表示原因时要用 that 引导，不宜用 because.&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;The reason why I was sad was &lt;strong&gt;that&lt;/strong&gt; he didn’t understand me.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;连接代词/连接副词&lt;/strong&gt;引导表语从句&lt;/p&gt;
-
-    &lt;p&gt;连接代词有 : &lt;strong&gt;who，whom，whose，what，which，whoever，whatever，whichever&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;The problem is who we can get to replace her.&lt;/li&gt;
-      &lt;li&gt;That was what she did this morning on reaching the attic.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;连接副词有：&lt;strong&gt;where，when，how，why&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;The question is how he did it.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;使用虚拟语气的表语从句&lt;/p&gt;
-
-    &lt;p&gt;在&lt;strong&gt;表示建议、劝告、命令含义的名词后的表语从句，谓语动词需用 “should+动词原形” 表示&lt;/strong&gt;(should 可省略)。&lt;/p&gt;
-
-    &lt;p&gt;常见的词有：&lt;strong&gt;advice，suggestion，order，proposal，plan，idea&lt;/strong&gt; 等。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;My suggestion is that we (should) start early tomorrow.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;4-总结&quot;&gt;4-总结&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;连系动词 be，appear，seem，look等之后可以跟表语从句&lt;/li&gt;
-  &lt;li&gt;引导表语从句的引导词分为：
-    &lt;ol&gt;
-      &lt;li&gt;&lt;strong&gt;wh-疑问词&lt;/strong&gt;
-        &lt;ul&gt;
-          &lt;li&gt;My question is who left.&lt;/li&gt;
-          &lt;li&gt;What I wonder is when he left.&lt;/li&gt;
-          &lt;li&gt;That’s what he wants.&lt;/li&gt;
-          &lt;li&gt;This is where they once lived.&lt;/li&gt;
-          &lt;li&gt;That is why he didn’t come here.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;
-        &lt;p&gt;&lt;strong&gt;whether&lt;/strong&gt;&lt;/p&gt;
-
-        &lt;blockquote&gt;
-          &lt;p&gt;if 不能引导表语从句&lt;/p&gt;
-        &lt;/blockquote&gt;
-
-        &lt;ul&gt;
-          &lt;li&gt;My question is whether he left (or not).&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;
-        &lt;p&gt;&lt;strong&gt;that&lt;/strong&gt;&lt;/p&gt;
-
-        &lt;blockquote&gt;
-          &lt;p&gt;that 有时可省略&lt;/p&gt;
-        &lt;/blockquote&gt;
-
-        &lt;ul&gt;
-          &lt;li&gt;The fact is that he left.&lt;/li&gt;
-          &lt;li&gt;The truth is（that）I didn’t go there.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;&lt;strong&gt;because，as，as if，as though&lt;/strong&gt;
-        &lt;ul&gt;
-          &lt;li&gt;It’s just because he doesn’t know her.&lt;/li&gt;
-          &lt;li&gt;Things are not always as they seem to be.&lt;/li&gt;
-          &lt;li&gt;He looks as if he’s tired.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍</summary></entry></feed>
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-基本概念</summary></entry></feed>
