@@ -1,4 +1,124 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-04-26T22:51:50+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Linux Kernel: Signals</title><link href="http://localhost:4000/linux-kernel-signals.html" rel="alternate" type="text/html" title="Linux Kernel: Signals" /><published>2022-04-23T00:00:00+08:00</published><updated>2022-04-23T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-signals</id><content type="html" xml:base="http://localhost:4000/linux-kernel-signals.html">&lt;p&gt;信号最早在 Unix 系统中被引入，&lt;strong&gt;用于在用户态进程间通信；内核也用信号通知进程系统所发生的事件&lt;/strong&gt;。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-05-21T19:29:33+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Linux Kernel: The Virtual Filesystem</title><link href="http://localhost:4000/linux-kernel-virtual-filesystem.html" rel="alternate" type="text/html" title="Linux Kernel: The Virtual Filesystem" /><published>2022-05-21T00:00:00+08:00</published><updated>2022-05-21T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-virtual-filesystem</id><content type="html" xml:base="http://localhost:4000/linux-kernel-virtual-filesystem.html">&lt;p&gt;通过所谓的&lt;strong&gt;虚拟文件系统&lt;/strong&gt;的概念，Linux 系统能够支持多种文件系统类型。虚拟文件系统所隐含的思想是把表示多种不同类型的文件系统的共同信息存放在内核中，对文件系统的读写调用，内核都能将其替换成支持本地 Linux 文件系统或者其他文件系统的实际函数。&lt;/p&gt;
+
+&lt;h1 id=&quot;1-虚拟文件系统的作用&quot;&gt;1-虚拟文件系统的作用&lt;/h1&gt;
+
+&lt;p&gt;&lt;strong&gt;虚拟文件系统&lt;/strong&gt;（Virtual FileSystem）也被称为&lt;strong&gt;&lt;em&gt;虚拟文件系统转换&lt;/em&gt;&lt;/strong&gt;（Virtual FileSystem Switch），是一个&lt;strong&gt;&lt;em&gt;内核软件层&lt;/em&gt;&lt;/strong&gt;，&lt;strong&gt;&lt;em&gt;用来处理与 Unix 标准文件系统相关的所有系统调用&lt;/em&gt;&lt;/strong&gt;；能够为各个文件系统提供一个通用的接口。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;VFS 是用户程序与文件系统实现之间的抽象层&lt;/strong&gt;。例如用户输入以下 shell 命令&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# /floppy 是 ms-dos 文件系统，而 /tmp 是 ext2 文件系统&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;cp&lt;/span&gt; /floppy/test /tmp/test
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cp&lt;/code&gt; 程序并不需要操作目录的具体文件系统类型，相反，cp 程序与 VFS 交互。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;a 描述了 VFS 的层次，b 表示 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cp&lt;/code&gt; 应用程序的实现&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;VFS 支持的文件系统可以划分为三种类型：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;磁盘文件系统&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;用于管理本地磁盘分区。比较知名的基于磁盘的文件系统有：Linux 使用的文件系统，Unix 家族文件系统，微软公司文件系统等&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;网络文件系统&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;这些文件系统允许访问属于其他网络计算机的文件系统所包含的文件，常见的有 NFS，Coda，AFS 等&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;特殊文件系统&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;这些文件系统不管理本地或者远程磁盘空间。如 /proc 文件系统就是一种典型的特殊文件系统&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Unix 目录简易了一棵根目录为 ’/’ 的树，根目录包含在&lt;em&gt;根文件系统&lt;/em&gt;（root filesystem）中。在 Linux 中，&lt;em&gt;根文件系统通常为 Ext2 or Ext3 类型，其他所有的文件系统都可以被“安装”在跟文件系统的子目录中&lt;/em&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;当一个文件系统被安装在某个目录上时，在父文件系统中的目录内容不再是可访问的&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;1-1-通用文件模型&quot;&gt;1-1 通用文件模型&lt;/h2&gt;
+
+&lt;p&gt;VFS 的主要思想在于引入了一个&lt;strong&gt;通用的文件模型&lt;/strong&gt;（common file model），该模型能够表示所有支持的文件系统。&lt;/p&gt;
+
+&lt;p&gt;对于每个具体的文件系统，需要将其物理组织结构转换为虚拟文件系统的通用文件模型。Linux 内核对于每个文件操作必须使用一个指针，指向要访问的具体文件系统的适当函数。&lt;/p&gt;
+
+&lt;p&gt;通用文件模型由以下对象类型组成：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;超级块对象&lt;/strong&gt;（superblock object）&lt;/p&gt;
+
+    &lt;p&gt;&lt;em&gt;用于存放已安装文件系统的有关信息&lt;/em&gt;。对于基于磁盘的文件系统，该类对象通常对应于存放在磁盘上的文件系统控制块（filesystem control block）&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;索引节点对象&lt;/strong&gt;（inode object）&lt;/p&gt;
+
+    &lt;p&gt;&lt;em&gt;用于存放具体文件的一般信息&lt;/em&gt;。对于基于磁盘的文件系统，该类对象通常对应于存放在磁盘上的文件控制块（file control block）。&lt;em&gt;每个索引节点对象都有一个索引节点号，该索引节点号唯一标识文件系统中的文件&lt;/em&gt;。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;文件对象&lt;/strong&gt;（file object）&lt;/p&gt;
+
+    &lt;p&gt;&lt;em&gt;用于存放打开的文件与进程之间进行交互的有关信息&lt;/em&gt;。这类信息仅当进程访问文件期间存在于内核内存中。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;目录项对象&lt;/strong&gt;（dentry object）&lt;/p&gt;
+
+    &lt;p&gt;&lt;em&gt;用于存放目录项（也就是文件的特地名称）与对应文件进行链接的有关信息&lt;/em&gt;。每个磁盘文件系统都以自己的方式将该类信息存放在磁盘上。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;下图简单说明进程怎样与文件进行交互：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;三个不同的进程打开同一个文件，其中两个进程使用硬链接&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;每个进程都有自己的文件对象，但是只需要两个目录项对象（每个硬链接对应一个目录项对象）&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;这两个目录项对象指向同一个索引节点对象&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;该索引节点对象标识超级块对象以及普通的磁盘文件&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;为了提高系统性能，最近最常用的目录项对象被存放在&lt;strong&gt;&lt;em&gt;目录项高速缓存&lt;/em&gt;&lt;/strong&gt;（dentry cache）的磁盘高速缓存（disk cache）中，以提高从文件路径名到最后一个路径分量的索引节点的转换效率。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;一般来说，磁盘高速缓存属于软机制，允许内核将原本存放在磁盘上的某些信息保存在 RAM 中，以加速对这些数据的访问&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;1-2-vfs-所处理的系统调用&quot;&gt;1-2 VFS 所处理的系统调用&lt;/h2&gt;
+
+&lt;p&gt;下图列出了 VFS 处理的系统调用，涉及文件系统，普通文件，目录文件，符号链接文件等。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;VFS 属于内核层，处理应用程序的系统调用&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;select() poll()：等待一组文件描述符上发生的事情&lt;/li&gt;
+  &lt;li&gt;read() write() readv() writev() sendfile()：进行文件 IO 操作&lt;/li&gt;
+  &lt;li&gt;mmap() mmap2()：处理文件内存映射&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;VFS 是应用程序与具体文件系统之间的一层。不过，&lt;strong&gt;&lt;em&gt;在某些情况下一个文件操作可能由 VFS 本身执行，不需要调用底层函数&lt;/em&gt;&lt;/strong&gt;。例如，当进程关闭打开的文件时，并不需要涉及磁盘上相应文件，因此 VFS 只需要释放对应的文件对象即可。&lt;/p&gt;
+
+&lt;p&gt;从某种意义上来说，VFS 可以被看作普通的文件系统，在必要时依赖某种具体的文件系统。&lt;/p&gt;
+
+&lt;h1 id=&quot;2-vfs-的数据结构&quot;&gt;2-VFS 的数据结构&lt;/h1&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">通过所谓的虚拟文件系统的概念，Linux 系统能够支持多种文件系统类型。虚拟文件系统所隐含的思想是把表示多种不同类型的文件系统的共同信息存放在内核中，对文件系统的读写调用，内核都能将其替换成支持本地 Linux 文件系统或者其他文件系统的实际函数。</summary></entry><entry><title type="html">Linux Kernel: Signals</title><link href="http://localhost:4000/linux-kernel-signals.html" rel="alternate" type="text/html" title="Linux Kernel: Signals" /><published>2022-04-23T00:00:00+08:00</published><updated>2022-04-23T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-signals</id><content type="html" xml:base="http://localhost:4000/linux-kernel-signals.html">&lt;p&gt;信号最早在 Unix 系统中被引入，&lt;strong&gt;用于在用户态进程间通信；内核也用信号通知进程系统所发生的事件&lt;/strong&gt;。&lt;/p&gt;
 
 &lt;h1 id=&quot;1-信号的作用&quot;&gt;1-信号的作用&lt;/h1&gt;
 
@@ -4799,334 +4919,4 @@ service PaymentService {
       &lt;li&gt;We haven’t yet settled the question &lt;em&gt;where we are going to spend our summer vacation&lt;/em&gt;.&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-同位语</summary></entry><entry><title type="html">定语从句</title><link href="http://localhost:4000/attributive-clause.html" rel="alternate" type="text/html" title="定语从句" /><published>2022-02-11T00:00:00+08:00</published><updated>2022-02-11T00:00:00+08:00</updated><id>http://localhost:4000/attributive-clause</id><content type="html" xml:base="http://localhost:4000/attributive-clause.html">&lt;h2 id=&quot;1-基本概念&quot;&gt;1-基本概念&lt;/h2&gt;
-
-&lt;h3 id=&quot;1-1-定义&quot;&gt;1-1 定义&lt;/h3&gt;
-
-&lt;p&gt;一个简单句跟在&lt;em&gt;名词或代词（先行词）后进行修饰限定&lt;/em&gt;，就叫做定语从句；定语从句在主句中充当定语成分。&lt;/p&gt;
-
-&lt;p&gt;被定语从句修饰的词叫&lt;strong&gt;先行词&lt;/strong&gt;；定语从句通常只能放在被修饰的先行词之后。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;单词做定语放在被修饰词之前&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;1-2-引导词&quot;&gt;1-2 引导词&lt;/h3&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;引导定语从句的词有：
-    &lt;ul&gt;
-      &lt;li&gt;关系代词：&lt;strong&gt;that, who, whom, which, as&lt;/strong&gt;&lt;/li&gt;
-      &lt;li&gt;关系副词：&lt;strong&gt;when, where, why&lt;/strong&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;引导词位于定语从句之前，先行词之后（as 除外）。&lt;/li&gt;
-  &lt;li&gt;引导词的作用有：
-    &lt;ul&gt;
-      &lt;li&gt;连接先行词和定语从句&lt;/li&gt;
-      &lt;li&gt;在定语从句中充当一定的成分（&lt;strong&gt;&lt;em&gt;关系代词充当主语或宾语，关系副词充当状语&lt;/em&gt;&lt;/strong&gt;）&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;2-关系代词的用法&quot;&gt;2-关系代词的用法&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;who/that&lt;/strong&gt; 指人，是主格；&lt;strong&gt;在定语从句中代替先行词，又作定语从句的主语，不能省略&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Do you know the gentleman who/that is sitting there？&lt;/li&gt;
-      &lt;li&gt;The student who/that answered the question was John.&lt;/li&gt;
-      &lt;li&gt;Nothing is difficult to the man who/that will try.&lt;/li&gt;
-      &lt;li&gt;The windows was broken by the boy who/that lives opposite.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;whom/who/that&lt;/strong&gt; 指人，是宾格；&lt;strong&gt;在定语从句中代替先行词，又作定语从句的宾语(动宾或介宾)&lt;/strong&gt;
-    &lt;ol&gt;
-      &lt;li&gt;当作&lt;strong&gt;动宾&lt;/strong&gt;（动词后接宾语）时，关系代词可省略
-        &lt;ul&gt;
-          &lt;li&gt;Do you know the gentleman (whom/who/that) we met just now？&lt;/li&gt;
-          &lt;li&gt;The author (whom/who/that) you criticized.&lt;/li&gt;
-          &lt;li&gt;Then I telephoned the doctor (whom/who/that) Charles had recommended.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;当作&lt;strong&gt;介宾&lt;/strong&gt;（介词后接宾语）时：&lt;em&gt;介词不提前，关系代词可省略；介词提前，关系代词不可省&lt;/em&gt;，即 “介词+whom” (指人时介词后的关系代词只能用whom)
-        &lt;ul&gt;
-          &lt;li&gt;The man (whom/who/that) I spoke with is my teacher.&lt;/li&gt;
-          &lt;li&gt;The man with whom I spoke is my teacher.&lt;/li&gt;
-          &lt;li&gt;The man with whom I traveled couldn’t speak English&lt;/li&gt;
-        &lt;/ul&gt;
-
-        &lt;p&gt;固定的动词短语（动词+介词），如 look for, take care of 等不能把动词与介词拆开，即介词不能提至引导词前。&lt;/p&gt;
-
-        &lt;ul&gt;
-          &lt;li&gt;She is the right girl (who/whom/that) we are looking for.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;whose&lt;/strong&gt; 是所有格 “…的” 形式；&lt;strong&gt;whose + n. 一起在定语从句中充当主语、宾语(&lt;/strong&gt;动宾或介宾)，即先行词的什么东西。&lt;/p&gt;
-
-    &lt;p&gt;whose 用来指人或物（只用作定语) ，且 whose 不能省略。&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;&lt;em&gt;whose + n. = the + n. + of which/whom&lt;/em&gt;&lt;/p&gt;
-    &lt;/blockquote&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;I didn’t find the desk whose leg was broken. (主语)&lt;/li&gt;
-      &lt;li&gt;He is the student whose pencil I broke yesterday. (动宾)&lt;/li&gt;
-      &lt;li&gt;The boss in whose company I work is very kind. (介宾)&lt;/li&gt;
-      &lt;li&gt;They rushed over to help the man whose car had broken down. (主语)&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;which/that&lt;/strong&gt; 指物，&lt;strong&gt;代替先行词，且在定语从句中作主语或宾语(动宾或介宾)&lt;/strong&gt;
-    &lt;ol&gt;
-      &lt;li&gt;作主语
-        &lt;ul&gt;
-          &lt;li&gt;The house which/that was destroyed in the earthquake is weak.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;
-        &lt;p&gt;作宾语&lt;/p&gt;
-
-        &lt;p&gt;which/that 作宾语时，同样分为动宾与介宾两种情况：1. 作动宾时，which/that 可以省略；2. 作介宾时，介词不提前时，关系代词 which/that 可以省略；介词提前时，关系代词 which/that 不可以省略。&lt;/p&gt;
-
-        &lt;ul&gt;
-          &lt;li&gt;The pen (which/that) you found yesterday is mine.&lt;/li&gt;
-          &lt;li&gt;The games (that/which) the young men competed in were difficult.&lt;/li&gt;
-          &lt;li&gt;The games in which the young men competed were difficult.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;strong&gt;&lt;em&gt;介词 + which 指物；介词 + whom 指人&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;as&lt;/strong&gt; 指人或物，在定语从句中可作主语，宾语，表语或状语，不能省略&lt;/p&gt;
-
-    &lt;p&gt;主要用于 “&lt;strong&gt;the same …as…；such …as…；so …as…；as … as…；as follows&lt;/strong&gt; ” 固定结构中。在这种形式的结构中，要用 as 代替 who(m), which, 或 that 引导定语从句。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;Such people as knew Hill thought he was honest.&lt;/li&gt;
-      &lt;li&gt;Such people as Hill knew thought he was honest.&lt;/li&gt;
-      &lt;li&gt;My hometown is no longer the same as it was.&lt;/li&gt;
-      &lt;li&gt;Here is so big a stone as no one can lift.&lt;/li&gt;
-      &lt;li&gt;The child knows as much as grow-ups (know).&lt;/li&gt;
-      &lt;li&gt;I’d like to have the same books as are used in your school.&lt;/li&gt;
-      &lt;li&gt;He is not such a person as I expected.&lt;/li&gt;
-      &lt;li&gt;He will marry as pretty a girl as he can find.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;3-关系副词的用法&quot;&gt;3-关系副词的用法&lt;/h2&gt;
-
-&lt;p&gt;关系副词，兼有副词与连接词两种作用，在&lt;strong&gt;不及物动词的连接中要求用关系副词&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;关系副词在句中作状语，关系副词=介词+关系代词，定语从句中常用的关系副词有三个：&lt;strong&gt;when，where，why&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;when = during/on/in which  where = in/at/on which  why = for which&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;when&lt;/strong&gt; 主要用于修饰表时间的名词，同时它在定语从句中用作&lt;strong&gt;时间状语&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;There comes a time when you have to make a choice.&lt;/li&gt;
-      &lt;li&gt;Gone are the days when they could do what they liked.&lt;/li&gt;
-      &lt;li&gt;We’ll put off the picnic until next week, when the weather may be better.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;先行词为时间名词时不一定用关系副词 when 来引导定语从句；需要进一步判断先行词在定语从句中成分。如果在定语从句中作时间状语，则用 when；如果在定语从句中作主语或者宾语时，要用 that, which 等。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;Don’t forget the time (that, which) I’ve told you.（先行词 time 作 told 的宾语）&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;where&lt;/strong&gt; 主要用于修饰表地点的名词，同时它在定语从句中用作&lt;strong&gt;地点状语&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;This is the village where he was born.&lt;/li&gt;
-      &lt;li&gt;That’s the hotel where we were staying last summer.&lt;/li&gt;
-      &lt;li&gt;Barbary was working in Aubury, where she went daily in a bus.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;同样，先行词为地点的名词时，不一定要用 where 引导，需要进一步判断先行词在定语从句中的成分。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;He works in a factory that/which makes TV sets.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;why&lt;/strong&gt; 主要用于修饰表原因的名词(主要是the reason)，同时它在定语从句中用作&lt;strong&gt;原因状语&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;We don’t know the reason why he didn’t show up.&lt;/li&gt;
-      &lt;li&gt;She didn’t tell me the reason why she refused the offer.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;why 与 where/when 的用法有点不同：&lt;/p&gt;
-
-    &lt;ol&gt;
-      &lt;li&gt;&lt;strong&gt;why 可以省略或者替换成 that&lt;/strong&gt;
-        &lt;ul&gt;
-          &lt;li&gt;That’s one of the reasons (why, that) I asked you to come.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;why 只能引导限制性定语从句，where/when 可以引导非限制性定语从句
-        &lt;ul&gt;
-          &lt;li&gt;The main reason, why he lost his job, was that he drank. (wrong)&lt;/li&gt;
-          &lt;li&gt;The main reason why he lost his job was that he drank. (right)&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;4-限制性与非限制性定语从句的区别&quot;&gt;4-限制性与非限制性定语从句的区别&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;在句中作用不同
-    &lt;ul&gt;
-      &lt;li&gt;限制性定语从句&lt;strong&gt;对&lt;/strong&gt;被修饰的&lt;strong&gt;先行词有限定制约作用&lt;/strong&gt;，使该词的含义更具体,更明确。&lt;strong&gt;限制性定语从句不能被省略&lt;/strong&gt;，否则句意就不完整。&lt;/li&gt;
-      &lt;li&gt;非限制性定语从句&lt;strong&gt;与先行词关系不是十分密切&lt;/strong&gt;，只是对其作一些附加说明，不起限定制约作用。如果将非限制性定语从句省去，主句的意义仍然完整。&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;表现形式不同&lt;/p&gt;
-
-    &lt;p&gt;限制性定语从句因与先行词关系密切，所以&lt;strong&gt;不可以用逗号将其与主句隔开&lt;/strong&gt;；非限制性定语从句与先行词关系不是十分密切，所以&lt;strong&gt;可用逗号将其与主句隔开。&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;Do you remember the girl who taught us English?&lt;/li&gt;
-      &lt;li&gt;Clock is a kind of instrument which can tell people time.&lt;/li&gt;
-      &lt;li&gt;This is the place where he used to live.&lt;/li&gt;
-      &lt;li&gt;Mr. Zhang, who came to see me yesterday, is an old friend of mine.&lt;/li&gt;
-      &lt;li&gt;We walked down the village street, where they were having market day.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;前三个例句中，定语从句与先行词关系密切，为限制性定语从句，不可用逗号隔开；后面两个例句中，定语从句与先行词关系不密切，为非限制性定语从句。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;先行词内容有所不同&lt;/p&gt;
-
-    &lt;p&gt;大多数限制性和非限制性定语从句的先行词往往为某一个词或短语，而特殊情况下&lt;strong&gt;&lt;em&gt;非限制性定语从句的先行词也可为整个主句,此时非限制性定语从句常由 which 引导&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;&lt;em&gt;A middle-aged woman killed her husband&lt;/em&gt;, &lt;strong&gt;which&lt;/strong&gt; frightened me very much.&lt;/li&gt;
-      &lt;li&gt;&lt;em&gt;A five-year-old boy can speak two foreign languages&lt;/em&gt;, &lt;strong&gt;which&lt;/strong&gt; surprises all the people present.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;使用的关系词有所不同
-    &lt;ol&gt;
-      &lt;li&gt;
-        &lt;p&gt;that 不可以引导非限制性定语从句&lt;/p&gt;
-
-        &lt;p&gt;所有关系代词和关系副词都可以引导限制性定语从句，大部分关系代词与关系副词都可以引导非限制性定语从句，但是 that 除外。&lt;/p&gt;
-
-        &lt;ul&gt;
-          &lt;li&gt;He gave his mother a color TV set for her birthday, that pleased her a lot.（wrong）&lt;/li&gt;
-          &lt;li&gt;He gave his mother a color TV set for her birthday, &lt;strong&gt;&lt;em&gt;which&lt;/em&gt;&lt;/strong&gt; pleased her a lot.（wright）&lt;/li&gt;
-          &lt;li&gt;He didn’t pass the exam, that disappointed me.（wrong）&lt;/li&gt;
-          &lt;li&gt;He didn’t pass the exam, &lt;strong&gt;&lt;em&gt;which&lt;/em&gt;&lt;/strong&gt; disappointed me.（wright）&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;
-        &lt;p&gt;关系词替代情况不同&lt;/p&gt;
-
-        &lt;p&gt;关系代词 whom 在限制性定语从句中作宾语时可用 who 代替 whom ,但 whom 在非限制性定语从句中作宾语时不可用 who 来代替。&lt;/p&gt;
-
-        &lt;p&gt;在限制性定语从句中,先行词指人时可用 that 代替 who/whom ,但在非限制性定语从句中先行词指人时, 不可用 that 代替 who/whom。&lt;/p&gt;
-      &lt;/li&gt;
-      &lt;li&gt;
-        &lt;p&gt;关系代词省略情况不同&lt;/p&gt;
-
-        &lt;p&gt;关系代词在&lt;strong&gt;&lt;em&gt;限制性定语从句中作宾语时可以省去&lt;/em&gt;&lt;/strong&gt;,非限制性定语从句的所有关系词均不可省。&lt;/p&gt;
-
-        &lt;ul&gt;
-          &lt;li&gt;This is the book (&lt;em&gt;which/that&lt;/em&gt;) he lost yesterday.&lt;/li&gt;
-          &lt;li&gt;The book, &lt;em&gt;which&lt;/em&gt; he lost yesterday, has been found.&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-    &lt;/ol&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;5-wich-与-that&quot;&gt;5-wich 与 that&lt;/h2&gt;
-
-&lt;h3 id=&quot;5-1-定语从句中只用-that-不用-which&quot;&gt;5-1 定语从句中只用 that, 不用 which&lt;/h3&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;先行词是 &lt;strong&gt;everything, anything, nothing&lt;/strong&gt; (something 除外), &lt;strong&gt;all, none, few, little, some&lt;/strong&gt; 等不定代词时，或当先行词被 &lt;strong&gt;every, any, all, some, no, little, few, much 等词修饰&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Have you set down everything that Mr. Li said?&lt;/li&gt;
-      &lt;li&gt;There seems to be nothing that is impossible to him in the world.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;当先行词指人时，偶尔也可用关系代词 who。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;Any man that/who has a sense of responsibility won’t do such a thing.&lt;/li&gt;
-      &lt;li&gt;All the guests that/who were invited to her wedding were important people.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;先行词&lt;strong&gt;被序数词修饰&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;The first American movie that I watched was the Titanic.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;先行词&lt;strong&gt;被形容词最高级修饰&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;This is the best museum that I have visited all my life.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;先行词&lt;strong&gt;被 the very, the only, the first/last 等修饰&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;She is the only person that understands me.&lt;/li&gt;
-      &lt;li&gt;After the big fire, the old car is the only thing that he owns.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;先行词&lt;strong&gt;前面有 who, which 等疑问代词&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Who is the man that is standing in front of the crowd?&lt;/li&gt;
-      &lt;li&gt;Which is the room that Mr. Wang lives in?&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;先行词为人与动物或人与物
-    &lt;ul&gt;
-      &lt;li&gt;Look at the man and his donkey that are walking alone the street.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;先行词是 reason, way 等词时，关系代词常用 that 代替 in which, for which, why，也常可省略
-    &lt;ul&gt;
-      &lt;li&gt;She admired the way (that) they solved the questions.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;5-2-定语从句中只用-which-不用-that&quot;&gt;5-2 定语从句中只用 which, 不用 that&lt;/h3&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;在非限定性定语从句中，在任何情况下都不能用 that
-    &lt;ul&gt;
-      &lt;li&gt;This brunch of carnation, which is wound by silk ribbon, is the first gift to my mom.&lt;/li&gt;
-      &lt;li&gt;These books, which you can get at any corner of the town, will give you all the information.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;关系代词前面有介词&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Those days in which you could travel without a passport has gone.&lt;/li&gt;
-      &lt;li&gt;That is the motel at which we stayed several years ago.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;先行词本身为 that (指代作用)
-    &lt;ul&gt;
-      &lt;li&gt;what about that which had appeared in recent activities.&lt;/li&gt;
-      &lt;li&gt;The knowledge are from various fields and that which display the waves of human being.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-基本概念</summary></entry></feed>
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-同位语</summary></entry></feed>

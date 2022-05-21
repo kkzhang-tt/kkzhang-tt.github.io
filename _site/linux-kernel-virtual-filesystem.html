@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Linux Kernel: The Virtual Filesystem</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.1" />
+<meta property="og:title" content="Linux Kernel: The Virtual Filesystem" />
+<meta name="author" content="kkzhang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="通过所谓的虚拟文件系统的概念，Linux 系统能够支持多种文件系统类型。虚拟文件系统所隐含的思想是把表示多种不同类型的文件系统的共同信息存放在内核中，对文件系统的读写调用，内核都能将其替换成支持本地 Linux 文件系统或者其他文件系统的实际函数。" />
+<meta property="og:description" content="通过所谓的虚拟文件系统的概念，Linux 系统能够支持多种文件系统类型。虚拟文件系统所隐含的思想是把表示多种不同类型的文件系统的共同信息存放在内核中，对文件系统的读写调用，内核都能将其替换成支持本地 Linux 文件系统或者其他文件系统的实际函数。" />
+<link rel="canonical" href="http://localhost:4000/linux-kernel-virtual-filesystem.html" />
+<meta property="og:url" content="http://localhost:4000/linux-kernel-virtual-filesystem.html" />
+<meta property="og:site_name" content="Find a needle in haystack" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-05-21T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Linux Kernel: The Virtual Filesystem" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"kkzhang"},"headline":"Linux Kernel: The Virtual Filesystem","dateModified":"2022-05-21T00:00:00+08:00","@type":"BlogPosting","datePublished":"2022-05-21T00:00:00+08:00","description":"通过所谓的虚拟文件系统的概念，Linux 系统能够支持多种文件系统类型。虚拟文件系统所隐含的思想是把表示多种不同类型的文件系统的共同信息存放在内核中，对文件系统的读写调用，内核都能将其替换成支持本地 Linux 文件系统或者其他文件系统的实际函数。","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/linux-kernel-virtual-filesystem.html"},"url":"http://localhost:4000/linux-kernel-virtual-filesystem.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Find a needle in haystack" /><link rel="shortcut icon" type="image/x-icon" href="/logo.ico" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/">..</a><article>
+  <p class="post-meta">
+    <time datetime="2022-05-21 00:00:00 +0800">2022-05-21</time>
+  </p>
+  
+  <h1>Linux Kernel: The Virtual Filesystem</h1>
+
+  <p>通过所谓的<strong>虚拟文件系统</strong>的概念，Linux 系统能够支持多种文件系统类型。虚拟文件系统所隐含的思想是把表示多种不同类型的文件系统的共同信息存放在内核中，对文件系统的读写调用，内核都能将其替换成支持本地 Linux 文件系统或者其他文件系统的实际函数。</p>
+
+<h1 id="1-虚拟文件系统的作用">1-虚拟文件系统的作用</h1>
+
+<p><strong>虚拟文件系统</strong>（Virtual FileSystem）也被称为<strong><em>虚拟文件系统转换</em></strong>（Virtual FileSystem Switch），是一个<strong><em>内核软件层</em></strong>，<strong><em>用来处理与 Unix 标准文件系统相关的所有系统调用</em></strong>；能够为各个文件系统提供一个通用的接口。</p>
+
+<p><strong>VFS 是用户程序与文件系统实现之间的抽象层</strong>。例如用户输入以下 shell 命令</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># /floppy 是 ms-dos 文件系统，而 /tmp 是 ext2 文件系统</span>
+<span class="nb">cp</span> /floppy/test /tmp/test
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">cp</code> 程序并不需要操作目录的具体文件系统类型，相反，cp 程序与 VFS 交互。</p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_1.png" alt="" /></p>
+
+<blockquote>
+  <p>a 描述了 VFS 的层次，b 表示 <code class="language-plaintext highlighter-rouge">cp</code> 应用程序的实现</p>
+
+</blockquote>
+
+<p>VFS 支持的文件系统可以划分为三种类型：</p>
+
+<ol>
+  <li>
+    <p><strong>磁盘文件系统</strong></p>
+
+    <p>用于管理本地磁盘分区。比较知名的基于磁盘的文件系统有：Linux 使用的文件系统，Unix 家族文件系统，微软公司文件系统等</p>
+  </li>
+  <li>
+    <p><strong>网络文件系统</strong></p>
+
+    <p>这些文件系统允许访问属于其他网络计算机的文件系统所包含的文件，常见的有 NFS，Coda，AFS 等</p>
+  </li>
+  <li>
+    <p><strong>特殊文件系统</strong></p>
+
+    <p>这些文件系统不管理本地或者远程磁盘空间。如 /proc 文件系统就是一种典型的特殊文件系统</p>
+  </li>
+</ol>
+
+<p>Unix 目录简易了一棵根目录为 ’/’ 的树，根目录包含在<em>根文件系统</em>（root filesystem）中。在 Linux 中，<em>根文件系统通常为 Ext2 or Ext3 类型，其他所有的文件系统都可以被“安装”在跟文件系统的子目录中</em>。</p>
+
+<blockquote>
+  <p>当一个文件系统被安装在某个目录上时，在父文件系统中的目录内容不再是可访问的</p>
+
+</blockquote>
+
+<h2 id="1-1-通用文件模型">1-1 通用文件模型</h2>
+
+<p>VFS 的主要思想在于引入了一个<strong>通用的文件模型</strong>（common file model），该模型能够表示所有支持的文件系统。</p>
+
+<p>对于每个具体的文件系统，需要将其物理组织结构转换为虚拟文件系统的通用文件模型。Linux 内核对于每个文件操作必须使用一个指针，指向要访问的具体文件系统的适当函数。</p>
+
+<p>通用文件模型由以下对象类型组成：</p>
+
+<ol>
+  <li>
+    <p><strong>超级块对象</strong>（superblock object）</p>
+
+    <p><em>用于存放已安装文件系统的有关信息</em>。对于基于磁盘的文件系统，该类对象通常对应于存放在磁盘上的文件系统控制块（filesystem control block）</p>
+  </li>
+  <li>
+    <p><strong>索引节点对象</strong>（inode object）</p>
+
+    <p><em>用于存放具体文件的一般信息</em>。对于基于磁盘的文件系统，该类对象通常对应于存放在磁盘上的文件控制块（file control block）。<em>每个索引节点对象都有一个索引节点号，该索引节点号唯一标识文件系统中的文件</em>。</p>
+  </li>
+  <li>
+    <p><strong>文件对象</strong>（file object）</p>
+
+    <p><em>用于存放打开的文件与进程之间进行交互的有关信息</em>。这类信息仅当进程访问文件期间存在于内核内存中。</p>
+  </li>
+  <li>
+    <p><strong>目录项对象</strong>（dentry object）</p>
+
+    <p><em>用于存放目录项（也就是文件的特地名称）与对应文件进行链接的有关信息</em>。每个磁盘文件系统都以自己的方式将该类信息存放在磁盘上。</p>
+  </li>
+</ol>
+
+<p>下图简单说明进程怎样与文件进行交互：</p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_2.png" alt="" /></p>
+
+<ul>
+  <li>三个不同的进程打开同一个文件，其中两个进程使用硬链接</li>
+  <li><em>每个进程都有自己的文件对象，但是只需要两个目录项对象（每个硬链接对应一个目录项对象）</em></li>
+  <li><em>这两个目录项对象指向同一个索引节点对象</em></li>
+  <li>该索引节点对象标识超级块对象以及普通的磁盘文件</li>
+</ul>
+
+<p>为了提高系统性能，最近最常用的目录项对象被存放在<strong><em>目录项高速缓存</em></strong>（dentry cache）的磁盘高速缓存（disk cache）中，以提高从文件路径名到最后一个路径分量的索引节点的转换效率。</p>
+
+<blockquote>
+  <p>一般来说，磁盘高速缓存属于软机制，允许内核将原本存放在磁盘上的某些信息保存在 RAM 中，以加速对这些数据的访问</p>
+
+</blockquote>
+
+<h2 id="1-2-vfs-所处理的系统调用">1-2 VFS 所处理的系统调用</h2>
+
+<p>下图列出了 VFS 处理的系统调用，涉及文件系统，普通文件，目录文件，符号链接文件等。</p>
+
+<blockquote>
+  <p>VFS 属于内核层，处理应用程序的系统调用</p>
+
+</blockquote>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_3.png" alt="" /></p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_4.png" alt="" /></p>
+
+<ul>
+  <li>select() poll()：等待一组文件描述符上发生的事情</li>
+  <li>read() write() readv() writev() sendfile()：进行文件 IO 操作</li>
+  <li>mmap() mmap2()：处理文件内存映射</li>
+</ul>
+
+<p>VFS 是应用程序与具体文件系统之间的一层。不过，<strong><em>在某些情况下一个文件操作可能由 VFS 本身执行，不需要调用底层函数</em></strong>。例如，当进程关闭打开的文件时，并不需要涉及磁盘上相应文件，因此 VFS 只需要释放对应的文件对象即可。</p>
+
+<p>从某种意义上来说，VFS 可以被看作普通的文件系统，在必要时依赖某种具体的文件系统。</p>
+
+<h1 id="2-vfs-的数据结构">2-VFS 的数据结构</h1>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
