@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>编程珠玑: 算法设计技术</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.1" />
+<meta property="og:title" content="编程珠玑: 算法设计技术" />
+<meta name="author" content="kkzhang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="问题描述" />
+<meta property="og:description" content="问题描述" />
+<link rel="canonical" href="http://localhost:4000/programming-pearls-8.html" />
+<meta property="og:url" content="http://localhost:4000/programming-pearls-8.html" />
+<meta property="og:site_name" content="Find a needle in haystack" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-06-19T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="编程珠玑: 算法设计技术" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"kkzhang"},"headline":"编程珠玑: 算法设计技术","dateModified":"2022-06-19T00:00:00+08:00","@type":"BlogPosting","datePublished":"2022-06-19T00:00:00+08:00","description":"问题描述","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/programming-pearls-8.html"},"url":"http://localhost:4000/programming-pearls-8.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Find a needle in haystack" /><link rel="shortcut icon" type="image/x-icon" href="/logo.ico" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/">..</a><article>
+  <p class="post-meta">
+    <time datetime="2022-06-19 00:00:00 +0800">2022-06-19</time>
+  </p>
+  
+  <h1>编程珠玑: 算法设计技术</h1>
+
+  <h2 id="问题描述">问题描述</h2>
+
+<p><strong>输入</strong>：具有 <code class="language-plaintext highlighter-rouge">n</code> 个浮点数的向量 <code class="language-plaintext highlighter-rouge">x</code>。</p>
+
+<p><strong>输出</strong>：输入向量的任意连续子向量的最大和。</p>
+
+<p><strong>示例</strong>：输入向量 <code class="language-plaintext highlighter-rouge">x</code> 为 [31, -41, 59, 26, -53, 58, 97, -93, -23, 84]，那么该程序输出为 x[2…6] 的总和。</p>
+
+<h2 id="分析">分析</h2>
+
+<p>当所有数都是正数时，问题比较简单，此时最大子向量就是整个输入向量。</p>
+
+<p>当输入向量中含有负数时，是否应该包含某个负数并期望旁边的正数会弥补它呢？</p>
+
+<p>为了使问题定义更加完整，假设所有的输入都是负数时，最大子向量为空向量，总和为 0.</p>
+
+<h2 id="on3-算法">O(n^3) 算法</h2>
+
+<p>该问题最直接的解法是对所有满足 <code class="language-plaintext highlighter-rouge">0 ≤ i ≤ j &lt; n</code> 的 <code class="language-plaintext highlighter-rouge">(i, j)</code> 整数对进行迭代。对每个整数对，都需要计算 <code class="language-plaintext highlighter-rouge">x[i, j]</code> 的总和，并判断此时该和是否是迄今为止最大的和。</p>
+
+<p>代码比较简单，但是运行速度很慢。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">maxsofar</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+		<span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">// sum is sum of x[i...j]</span>
+		<span class="k">for</span> <span class="n">k</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+			<span class="n">sum</span> <span class="o">+=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+		<span class="n">maxsofar</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">maxsofar</span><span class="p">,</span> <span class="n">sum</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="on2-算法">O(n^2) 算法</h2>
+
+<ol>
+  <li>
+    <p>我们注意到，<code class="language-plaintext highlighter-rouge">x[i...j]</code> 的总和与前面已经计算出的总和 <code class="language-plaintext highlighter-rouge">x[i...j-1]</code> 相关，利用该关系可以得到第一个平方算法。</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">maxsofar</span> <span class="o">=</span> <span class="mi">0</span>
+ <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+ 	<span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">// sum is sum of x[i...j]</span>
+ 	<span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+ 		<span class="n">sum</span> <span class="o">+=</span> <span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+ 		<span class="n">maxsofar</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">max</span><span class="p">,</span> <span class="n">maxsofar</span><span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>另一种平方算法是提前计算 <code class="language-plaintext highlighter-rouge">x[0...i]</code> 各个数累加的和。<code class="language-plaintext highlighter-rouge">cumarr[i]</code> 表示 <code class="language-plaintext highlighter-rouge">x[0...i]</code> 中各个数的累加和，则 <code class="language-plaintext highlighter-rouge">x[i..j]</code> 的累加和可以通过 <code class="language-plaintext highlighter-rouge">cumarr[j] - cumarr[i-1]</code> 得到。</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="n">cumarr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+ <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+ 	<span class="n">cumarr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cumarr</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+ <span class="n">maxsofar</span> <span class="o">=</span> <span class="mi">0</span>
+ <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+ 	<span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+ 		<span class="n">sum</span> <span class="o">=</span> <span class="n">cumarr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span>  <span class="n">cumarr</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1">// sum is sum of x[i...j]</span>
+ 		<span class="n">maxsofar</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">max</span><span class="p">,</span> <span class="n">maxsofar</span><span class="p">)</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="分治算法onlogn">分治算法：O(nlogn)</h2>
+
+<p>前面讨论的算法考虑了所有的子向量，并计算每个子向量中的所有数的和。由于存在 O(n^2) 个子向量，因此至少需要 O(n^2) 的运行时间。</p>
+
+<p><strong>分治法原理</strong>：<em>要解决规模为 n 的问题，可以递归地解决两个规模近似为 n/2 的子问题，然后对它们的答案进行合并可以得到整个问题的答案</em>。</p>
+
+<p>在本问题中，我们将大小为 n 的向量分解为两个大小近似的子向量 a, b，之后递归地找出 a, b 中的最大子向量 ma, mb。</p>
+
+<ul>
+  <li>整个向量的最大子向量为 ma：子向量在 a 中</li>
+  <li>整个向量的最大子向量为 mb：子向量在 b 中</li>
+  <li>整个向量的最大子向量为 mc：子向量跨越 a, b 之间的边界</li>
+</ul>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">float</span> <span class="n">maxsum</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">l</span> <span class="o">&gt;</span> <span class="n">u</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// zero elements</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">l</span> <span class="o">==</span> <span class="n">u</span><span class="p">)</span> <span class="k">return</span> <span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">l</span><span class="p">])</span> <span class="c1">// one element</span>
+	<span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="n">u</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+	<span class="c1">// find max crossing to left</span>
+	<span class="n">lmax</span> <span class="o">=</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="n">m</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span>
+		<span class="n">sum</span> <span class="o">+=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+		<span class="n">lmax</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">lmax</span><span class="p">,</span> <span class="n">sum</span><span class="p">)</span>
+	<span class="c1">// find max crossing to right</span>
+	<span class="n">rmax</span> <span class="o">=</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="n">m</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">u</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+		<span class="n">sum</span> <span class="o">+=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+		<span class="n">rmax</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">rmax</span><span class="p">,</span> <span class="n">sum</span><span class="p">)</span>
+<span class="k">return</span> <span class="n">max</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="n">rmax</span><span class="p">,</span> <span class="n">maxsum</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">maxsum</span><span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
+</code></pre></div></div>
+
+<h2 id="扫描算法on">扫描算法：O(n)</h2>
+
+<p>扫描算法是从数组的最左端（x[0]）开始扫描，一直到最右端（x[n-1]），并记下所遇到的总和最大的子向量。</p>
+
+<p>假设已经解决了 x[0…i-1] 的问题，如何将其扩展为包含 x[i] 的问题？</p>
+
+<ul>
+  <li>
+    <p>类似分治算法原理：前 i 个元素中，最大总和的子向量要么在前 i-1 个元素中（maxsofar），要么其结束位置为 i（maxendinghere）</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th> </th>
+          <th>maxsofar</th>
+          <th> </th>
+          <th>maxendinghere</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td> </td>
+          <td> </td>
+          <td> </td>
+          <td>i</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">maxsofar</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">maxendinghere</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+	<span class="c1">// maxendinghere 一开始为结束位置为 x-1 的最大子向量的和，此处将其更新为结束位置为 i 的最大子向量的和</span>
+	<span class="c1">// 如果加上 x[i] 之后仍然为正值，那么 maxendinghere 则加上 x[i]；否则将 maxendinghere 设置为 0（空向量）</span>
+	<span class="n">maxendinghere</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">maxendinghere</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+	<span class="n">maxsofar</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">maxsofar</span><span class="p">,</span> <span class="n">maxendinghere</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="原理">原理</h2>
+
+<p>上述几个算法给出了几个重要的算法设计技术：</p>
+
+<ul>
+  <li>保存状态，避免重复计算：动态规划</li>
+  <li>分治算法</li>
+  <li>扫描算法</li>
+  <li>将信息预处理至数据结构中</li>
+</ul>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
