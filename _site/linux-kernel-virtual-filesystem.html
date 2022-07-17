@@ -28,7 +28,7 @@
       <div class="w">
         <a href="/">..</a><article>
   <p class="post-meta">
-    <time datetime="2022-05-21 00:00:00 +0800">2022-05-21</time>
+    <time datetime="">2022-05-21</time>
   </p>
   
   <h1>Linux Kernel: The Virtual Filesystem</h1>
@@ -144,9 +144,9 @@
 <p><img src="/images/linux_kernel/chapter_12/lk_4.png" alt="" /></p>
 
 <ul>
-  <li>select() poll()：等待一组文件描述符上发生的事情</li>
-  <li>read() write() readv() writev() sendfile()：进行文件 IO 操作</li>
-  <li>mmap() mmap2()：处理文件内存映射</li>
+  <li><code class="language-plaintext highlighter-rouge">select() poll()</code>：等待一组文件描述符上发生的事情</li>
+  <li><code class="language-plaintext highlighter-rouge">read() write() readv() writev() sendfile()</code>：进行文件 IO 操作</li>
+  <li><code class="language-plaintext highlighter-rouge">mmap() mmap2()</code>：处理文件内存映射</li>
 </ul>
 
 <p>VFS 是应用程序与具体文件系统之间的一层。不过，<strong><em>在某些情况下一个文件操作可能由 VFS 本身执行，不需要调用底层函数</em></strong>。例如，当进程关闭打开的文件时，并不需要涉及磁盘上相应文件，因此 VFS 只需要释放对应的文件对象即可。</p>

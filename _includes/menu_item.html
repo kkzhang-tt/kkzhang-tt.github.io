@@ -4,7 +4,9 @@
     {%- if item.url -%}
       <a href="{{ item.url }}">{{ item.title }}</a>
     {%- else -%}
-      {{ item.title }}
+      <span style="font-size: x-large; font-weight:bold; color: black;">
+        {{ item.title }}
+      </span>
     {%- endif -%}
     </li>
 

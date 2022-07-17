@@ -43,7 +43,7 @@ p { margin: 0.2rem 0; }
 
 li { margin: 0.3rem 0; }
 
-*:target { background: yellow; }
+*:target {}
 
 .w {
   max-width: 800px;
@@ -68,8 +68,10 @@ table, th, td {
 }
 
 code {
-  color: white;
-  background: rgb(48, 76, 90);
+  color: black;
+  font-style: italic;
+  font-family: serif;
+  background: rgb(231, 230, 230);
 }
 
 div.highlighter-rouge code {

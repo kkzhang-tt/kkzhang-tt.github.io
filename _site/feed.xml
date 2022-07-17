@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-06-19T18:52:23+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">编程珠玑: 算法设计技术</title><link href="http://localhost:4000/programming-pearls-8.html" rel="alternate" type="text/html" title="编程珠玑: 算法设计技术" /><published>2022-06-19T00:00:00+08:00</published><updated>2022-06-19T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-8</id><content type="html" xml:base="http://localhost:4000/programming-pearls-8.html">&lt;h2 id=&quot;问题描述&quot;&gt;问题描述&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-07-17T17:12:09+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">编程珠玑: 算法设计技术</title><link href="http://localhost:4000/programming-pearls-8.html" rel="alternate" type="text/html" title="编程珠玑: 算法设计技术" /><published>2022-06-19T00:00:00+08:00</published><updated>2022-06-19T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-8</id><content type="html" xml:base="http://localhost:4000/programming-pearls-8.html">&lt;h2 id=&quot;问题描述&quot;&gt;问题描述&lt;/h2&gt;
 
 &lt;p&gt;&lt;strong&gt;输入&lt;/strong&gt;：具有 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;n&lt;/code&gt; 个浮点数的向量 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x&lt;/code&gt;。&lt;/p&gt;
 
@@ -780,9 +780,9 @@
 &lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;select() poll()：等待一组文件描述符上发生的事情&lt;/li&gt;
-  &lt;li&gt;read() write() readv() writev() sendfile()：进行文件 IO 操作&lt;/li&gt;
-  &lt;li&gt;mmap() mmap2()：处理文件内存映射&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;select() poll()&lt;/code&gt;：等待一组文件描述符上发生的事情&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;read() write() readv() writev() sendfile()&lt;/code&gt;：进行文件 IO 操作&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mmap() mmap2()&lt;/code&gt;：处理文件内存映射&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;VFS 是应用程序与具体文件系统之间的一层。不过，&lt;strong&gt;&lt;em&gt;在某些情况下一个文件操作可能由 VFS 本身执行，不需要调用底层函数&lt;/em&gt;&lt;/strong&gt;。例如，当进程关闭打开的文件时，并不需要涉及磁盘上相应文件，因此 VFS 只需要释放对应的文件对象即可。&lt;/p&gt;
