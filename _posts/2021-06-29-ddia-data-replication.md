@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "【DDIA】数据复制"
+title: "DDIA: 数据复制"
 category: "system-design"
 author: "kkzhang"
 ---

@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "【DDIA】分布式系统摘要"
+title: "DDIA: 分布式系统摘要"
 category: "system-design"
 author: "kkzhang"
 ---

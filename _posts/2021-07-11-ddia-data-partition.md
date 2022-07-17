@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "【DDIA】数据分区"
+title: "DDIA: 数据分区"
 category: "system-design"
 author: "kkzhang"
 ---

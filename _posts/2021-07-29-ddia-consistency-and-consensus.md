@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "【DDIA】一致性与共识"
+title: "DDIA: 一致性与共识"
 category: "system-design"
 author: "kkzhang"
 ---
