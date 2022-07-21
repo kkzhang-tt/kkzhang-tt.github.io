@@ -1,4 +1,294 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-07-17T17:38:14+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">编程珠玑: 算法设计技术</title><link href="http://localhost:4000/programming-pearls-8.html" rel="alternate" type="text/html" title="编程珠玑: 算法设计技术" /><published>2022-06-19T00:00:00+08:00</published><updated>2022-06-19T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-8</id><content type="html" xml:base="http://localhost:4000/programming-pearls-8.html">&lt;h2 id=&quot;问题描述&quot;&gt;问题描述&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-07-21T11:36:22+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">供给与需求的市场力量</title><link href="http://localhost:4000/principles-of-economics-2.html" rel="alternate" type="text/html" title="供给与需求的市场力量" /><published>2022-07-21T00:00:00+08:00</published><updated>2022-07-21T00:00:00+08:00</updated><id>http://localhost:4000/principles-of-economics-2</id><content type="html" xml:base="http://localhost:4000/principles-of-economics-2.html">&lt;p&gt;&lt;strong&gt;供给&lt;/strong&gt;与&lt;strong&gt;需求&lt;/strong&gt;是使市场经济运行的力量，它们决定了每种物品的产量及出售价格。&lt;/p&gt;
+
+&lt;h1 id=&quot;市场与竞争&quot;&gt;市场与竞争&lt;/h1&gt;
+
+&lt;p&gt;供给与需求这两个术语是指人们在&lt;strong&gt;竞争市场&lt;/strong&gt;上相互交易时的行为。&lt;/p&gt;
+
+&lt;h2 id=&quot;什么是市场&quot;&gt;什么是市场&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;市场&lt;/strong&gt;（market）是&lt;em&gt;由某种物品或者服务的买者与卖者组成的一个群体&lt;/em&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;买者决定了产品的需求&lt;/li&gt;
+  &lt;li&gt;卖者决定了产品的供给&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;市场有多种形式：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;组织健全的市场&lt;/strong&gt;：如农产品市场上，买者与卖者在特定的时间与地点聚集在一起，同时市场上还有一些拍卖者协助确定价格并安排销售&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;没有组织的市场&lt;/strong&gt;：如某个小镇的冰淇淋市场，买者与卖者并没有在特定时间聚集在一起，冰淇淋卖者分散在各个地方并提供略有差异的产品，各个卖者标出冰淇淋价格，而各个买者决定在每个店中买多少冰淇淋&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;什么是竞争&quot;&gt;什么是竞争&lt;/h2&gt;
+
+&lt;p&gt;大多数市场是高度竞争的。以冰淇淋市场为例，每个买者都知道有一些卖者可供选择，并且每个卖者也认识到其提供的产品与其他卖者提供的产品是相似的。因此，冰淇淋价格并不是由任何一个买者或者卖者决定的。确切地说，&lt;strong&gt;&lt;em&gt;冰淇淋的价格和销售量是由所有买者和卖者通过在市场上相互交易而共同决定的&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;竞争市场&lt;/strong&gt;（competitive market）：&lt;em&gt;有许多买者和卖者，以至于每个人对市场价格的影响都微乎其微的市场&lt;/em&gt;。&lt;/p&gt;
+
+&lt;p&gt;完全竞争市场是竞争市场的最高形式，该市场必须具备两个特征：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;可供销售的物品是完全相同的&lt;/li&gt;
+  &lt;li&gt;买者与卖者人数众多，以至于没有任何一个买者和卖者可以影响市场价格&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;在完全竞争市场中，买者和卖者必须接受市场决定的价格，被称为价格接受者。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;垄断市场&lt;/strong&gt;：一些市场只有一个卖者，而这个卖者决定市场价格。&lt;/p&gt;
+
+&lt;h1 id=&quot;需求&quot;&gt;需求&lt;/h1&gt;
+
+&lt;h2 id=&quot;需求曲线价格与需求量之间的关系&quot;&gt;需求曲线：价格与需求量之间的关系&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;需求量&lt;/strong&gt;（quantity demanded）：买者愿意并且能够购买的一种物品的数量。&lt;/p&gt;
+
+&lt;p&gt;需求量由很多因素决定，其中最主要的因素是物品的&lt;strong&gt;价格&lt;/strong&gt;。&lt;em&gt;在其他条件不变时，一种物品的价格上升，则对该物品的需求量减少；一种物品的价格下降，则对该物品的需求量降低&lt;/em&gt;，被称为&lt;strong&gt;需求定理&lt;/strong&gt;（law of demand）。&lt;/p&gt;
+
+&lt;p&gt;把价格与需求联系在一起的曲线被称为&lt;strong&gt;需求曲线&lt;/strong&gt;（demand curve）。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;市场需求与个人需求&quot;&gt;市场需求与个人需求&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;市场需&lt;/strong&gt;求是&lt;em&gt;所有人对某个特定物品或服务的需求总和&lt;/em&gt;。同样，市场需求曲线表示在所有影响消费者购买数量的其他因素不变时，一种物品的需求总量与该物品价格的关系。&lt;/p&gt;
+
+&lt;h2 id=&quot;需求曲线的移动&quot;&gt;需求曲线的移动&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;如果某种因素改变了既定价格下的需求量，需求曲线就会移动&lt;/em&gt;&lt;/strong&gt;（之前我们假设其他因素保持不变）。例如：假如研究发现经常吃冰淇淋有助于身体健康，那么这个发现会增加对冰淇淋的需求。在现有价格下，买者会购买更多的冰淇淋，因此需求曲线就会移动。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;使每一种价格水平下的需求量增加的任何变动，都会使需求曲线向右移动，称之为&lt;strong&gt;需求增加&lt;/strong&gt;。&lt;/li&gt;
+  &lt;li&gt;使每一种价格水平下的需求量减少的任何变动，都会使需求曲线向左移动，称之为&lt;strong&gt;需求减少&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;有许多因素会导致需求曲线移动：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;收入&lt;/li&gt;
+  &lt;li&gt;相关物品价格&lt;/li&gt;
+  &lt;li&gt;爱好&lt;/li&gt;
+  &lt;li&gt;预期&lt;/li&gt;
+  &lt;li&gt;购买者数量&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
+
+&lt;p&gt;需求曲线表示在&lt;strong&gt;其他&lt;/strong&gt;所有影响买者的&lt;strong&gt;变量保持不变&lt;/strong&gt;的情况下，一种&lt;strong&gt;物品的价格变动时，该物品的需求量会发生什么变动&lt;/strong&gt;。当这些&lt;strong&gt;变量&lt;/strong&gt;中的一个&lt;strong&gt;变动&lt;/strong&gt;时，&lt;strong&gt;需求曲线会发生移动&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;变量&lt;/th&gt;
+      &lt;th&gt;变量的变动将导致&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;价格&lt;/td&gt;
+      &lt;td&gt;沿着需求曲线变动&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;收入，相关物品价格，爱好，预期，买者数量&lt;/td&gt;
+      &lt;td&gt;使需求曲线移动&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h1 id=&quot;供给&quot;&gt;供给&lt;/h1&gt;
+
+&lt;h2 id=&quot;供给曲线价格与供给量之间的关系&quot;&gt;供给曲线：价格与供给量之间的关系&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;供给量&lt;/strong&gt;（quantity supplied）：卖者愿意并且能够出售的该种物品的数量。&lt;/p&gt;
+
+&lt;p&gt;决定供给量的因素有很多，价格仍然起着主要作用。价格与供给量之间的关系被称为&lt;strong&gt;供给定理&lt;/strong&gt;（law of supply）：&lt;em&gt;在其他条件不变时，一种物品价格上升，该物品供给量增加；一种物品价格下降，该物品供给量减少&lt;/em&gt;。&lt;/p&gt;
+
+&lt;p&gt;把价格与供给量联系在一起的曲线被称为&lt;strong&gt;供给曲线&lt;/strong&gt;（supply curve）。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;市场供给与个人供给&quot;&gt;市场供给与个人供给&lt;/h2&gt;
+
+&lt;p&gt;与市场需求一样，市场供给是所有卖者供给的总和。&lt;/p&gt;
+
+&lt;h2 id=&quot;供给曲线移动&quot;&gt;供给曲线移动&lt;/h2&gt;
+
+&lt;p&gt;供给曲线是假设其他条件不变时，价格与供给量之间的关系；但是当其他因素发生变化时，供给曲线将发生移动。例如，糖的价格下降了，会增加冰淇淋的供给：在任何一种既定价格水平下，卖者愿意生产更多的冰淇淋，冰淇淋的供给曲线向右移动。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;在既定价格水平下，使供给量增加的任何一种变动（如，糖价格下降），都会使供给曲线向右移动，称之为&lt;strong&gt;供给增加&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;在既定价格水平下，使供给量减少的任何一种变动，都会使供给曲线左移，称之为&lt;strong&gt;供给减少&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;有许多变量会使供给曲线发生移动，包括：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;投入品价格&lt;/li&gt;
+  &lt;li&gt;技术&lt;/li&gt;
+  &lt;li&gt;预期&lt;/li&gt;
+  &lt;li&gt;卖者数量&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;总结-1&quot;&gt;总结&lt;/h2&gt;
+
+&lt;p&gt;供给曲线表示在&lt;strong&gt;其他&lt;/strong&gt;所有影响卖者的&lt;strong&gt;变量保持不变&lt;/strong&gt;的情况下，一种物品&lt;strong&gt;价格变动&lt;/strong&gt;时，该物品的供给量会发生什么变动。当这些&lt;strong&gt;变量&lt;/strong&gt;中的一个&lt;strong&gt;变动&lt;/strong&gt;时，&lt;strong&gt;供给曲线就会发生移动&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;变量&lt;/th&gt;
+      &lt;th&gt;变量的变动将导致&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;价格&lt;/td&gt;
+      &lt;td&gt;沿着供给曲线的变动&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;技术，投入品价格，预期，卖者数量&lt;/td&gt;
+      &lt;td&gt;使供给曲线移动&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h1 id=&quot;供给与需求的结合&quot;&gt;供给与需求的结合&lt;/h1&gt;
+
+&lt;h2 id=&quot;均衡&quot;&gt;均衡&lt;/h2&gt;
+
+&lt;p&gt;市场价格达到使供给量与需求量相等的水平时的状态被称为&lt;strong&gt;均衡状态&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;均衡价格&lt;/strong&gt;：使供给与需求平衡的价格；&lt;strong&gt;均衡数量&lt;/strong&gt;：均衡价格下的供给量与需求量。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;供给曲线与需求曲线相交于一点，该点被称为市场的均衡。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;在均衡价格时，买者愿意并且能够购买的物品数量正好与卖者愿意并且能够卖出的数量相等&lt;/em&gt;。均衡价格有时候也会被称为&lt;strong&gt;市场出清价格&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;买者与卖者的行为自然而然地使市场向供给与需求的均衡变动。当市场价格不等于均衡价格时，物品会表现为过剩或者短缺，并使市场达到均衡为止。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;过剩&lt;/strong&gt;：&lt;em&gt;供给量大于需求量&lt;/em&gt;&lt;/p&gt;
+
+    &lt;p&gt;当市场价格高于均衡价格时，会使得供给量大于需求量，此时物品就会出现过剩。&lt;/p&gt;
+
+    &lt;p&gt;卖者对过剩的反应时降低其价格。当价格下降时，会使需求量增加，供给减少。&lt;/p&gt;
+
+    &lt;p&gt;这种变化表现为沿着供给与需求曲线的变动，而不是曲线的移动。价格会持续下降，最终市场达到均衡。&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;短缺&lt;/strong&gt;：&lt;em&gt;需求量大于供给量&lt;/em&gt;&lt;/p&gt;
+
+    &lt;p&gt;当市场价格低于均衡价格时，会使得需求量大于供给量，此时物品就会出现短缺。&lt;/p&gt;
+
+    &lt;p&gt;由于太多的买者抢购太少的物品，卖者可以提高物品价格。当价格提高时，引起需求减少，供给增加。&lt;/p&gt;
+
+    &lt;p&gt;这种变化表现为沿着供给和需求曲线移动，并推动市场走向均衡。&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;在大多数自由市场上，价格最终都要变动到其均衡水平，过剩与短缺都只是暂时的。&lt;em&gt;任何物品的价格都会自发调整，使该物品的供给与需求达到平衡&lt;/em&gt;，被称为&lt;strong&gt;供求定理&lt;/strong&gt;（law of supply and demand）。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;分析均衡变动的步骤&quot;&gt;分析均衡变动的步骤&lt;/h2&gt;
+
+&lt;p&gt;当分析某个事件如何影响一个市场上的均衡时，按照三个步骤进行：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;确定该事件是使供给曲线移动还是时需求曲线移动&lt;/strong&gt;（或者两者均移动）&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;确定曲线移动的方向&lt;/strong&gt;（左还是右）&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;用供求图来说明这种移动如何改变均衡价格与均衡数量&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;例由需求移动引起的市场均衡变动&quot;&gt;例：由需求移动引起的市场均衡变动&lt;/h3&gt;
+
+&lt;p&gt;假设某年夏季天气特别炎热，这种情况如何影响冰淇淋市场？&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;天气炎热改变了需求曲线，人们在既定价格下想要购买更多的冰淇淋。供给曲线不会变，因为天气并不直接影响销售企业&lt;/li&gt;
+  &lt;li&gt;由于既定价格下需求增多，所以需求曲线向右移动&lt;/li&gt;
+  &lt;li&gt;在原有价格下，需求 &amp;gt; 供给（因为需求增多，而不是供给减少），引起短缺，因此卖家提高冰淇淋价格，达到新的均衡。&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;整体来看，&lt;strong&gt;&lt;em&gt;天气炎热提高了冰淇淋价格，增加了冰淇淋的销售量&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_8.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;曲线的移动与沿着曲线的移动&quot;&gt;曲线的移动与沿着曲线的移动&lt;/h3&gt;
+
+&lt;p&gt;我们注意到，当天气炎热时，冰淇淋需求增加，并使其价格上升；尽管供给曲线不变，但是供给数量增加了。这种情况下，我们称为，&lt;strong&gt;“供给量”增加，但是“供给不变”&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;供给是指供给曲线的位置，供给量是指供给者希望出售的数量&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;供给曲线的移动&lt;/strong&gt;被称为“&lt;strong&gt;供给变动&lt;/strong&gt;”，&lt;strong&gt;需求曲线的移动&lt;/strong&gt;被称为“&lt;strong&gt;需求变动&lt;/strong&gt;”&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;沿着固定的供给曲线变动&lt;/strong&gt;被称为“&lt;strong&gt;供给量的变动&lt;/strong&gt;”，&lt;strong&gt;沿着固定需求曲线的变动&lt;/strong&gt;被称为“&lt;strong&gt;需求量的变动&lt;/strong&gt;”&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;例由供给移动引起的市场均衡变动&quot;&gt;例：由供给移动引起的市场均衡变动&lt;/h3&gt;
+
+&lt;p&gt;假设在另一个夏季，台风摧毁了部分甘蔗田，使得糖的价格上升，这个事件如何影响冰淇淋市场？&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;糖作为冰淇淋的投入品，其价格上升影响了供给曲线，企业在既定价格下减少冰淇淋的供给。需求曲线没变。&lt;/li&gt;
+  &lt;li&gt;供给曲线向左移动&lt;/li&gt;
+  &lt;li&gt;在原有价格下，供给 &amp;lt; 需求（因为供给减少，而不是需求增多），引起短缺，因此卖家提高冰淇淋价格，达到新的均衡。&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;整体来看，糖的价格上升，导致冰淇淋的价格上升，但是销售量减少了&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_9.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;当供给或需求移动时价格和数量将如何变化&quot;&gt;当供给或需求移动时，价格和数量将如何变化？&lt;/h2&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt; &lt;/th&gt;
+      &lt;th&gt;供给未变&lt;/th&gt;
+      &lt;th&gt;供给增加&lt;/th&gt;
+      &lt;th&gt;供给减少&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;需求未变&lt;/td&gt;
+      &lt;td&gt;价格相同 数量相同&lt;/td&gt;
+      &lt;td&gt;价格下降 数量增加&lt;/td&gt;
+      &lt;td&gt;价格上升 数量减少&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;需求增加&lt;/td&gt;
+      &lt;td&gt;价格上升 数量增加&lt;/td&gt;
+      &lt;td&gt;数量增加 价格不定&lt;/td&gt;
+      &lt;td&gt;价格上升 数量不定&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;需求减少&lt;/td&gt;
+      &lt;td&gt;价格下降 数量减少&lt;/td&gt;
+      &lt;td&gt;价格下降 数量不定&lt;/td&gt;
+      &lt;td&gt;价格不定 数量减少&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h1 id=&quot;结论价格如何配置资源&quot;&gt;结论：价格如何配置资源&lt;/h1&gt;
+
+&lt;p&gt;在市场经济中，价格是配置稀缺资源的机制。对于经济中的每种物品来说，价格确保供给与需求达到平衡。均衡价格决定了买者选择购买多少这种物品，以及卖者选择生产多少这种物品。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="economics" /><summary type="html">供给与需求是使市场经济运行的力量，它们决定了每种物品的产量及出售价格。</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/economics/economics_1.png" /><media:content medium="image" url="http://localhost:4000/economics/economics_1.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">编程珠玑: 算法设计技术</title><link href="http://localhost:4000/programming-pearls-8.html" rel="alternate" type="text/html" title="编程珠玑: 算法设计技术" /><published>2022-06-19T00:00:00+08:00</published><updated>2022-06-19T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-8</id><content type="html" xml:base="http://localhost:4000/programming-pearls-8.html">&lt;h2 id=&quot;问题描述&quot;&gt;问题描述&lt;/h2&gt;
 
 &lt;p&gt;&lt;strong&gt;输入&lt;/strong&gt;：具有 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;n&lt;/code&gt; 个浮点数的向量 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x&lt;/code&gt;。&lt;/p&gt;
 
@@ -138,29 +428,7 @@
   &lt;li&gt;分治算法&lt;/li&gt;
   &lt;li&gt;扫描算法&lt;/li&gt;
   &lt;li&gt;将信息预处理至数据结构中&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">问题描述</summary></entry><entry><title type="html">编程珠玑: 编程小事</title><link href="http://localhost:4000/programming-pearls-5.html" rel="alternate" type="text/html" title="编程珠玑: 编程小事" /><published>2022-06-11T00:00:00+08:00</published><updated>2022-06-11T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-5</id><content type="html" xml:base="http://localhost:4000/programming-pearls-5.html">&lt;h3 id=&quot;脚手架&quot;&gt;脚手架&lt;/h3&gt;
-
-&lt;p&gt;使用脚手架更方便地访问函数；最简单的脚手架是命令行技术&lt;/p&gt;
-
-&lt;h3 id=&quot;编码&quot;&gt;编码&lt;/h3&gt;
-
-&lt;p&gt;首先使用伪代码构建程序框架，然后将伪代码翻译成要实现的语言&lt;/p&gt;
-
-&lt;h3 id=&quot;测试&quot;&gt;测试&lt;/h3&gt;
-
-&lt;p&gt;在脚手架中对组件进行测试；通过脚手架对程序进行自动化测试&lt;/p&gt;
-
-&lt;h3 id=&quot;调试&quot;&gt;调试&lt;/h3&gt;
-
-&lt;p&gt;不管是脚手架还是真实运行环境，调试工作总是很困难的&lt;/p&gt;
-
-&lt;h3 id=&quot;计时&quot;&gt;计时&lt;/h3&gt;
-
-&lt;p&gt;对程序执行时间进行计时，确保程序能够达到我们预期的性能&lt;/p&gt;
-
-&lt;h3 id=&quot;断言的艺术&quot;&gt;断言的艺术&lt;/h3&gt;
-
-&lt;p&gt;断言既可以知道程序的代码开发，也可以用来判断程序的正确性。我们可以将断言插入代码中，以确保程序运行时的行为与我们的理解一致&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">脚手架</summary></entry><entry><title type="html">编程珠玑: 程序性能分析</title><link href="http://localhost:4000/programming-pearls-6-copy.html" rel="alternate" type="text/html" title="编程珠玑: 程序性能分析" /><published>2022-06-11T00:00:00+08:00</published><updated>2022-06-11T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-6%20copy</id><content type="html" xml:base="http://localhost:4000/programming-pearls-6-copy.html">&lt;h2 id=&quot;设计层面&quot;&gt;设计层面&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">问题描述</summary></entry><entry><title type="html">编程珠玑: 程序性能分析</title><link href="http://localhost:4000/programming-pearls-6-copy.html" rel="alternate" type="text/html" title="编程珠玑: 程序性能分析" /><published>2022-06-11T00:00:00+08:00</published><updated>2022-06-11T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-6%20copy</id><content type="html" xml:base="http://localhost:4000/programming-pearls-6-copy.html">&lt;h2 id=&quot;设计层面&quot;&gt;设计层面&lt;/h2&gt;
 
 &lt;p&gt;为了提高系统性能，可以在多个层面进行设计。&lt;/p&gt;
 
@@ -203,7 +471,29 @@
 
     &lt;p&gt;需要从各个不同方向对问题进行深入研究。&lt;/p&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">设计层面</summary></entry><entry><title type="html">Lion 设计与实现</title><link href="http://localhost:4000/lion-design-and-implements.html" rel="alternate" type="text/html" title="Lion 设计与实现" /><published>2022-05-28T00:00:00+08:00</published><updated>2022-05-28T00:00:00+08:00</updated><id>http://localhost:4000/lion-design-and-implements</id><content type="html" xml:base="http://localhost:4000/lion-design-and-implements.html">&lt;blockquote&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">设计层面</summary></entry><entry><title type="html">编程珠玑: 编程小事</title><link href="http://localhost:4000/programming-pearls-5.html" rel="alternate" type="text/html" title="编程珠玑: 编程小事" /><published>2022-06-11T00:00:00+08:00</published><updated>2022-06-11T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-5</id><content type="html" xml:base="http://localhost:4000/programming-pearls-5.html">&lt;h3 id=&quot;脚手架&quot;&gt;脚手架&lt;/h3&gt;
+
+&lt;p&gt;使用脚手架更方便地访问函数；最简单的脚手架是命令行技术&lt;/p&gt;
+
+&lt;h3 id=&quot;编码&quot;&gt;编码&lt;/h3&gt;
+
+&lt;p&gt;首先使用伪代码构建程序框架，然后将伪代码翻译成要实现的语言&lt;/p&gt;
+
+&lt;h3 id=&quot;测试&quot;&gt;测试&lt;/h3&gt;
+
+&lt;p&gt;在脚手架中对组件进行测试；通过脚手架对程序进行自动化测试&lt;/p&gt;
+
+&lt;h3 id=&quot;调试&quot;&gt;调试&lt;/h3&gt;
+
+&lt;p&gt;不管是脚手架还是真实运行环境，调试工作总是很困难的&lt;/p&gt;
+
+&lt;h3 id=&quot;计时&quot;&gt;计时&lt;/h3&gt;
+
+&lt;p&gt;对程序执行时间进行计时，确保程序能够达到我们预期的性能&lt;/p&gt;
+
+&lt;h3 id=&quot;断言的艺术&quot;&gt;断言的艺术&lt;/h3&gt;
+
+&lt;p&gt;断言既可以知道程序的代码开发，也可以用来判断程序的正确性。我们可以将断言插入代码中，以确保程序运行时的行为与我们的理解一致&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">脚手架</summary></entry><entry><title type="html">Lion 设计与实现</title><link href="http://localhost:4000/lion-design-and-implements.html" rel="alternate" type="text/html" title="Lion 设计与实现" /><published>2022-05-28T00:00:00+08:00</published><updated>2022-05-28T00:00:00+08:00</updated><id>http://localhost:4000/lion-design-and-implements</id><content type="html" xml:base="http://localhost:4000/lion-design-and-implements.html">&lt;blockquote&gt;
   &lt;p&gt;本文是在美团内部面向其他团队的分享&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -3870,705 +4160,4 @@ service PaymentService {
 
 &lt;p&gt;下图是对我们讨论的一致性模型的总结：&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/distributed_system/60.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">翻译自 DDIA 作者 Martin Kleppmann 分布式系统课程：视频; 课件</summary></entry><entry><title type="html">状语从句</title><link href="http://localhost:4000/adverbial-clause.html" rel="alternate" type="text/html" title="状语从句" /><published>2022-03-02T00:00:00+08:00</published><updated>2022-03-02T00:00:00+08:00</updated><id>http://localhost:4000/adverbial-clause</id><content type="html" xml:base="http://localhost:4000/adverbial-clause.html">&lt;h1 id=&quot;1-介绍&quot;&gt;1-介绍&lt;/h1&gt;
-&lt;p&gt;状语从句指句子用作状语时, 起副词作用的句子。它可以修饰谓语、非谓语动词、定语、状语或整个句子。根据其作用可分为时间、地点、原因、条件、目的、结果、让步、方式和比较等从句。
-状语从句一般由连词(从属连词)引导，也可以由词组引起。从句位于句首或句中时通常用逗号与主句隔开，位于句尾时可以不用逗号隔开。&lt;/p&gt;
-
-&lt;h1 id=&quot;2-地点状语从句&quot;&gt;2-地点状语从句&lt;/h1&gt;
-&lt;h2 id=&quot;2-1-介绍&quot;&gt;2-1-介绍&lt;/h2&gt;
-
-&lt;p&gt;地点状语从句表示地点，方位，通常由 where 引导。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;He lives there. (there 做地点状语)&lt;/li&gt;
-  &lt;li&gt;He lives in Inner Mongolia. (in inner Mongolia 做地点状语)&lt;/li&gt;
-  &lt;li&gt;He lives where the climate is mild. (where … 做地点状语从句)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-2-引导词&quot;&gt;2-2-引导词&lt;/h2&gt;
-
-&lt;p&gt;常用引导词 &lt;strong&gt;where&lt;/strong&gt;，特殊引导词 &lt;strong&gt;wherever, anywhere, everywhere.&lt;/strong&gt;&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;引导词&lt;/th&gt;
-      &lt;th&gt;含义&lt;/th&gt;
-      &lt;th&gt;说明&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;where&lt;/td&gt;
-      &lt;td&gt;在……地方&lt;/td&gt;
-      &lt;td&gt;通常表示一个确定的地方&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;wherever&lt;/td&gt;
-      &lt;td&gt;无论什么地方&lt;/td&gt;
-      &lt;td&gt;表示任何地方&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;anywhere&lt;/td&gt;
-      &lt;td&gt;任何地方&lt;/td&gt;
-      &lt;td&gt;表示任何地方&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;everywhere&lt;/td&gt;
-      &lt;td&gt;到处&lt;/td&gt;
-      &lt;td&gt;表示任何地方&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;We must camp where we can get water.&lt;/li&gt;
-  &lt;li&gt;They will go where they are happy.&lt;/li&gt;
-  &lt;li&gt;Wherever there is political upheaval, invariably there are refugees.&lt;/li&gt;
-  &lt;li&gt;We have sworn to fight cruelty wherever we find it.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-3-地点状语从句与定语从句的区别&quot;&gt;2-3-地点状语从句与定语从句的区别&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;where 引导定语从句时，where 是关系副词，并且 &lt;strong&gt;where 在从句中作地点状语&lt;/strong&gt;，&lt;strong&gt;前面有表示地点的先行词&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;The bookshop where I bought this book is not far from here.&lt;/li&gt;
-      &lt;li&gt;This is the house where I lived two years ago.&lt;/li&gt;
-      &lt;li&gt;We will start at the point where we left off.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;where 引导状语从句时，where 是从属连词。&lt;strong&gt;where 引导的从句修饰主句的谓语动词，并且 where 前面没有表示地点的先行词&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Wuhan lies where the Changjiang River and the Hanjiang River meet.&lt;/li&gt;
-      &lt;li&gt;Make a mark where you have any doubts or questions.&lt;/li&gt;
-      &lt;li&gt;I found my books where I had left them.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;有时 where 引导的地点状语从句兼有抽象条件含义，&lt;strong&gt;可放在主句的前面&lt;/strong&gt;，而 where 引导的定语从句则不能
-    &lt;ul&gt;
-      &lt;li&gt;Where there is a will, there is a way.&lt;/li&gt;
-      &lt;li&gt;Where there is water, there is life.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;在有些情况下，where 引导的定语从句可转换为 where 引导的地点状语从句
-    &lt;ul&gt;
-      &lt;li&gt;A tall building was put up at the place where there used to be a desert
-  = A tall building was put up where there used to be a desert.&lt;/li&gt;
-      &lt;li&gt;Bamboo grows best in places where it is warm and where it rains often.
-  = Bamboo grows best where it is warm and where it rains often.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h1 id=&quot;3-时间状语从句&quot;&gt;3-时间状语从句&lt;/h1&gt;
-&lt;h2 id=&quot;3-1-介绍&quot;&gt;3-1-介绍&lt;/h2&gt;
-
-&lt;p&gt;时间状语从句用表示时间的连词连接一个句子作状语。连接时间状语从句的连接词有: &lt;strong&gt;when, before, after, while, as soon as, until, since&lt;/strong&gt; 等。&lt;/p&gt;
-
-&lt;h2 id=&quot;3-2-连接词&quot;&gt;3-2-连接词&lt;/h2&gt;
-
-&lt;h3 id=&quot;3-2-1-when&quot;&gt;3-2-1 when&lt;/h3&gt;
-
-&lt;p&gt;when 表示 “当…的时候”。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;既可以表示时间段，也可以表示时间点&lt;/li&gt;
-  &lt;li&gt;从句既可用延续性动词，也可用非延续性动词&lt;/li&gt;
-  &lt;li&gt;从句动作&lt;strong&gt;既可与主句的动作同时发生，又可在主句的动作之前或之后发生&lt;/strong&gt;
-例句：
-    &lt;ul&gt;
-      &lt;li&gt;When I met the Gills, I had been gardening for nearly ten years.&lt;/li&gt;
-      &lt;li&gt;I’ll start to think about it when I have to write my report.&lt;/li&gt;
-      &lt;li&gt;It was raining when we arrived.&lt;/li&gt;
-      &lt;li&gt;When I came home, my wife was cooking dinner.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;&lt;strong&gt;如果 when 引导的时间状语从句的主语与主句的主语相同，并且从句的谓语动词为 be 动词时，可以省略主语 &amp;amp; be 动词&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;When (you are) in trouble, ask her for help.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;如果 when 引导的从句的主语与主句的主语相同，可以用 &lt;strong&gt;“when + 分词” 代替状语从句&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;When I came into the room ( When coming into the room), I found him lying there asleep.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;3-2-2-while&quot;&gt;3-2-2 while&lt;/h3&gt;
-
-&lt;p&gt;while 表示 “当…的时候”。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;只能表示一段时间，不能表示时间点&lt;/li&gt;
-  &lt;li&gt;从句的谓语动词只能是延续性的&lt;/li&gt;
-  &lt;li&gt;从句动作&lt;strong&gt;只能与主句同时发生或者存在&lt;/strong&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;例句：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Don’t interrupt him while he is thinking.&lt;/li&gt;
-  &lt;li&gt;While Jim was mending his bike, Lin Tao came to see him.&lt;/li&gt;
-  &lt;li&gt;She got married while working as a waitress.&lt;/li&gt;
-  &lt;li&gt;You can’t do your homework while you’re watching TV.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;3-2-3-as&quot;&gt;3-2-3 as&lt;/h3&gt;
-
-&lt;p&gt;as 表示 “当…时，一边…一边”。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;侧重两个动作同时发生&lt;/strong&gt;（包括同一个主语同时进行两个动作）；或者一种动作随着另一个动作的变化而变化。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Another policeman has been injured as fighting continued this morning.&lt;/li&gt;
-  &lt;li&gt;I slipped on the ice as I ran home.&lt;/li&gt;
-  &lt;li&gt;I saw him as he was getting off the bus.&lt;/li&gt;
-  &lt;li&gt;As the wind rose, the noise increased.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;4-条件状语从句&quot;&gt;4-条件状语从句&lt;/h1&gt;
-&lt;h2 id=&quot;4-1-介绍&quot;&gt;4-1-介绍&lt;/h2&gt;
-
-&lt;p&gt;条件是指某一事情实现之后（状语从句中的动作），其他事情才会发生（主句中的动作），通常表示“如果”。
-&lt;strong&gt;在句子中做条件状语的从句叫做条件状语从句（通常置于句首或句尾）。&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;引导条件状语从句的常用连词是 if，表示“如果”。其他连词有：&lt;strong&gt;unless&lt;/strong&gt;（除非），&lt;strong&gt;as/so long as&lt;/strong&gt;（只要）， &lt;strong&gt;providing/provided that&lt;/strong&gt;（假如），&lt;strong&gt;supposing that&lt;/strong&gt;, &lt;strong&gt;in case,&lt;/strong&gt; &lt;strong&gt;on condition that&lt;/strong&gt; 等。&lt;/p&gt;
-
-&lt;h2 id=&quot;4-2-连接词&quot;&gt;4-2-连接词&lt;/h2&gt;
-
-&lt;h3 id=&quot;4-2-1-if&quot;&gt;4-2-1 if&lt;/h3&gt;
-
-&lt;p&gt;if 引导的条件状语从句分为两类：一种是真实条件句，一种是虚拟条件句。&lt;/p&gt;
-
-&lt;p&gt;if 引导的条件状语从句表示在某种条件下，某事发生的可能性大。&lt;/p&gt;
-
-&lt;p&gt;例句：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;If you ask him, he will help you.&lt;/li&gt;
-  &lt;li&gt;If you fail in the exam, you will let him down.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;if 引导的条件状语从句既可以放在主句之前，也可以放在主句之后。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;If it rains, we will stop playing. = We will stop playing if it rains.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;如果主句是将来时，从句要用一般现在时代替一般将来时&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;If he runs, he will get there in time.&lt;/li&gt;
-  &lt;li&gt;The cat will scratch you if you if you pull her tail.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;4-2-2-unless&quot;&gt;4-2-2 unless&lt;/h3&gt;
-
-&lt;p&gt;unless 表示“除非，若不，除非在……的时候”，等同于 if … not。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;You will fail to arrive there in time unless you start earlier.&lt;/li&gt;
-  &lt;li&gt;Unless it rains, the game will be played.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;4-2-3-as-long-as--so-long-as&quot;&gt;4-2-3 as long as &amp;amp; so long as&lt;/h3&gt;
-
-&lt;p&gt;as/so long as 表示“只要…”。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;As long as my heart still beats, I will go on working for the people.&lt;/li&gt;
-  &lt;li&gt;As long as the green hills are there, one need not worry about firewood.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;4-2-4-in-case&quot;&gt;4-2-4 in case&lt;/h3&gt;
-
-&lt;p&gt;in case 表示“如果，万一”。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;In case I forget, please remind me about it.&lt;/li&gt;
-  &lt;li&gt;Dad brought a notebook along to the beach, in case he was seized by sudden inspiration.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;4-2-5-on-condition-that&quot;&gt;4-2-5 on condition that&lt;/h3&gt;
-
-&lt;p&gt;on condition (that) 表示“在…条件下”，引导的条件是&lt;strong&gt;主句发生的前提条件或者唯一条件&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;I can tell you the truth on condition that you promise to keep a secret.&lt;/li&gt;
-  &lt;li&gt;You can go swimming on condition (that) you don’t go too far from the river bank.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;4-2-6-supposing&quot;&gt;4-2-6 supposing&lt;/h3&gt;
-
-&lt;p&gt;supposing 表示“如果，假设”，引导的条件状语从句表示一种假设的条件。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Supposing it rains, shall we continue the sports meeting?&lt;/li&gt;
-  &lt;li&gt;Supposing anything should go wrong, what would you do then?&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;4-2-7-provided-that&quot;&gt;4-2-7 provided that&lt;/h3&gt;
-
-&lt;p&gt;provided (that) 表示“假如，除非，以…为条件”，引导的从句表示一种假设条件。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;He will sign the contract provided we offer more favorable terms.&lt;/li&gt;
-  &lt;li&gt;He won’t be against us in the meeting provided that we ask for his advice in advance.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;5-原因状语从句&quot;&gt;5-原因状语从句&lt;/h1&gt;
-&lt;h2 id=&quot;5-1-介绍&quot;&gt;5-1-介绍&lt;/h2&gt;
-
-&lt;p&gt;原因状语从句用来解释某件事发生的原因，最常用的从属连词为 &lt;strong&gt;because&lt;/strong&gt;，强调原因。&lt;/p&gt;
-
-&lt;p&gt;除此之外，还有其他从属连词：&lt;strong&gt;as, since, for, now (that), when, seeing (that), considering (that), given (that), in that, for the reason that&lt;/strong&gt; 等。&lt;/p&gt;
-
-&lt;h2 id=&quot;5-2-连接词&quot;&gt;5-2-连接词&lt;/h2&gt;
-
-&lt;h3 id=&quot;5-2-1-because&quot;&gt;5-2-1 because&lt;/h3&gt;
-
-&lt;p&gt;because 引导的原因状语从句一般放在主句后面。当从句放在主句前面时，需要用逗号隔开；而从句在后面时，可用或者不用逗号分隔。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;We didn’t go for an outing last Saturday, &lt;strong&gt;&lt;em&gt;because&lt;/em&gt;&lt;/strong&gt; it was raining hard the whole day.&lt;/li&gt;
-  &lt;li&gt;We didn’t go for an outing last Saturday &lt;strong&gt;&lt;em&gt;because&lt;/em&gt;&lt;/strong&gt; it was raining hard the whole day.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Because&lt;/em&gt;&lt;/strong&gt; it was raining hard the whole day, we didn’t go for an outing last Saturday.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;because 的&lt;strong&gt;语气一般比较强&lt;/strong&gt;，常用来回答 why 引导的疑问句。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Why didn’t you come to my birthday party last night? - Because my sister was ill. I had to take care of her the whole night.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;because 不能与 so 连用&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;because of 也表示原因，为介词短语，后跟名词，代词，动名词及其短语。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;He can’t go to school &lt;strong&gt;&lt;em&gt;because of&lt;/em&gt;&lt;/strong&gt; his illness.&lt;/li&gt;
-  &lt;li&gt;He can’t go to school &lt;strong&gt;&lt;em&gt;because&lt;/em&gt;&lt;/strong&gt; he is ill.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;not because&lt;/strong&gt; 结构中的否定词有时用来否定主句，有时用来否定从句，容易引起歧义。如果想明否定主句，最好在 because 从句前用逗号隔开。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;I didn’t go there yesterday, because I was afraid.（因为害怕，所以没去）&lt;/li&gt;
-  &lt;li&gt;I went there yesterday, not because I was afraid.（去那里，并不是因为害怕）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;5-2-2-since&quot;&gt;5-2-2 since&lt;/h3&gt;
-
-&lt;p&gt;since 可以理解为“既然”，用来表示双方已知的，显然的理由；相当于 now that，不过更为正式；语气比 because 弱，&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;since 引导的原因状语从句常放在主句之前&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Since&lt;/em&gt;&lt;/strong&gt; you are free today, can you help me with the housework?&lt;/li&gt;
-  &lt;li&gt;Now that you are grown up, you should rely on yourself.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;since 除了引导原因状语从句，还可以在后面接时间或者过去发生的事情，表示“自从…以来”。此时，&lt;strong&gt;从句常用一般过去时，主句常用完成时&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;I have lived here since 2015.&lt;/li&gt;
-  &lt;li&gt;She has learned English since she was two years old.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;5-2-3-as&quot;&gt;5-2-3 as&lt;/h3&gt;
-
-&lt;p&gt;as 引导原因状语从句时，表示“附带说明的，双方已知的原因”，语气比 since 弱。位置比较灵活，但是常放在主句之前。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;As the wage of the job was low, there were few applicants for it.&lt;/li&gt;
-  &lt;li&gt;As you are tired, you had better take a rest.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;除了引导原因状语从句，as 也可以用来引导时间状语从句与方式状语从句&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;A sudden chill of horror sweeps over her as she feels the drip of saliva upon her hand.（时间状语从句）&lt;/li&gt;
-  &lt;li&gt;She did it as I had told her to.（方式状语从句）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;5-2-4-for&quot;&gt;5-2-4 for&lt;/h3&gt;
-
-&lt;p&gt;for 表示原因，但是并&lt;strong&gt;不构成主句行为发生的直接原因&lt;/strong&gt;，只是提供一些辅助性的补充说明。&lt;/p&gt;
-
-&lt;p&gt;for 引导并列句，且只能放在主句之后并用逗号隔开。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;It must have rained last night, for the street is wet all over.（主句与从句不构成直接因果关系）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;5-2-5-其他连接词&quot;&gt;5-2-5 其他连接词&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;She is much more mobile &lt;strong&gt;&lt;em&gt;now that&lt;/em&gt;&lt;/strong&gt; she has a car.（既然）&lt;/li&gt;
-  &lt;li&gt;I won’t tell you &lt;strong&gt;&lt;em&gt;when&lt;/em&gt;&lt;/strong&gt; you won’t listen.（既然）&lt;/li&gt;
-  &lt;li&gt;He looks young &lt;strong&gt;&lt;em&gt;considering&lt;/em&gt;&lt;/strong&gt; his age.（考虑到）&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Given that&lt;/em&gt;&lt;/strong&gt; he was still a boy, I forgave him.（考虑到）&lt;/li&gt;
-  &lt;li&gt;We aren’t going &lt;strong&gt;&lt;em&gt;for the simple reason that&lt;/em&gt;&lt;/strong&gt; we can’t afford it.（因为）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;6-目的状语从句&quot;&gt;6-目的状语从句&lt;/h1&gt;
-&lt;h2 id=&quot;6-1-介绍&quot;&gt;6-1-介绍&lt;/h2&gt;
-
-&lt;p&gt;目的状语从句：在句子中充当目的状语的从句，主要用来补充说明主句中&lt;strong&gt;谓语动词发生的目的&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;如：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;He got up early &lt;strong&gt;&lt;em&gt;so as to&lt;/em&gt;&lt;/strong&gt; catch the first morning bus.（so as to… 做目的状语）&lt;/li&gt;
-  &lt;li&gt;He got up early &lt;strong&gt;&lt;em&gt;so that&lt;/em&gt;&lt;/strong&gt; he could catch the first morning bus.（so that… 做目的状语从句）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;6-2-连接词&quot;&gt;6-2-连接词&lt;/h2&gt;
-
-&lt;p&gt;连接目的状语从句的连接词有：&lt;strong&gt;so that, in order that, for fear that, in case&lt;/strong&gt; 等。&lt;/p&gt;
-
-&lt;p&gt;目的状语从句的谓语动中通常含有：may, could, will, might, can, should, would 等情态动词。&lt;/p&gt;
-
-&lt;h3 id=&quot;6-2-1-so-that&quot;&gt;6-2-1 so that&lt;/h3&gt;
-
-&lt;p&gt;so that 表示“以便，为了”。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;I set up the computer so that they could work from home.&lt;/li&gt;
-  &lt;li&gt;I’ll give you all the facts so that you can judge for yourself.&lt;/li&gt;
-  &lt;li&gt;They put a screen around his bed so that the doctor could examine him.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;so that 有时可以&lt;strong&gt;省略 so&lt;/strong&gt;，只用 that 连接。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Bring it closer (so) that I may see it better.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;当主句与从句的主语相同时，可以用 &lt;strong&gt;so as to do 短语替代 so that&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;One should learn from past mistakes &lt;strong&gt;&lt;em&gt;so that&lt;/em&gt;&lt;/strong&gt; he or she can avoid falling into the same old trap again.&lt;/li&gt;
-  &lt;li&gt;One should learn from past mistakes &lt;strong&gt;&lt;em&gt;so as to&lt;/em&gt;&lt;/strong&gt; avoid falling into the same old trap again.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;需要注意 so that 与 so … that 的区别：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;so that 表示目的状语从句：
-    &lt;ul&gt;
-      &lt;li&gt;He went to bed very early last night &lt;strong&gt;&lt;em&gt;so that&lt;/em&gt;&lt;/strong&gt; he could get up early this morning.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;so … that 表示结果状语从句：
-    &lt;ul&gt;
-      &lt;li&gt;He stayed up &lt;strong&gt;&lt;em&gt;so&lt;/em&gt;&lt;/strong&gt; late last night &lt;strong&gt;&lt;em&gt;that&lt;/em&gt;&lt;/strong&gt; he couldn’t get up early this morning.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;6-2-2-in-order-that&quot;&gt;6-2-2 in order that&lt;/h3&gt;
-
-&lt;p&gt;in order that 表示“为了，以便”。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;They flew there &lt;strong&gt;&lt;em&gt;in order that&lt;/em&gt;&lt;/strong&gt; they might be in time to attend the opening ceremony.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;&lt;em&gt;In order that&lt;/em&gt;&lt;/strong&gt; we might get there on time, we should set out early.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;当主句与从句的主语相同时，可用 &lt;strong&gt;in order to do 短语代替 in order that 从句&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;I came &lt;strong&gt;&lt;em&gt;in order that&lt;/em&gt;&lt;/strong&gt; I could see Jack.&lt;/li&gt;
-  &lt;li&gt;I came &lt;strong&gt;&lt;em&gt;in order to&lt;/em&gt;&lt;/strong&gt; see Jack.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;6-2-3-for-fear-that&quot;&gt;6-2-3 for fear that&lt;/h3&gt;
-
-&lt;p&gt;for fear that 表示“以免，唯恐”。&lt;/p&gt;
-
-&lt;p&gt;如果从句的情态动词时 should 时，此时 should 可以省略。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;He told us to keep quiet &lt;strong&gt;&lt;em&gt;for fear that&lt;/em&gt;&lt;/strong&gt; we might disturb others.&lt;/li&gt;
-  &lt;li&gt;We hurried along &lt;strong&gt;&lt;em&gt;for fear that&lt;/em&gt;&lt;/strong&gt; we (should) be late.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;当主句与从句的主语相同时，可以用 &lt;strong&gt;for fear of doing 短语代替 for fear that 从句&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;We spoke quietly &lt;strong&gt;&lt;em&gt;for fear that&lt;/em&gt;&lt;/strong&gt; we should wake the guards.&lt;/li&gt;
-  &lt;li&gt;We spoke quietly &lt;strong&gt;&lt;em&gt;for fear of&lt;/em&gt;&lt;/strong&gt; waking the guards.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;6-2-4-in-case&quot;&gt;6-2-4 in case&lt;/h3&gt;
-
-&lt;p&gt;in case 表示“以防，万一”。&lt;/p&gt;
-
-&lt;p&gt;从句一般使用情态动词 should，且 should 可省略；从句表示虚拟语气。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;They watched him closely &lt;strong&gt;&lt;em&gt;in case&lt;/em&gt;&lt;/strong&gt; he (should) escape.&lt;/li&gt;
-  &lt;li&gt;I stopped suddenly &lt;strong&gt;&lt;em&gt;in case&lt;/em&gt;&lt;/strong&gt; he (should) think that I was showing off.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;in case 还可以表示“假如，如果”。此时引导的从句不再使用虚拟语气，一般也不使用情态动词&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;In case she comes back, let me know immediately.&lt;/li&gt;
-  &lt;li&gt;I keep a warm coat at work in case it suddenly turns cold.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;in case of 表示“假如，如果发生”。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;In case of fire, ring the alarm bell.&lt;/li&gt;
-  &lt;li&gt;We have an auxiliary generator in case of power cuts.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;7-结果状语从句&quot;&gt;7-结果状语从句&lt;/h1&gt;
-&lt;h2 id=&quot;7-1-介绍&quot;&gt;7-1-介绍&lt;/h2&gt;
-
-&lt;p&gt;结果状语从句：在复合句中表示&lt;strong&gt;主句动作所导致结果&lt;/strong&gt;的从句，用于补充说明主句谓语动词发生的结果；通常位于主句的后面。&lt;/p&gt;
-
-&lt;h2 id=&quot;7-2-连接词&quot;&gt;7-2-连接词&lt;/h2&gt;
-
-&lt;p&gt;引导结果状语从句的连词主要有：so that, so…that, such…that 等。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;so 用在形容词或副词之前，such 用在名词之前&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;7-2-1-so-that&quot;&gt;7-2-1 so that&lt;/h3&gt;
-
-&lt;p&gt;&lt;strong&gt;so that 既可以引导目的状语从句，表示“为了，以便”；也可以引导结果状语从句，表示“因此，以至于”&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;strong&gt;当引导目的状语从句时，从句一般包含情态动词&lt;/strong&gt;；当引导结果状语从句时，一般不包含&lt;/p&gt;
-
-  &lt;ul&gt;
-    &lt;li&gt;You make friends with people and then make unreasonable demands &lt;strong&gt;&lt;em&gt;so tha&lt;/em&gt;&lt;/strong&gt;t they reject you.（结果状语从句）&lt;/li&gt;
-    &lt;li&gt;I’ll give you all the facts &lt;strong&gt;&lt;em&gt;so that&lt;/em&gt;&lt;/strong&gt; you can judge for yourself.（目的状语从句）&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;7-2-2-sosuchthat&quot;&gt;7-2-2 so/such…that&lt;/h3&gt;
-
-&lt;p&gt;so/such…that 表示“如此…以至于…”。so 是副词，修饰形容词或副词，such 是形容词，修饰名词。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;so + adj./adv. + that&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;He speaks &lt;strong&gt;&lt;em&gt;so fast tha&lt;/em&gt;&lt;/strong&gt;t no one can catch him.&lt;/li&gt;
-      &lt;li&gt;The ball struck him &lt;strong&gt;&lt;em&gt;so hard tha&lt;/em&gt;&lt;/strong&gt;t he nearly fell into the water.&lt;/li&gt;
-      &lt;li&gt;I was &lt;strong&gt;&lt;em&gt;so busy here that&lt;/em&gt;&lt;/strong&gt; I had no time to write a letter.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;so + adj./adv. + (a/an) + n +that&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;There is &lt;strong&gt;&lt;em&gt;so rapid an increase&lt;/em&gt;&lt;/strong&gt; in population that a food shortage is caused.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;such ＋ a(an) ＋ adj. ＋ 可数名词单数 ＋ that&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;He is &lt;strong&gt;&lt;em&gt;such a clever boy&lt;/em&gt;&lt;/strong&gt; &lt;strong&gt;&lt;em&gt;that&lt;/em&gt;&lt;/strong&gt; everybody likes him.&lt;/li&gt;
-      &lt;li&gt;He was &lt;strong&gt;&lt;em&gt;such an honest man that&lt;/em&gt;&lt;/strong&gt; he was praised by the teacher.&lt;/li&gt;
-      &lt;li&gt;He’s such a good person that we mustn’t blame him.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;such ＋ adj. ＋ 复数可数名词 ＋ that&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;He told us &lt;strong&gt;&lt;em&gt;such horrible stories that&lt;/em&gt;&lt;/strong&gt; we all scared.&lt;/li&gt;
-      &lt;li&gt;They are &lt;strong&gt;&lt;em&gt;such fine teachers that&lt;/em&gt;&lt;/strong&gt; we all hold them in great respect.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;such + adj. + 不可数名词 + that&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;He has made &lt;strong&gt;&lt;em&gt;such great progress that&lt;/em&gt;&lt;/strong&gt; the teachers are pleased with him.&lt;/li&gt;
-      &lt;li&gt;It is &lt;strong&gt;&lt;em&gt;such nice weather that&lt;/em&gt;&lt;/strong&gt; I would like to go to the beach.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;需要注意：&lt;strong&gt;so 与表示数量的代词 many, few, much, little 等连用已经形成固定搭配&lt;/strong&gt;， 这种情况下不能换用 such 的对应结构表示。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Our country has &lt;strong&gt;&lt;em&gt;so much coal&lt;/em&gt;&lt;/strong&gt; that she can export large quantities.&lt;/li&gt;
-  &lt;li&gt;There were &lt;strong&gt;&lt;em&gt;so many people&lt;/em&gt;&lt;/strong&gt; in the street watching the fire that firefighters could not get close to the building.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;当结果状语从句的主语与主句的主语相同时，&lt;strong&gt;可省略从句主语，从句谓语变非谓语&lt;/strong&gt;。此时 so… 就要换一个形式来陈述。&lt;strong&gt;so 是中性程度副词，如果从句是肯定句，那么 so 就要换为 enough&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;enough 只能在所修饰词的后面&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;He is so old that he can go to school alone. = He is old enough to go to school alone.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;8-让步状语从句&quot;&gt;8-让步状语从句&lt;/h1&gt;
-&lt;h2 id=&quot;8-1-介绍&quot;&gt;8-1-介绍&lt;/h2&gt;
-
-&lt;p&gt;让步状语从句一般翻译为 “尽管…”，“即使…”。&lt;/p&gt;
-
-&lt;p&gt;引导让步状语从句的连接词有：&lt;strong&gt;though, although, as, even though, whether … or …, no matter + 疑问词, 疑问词-ever, regardless of + 名词/名词短语/名词从句, despite, despite of&lt;/strong&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;需要注意，although，though 不可以与 but 连用，但是可以和 yet, still 连用&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;8-2-连接词&quot;&gt;8-2-连接词&lt;/h2&gt;
-
-&lt;h3 id=&quot;8-2-1-although--though&quot;&gt;8-2-1 although &amp;amp; though&lt;/h3&gt;
-
-&lt;p&gt;这两个连词都表示“虽然，尽管”，一般情况下可以互换使用。&lt;/p&gt;
-
-&lt;p&gt;though 通常用于口语，although 常用于正式情况。&lt;strong&gt;&lt;em&gt;两者均不可以和 but 连用，但是可以和 yet, still, nevertheless 连用&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Although/Though he was exhausted, he(still) kept on working.&lt;/li&gt;
-  &lt;li&gt;Although/Though he is known to only a few, his reputation among them is very great.&lt;/li&gt;
-  &lt;li&gt;Although/Though they’re expensive, they last forever and never go out of style.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;although 引导的让步状语从句通常位于主句之前，though 引导的让步状语从句位于主句前或者主句后均可。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;They’re very different, though they did seem to get on well when they met.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;8-2-2-as&quot;&gt;8-2-2 as&lt;/h3&gt;
-
-&lt;p&gt;&lt;strong&gt;&lt;em&gt;as 引导的让步状语从句必须用倒装&lt;/em&gt;&lt;/strong&gt;，而 though 引导的让步状语从句可用倒装，也可不用倒装。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;名词 + as/though + 主语 + 动词&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;King as he was, he was unhappy.&lt;/li&gt;
-      &lt;li&gt;Child as he is, he knows to help other.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;其中的动词常为&lt;strong&gt;&lt;em&gt;连系动词&lt;/em&gt;&lt;/strong&gt;，位于句首的名词为连系动词的表语。同时，位于句首的名词通常不用冠词。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;Boy as/though he is, he likes to play with girls. = Though/Although he is a boy, he likes to play with girls.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;形容词 + as/though + 主语 + 动词&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Patient as he was，he didn’t like waiting that long.&lt;/li&gt;
-      &lt;li&gt;Beautiful though the necklace was，we thought it was over-priced.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;其中的动词也常为&lt;strong&gt;&lt;em&gt;连系动词&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;副词 + as/though + 主语 + 动词&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Much as I like Paris, I couldn’t live there.&lt;/li&gt;
-      &lt;li&gt;Fast as you read, you can’t finish the book in two days.&lt;/li&gt;
-      &lt;li&gt;Heavily as it is raining, the football game has been decided not to be put off.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;有时候会将 much as 当作一个复合连词看，整体引导让步状语从句。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;Much as I admire him as a writer，I do not like him as a man.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;动词原型 + as/though + 主语 + 动词&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Object as you may, I’ll go.&lt;/li&gt;
-      &lt;li&gt;Try as he might, he couldn’t solve the problem.&lt;/li&gt;
-      &lt;li&gt;Lose money as I did, we got a lot of experience.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;&lt;strong&gt;&lt;em&gt;主语后面的动词常为 could, may, might, did 等情态动词或者助动词&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;如果表示陈述事实，则用 do, did 等助动词；如果表示情态含义，则用情态动词&lt;/p&gt;
-
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;8-2-3-whether&quot;&gt;8-2-3 whether&lt;/h3&gt;
-
-&lt;p&gt;由 whether 引导的让步状语从句旨在说明正反两方面的可能性都不会影响主句的意向或结果，所以&lt;strong&gt;&lt;em&gt;语气是比较强烈的&lt;/em&gt;&lt;/strong&gt;，从而也更加坚定了主句的内容。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;You’ll have to attend the ceremony whether you’re free or busy.&lt;/li&gt;
-  &lt;li&gt;Whether you believe it or not, it’s true.&lt;/li&gt;
-  &lt;li&gt;Whether or not they win this battle, they won’t win the war.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;8-2-4-no-matter--疑问词--疑问词-ever&quot;&gt;8-2-4 no matter + 疑问词 = 疑问词-ever&lt;/h3&gt;
-
-&lt;p&gt;这两个连接词均表示 “不管 … 都 …”，“…. 都 ….”，引导让步状语从句时两者可以互换。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;No matter what happened, he would not mind.&lt;/li&gt;
-  &lt;li&gt;Whatever happened, he would not mind.&lt;/li&gt;
-  &lt;li&gt;No matter who you are, you must keep the law.&lt;/li&gt;
-  &lt;li&gt;Whoever you are, you must keep the law.&lt;/li&gt;
-  &lt;li&gt;When anyone does something for you, no matter how small and no matter whether he’s a superior or servant, it’s proper to say “Thank you”.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;&lt;em&gt;no matter + 疑问词只能引导状语从句，而疑问词-ever 还可以引导名词性从句&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Whatever (=No matter what) you say, I won’t believe you.(让步状语从句)&lt;/li&gt;
-  &lt;li&gt;I’ll eat whatever (≠no matter what) you give me.(宾语从句)&lt;/li&gt;
-  &lt;li&gt;Whoever comes will be welcome.(主语从句)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;&lt;em&gt;while 有时也可以引导让步状语从句，通常位于句首&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;While I like the color, I don’t like the shape.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;8-2-5-even-though--even-if&quot;&gt;8-2-5 even though &amp;amp; even if&lt;/h3&gt;
-
-&lt;p&gt;两者均可以引导让步状语从句，但是有细微差别。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;even if 引导的状语从句通常是假设性的，表示“即使”，“纵然”，“就算”，“哪怕”
-    &lt;ul&gt;
-      &lt;li&gt;Even if I have to walk all the way I’ll get there.&lt;/li&gt;
-      &lt;li&gt;Even if it rains tomorrow, we won’t change our plan.&lt;/li&gt;
-      &lt;li&gt;Even if you saw him pick up the money, you can’t be sure he stole it.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;even though 引导的从句内容往往是真实的，用于引出不利于主句的信息，表示“尽管”，“虽然”
-    &lt;ul&gt;
-      &lt;li&gt;He went out even though it was raining.&lt;/li&gt;
-      &lt;li&gt;He’s the best teacher even though he has the least experience.&lt;/li&gt;
-      &lt;li&gt;Even though I didn’t know anybody at the party, I had a nice time.&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;p&gt;此时 even though 与 though, although 可以互换。&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;Even though/Though/Although we all tried our best, we lost the game.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;在实际运用中，even though 与 even if 可以不加区别地混用。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Even if /Even though she laughs at him, he likes her.&lt;/li&gt;
-  &lt;li&gt;We thoroughly understand each other, even if /even though we don’t always agree.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="english-study" /><summary type="html">1-介绍 状语从句指句子用作状语时, 起副词作用的句子。它可以修饰谓语、非谓语动词、定语、状语或整个句子。根据其作用可分为时间、地点、原因、条件、目的、结果、让步、方式和比较等从句。 状语从句一般由连词(从属连词)引导，也可以由词组引起。从句位于句首或句中时通常用逗号与主句隔开，位于句尾时可以不用逗号隔开。</summary></entry></feed>
+&lt;p&gt;&lt;img src=&quot;/images/distributed_system/60.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">翻译自 DDIA 作者 Martin Kleppmann 分布式系统课程：视频; 课件</summary></entry></feed>
