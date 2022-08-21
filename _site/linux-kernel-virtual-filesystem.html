@@ -155,6 +155,457 @@
 
 <h1 id="2-vfs-的数据结构">2-VFS 的数据结构</h1>
 
+<p>每个 VFS 对象都存放在一个适当的数据结构中，包括对象的属性和<em>指向对象方法表</em>的指针。</p>
+
+<h2 id="2-1-超级块对象">2-1 超级块对象</h2>
+
+<p>超级块对象由 <code class="language-plaintext highlighter-rouge">super_block</code> 结构组成，部分字段如下：</p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_5.png" alt="" /></p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_6.png" alt="" /></p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_7.png" alt="" /></p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_8.png" alt="" /></p>
+
+<ul>
+  <li>所有的超级块对象都以双向循环链表的形式链接在一起。链表的第一个元素用 <code class="language-plaintext highlighter-rouge">super_blocks</code> 变量表示，超级块对象的 <code class="language-plaintext highlighter-rouge">s_list</code> 字段存放指向链表相邻元素的指针。<code class="language-plaintext highlighter-rouge">sb_lock</code> 自旋锁用于避免链表被多个处理器系统同时访问。</li>
+  <li><code class="language-plaintext highlighter-rouge">s_fs_info</code> 字段指向属于具体文件系统的超级块信息。任何基于磁盘的文件系统都需要访问和更新自己的磁盘分配位图，以便分配或释放磁盘块。为了提高效率，由 <code class="language-plaintext highlighter-rouge">s_fs_info</code> 字段所指向的数据被复制到内存，VFS 允许这些文件系统直接对内存超级块的 <code class="language-plaintext highlighter-rouge">s_fs_info</code> 字段进行操作，无需访问磁盘。</li>
+  <li>
+    <p>不过这种方法可能会导致 VFS 超级块与磁盘上的超级块不同步，因此通过引入 <code class="language-plaintext highlighter-rouge">s_dirt</code> 标志来表示该超级块是否是脏的，以便及时更新磁盘上的数据。</p>
+
+    <blockquote>
+      <p>Linux 通过周期性地将所有脏的超级块回写磁盘来减少不一致的风险</p>
+
+    </blockquote>
+  </li>
+  <li>
+    <p>超级块的操作方法由数据结构 <code class="language-plaintext highlighter-rouge">super_operations</code> 结构表示，该结构的起始地址存放在超级块的 <code class="language-plaintext highlighter-rouge">s_op</code> 字段中</p>
+
+    <p>每一个具体的文件系统可以定义自己的超级块操作。当 VFS 需要调用其中一个操作时，如 read_inode()，执行操作如下：</p>
+
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">sb</span><span class="o">-&gt;</span><span class="n">s_op</span><span class="o">-&gt;</span><span class="n">read_inode</span><span class="p">(</span><span class="n">inode</span><span class="p">);</span> 
+  <span class="c1">// sb 存放涉及的超级块对象地址；super_operation 表的 read_inode 字段存放对应函数的地址</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h3 id="2-1-1-超级块操作方法">2-1-1 超级块操作方法</h3>
+
+<p>超级块操作表 <code class="language-plaintext highlighter-rouge">super_operation</code> 中一些比较常见的方法：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">alloc_inode(sb)</code>：为索引节点对象分配空间，包括具体文件系统的数据所需空间</li>
+  <li><code class="language-plaintext highlighter-rouge">destroy_inode(inode)</code>: 撤销索引节点对象，包括具体文件系统的数据</li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">read_inode(inode)</code>: 用磁盘上的数据填充以参数传递过来的索引节点对象的字段</p>
+
+    <blockquote>
+      <p>索引节点对象的 <code class="language-plaintext highlighter-rouge">i_ino</code> 字段标识从磁盘上要读取的具体文件系统的索引节点</p>
+
+    </blockquote>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">dirty_inode(inode)</code>: 当索引节点被修改时调用</li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">write_inode(inode)</code>: 通过传递参数指定的索引节点对象内容更新一个文件系统的索引节点</p>
+
+    <blockquote>
+      <p>索引节点对象的 <code class="language-plaintext highlighter-rouge">i_ino</code> 字段标识所涉及的磁盘上文件系统的索引节点</p>
+
+    </blockquote>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">put_inode(inode)</code>: 释放索引节点时调用，同时减少该节点引用计数器值</li>
+  <li><code class="language-plaintext highlighter-rouge">drop_inode(inode)</code>: 当最后一个用户释放该索引节点时调用；该索引节点将会被撤消</li>
+  <li><code class="language-plaintext highlighter-rouge">delete_inode(inode)</code>: 撤消索引节点时调用；删除内存中的 VFS 索引节点和磁盘上的文件数据及元数据</li>
+</ul>
+
+<h2 id="2-2-索引节点对象">2-2 索引节点对象</h2>
+
+<p><strong>文件系统处理文件所需要的所有信息都存放在一个名为索引节点的数据结构中</strong>。内存中的索引节点对象由一个 inode 数据结构组成。</p>
+
+<blockquote>
+  <p>文件名可以随意更改，但是<strong><em>对文件来说，索引节点时唯一的，并且随着文件的存在而存在</em></strong></p>
+
+</blockquote>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_9.png" alt="" /></p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_10.png" alt="" /></p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_11.png" alt="" /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">i_hash</code>: 用于散列表的指针</li>
+  <li><code class="language-plaintext highlighter-rouge">i_list</code>: 用于描述索引节点当前状态的链表的指针</li>
+  <li><code class="language-plaintext highlighter-rouge">i_sb_list</code>: 用于超级块的索引节点链表的指针</li>
+  <li><code class="language-plaintext highlighter-rouge">i_dentry</code>: 引用索引节点的目录项对象链表的头</li>
+  <li><code class="language-plaintext highlighter-rouge">i_ino</code>: 索引节点号</li>
+  <li><code class="language-plaintext highlighter-rouge">i_count</code>: 引用计数器</li>
+  <li><code class="language-plaintext highlighter-rouge">i_nlink</code>: 硬链接数目</li>
+  <li><code class="language-plaintext highlighter-rouge">i_state</code>: 索引节点的状态标志
+    <ul>
+      <li>如果 <code class="language-plaintext highlighter-rouge">i_state</code> 的值为 <code class="language-plaintext highlighter-rouge">I_DIRTY_SYNC</code>, <code class="language-plaintext highlighter-rouge">I_DIRTY_DATASYNC</code>, <code class="language-plaintext highlighter-rouge">I_DIRTY_PAGES</code> ，则表明该索引节点是脏的，对应的磁盘索引节点必须更新</li>
+      <li>如果 <code class="language-plaintext highlighter-rouge">i_state</code> 字段的值为 <code class="language-plaintext highlighter-rouge">I_LOCK</code>，表明对应的索引节点对象处于 IO 传输中；<code class="language-plaintext highlighter-rouge">I_FREEING</code> 表示索引节点对象正在被释放；<code class="language-plaintext highlighter-rouge">I_CLEAR</code> 表示索引节点对象的内容不再有意义；<code class="language-plaintext highlighter-rouge">I_NEW</code> 表示索引节点对象已经分配，但是还没用磁盘索引节点读取来的数据填充</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">i_size</code>: 文件的字节数</li>
+  <li><code class="language-plaintext highlighter-rouge">i_blocks</code>: 文件的块数</li>
+  <li><code class="language-plaintext highlighter-rouge">i_op</code>: 索引节点的操作</li>
+  <li><code class="language-plaintext highlighter-rouge">i_sb</code>: 指向超级块对象的指针</li>
+</ul>
+
+<p><strong><em>每个索引节点对象都会复制磁盘索引节点包含的一些数据</em></strong>，如分配给文件的磁盘块数。</p>
+
+<p>每个索引节点对象总是处于下列双向循环链表中的某个链表中（链表相邻元素的指针存放在 <code class="language-plaintext highlighter-rouge">i_list</code> 字段中）：</p>
+
+<ol>
+  <li><strong>有效未使用的索引节点链表</strong>：这些索引节点当前未被任何进程使用，且不为脏，<code class="language-plaintext highlighter-rouge">i_count</code> 字段为 0；链表首尾元素由变量 <code class="language-plaintext highlighter-rouge">inode_unused</code> 引用。该链表用作磁盘高速缓存。</li>
+  <li><strong>正在使用的索引节点链表</strong>：这些索引节点当前正在被某些进程使用，且不为脏，<code class="language-plaintext highlighter-rouge">i_count</code> 字段为正数；链表的首尾元素由变量 <code class="language-plaintext highlighter-rouge">inode_in_use</code> 引用。</li>
+  <li><strong>脏索引节点的链表</strong>：链表的首尾元素由相应的超级块对象的 <code class="language-plaintext highlighter-rouge">s_dirty</code> 字段引用。</li>
+</ol>
+
+<blockquote>
+  <p>这些链表都是通过适当索引节点对象的 <code class="language-plaintext highlighter-rouge">i_list</code> 字段链接在一起</p>
+
+</blockquote>
+
+<p>每个索引节点对象也包含在文件系统(per-filesystem)的双向循环链表中，链表的头存放在超级块对象的 <code class="language-plaintext highlighter-rouge">s_inodes</code> 字段中；索引节点对象的 <code class="language-plaintext highlighter-rouge">i_sb_list</code> 字段存放了指向链表相邻元素的指针。</p>
+
+<p>索引节点对象也存放在一个被称为 <code class="language-plaintext highlighter-rouge">inode_hashtable</code> 的散列表中。散链表加快了对索引节点的搜索。</p>
+
+<h3 id="2-2-1-索引节点操作方法">2-2-1 索引节点操作方法</h3>
+
+<p>与索引节点对象关联的方法也被称为<strong>索引节点操作</strong>，由 <strong>inode_operation</strong> 结构来表示，存放在索引节点对象的 <code class="language-plaintext highlighter-rouge">i_op</code> 字段中。</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">create(dir, dentry, mode, nameidata)</code>: 在某一目录下，为目录项对象相关的普通文件创建一个新的磁盘索引节点</li>
+  <li><code class="language-plaintext highlighter-rouge">lookup(dir, dentry, nameidata)</code>: 为包含在一个目录项对象中的文件名对应的索引节点查找目录</li>
+  <li><code class="language-plaintext highlighter-rouge">link(old_dentry, dir, new_dentry)</code>: 创建一个名为 <code class="language-plaintext highlighter-rouge">new_dentry</code> 的新的硬链接，指向 dir 目录下名为 <code class="language-plaintext highlighter-rouge">old_dentry</code> 的文件</li>
+  <li><code class="language-plaintext highlighter-rouge">unlink(dir, dentry)</code>: 从一个目录中删除目录项对象所指定文件的硬链接</li>
+  <li><code class="language-plaintext highlighter-rouge">symlink(dir, dentry, mode)</code>: 在某个目录下，为与目录项对象相关的目录创建一个新的索引节点</li>
+  <li><code class="language-plaintext highlighter-rouge">mkdir(dir, dentry, mode)</code>: 在某个目录下，为与目录项对象相关的目录创建一个新的索引节点</li>
+  <li><code class="language-plaintext highlighter-rouge">rmdir(dir, dentry)</code>: 从一个目录删除子目录，子目录的名称包含在目录项对象中</li>
+</ul>
+
+<h2 id="2-3-文件对象">2-3 文件对象</h2>
+
+<p><strong>文件对象描述进程如何与一个打开的文件进行交互</strong>。文件对象是在文件被打开时创建的，由一个 <code class="language-plaintext highlighter-rouge">file</code> 结构表示。</p>
+
+<blockquote>
+  <p><em>文件对象在磁盘上没有对应的映像</em>，因此 <code class="language-plaintext highlighter-rouge">file</code> 结构中没有设置 dirty 字段来表示文件对象是否被修改</p>
+
+</blockquote>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_12.png" alt="" /></p>
+
+<p>存放在文件对象中的主要信息是<strong><em>文件指针</em></strong>，即文件当前的位置，下个操作将在该位置执行。</p>
+
+<blockquote>
+  <p><em>由于几个进程可能同时访问同一文件，因此文件指针必须存放在文件对象而不是索引节点对象中</em></p>
+
+</blockquote>
+
+<p>文件对象通过一个名为 <code class="language-plaintext highlighter-rouge">filp</code> 的 slab 高速缓存分配，可分配的文件对象数目存在上限，因此<strong><em>系统可同时访问的文件数目也存在上限</em></strong>。</p>
+
+<ul>
+  <li>正在使用中的文件对象包含在具体文件系统的超级块的链表中，每个超级块对象把文件对象链表的头存放在 <code class="language-plaintext highlighter-rouge">s_files</code> 字段中。因此，属于不同文件系统的文件对象包含在不同的链表中。文件对象的 <code class="language-plaintext highlighter-rouge">f_list</code> 字段用于指向链表的前后元素。</li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">f_count</code> 字段为引用计数器，用于记录使用文件对象的进程数。</p>
+
+    <blockquote>
+      <p>当内核本身使用该文件对象时，也需要增加计数器的值</p>
+
+    </blockquote>
+  </li>
+</ul>
+
+<p>当 VFS 代表进程必须打开一个文件时，调用 <code class="language-plaintext highlighter-rouge">get_empty_filp()</code> 函数分配一个新的文件对象。该函数调用 <code class="language-plaintext highlighter-rouge">kmem_cache_alloc()</code> 从 filp 高速缓存中获得一个空闲的文件对象，之后初始化该对象的字段。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">memset</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">f</span><span class="p">));</span>
+<span class="n">INIT_LIST_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_ep_links</span><span class="p">);</span>
+<span class="n">spin_lock_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_ep_lock</span><span class="p">);</span>
+<span class="n">atomic_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_count</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">f</span><span class="o">-&gt;</span><span class="n">f_uid</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">fsuid</span><span class="p">;</span>
+<span class="n">f</span><span class="o">-&gt;</span><span class="n">f_gid</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">fsgid</span><span class="p">;</span>
+<span class="n">f</span><span class="o">-&gt;</span><span class="n">f_owner</span><span class="p">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">RW_LOCK_UNLOCKED</span><span class="p">;</span>
+<span class="n">INIT_LIST_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">f_list</span><span class="p">);</span>
+<span class="n">f</span><span class="o">-&gt;</span><span class="n">f_maxcount</span> <span class="o">=</span> <span class="n">INT_MAX</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>之前说过，每个文件系统都有其自己的文件操作集合，用于执行文件读写等操作。</p>
+
+<ul>
+  <li>当内核将一个索引节点从磁盘装入内存时，就会把指向这些文件操作的指针存放在 <code class="language-plaintext highlighter-rouge">file_operatrions</code> 结构中，而该结构的地址存放在索引节点对象的 <code class="language-plaintext highlighter-rouge">i_fop</code> 字段中。</li>
+  <li>当进程打开文件时，VFS 就用存放在索引节点中的这个地址初始化新文件对象的 <code class="language-plaintext highlighter-rouge">f_op</code> 字段，使得后续对该文件的操作能够调用这些函数。</li>
+  <li>如果有需要，VFS 随后可以通过在 <code class="language-plaintext highlighter-rouge">f_op</code> 字段存放一个新值来修改文件操作的集合。</li>
+</ul>
+
+<h3 id="2-3-1-文件对象操作方法">2-3-1 文件对象操作方法</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">llseek(file, offset, origin)</code>: 更新文件指针</li>
+  <li><code class="language-plaintext highlighter-rouge">read(file, fuf, count, offset)</code>: 从文件的 offset 处开始读取 count 个字节，然后增加 offset 的值</li>
+  <li><code class="language-plaintext highlighter-rouge">aio_read(req, buf, len, pos)</code>: 异步 IO 读取操作</li>
+  <li><code class="language-plaintext highlighter-rouge">write(file, buf, count, offset)</code>: 从文件的 offset 处开始写入 count 个字节，然后增加 offset 的值</li>
+  <li><code class="language-plaintext highlighter-rouge">aio_write(req, buf, len, pos)</code>: 异步 IO 写入操作</li>
+  <li><code class="language-plaintext highlighter-rouge">mmap(file, vma)</code>: 执行文件的内存映射，并将映射放入进程的地址空间</li>
+  <li><code class="language-plaintext highlighter-rouge">open(inode, file)</code>: 通过创建一个新的文件对象来打开一个文件，并将其连接到对应的索引节点对象</li>
+  <li><code class="language-plaintext highlighter-rouge">flush(file)</code>: 当打开的文件引用被关闭时调用</li>
+  <li><code class="language-plaintext highlighter-rouge">fsync(file, dentry, flag)</code>: 将文件所缓存的全部数据写入磁盘</li>
+  <li><code class="language-plaintext highlighter-rouge">aio_fsync(req, flag)</code>: 异步 IO 刷新操作</li>
+  <li><code class="language-plaintext highlighter-rouge">lock(file, cmd, file_lock)</code>: 对 file 文件申请一个锁</li>
+</ul>
+
+<h2 id="2-4-目录项对象">2-4 目录项对象</h2>
+
+<p><strong>VFS 把每个目录看作由若干子目录和文件组成的一个普通文件</strong>。当一个目录项被读入内存，VFS 就会将其转换成基于 dentry 结构的一个目录项对象。</p>
+
+<p>对于进程查找的路径名中的每个分量，内核都会为其创建一个目录项对象。<strong><em>目录项对象将每个路径分量与其对应的索引节点联系起来</em></strong>。如在查找路径名 <code class="language-plaintext highlighter-rouge">/tmp/test</code> 时，内核为根目录 <code class="language-plaintext highlighter-rouge">/</code> 创建一个目录项对象，为根目录下的 <code class="language-plaintext highlighter-rouge">tmp</code> 项创建一个第二级目录项对象，为 <code class="language-plaintext highlighter-rouge">/tmp</code> 目录下的 <code class="language-plaintext highlighter-rouge">test</code> 项创建一个第三级目录项对象。</p>
+
+<blockquote>
+  <p>与文件对象一样，目录项对象在磁盘上也没有对应的映像，因此 dentry 结构不包含指出该对象已被修改的字段</p>
+
+</blockquote>
+
+<p>目录项对象存放名为 <code class="language-plaintext highlighter-rouge">dentry_cache</code> 的 slab 高速缓存中；目录项对象的创建和删除是通过调用 <code class="language-plaintext highlighter-rouge">kmem_cache_alloc()</code> 和 <code class="language-plaintext highlighter-rouge">kmem_cache_free()</code> 实现的。</p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_13.png" alt="" /></p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_14.png" alt="" /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">d_count</code>: 目录项对象的引用计数器</li>
+  <li><code class="language-plaintext highlighter-rouge">d_flag</code>: 目录项高速缓存标志</li>
+  <li><code class="language-plaintext highlighter-rouge">d_inode</code>: 与文件名关联的索引节点</li>
+  <li><code class="language-plaintext highlighter-rouge">d_parent</code>: 父目录的目录项对象</li>
+  <li><code class="language-plaintext highlighter-rouge">d_child</code>: 对目录而言，用于同一父目录中的目录项链表的指针</li>
+  <li><code class="language-plaintext highlighter-rouge">d_subdirs</code>: 对目录而言，子目录项链表的头</li>
+  <li><code class="language-plaintext highlighter-rouge">d_name</code>: 文件名</li>
+</ul>
+
+<p>每个目录项对西那个可以处于以下四种状态之一：</p>
+
+<ol>
+  <li>
+    <p><strong>空闲状态</strong>（free）</p>
+
+    <p><em>该状态的目录项对象不包含有效信息，且还没被 VFS 使用</em>。对应的内存区由 slab 分配器进行分配</p>
+  </li>
+  <li>
+    <p><strong>未使用状态</strong>（unused）</p>
+
+    <p><em>该状态的目录项对象还没被内核使用</em>。引用计数器 <code class="language-plaintext highlighter-rouge">d_count</code> 值为 0，但是其 <code class="language-plaintext highlighter-rouge">d_inode</code> 字段指向关联的索引节点。目录项对象包含有效的信息，但是为了在必要时回收内存，对应内容可能会被丢失。</p>
+  </li>
+  <li>
+    <p><strong>正在使用状态</strong>（in use）</p>
+
+    <p><em>该状态的目录项对象正在被内核使用</em>。引用计数器 <code class="language-plaintext highlighter-rouge">d_count</code> 值为正数，其 <code class="language-plaintext highlighter-rouge">d_inode</code> 字段指向关联的索引节点对象。目录项对象包含有效的信息，且不能被丢弃。</p>
+  </li>
+  <li>
+    <p><strong>负状态</strong>（negative）</p>
+
+    <p><em>与目录项关联的索引节点不存在</em>，可能是因为<em>相应的磁盘节点已经被删除</em>，或者是因为<em>目录项对象是通过解析一个不存在文件的路径名创建的</em>。目录项对象的 <code class="language-plaintext highlighter-rouge">d_inode</code> 字段为 <code class="language-plaintext highlighter-rouge">NULL</code>，但是该对象仍被保存在目录项高速缓存中，以便后续对同一个文件目录名的查找操作能快速完成。</p>
+  </li>
+</ol>
+
+<h3 id="2-4-1-目录项对象操作方法">2-4-1 目录项对象操作方法</h3>
+
+<p>与目录项对象关联的方法称为<strong>目录项操作</strong>，由 <code class="language-plaintext highlighter-rouge">dentry_operation</code> 结构表示，该结构的地址存放在目录项对象的 <code class="language-plaintext highlighter-rouge">d_op</code> 字段中。</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">d_revalidate(dentry, nameidata)</code>: 把目录项对象转换为一个文件路径名之前，判断该目录项对象是否仍然有效。</li>
+  <li><code class="language-plaintext highlighter-rouge">d_delete(dentry)</code>: 当对目录项对象的最后一个引用被删除时，调用该方法。</li>
+  <li><code class="language-plaintext highlighter-rouge">d_release(dentry)</code>: 当要释放一个目录项对象时（放入 slab 分配器），调用该方法。</li>
+  <li><code class="language-plaintext highlighter-rouge">d_iput(dentry, ino)</code>: 当一个目录项对象变为负状态使调用（即丢弃对应的索引节点）</li>
+</ul>
+
+<h2 id="2-5-目录项高速缓存">2-5 目录项高速缓存</h2>
+
+<p>由于从磁盘读入一个目录项并构造相应的目录项对象需要花费一定的时间，因此在完成对目录项对象的操作之后，并不会立即丢弃，而是将其保留在内存中。为了最大限度地提高处理这些目录项对象的效率，Linux 使用<strong>目录项高速缓存</strong>，该缓存由两种类型的数据结构组成：</p>
+
+<ol>
+  <li><strong>一个处于正在使用，未使用或负状态的目录项对象的集合</strong>
+    <ul>
+      <li>所有未使用的目录项对象存放在一个“最近最少使用（LRU）”的双向链表中</li>
+      <li>
+        <p>正在使用的目录项对象被保存在一个双向链表中，该链表由索引对象的 <code class="language-plaintext highlighter-rouge">i_dentry</code> 字段引用；目录项对象的 <code class="language-plaintext highlighter-rouge">d_alias</code> 字段存放链表中相邻元素的地址</p>
+
+        <blockquote>
+          <p><em>每个索引节点对象可能与多个硬链接关联</em>，因此需要一个链表</p>
+
+        </blockquote>
+      </li>
+      <li>当指向文件的最后一个硬链接被删除之后，一个正在被使用的目录项对象可能变成负状态。此时，该目录项对象被移动到未使用目录项对象组成的 LRU 链表中</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>一个能够快速获取与给定的文件名和目录名对应的目录项对象的散列表</strong></p>
+
+    <blockquote>
+      <p>如果目标目录项对象不存在缓存中，那么散列函数范围空值</p>
+
+      <ul>
+        <li>散列表是由数组实现，数组中的每个元素是一个指向链表的指针。目录项对象的 <code class="language-plaintext highlighter-rouge">d_hash</code> 字段包含指向具有相同散列值的链表中的相邻元素</li>
+      </ul>
+    </blockquote>
+  </li>
+</ol>
+
+<p>目录项高速缓存还相当于<strong>索引节点高速缓存</strong>（inode cache）的控制器。</p>
+
+<ul>
+  <li>在内核内存中，不会丢弃与未使用目录项相关的索引节点，因此这些索引节点对象仍保存在 RAM 中，并且能够通过相应的目录项快速引用</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">dcache_lock</code> 自旋锁用于保护目录项高速缓存数据结构避免被多个处理器同时访问。</p>
+
+<h2 id="2-6-与进程相关的文件">2-6 与进程相关的文件</h2>
+
+<p>之前提到，<em>每个进程都有自己当前的工作目录与根目录</em>，这仅仅是进程与文件系统交互所必须维护的数据中的两个例子。类型 <code class="language-plaintext highlighter-rouge">fs_struct</code> 数据结构维护了<strong>进程与文件系统交互所需要的数据</strong>；<em>每个进程描述符的 <code class="language-plaintext highlighter-rouge">fs</code> 字段指向该结构</em>。</p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_15.png" alt="" /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">count</code>: 共享这个表的进程个数</li>
+  <li><code class="language-plaintext highlighter-rouge">lock</code>: 用于表中字段的读写自旋锁</li>
+  <li><code class="language-plaintext highlighter-rouge">root</code>: 根目录的目录项</li>
+  <li><code class="language-plaintext highlighter-rouge">pwd</code>: 当前工作目录的目录项</li>
+</ul>
+
+<p>除了 <code class="language-plaintext highlighter-rouge">fs_struct</code>，还有另一个结构 <code class="language-plaintext highlighter-rouge">files_struct</code>，用于表示进程当前打开的文件。<em>进程描述符的 <code class="language-plaintext highlighter-rouge">files</code> 字段存放了该表的地址</em>。</p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_16.png" alt="" /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">fd</code>: 指向文件对象的指针数组；<code class="language-plaintext highlighter-rouge">max_fds</code>: 指向该数组的长度</li>
+  <li>通常，<code class="language-plaintext highlighter-rouge">fd</code> 字段指向 <code class="language-plaintext highlighter-rouge">files_struct</code> 结构的 <code class="language-plaintext highlighter-rouge">fd_array</code> 字段，该字段包含 32 个文件对象指针。如果进程打开的文件数大于 32，内核就分配一个新的，更大的文件指针数组，并将地址存放在 <code class="language-plaintext highlighter-rouge">fd</code> 字段中，内核同时更新 <code class="language-plaintext highlighter-rouge">max_fds</code> 字段的值</li>
+  <li>
+    <p>对于 <code class="language-plaintext highlighter-rouge">fd</code> 数组中有元素的每个文件来说，<strong>数组的索引就是文件描述符（file descriptor）</strong>。</p>
+
+    <p><code class="language-plaintext highlighter-rouge">fd</code> 数组的<em>第一个元素（index = 0）通常是进程的标准输入文件</em>，<em>第二个元素（index = 1）是进程的标准输出文件，第三个元素（index = 2）是进程的标准错误文件</em>。如下图所示：</p>
+
+    <p><img src="/images/linux_kernel/chapter_12/lk_17.png" alt="" /></p>
+  </li>
+  <li>Unix 进程将文件描述符作为主文件标识符。<em>两个文件描述符可以指向同一个打开的文件</em>，即数组中的两个元素可能指向同一个文件对象。</li>
+  <li>进程不能使用多于 <code class="language-plaintext highlighter-rouge">NR_OPEN</code>（一般为 1048576）个文件描述符。</li>
+  <li><code class="language-plaintext highlighter-rouge">open_fds</code>: 指向打开文件描述符的指针。<code class="language-plaintext highlighter-rouge">open_fds_init</code>: 文件描述符的初始集合。</li>
+</ul>
+
+<p><strong>使用文件对象</strong></p>
+
+<ul>
+  <li>当内核开始使用一个文件对象时，调用 <code class="language-plaintext highlighter-rouge">fget()</code> 函数：这个函数接收文件描述符 <code class="language-plaintext highlighter-rouge">fd</code> 作为参数，返回 <code class="language-plaintext highlighter-rouge">current→files→fd[fd]</code> 中的地址，即对应文件对象的地址；同时使文件对象引用计数器 <code class="language-plaintext highlighter-rouge">f_count</code> 值 +1。如果没有文件与 <code class="language-plaintext highlighter-rouge">fd</code> 对应，则 <code class="language-plaintext highlighter-rouge">fget()</code> 返回 NULL。</li>
+</ul>
+
+<p><strong>释放文件对象</strong></p>
+
+<ul>
+  <li>当内核完成对文件对象的使用后，调用 <code class="language-plaintext highlighter-rouge">fput()</code> 函数：该函数将文件对象的地址作为参数，并减少文件对象引用计数器 <code class="language-plaintext highlighter-rouge">f_count</code> 的值。如果 <code class="language-plaintext highlighter-rouge">f_count</code> 的值变成 0，则该该函数调用文件操作的 <code class="language-plaintext highlighter-rouge">release</code> 方法，减少索引节点对象的 <code class="language-plaintext highlighter-rouge">i_write count</code> 字段的值，并将文件对象从超级块链表中移除，释放文件对象给 slab 分配器，最后减少相关的文件系统描述符的目录项对象的引用计数器的值。</li>
+</ul>
+
+<h1 id="3-文件系统类型">3-文件系统类型</h1>
+
+<p>Linux 内核支持多种不同的文件系统。有一些特殊的文件系统在 Linux 内核设计中具有重要作用。</p>
+
+<h2 id="3-1-特殊文件系统">3-1 特殊文件系统</h2>
+
+<p>当网络和磁盘文件系统能够使用户处理存放在内核之外的信息时，特殊文件系统可以为系统管理员和程序员提供一种容易的方式来<strong><em>操作内核的数据结构并实现操作系统的特殊特征</em></strong>。</p>
+
+<blockquote>
+  <p>特殊文件系统提供给系统管理员使用，网络和磁盘文件系统提供给普通用户使用</p>
+
+</blockquote>
+
+<p>常用的特殊文件系统如下：</p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_18.png" alt="" /></p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_19.png" alt="" /></p>
+
+<blockquote>
+  <p>注意，有几个文件系统没有固定的安装点</p>
+
+  <ul>
+    <li><code class="language-plaintext highlighter-rouge">bdedv</code> 块设备；<code class="language-plaintext highlighter-rouge">pipefs</code> 管道；<code class="language-plaintext highlighter-rouge">shm</code> IPC 共享线性区；<code class="language-plaintext highlighter-rouge">sockfs</code> 套接字；<code class="language-plaintext highlighter-rouge">usbfs</code> USB 设备；<code class="language-plaintext highlighter-rouge">tmpfs</code> 临时文件（如果不被交换出去就保持在 RAM 中）</li>
+  </ul>
+</blockquote>
+
+<p><strong>特殊文件系统不局限于物理块设备</strong>。不过，内核给每个安装的特殊文件系统分配一个虚拟的块设备，其主设备号为 0，次设备号具有任意值（不同特殊文件系统的值不同）。</p>
+
+<h2 id="3-2-文件系统类型注册">3-2 文件系统类型注册</h2>
+
+<p>VFS 需要对代码已经在内核中的所有文件系统的类型进行跟踪，需要进行文件系统类型注册来实现。</p>
+
+<p>每个注册的文件系统使用类型为 <code class="language-plaintext highlighter-rouge">file_system_type</code> 对象来表示，该对象结构如下：</p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_20.png" alt="" /></p>
+
+<p>所有文件系统类型的对象都插入到一个单向链表中，该链表由自旋锁保护避免同时访问。</p>
+
+<p>在系统初始化期间，调用 <code class="language-plaintext highlighter-rouge">register_filesystem()</code> 函数来注册编译时指定的每个文件系统；该函数把相应的 <code class="language-plaintext highlighter-rouge">file_system_type</code> 对象插入到文件系统类型的链表中。</p>
+
+<h1 id="4-文件系统处理">4-文件系统处理</h1>
+
+<p>与其他 Unix 系统一样，Linux 也使用系统的<strong>根文件系统（system’s root filesystem）</strong>：<em>由内核在引导阶段直接安装，并拥有系统初始化脚本及最基本的系统程序</em>。</p>
+
+<p>其他文件系统要么由初始化脚本安装，要么由用户直接安装在已经安装的文件系统的目录上。</p>
+
+<p>作为一个目录树，每个文件系统都拥有自己的根目录（root directory）。安装文件系统的目录称之为<strong>安装点（mount point）</strong>。<strong><em>对于已经安装的文件系统属于安装点目录的一个子文件系统</em></strong>，如 <code class="language-plaintext highlighter-rouge">/proc</code> 虚拟文件系统是系统的根文件系统的子文件系统。</p>
+
+<h2 id="4-1-命名空间">4-1 命名空间</h2>
+
+<p>在 Linux 中，每个进程可以拥有自己的已安装文件系统树，被称为进程的<strong>命名空间</strong>（namespace）。通常大多数进程共享同一个命名空间，即位于系统的根文件系统且被 init 进程使用的已安装的文件系统树。</p>
+
+<h1 id="5-路径名查找">5-路径名查找</h1>
+
+<p>当进程需要识别一个文件时，就将文件路径名传递给某个 VFS 系统调用（如 <code class="language-plaintext highlighter-rouge">open()</code>, <code class="language-plaintext highlighter-rouge">mkdir()</code>, <code class="language-plaintext highlighter-rouge">rename()</code> 等），VFS 会将路径名导出对应的索引节点。</p>
+
+<p>路径名查找的标准流程是<strong>分析路径名并把它拆分成一个文件名序列，除了最后一个文件名以外，其余所有文件名肯定都是目录</strong>。</p>
+
+<ul>
+  <li>如果路径名的第一个字符是 “/”，则该路径名是绝对路径，需要从 <code class="language-plaintext highlighter-rouge">current→fs→root</code>（进程根目录）所标识的目录开始搜索</li>
+  <li>否则，该路径名是相对路径，需要从 <code class="language-plaintext highlighter-rouge">current→fs→pwd</code>（进程当前目录）所标识的目录开始搜索</li>
+</ul>
+
+<p>在对初始目录的索引节点进行处理时，需要检查与第一个名字<strong>匹配的目录项，获得相应的索引节点</strong>；之后，<strong>从磁盘读取包含那个索引节点的目录文件</strong>，并检查与第二个名字匹配的目录项，以获得相应的索引节点。对包含在路径中的每个名字，该过程反复执行。</p>
+
+<p>目录项高速缓存能够加速上述解析流程，因为最近最常使用的目录项对象保被缓存在内存中，每个<strong>目录项对象使得特定目录中的一个文件名与它相应的索引节点联系起来</strong>。因此，可以避免在路径分析过程中从磁盘读取中间目录。</p>
+
+<p>路径名查找由 <code class="language-plaintext highlighter-rouge">path_look_up()</code> 函数执行，接收三个参数：</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">name</code>: 指向要解析的文件路径名的指针</li>
+  <li><code class="language-plaintext highlighter-rouge">flags</code>: 标志，表示将会如何访问查找到的文件</li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">nd</code>: <code class="language-plaintext highlighter-rouge">nameidata</code> 数据结构的地址，存放了查找操作的结果</p>
+
+    <blockquote>
+      <p>当 <code class="language-plaintext highlighter-rouge">path_lookup()</code> 返回时，<code class="language-plaintext highlighter-rouge">nd</code> 指向的 <code class="language-plaintext highlighter-rouge">nameidata</code> 结构用与路径名查找操作有关的数据填充</p>
+
+    </blockquote>
+  </li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">nameidata</code> 结构如下：</p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_21.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">dentry</code> 与 <code class="language-plaintext highlighter-rouge">mnt</code> 分别指向所解析的<strong><em>最后一个路径分量的目录项对象和已经安装文件系统对象</em></strong>。</p>
+
+    <blockquote>
+      <p>这两个字段表示给定的路径文件</p>
+
+    </blockquote>
+  </li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">flags</code> 字段的取值有：</p>
+
+<p><img src="/images/linux_kernel/chapter_12/lk_22.png" alt="" /></p>
+
 
 </article>
       </div>
