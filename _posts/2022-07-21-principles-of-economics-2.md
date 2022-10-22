@@ -4,7 +4,6 @@ layout: post
 title: "供给与需求的市场力量"
 category: "economics"
 author: "kkzhang"
-image: economics/economics_1.png
 ---
 
 **供给**与**需求**是使市场经济运行的力量，它们决定了每种物品的产量及出售价格。
