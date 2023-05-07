@@ -41,7 +41,7 @@ author: "kkzhang"
 
 当消息到达 Broker 时，会被追加到分区的当前日志片段（segment）上。当日志片段大小达到了 log.segment.bytes 时，当前日志片段就会被关闭，新的日志片段会被打开。
 
-**被关闭的日志片段，就开始等待过期**。如果日志片段一直没被关闭，就不会过期。上面的 [log.retention.ms/bytes](http://log.retention.ms/bytes) 日志过期参数需要在日志片段关闭之后才有效。
+**被关闭的日志片段，就开始等待过期**。如果日志片段一直没被关闭，就不会过期。上面的 log.retention.ms/bytes 日志过期参数需要在日志片段关闭之后才有效。
 
 > 该参数值越小，会导致越频繁地开启与关闭文件，降低磁盘效率
 > 
@@ -50,7 +50,7 @@ author: "kkzhang"
 
 日志片段被关闭的时间。
 
-如果同时指定了 [log.segment.ms/bytes](http://log.segment.ms/bytes) 两个参数，那么日志片段会在大小/时间达到上限时被关闭。
+如果同时指定了 log.segment.ms/bytes 两个参数，那么日志片段会在大小/时间达到上限时被关闭。
 
 ## 1.6 message.max.bytes
 

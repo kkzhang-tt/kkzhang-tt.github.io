@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "Kafka: 初识 Kafka"
+title: "Kafka: Meet Kafka"
 category: "system-design"
 author: "kkzhang"
 ---

@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "Kafka: Kafka 生产者"
+title: "Kafka: Writing Messages to Kafka"
 category: "system-design"
 author: "kkzhang"
 ---
@@ -32,6 +32,7 @@ author: "kkzhang"
 
 > **消息先被放入缓冲区，之后由单独的线程发送到 Broker**
 > 
+
 1. 创建 ProducerRecord 对象，包含目标主题，发送的内容，还可以指定 Key，分区
 2. 数据被序列化二进制字节数组
 3. 数据被传送给分区器
@@ -172,6 +173,7 @@ producer.send(record, new DemoProducerCallback());
 
 > acks 参数配置影响消息丢失的可能性
 > 
+
 1. acks = 0
     
     **发送消息之后，生产者不会等待任何服务器的响应。**
@@ -222,7 +224,7 @@ producer.send(record, new DemoProducerCallback());
 
 该参数指定了生产者在发送批次前等待其他消息加入批次的时间。
 
-当批次被填满或者 [linger.ms](http://linger.ms) 达到上限时，将批次消息发送出去。
+当批次被填满或者 linger.ms 达到上限时，将批次消息发送出去。
 
 ## 4.7 **max.in.flight.requests.per.connection**
 

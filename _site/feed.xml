@@ -1,4 +1,726 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-03-13T23:29:04+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Lion: Multi-Region Data Synchronization</title><link href="http://localhost:4000/multi-region-data-synchronization.html" rel="alternate" type="text/html" title="Lion: Multi-Region Data Synchronization" /><published>2023-03-12T00:00:00+08:00</published><updated>2023-03-12T00:00:00+08:00</updated><id>http://localhost:4000/multi-region-data-synchronization</id><content type="html" xml:base="http://localhost:4000/multi-region-data-synchronization.html">&lt;h1 id=&quot;1文档概述&quot;&gt;1、文档概述&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-05-07T23:19:02+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Kafka: Kafka 配置</title><link href="http://localhost:4000/kafka-in-action-2.html" rel="alternate" type="text/html" title="Kafka: Kafka 配置" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-2</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-2.html">&lt;h1 id=&quot;1-broker-配置&quot;&gt;1. Broker 配置&lt;/h1&gt;
+
+&lt;h2 id=&quot;11-numpartitions&quot;&gt;1.1 &lt;strong&gt;num.partitions&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;指定了主题分区数。Kafka 集群通过分区对主题进行横向扩展，当有新的 Broker 加入集群时，可以通过分区实现负载均衡。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;不过，并不强制要求分区数大于 Broker 数。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;在进行分区数量选择时，需要考虑以下几点：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;主题的吞吐量&lt;/li&gt;
+  &lt;li&gt;消费者从单个分区读取数据的吞吐量&lt;/li&gt;
+  &lt;li&gt;生产者往单个分区写入数据的吞吐量&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;每个 Broker 包含的分区个数，可用的磁盘空间与网络带宽&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;单个 Broker 所承载的分区个数是有限的：分区越多，占用内存越多，分区 Leader 选举的时间越长&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;如果消息是按照 Key 写入各个分区的，那么新增分区会比较麻烦&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;11-logretentionms&quot;&gt;1.1 log.retention.ms&lt;/h2&gt;
+
+&lt;p&gt;数据被保留的时间；对应的有 log.retention.minutes, log.retention.hours.&lt;/p&gt;
+
+&lt;h2 id=&quot;13-logretentionbytes&quot;&gt;1.3 log.retention.bytes&lt;/h2&gt;
+
+&lt;p&gt;数据被保留的大小；该参数作用在每个分区上&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;如果同时指定了数据保留的时间与大小参数，那么只要任意一个参数满足，数据就会被删除&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;14-logsegmentbytes&quot;&gt;1.4 log.segment.bytes&lt;/h2&gt;
+
+&lt;p&gt;当消息到达 Broker 时，会被追加到分区的当前日志片段（segment）上。当日志片段大小达到了 log.segment.bytes 时，当前日志片段就会被关闭，新的日志片段会被打开。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;被关闭的日志片段，就开始等待过期&lt;/strong&gt;。如果日志片段一直没被关闭，就不会过期。上面的 log.retention.ms/bytes 日志过期参数需要在日志片段关闭之后才有效。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;该参数值越小，会导致越频繁地开启与关闭文件，降低磁盘效率&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;15-logsegmentms&quot;&gt;1.5 log.segment.ms&lt;/h2&gt;
+
+&lt;p&gt;日志片段被关闭的时间。&lt;/p&gt;
+
+&lt;p&gt;如果同时指定了 log.segment.ms/bytes 两个参数，那么日志片段会在大小/时间达到上限时被关闭。&lt;/p&gt;
+
+&lt;h2 id=&quot;16-messagemaxbytes&quot;&gt;1.6 message.max.bytes&lt;/h2&gt;
+
+&lt;p&gt;用来限制单个消息的大小。如果生产者发送的消息大于该值，那么消息不会被接收，并且 Broker 会返回错误消息。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;如果该值越大，那么请求处理耗时就越大。同时，会增加磁盘写入块的大小，影响 IO 吞吐量。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;2-硬件&quot;&gt;2. 硬件&lt;/h1&gt;
+
+&lt;p&gt;Kafka 本身对硬件没什么要求，但是如果对系统性能比较关注，可以注意以下几点：&lt;/p&gt;
+
+&lt;h2 id=&quot;21-磁盘吞吐量&quot;&gt;2.1 磁盘吞吐量&lt;/h2&gt;
+
+&lt;p&gt;生产者客户端的性能受服务端磁盘吞吐量的影响。生产者在发送完消息之后，一般会等待服务端将消息保存在磁盘上，磁盘写入越快，客户端生成消息的延迟就越低。&lt;/p&gt;
+
+&lt;h2 id=&quot;22-磁盘容量&quot;&gt;2.2 磁盘容量&lt;/h2&gt;
+
+&lt;p&gt;磁盘容量大小取决于需要保存的消息数量，同时也受集群复制策略的影响。&lt;/p&gt;
+
+&lt;h2 id=&quot;23-内存&quot;&gt;2.3 内存&lt;/h2&gt;
+
+&lt;p&gt;除了磁盘性能，服务端可用内存容量也是影响客户端性能的主要因素。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;磁盘影响生产者，而内存影响消费者&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;一般情况下，消费者从分区尾部读取消息，如果有生产者存在，就紧跟在生产者后面。此时，&lt;strong&gt;消费者读取的消息会直接放在系统的页面缓存里&lt;/strong&gt;，比磁盘上重新读取性能更高。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;运行 Kafka 的 JVM 不需要太大的缓存，剩余的系统内存可以直接用作页面缓存，或者缓存正在使用中的日志片段&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;24-网络&quot;&gt;2.4 网络&lt;/h2&gt;
+
+&lt;p&gt;网络吞吐量决定了 Kafka 能够处理的最大数据流量。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;网络吞吐量与磁盘存储是制约 Kafka 扩展规模的主要因素&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;25-cpu&quot;&gt;2.5 CPU&lt;/h2&gt;
+
+&lt;p&gt;Kafka 对计算处理能力要求较低，主要用在消息批量压缩与解压过程中。&lt;/p&gt;
+
+&lt;h1 id=&quot;3-kafka-集群&quot;&gt;3. Kafka 集群&lt;/h1&gt;
+
+&lt;p&gt;使用 Kafka 集群可以为客户端提供高性能与高可用性：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;可以跨服务器进行负载均衡&lt;/li&gt;
+  &lt;li&gt;使用复制功能避免单点故障造成的数据丢失&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_2/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;31-broker-数量&quot;&gt;3.1 Broker 数量&lt;/h2&gt;
+
+&lt;p&gt;一个 Kafka 集群需要多少个 Broker 数量取决于下面几个因素：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;需要多少磁盘空间保存数据&lt;/p&gt;
+
+    &lt;p&gt;单个 Broker 有多少可用空间，副本的复制系数多少&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;集群处理请求的能力&lt;/p&gt;
+
+    &lt;p&gt;需要考虑网络吞吐量，磁盘吞吐量，系统内存容量因素&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;32-操作系统调优&quot;&gt;3.2 操作系统调优&lt;/h2&gt;
+
+&lt;p&gt;默认操作系统配置已经能够满足大部分应用程序的运行需求，不过可以优化一些参数进一步提升性能，这些参数主要与虚拟内存，网络子系统，存储日志的磁盘挂载点有关。&lt;/p&gt;
+
+&lt;h3 id=&quot;321-虚拟内存&quot;&gt;3.2.1 虚拟内存&lt;/h3&gt;
+
+&lt;p&gt;为了提高系统吞吐量，应该尽量避免内存交换。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;内存页与磁盘之间的交换对 Kafka 各方面性能都有影响。Kafka 大量使用系统页面缓存，如果虚拟内存被交换到磁盘，说明没有多余的内存分配给页面缓存了。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;一种优化方式是，不设置任何交换分区，避免内存交换。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;奸笑 vm.swappiness 参数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;另一种优化方式是，调整内核对脏页的处理方式。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;减小 vm.dirty_background_ratio 参数，增大 vm.dirty_ratio 参数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;322-磁盘&quot;&gt;3.2.2 磁盘&lt;/h3&gt;
+
+&lt;p&gt;除了合适的磁盘硬件设备，文件系统是影响性能的另一个重要因素。&lt;/p&gt;
+
+&lt;p&gt;XFS 批量磁盘写入具有更高的效率，提高整体的 IO 吞吐量，为 Kafka 提供更好的性能。&lt;/p&gt;
+
+&lt;h3 id=&quot;323-网络&quot;&gt;3.2.3 网络&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;调整分配给 Socket 读写缓冲区的内存大小&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;参数 net.core.wmem_default, net.core.rmem_default.&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;调整 TCP Socket 读写缓冲区&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;参数 net.ipv4.tcp_wmem, net.ipv4.tcp_rmem&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. Broker 配置</summary></entry><entry><title type="html">Kafka: 初识 Kafka</title><link href="http://localhost:4000/kafka-in-action-1.html" rel="alternate" type="text/html" title="Kafka: 初识 Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-1</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-1.html">&lt;h1 id=&quot;11-发布订阅消息系统&quot;&gt;1.1 发布订阅消息系统&lt;/h1&gt;
+
+&lt;p&gt;发布订阅消息系统的一个特点是，消息的发送者不会直接把消息发送给接收者。&lt;strong&gt;发送者以某种方式对消息进行分类，接收者订阅它们，以便接收特定类型的消息&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;发布订阅系统一般有一个 Broker：发布消息的中心点。&lt;/p&gt;
+
+&lt;h1 id=&quot;12-kafka-登场&quot;&gt;1.2 Kafka 登场&lt;/h1&gt;
+
+&lt;p&gt;Kafka 一般被称为“分布式提交日志”或者“分布式流平台”。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在数据库中，提交日志用来提供事务的持久化记录，可以通过回放这些日志还重建系统状态。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Kafka 的数据是按照一定顺序持久化保存的，可以按需读取。同时，Kafka 的数据分布在整个系统中，具有数据故障保护，性能伸缩的能力。&lt;/p&gt;
+
+&lt;h2 id=&quot;121-消息与批次&quot;&gt;1.2.1 消息与批次&lt;/h2&gt;
+
+&lt;p&gt;Kafka 的数据单元被称为“消息”。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;消息由字节数据组成，因此消息内容没有特殊的含义或格式。&lt;/li&gt;
+  &lt;li&gt;消息有一个可选元数据，被称为“键”。键也是一个字节数组，没有特殊含义。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;当消息以一种可控的方式写入不同的分区时，会使用键，保证相同键的消息被写到相同的分区上。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;“批次”是一组消息，这些消息属于同一个主题与分区。将消息按照批次写入到 Kafka，可以减少网络开销，有效提高效率。不过，批次大小需要在消息延迟与吞吐量之间进行权衡：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;批次越大，单位时间内处理的消息就越多；相应的，单个消息的延迟就越大&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;批次数据会被压缩，以提升传输与存储能力，但需要更多的计算处理&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;122-模式&quot;&gt;1.2.2 模式&lt;/h2&gt;
+
+&lt;p&gt;对 Kafka 的来说，消息只是一些字节数组，难以理解，因此希望可以结构化定义消息内容。&lt;/p&gt;
+
+&lt;p&gt;消息模式（Schema）有多种选项，如 JSON，XML；不过它们缺乏强类型处理能力，版本之间的兼容性也不好。&lt;/p&gt;
+
+&lt;p&gt;最常用的 Kafka 消息模式是 Apache Avro：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;紧凑的序列化格式&lt;/li&gt;
+  &lt;li&gt;模式与消息体分开；当模式发生变化时，不需要重新生成代码&lt;/li&gt;
+  &lt;li&gt;支持强类型与模式进化，向前向后均兼容&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;数据格式的一致性，消除了消息读写操作之间的耦合性&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;123-主题与分区&quot;&gt;1.2.3 主题与分区&lt;/h2&gt;
+
+&lt;p&gt;消息通过主题（Topic）进行分类，主题可以被分为若干个分区（Partition）。消息以追加（Append）的方式写入分区，然后以先入先出的顺序读取。&lt;/p&gt;
+
+&lt;p&gt;一个主题通常有多个分区，因此&lt;strong&gt;无法保证在主题范围内消息的有序性，但是可以保证消息在单个分区内有序&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;如下所示，消息被追加到每个分区的尾部：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;很多时候，人们会把一个主题的数据看作&lt;strong&gt;流&lt;/strong&gt;，而不管主题中包含多少个分区。流可以看作一组从生产者移动到消费者的数据。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;124-生产者与消费者&quot;&gt;1.2.4 生产者与消费者&lt;/h2&gt;
+
+&lt;p&gt;Kafka 的生产者分为两种类型：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;生产者&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;生产者创建消息：一般情况下，消息会被发送到特定的主题，默认会把消息均衡地分布到主题的各个分区上（具体被分配到哪个分区并不重要）。&lt;/p&gt;
+
+    &lt;p&gt;不过，也可以为消息指定分区，通过消息键与分区器将其映射到指定的分区。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;消费者&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;消费者读取消息：可以订阅一个或者多个主题，并按照消息生成的顺序读取它们。&lt;/p&gt;
+
+    &lt;p&gt;消费者通过检查消息偏移量（Offset）来判断消息是否已经被读取过。&lt;strong&gt;消费者把每个分区最后读取的消息偏移量保存在 Zookeeper 或者 Kafka 上&lt;/strong&gt;，以保证在消费者重启之后可以从之前的位置继续消费。&lt;/p&gt;
+
+    &lt;p&gt;偏移量是消息的元数据，是一个不断递增的整数值。在 Kafka 创建消息时，会设置其偏移量。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;在给定的分区内，消息的偏移量是唯一的&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;消费者是消费者群组的一部分；消费者群组保证每个分区只会被一个消费者读取，消费者与分区之间的映射关系被称为消费者对分区的所有权关系。通过这种方式，消费者可以消费包含大量消息的主题，并且当一个消费者失效时，其他消费者可以接管失效消费者的工作。&lt;/p&gt;
+
+&lt;p&gt;如下所示，消费者群组与分区的关系：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;125-broker-与集群&quot;&gt;1.2.5 Broker 与集群&lt;/h2&gt;
+
+&lt;p&gt;一个独立的 Kafka 服务器被称为 Broker。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Broker 接收生产者的消息，为消息设置偏移量，并将消息保存到磁盘&lt;/li&gt;
+  &lt;li&gt;Broker 对消费者读取分区的请求，返回已经提交到磁盘上的消息&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;单个 Broker 可以处理上千个分区以及每秒百万级的消息量&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Broker 是集群的组成部分，每个集群都有一个 Broker 同时充当&lt;strong&gt;集群控制器&lt;/strong&gt;的角色。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;集群控制器自动从集群的活跃成员中选出来&lt;/li&gt;
+  &lt;li&gt;集群控制器负责集群管理工作，如将分区分配给 Broker，监控 Broker 等&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在集群中，一个分区从属一个 Broker，该 Broker 被称为该分区的 Leader。同时，可以对分区进行复制，分区副本可以被分配给多个 Broker。&lt;strong&gt;复制机制为分区提供了消息冗余&lt;/strong&gt;，如果 Leader 失效，其他 Broker 可以接管领导权；相关的生产者及消费者都需要迁移到新的 Leader。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Broker 中的消息可以通过一些参数设置保留时间，过期的消息会被删除。&lt;/p&gt;
+
+&lt;h2 id=&quot;126-多集群&quot;&gt;1.2.6 多集群&lt;/h2&gt;
+
+&lt;p&gt;有以下需求时，可以使用多集群：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;数据类型分离&lt;/li&gt;
+  &lt;li&gt;安全需求隔离&lt;/li&gt;
+  &lt;li&gt;多数据中心（容灾恢复）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在多数据中心内部署多个集群时，可以通过 MirrorMaker 工具实现集群间数据复制功能。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;13-why-kafka&quot;&gt;1.3 Why Kafka?&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;多个生产者&lt;/p&gt;
+
+    &lt;p&gt;支持多个生产者往单个主题或者多个主题发送消息，适合从多个系统中收集数据&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;多个消费者&lt;/p&gt;
+
+    &lt;p&gt;支持多个消费者从一个消息流上读取数据，且消费者之间互不影响。同时，消费者群组内的消费者共享消息流，并且保证对于整个群组，每个消息只被处理一次。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;基于磁盘的数据存储&lt;/p&gt;
+
+    &lt;p&gt;消息被保存到磁盘上，并且每个主题可以设置单独的保存规则，以满足不同消费者的需求。&lt;/p&gt;
+
+    &lt;p&gt;数据持久化可以保证消息不丢失，允许消费者非实时地读取消息。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;伸缩性&lt;/p&gt;
+
+    &lt;p&gt;为了支持大量数据处理，Broker 集群支持灵活扩展。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;高性能&lt;/p&gt;
+
+    &lt;p&gt;通过横向扩展生产者，消费者及 Broker，使得 Kafka 在处理大量消息时可以保证亚秒级延迟。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1.1 发布订阅消息系统</summary></entry><entry><title type="html">Kafka: Kafka 生产者</title><link href="http://localhost:4000/kafka-in-action-3.html" rel="alternate" type="text/html" title="Kafka: Kafka 生产者" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-3</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-3.html">&lt;h1 id=&quot;1-生产者概述&quot;&gt;1. 生产者概述&lt;/h1&gt;
+
+&lt;p&gt;需要往 Kafka 写消息的场景有：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;记录用户活动&lt;/li&gt;
+  &lt;li&gt;记录度量指标，监控数据&lt;/li&gt;
+  &lt;li&gt;保存日志消息&lt;/li&gt;
+  &lt;li&gt;与其他应用程序进行异步通信&lt;/li&gt;
+  &lt;li&gt;缓冲即将写入到数据库中的数据&lt;/li&gt;
+  &lt;li&gt;……&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;对于这些不同的使用场景，我们需要分析：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;是否每个消息都很重要&lt;/li&gt;
+  &lt;li&gt;是否允许丢失一小部分消息&lt;/li&gt;
+  &lt;li&gt;是否可以接受偶尔的消息重复&lt;/li&gt;
+  &lt;li&gt;对消息的延迟及吞吐量是否严格要求&lt;/li&gt;
+  &lt;li&gt;……&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;不同的使用场景对生产者 API 的使用和配置都会有直接影响。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_2/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;上图展示了向 Kafka 发送消息的主要步骤：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;消息先被放入缓冲区，之后由单独的线程发送到 Broker&lt;/strong&gt;&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;创建 ProducerRecord 对象，包含目标主题，发送的内容，还可以指定 Key，分区&lt;/li&gt;
+  &lt;li&gt;数据被序列化二进制字节数组&lt;/li&gt;
+  &lt;li&gt;数据被传送给分区器
+    &lt;ol&gt;
+      &lt;li&gt;如果提前指定了分区，那么分区器将不会做任何事情&lt;/li&gt;
+      &lt;li&gt;如果没有指定分区，那么分区器就会根据 ProducerRecord 对象的 Key 选择一个分区&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;生产者已经明确应该往哪个主题与分区发送消息了，该记录会被添加到一个记录批次里，该批次里的所有消息都会被发送到同一个主题与分区上
+    &lt;ol&gt;
+      &lt;li&gt;&lt;strong&gt;存在一个独立的线程负责把这些记录批次发送到相应的 Broker 上&lt;/strong&gt;&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;服务器收到消息后会返回一个响应
+    &lt;ol&gt;
+      &lt;li&gt;如果成功写入 Kafka，则返回一个 RecordMetaData 对象，包含了主题和分区信息，以及记录在分区中的偏移量（Offset）&lt;/li&gt;
+      &lt;li&gt;如果写入失败，则返回一个错误消息&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;生产者在收到错误之后就会尝试重新发送消息，几次重试之后如果还是失败，则返回错误信息&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;2-创建-kafka-生产者&quot;&gt;2. 创建 Kafka 生产者&lt;/h1&gt;
+
+&lt;p&gt;创建 Kafka 生产者需要设置 3 个必要属性：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;bootstrap.servers&lt;/p&gt;
+
+    &lt;p&gt;指定 Broker 的地址列表，格式为 host:port。（该列表不需要包含所有 Broker 地址，生产者会从给定的 Broker 中找到其他 Broker 信息）&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;key.serializer&lt;/p&gt;
+
+    &lt;p&gt;Broker 接收的消息的 key &amp;amp; value 都是字节数组。因此，生产者需要把 key 序列化成字节数组。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;key.serializer 需要实现 org.apache.kafka.common.serialization.Serializer 接口&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;value.serializer&lt;/p&gt;
+
+    &lt;p&gt;同 key.serializer&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;创建生产者代码 Demo:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Properties&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kafkaProps&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;kafkaProps&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bootstrap.servers&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;broker1:9092,broker2:9092&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;kafkaProps&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;key.serializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;org.apache.kafka.common.serialization.StringSerializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;kafkaProps&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;value.serializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;&quot;org.apache.kafka.common.serialization.StringSerializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;producer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;KafkaProducer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kafkaProps&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;3-发送消息到-kafka-生产者&quot;&gt;3. 发送消息到 Kafka 生产者&lt;/h1&gt;
+
+&lt;p&gt;生产者创建完成后，可以向 Broker 发送消息。有 3 种发送消息的方式：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;发送并忘记&lt;/strong&gt;（&lt;em&gt;Fire-and-forget&lt;/em&gt;）&lt;/p&gt;
+
+    &lt;p&gt;将消息发送给 Broker 服务器，但是并不关心是否正常到达。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;多数情况下，消息会成功被接收（失败后会自动重试），但是有时候会丢失一些消息。&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;同步发送&lt;/strong&gt;（&lt;em&gt;Synchronous send&lt;/em&gt;）&lt;/p&gt;
+
+    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;send()&lt;/code&gt; 方法返回一个 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Future&lt;/code&gt; 对象，调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Future.get()&lt;/code&gt; 方法等待，可以判断消失是否成功发送。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;异步发送&lt;/strong&gt;（&lt;em&gt;Asynchronous send&lt;/em&gt;）&lt;/p&gt;
+
+    &lt;p&gt;调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;send()&lt;/code&gt; 方法并指定回调函数，当接收到 Broker 的响应之后，回调函数被触发。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;简单的发送消息代码如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nc&quot;&gt;ProducerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ProducerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;CustomerCountry&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Precision Products&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;&quot;France&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;c1&quot;&gt;// send() 方法会返回一个包含 RecordMetaData 的 Future 对象&lt;/span&gt;
+		&lt;span class=&quot;c1&quot;&gt;// 但是我们直接忽略返回值，所以无法感知到消息是否发送成功&lt;/span&gt;
+	  &lt;span class=&quot;n&quot;&gt;producer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;c1&quot;&gt;// 我们可以忽略发送消息时可能发生的异常，或者在服务端发生的异常&lt;/span&gt;
+		&lt;span class=&quot;c1&quot;&gt;// 但是发送消息之前，生产者可能发生其他异常，如序列化异常，缓冲区已满，发送线程被中断等&lt;/span&gt;
+	  &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;printStackTrace&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;31-同步发送消息sending-a-message-synchronously&quot;&gt;3.1 同步发送消息（&lt;strong&gt;Sending a Message Synchronously&lt;/strong&gt;）&lt;/h2&gt;
+
+&lt;p&gt;同步发送消息代码如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nc&quot;&gt;ProducerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ProducerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;CustomerCountry&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Precision Products&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;France&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;c1&quot;&gt;// 如果服务器返回错误，get() 方法会抛出异常&lt;/span&gt;
+		&lt;span class=&quot;c1&quot;&gt;// 如果没有发生错误，get() 方法会返回 RecordMetaData 对象，可以用来获取消息的偏移量&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;producer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;printStackTrace&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;生产者发送消息一般会发生两类异常：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;可重试异常&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;可以通过重发消息解决；常见的错误有：连接异常，无主（no leader）异常等。&lt;/p&gt;
+
+    &lt;p&gt;KafkaProducer 可以设置成自动重试，但是如果多次重试之后仍无法解决问题，会收到一个重试异常。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;不可重试异常&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;对于这类异常，生产者不会进行任何重试，直接抛出异常；常见的错误有：消息太大（message size too large）异常。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;32-异步发送消息sending-a-message-asynchronously&quot;&gt;3.2 异步发送消息（&lt;strong&gt;Sending a Message Asynchronously&lt;/strong&gt;）&lt;/h2&gt;
+
+&lt;p&gt;如果每个消息发送之后都需要同步等待响应，那么应用程序的吞吐量将会大大下降。虽然 Kafka 会把目标主题，分区信息，消息偏移量发送回来，但是对于很多发送端的应用程序来说并不是必需的。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;多数情况下，我们不需要等待 Broker 的响应。不过，当消息发送失败时，我们可能需要对异常进行处理分析&lt;/strong&gt;，如抛出异常，记录错误日志等。&lt;/p&gt;
+
+&lt;p&gt;为了在消息发送异常时进行处理，生产者提供了回调支持。代码如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// 需要实现 org.apache.kafka. clients.producer.Callback 接口&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DemoProducerCallback&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Callback&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onCompletion&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;RecordMetadata&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recordMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+     &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+         &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;printStackTrace&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nc&quot;&gt;ProducerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ProducerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;CustomerCountry&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Biomedical Materials&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;USA&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;producer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DemoProducerCallback&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;4-配置生产者&quot;&gt;4. 配置生产者&lt;/h1&gt;
+
+&lt;p&gt;除了之前提到的 3 个必要参数，生产者还有其他可配置的参数；其中一些参数在内存使用，性能，可靠性方面对生产者影响较大。&lt;/p&gt;
+
+&lt;h2 id=&quot;41-acks&quot;&gt;4.1 acks&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;该参数指定了必须要多少个分区副本收到消息，生产者才会认为消息写入是成功的&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;acks 参数配置影响消息丢失的可能性&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;acks = 0&lt;/p&gt;
+
+    &lt;p&gt;&lt;strong&gt;发送消息之后，生产者不会等待任何服务器的响应。&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;如果发送过程中出现了问题，导致服务器没有收到消息，生产者无从得知，消息也会丢失&lt;/li&gt;
+      &lt;li&gt;由于不需要等待服务器响应，发送消息的吞吐量会很大&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;acks = 1&lt;/p&gt;
+
+    &lt;p&gt;&lt;strong&gt;只要 Leader 副本收到消息，生产者就会收到来自 Broker 的成功响应。&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;如果消息无法成功写入 Leader 副本（如 Leader 崩溃），那么生产者就会收到一个错误响应；为避免消息丢失，生产者会重试发送。&lt;/p&gt;
+
+        &lt;blockquote&gt;
+          &lt;p&gt;如果 Leader 收到消息后崩溃，并且该消息没有来得及同步到其他副本中，那么消息仍会丢失&lt;/p&gt;
+
+        &lt;/blockquote&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;此时的吞吐量取决于是采用同步发送还是异步发送&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;acks = all&lt;/p&gt;
+
+    &lt;p&gt;&lt;strong&gt;只有当所有同步副本（in-sync replicas）都收到消息时，生产者才会收到来自 Broker 的成功响应&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;这种模式可以使得消息发送更可靠，更不易丢失&lt;/li&gt;
+      &lt;li&gt;但是，消息发送的延迟更高（需要等待多个副本收到消息）&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;42-buffermemory&quot;&gt;4.2 buffer.memory&lt;/h2&gt;
+
+&lt;p&gt;该参数用来设置生产者内存缓冲区的大小；生产者用其缓存将要发送到服务器的消息。&lt;/p&gt;
+
+&lt;p&gt;如果应用程序发送消息的速度超过将缓冲区消息发送到服务器的速度，会导致生产者空间不足。此时，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;send()&lt;/code&gt; 方法会被阻塞或者抛出异常。&lt;/p&gt;
+
+&lt;h2 id=&quot;43-compressiontype&quot;&gt;4.3 compression.type&lt;/h2&gt;
+
+&lt;p&gt;默认情况下，消息发送不会被压缩。不过，可以通过该参数指定压缩算法，如 snappy, gzip, lz4。&lt;/p&gt;
+
+&lt;h2 id=&quot;44-retries&quot;&gt;4.4 retries&lt;/h2&gt;
+
+&lt;p&gt;消息发送时可能会遇到临时且可重试的错误，可以通过 retries 参数配置生产者可重发消息的次数。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;如果重试次数达到该配置，生产者就会放弃重试并返回异常&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;45-batchsize&quot;&gt;4.5 batch.size&lt;/h2&gt;
+
+&lt;p&gt;当多个消息被发送到同一个分区时，生产者会将其放到同一个批次中。该参数指定了一个批次可用内存大小（按字节计算，而不是消息个数）。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;当批次被填满时，该批次里的消息被发送&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;46-lingerms&quot;&gt;4.6 linger.ms&lt;/h2&gt;
+
+&lt;p&gt;该参数指定了生产者在发送批次前等待其他消息加入批次的时间。&lt;/p&gt;
+
+&lt;p&gt;当批次被填满或者 linger.ms 达到上限时，将批次消息发送出去。&lt;/p&gt;
+
+&lt;h2 id=&quot;47-maxinflightrequestsperconnection&quot;&gt;4.7 &lt;strong&gt;max.in.flight.requests.per.connection&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;该参数指定&lt;strong&gt;生产者在收到服务器响应之前，可以发送多少个消息&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;如果该值为 1，可以保证消息时按照发送的顺序写入服务器，即使发生重试&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;该参数值设置得较高可以增加内存使用量，同时提高吞吐量，但设置得太高可能会降低吞吐量，因为批处理效率会降低。&lt;/p&gt;
+
+&lt;h2 id=&quot;48-maxrequestsizesh&quot;&gt;4.8 &lt;strong&gt;max.request.sizesh&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;控制生产者发送请求的大小&lt;/p&gt;
+
+&lt;h2 id=&quot;49-顺序保证&quot;&gt;4.9 顺序保证&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Kafka 可以保证同一个分区内的消息是有序的&lt;/strong&gt;。即，如果生产者按照一定的顺序发送消息，Broker 就会按照这个顺序将消息写入分区。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;如果 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;reties &amp;gt; 0, max.in.flight.requests.per.connection &amp;gt; 1&lt;/code&gt;，那么如果第一个批次的消息写入失败，而第二个批次消息写入成功。Broker 会重试第一个批次的消息，如果重试成功，那么两个批次的消息就会反过来。&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;如果 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;reties &amp;gt; 0, max.in.flight.requests.per.connection = 1&lt;/code&gt;，那么生产者在尝试发送第一批次消息时，不会有其他消息发送给 Broker。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;这种配置会严重影响生产者的吞吐量，只有在对消息顺序有严格要求时才能这么配置&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;5-分区&quot;&gt;5. 分区&lt;/h1&gt;
+
+&lt;p&gt;在发送消息时，可以指定消息的 key，也可以将 key = null。key 有两个用途：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;作为消息的附加信息&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;用来决定该消息被发送到主题的哪个分区。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;拥有相同 key 的消息会被写入到同一个分区中&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;如果 key == null，并且使用默认的分区器，那么消息将会被随机发送到各个可用的分区上。&lt;/p&gt;
+
+&lt;p&gt;如果 key ≠ null，并且使用默认的分区器，那么 Kafka 会先对 key 进行 hash，之后根据 hash 值将消息映射到特定的分区上，使得同一个 key 的消息总会被映射到同一个分区上。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在进行映射时，会使用所有的分区，而不是可用的分区。所以，如果分区不可用，写入将出错&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;需要注意的是，只有在主题分区数量不变的情况下，key 与分区的映射次啊会保持不变。如果分区数发生变化，那么新的消息可能别写入到其他分区上，因此在创建主题时需要把分区规划好。&lt;/p&gt;
+
+&lt;h2 id=&quot;51-自定义分区策略&quot;&gt;5.1 自定义分区策略&lt;/h2&gt;
+
+&lt;p&gt;默认分区器能够满足大部分需求，不过也可以使用自定义分区进行消息管理。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BananaPartitioner&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Partitioner&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+	  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;configure&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;?&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;configs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;
+	
+	  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;keyBytes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;valueBytes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Cluster&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cluster&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+				&lt;span class=&quot;nc&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;PartitionInfo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cluster&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partitionsForTopic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+				&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;numPartitions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+				&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keyBytes&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(!(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;instanceOf&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)))&lt;/span&gt;
+						&lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;InvalidRecordException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;We expect all messages to have customer name as key&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+					
+				&lt;span class=&quot;c1&quot;&gt;// Banana will always go to last partition&lt;/span&gt;
+				&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(((&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Banana&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+						&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;numPartitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; 
+				&lt;span class=&quot;c1&quot;&gt;// Other records will get hashed to the rest of the partitions&lt;/span&gt;
+				&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Utils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;murmur2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keyBytes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;numPartitions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+	&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. 生产者概述</summary></entry><entry><title type="html">Lion: Multi-Region Data Synchronization</title><link href="http://localhost:4000/multi-region-data-synchronization.html" rel="alternate" type="text/html" title="Lion: Multi-Region Data Synchronization" /><published>2023-03-12T00:00:00+08:00</published><updated>2023-03-12T00:00:00+08:00</updated><id>http://localhost:4000/multi-region-data-synchronization</id><content type="html" xml:base="http://localhost:4000/multi-region-data-synchronization.html">&lt;h1 id=&quot;1文档概述&quot;&gt;1、文档概述&lt;/h1&gt;
 
 &lt;h2 id=&quot;11项目背景&quot;&gt;1.1 项目背景&lt;/h2&gt;
 
@@ -2008,1084 +2730,4 @@ A：全量一致性检测成本太高，且从 Lion 现状来看，实时同步 
 
 &lt;h3 id=&quot;断言的艺术&quot;&gt;断言的艺术&lt;/h3&gt;
 
-&lt;p&gt;断言既可以知道程序的代码开发，也可以用来判断程序的正确性。我们可以将断言插入代码中，以确保程序运行时的行为与我们的理解一致&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">脚手架</summary></entry><entry><title type="html">编程珠玑: 程序性能分析</title><link href="http://localhost:4000/programming-pearls-6-copy.html" rel="alternate" type="text/html" title="编程珠玑: 程序性能分析" /><published>2022-06-11T00:00:00+08:00</published><updated>2022-06-11T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-6%20copy</id><content type="html" xml:base="http://localhost:4000/programming-pearls-6-copy.html">&lt;h2 id=&quot;设计层面&quot;&gt;设计层面&lt;/h2&gt;
-
-&lt;p&gt;为了提高系统性能，可以在多个层面进行设计。&lt;/p&gt;
-
-&lt;h3 id=&quot;问题定义&quot;&gt;问题定义&lt;/h3&gt;
-
-&lt;p&gt;良好的问题定义可以避免对问题需求的过高估计。问题定义与程序效率之间具有复杂的相互影响。&lt;/p&gt;
-
-&lt;h3 id=&quot;系统结构&quot;&gt;系统结构&lt;/h3&gt;
-
-&lt;p&gt;将大型系统分解成多个模块&lt;/p&gt;
-
-&lt;h3 id=&quot;算法和数据结构&quot;&gt;算法和数据结构&lt;/h3&gt;
-
-&lt;p&gt;对于模块性能提升的关键是表示数据的结构和操作这些数据的算法&lt;/p&gt;
-
-&lt;h3 id=&quot;代码调优&quot;&gt;代码调优&lt;/h3&gt;
-
-&lt;p&gt;与系统无关的代码调优&lt;/p&gt;
-
-&lt;h3 id=&quot;系统软件&quot;&gt;系统软件&lt;/h3&gt;
-
-&lt;p&gt;改变系统所基于的软件；同时考虑与系统相关的代码调优&lt;/p&gt;
-
-&lt;h3 id=&quot;硬件&quot;&gt;硬件&lt;/h3&gt;
-
-&lt;p&gt;更快的硬件可以提高系统的性能&lt;/p&gt;
-
-&lt;h2 id=&quot;原理&quot;&gt;原理&lt;/h2&gt;
-
-&lt;p&gt;当性能问题无法回避时，对于不同的性能目标可以从不同的设计层面进行考虑。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;&lt;em&gt;如果仅需要较小的性能提升，就对效果最佳的层面进行改进&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;p&gt;首先考虑所有可能的设计层面，然后选择“性价比”最高的那个：较小投入可以获得较大的加速系数。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;&lt;em&gt;如果需要较大的性能提升，需要对多个层面进行改进&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;p&gt;需要从各个不同方向对问题进行深入研究。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">设计层面</summary></entry><entry><title type="html">Lion 设计与实现</title><link href="http://localhost:4000/lion-design-and-implements.html" rel="alternate" type="text/html" title="Lion 设计与实现" /><published>2022-05-28T00:00:00+08:00</published><updated>2022-05-28T00:00:00+08:00</updated><id>http://localhost:4000/lion-design-and-implements</id><content type="html" xml:base="http://localhost:4000/lion-design-and-implements.html">&lt;blockquote&gt;
-  &lt;p&gt;本文是在美团内部面向其他团队的分享&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h1 id=&quot;1-介绍&quot;&gt;1-介绍&lt;/h1&gt;
-
-&lt;h2 id=&quot;1-1-功能介绍&quot;&gt;1-1 功能介绍&lt;/h2&gt;
-
-&lt;p&gt;Lion 是一个面向分布式系统的配置中心，采用中心化数据管理，通过 C/S 架构实现配置的统一管理和实时推送。&lt;/p&gt;
-
-&lt;p&gt;应用程序使用 Lion 可实现配置与代码分离、配置变更推送、历史版本管理、灰度发布等功能。通过集中化的在线配置管理，应用可以实现秒级配置变更，并且保证所有节点配置的最终一致性。除此之外，Lion 还提供操作日志查看、灰度发布、配置审核等高级功能。&lt;/p&gt;
-
-&lt;h2 id=&quot;1-2-sla-指标&quot;&gt;1-2 SLA 指标&lt;/h2&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;指标&lt;/th&gt;
-      &lt;th&gt;目标&lt;/th&gt;
-      &lt;th&gt;说明&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;推送成功率&lt;/td&gt;
-      &lt;td&gt;99.9%&lt;/td&gt;
-      &lt;td&gt;配置修改成功后（5s内）所有客户端成功获取到最新配置的比例&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;推送时效性&lt;/td&gt;
-      &lt;td&gt;&amp;lt;5s&lt;/td&gt;
-      &lt;td&gt;配置从修改成功到客户端获取到新配置的时间&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;当配置进行一次成功变更之后，&lt;strong&gt;Lion 只能保证最终一致性&lt;/strong&gt;，即所有 Client 最终都能获取到最新配置，&lt;strong&gt;不能保证强一致性&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;1-2-服务端性能指标&quot;&gt;1-2 服务端性能指标&lt;/h2&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;指标&lt;/th&gt;
-      &lt;th&gt;数据&lt;/th&gt;
-      &lt;th&gt;说明&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;单机/集群写性能(8C8G)&lt;/td&gt;
-      &lt;td&gt;700QPS/2500QPS&lt;/td&gt;
-      &lt;td&gt;HTTP Open API&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;单机读性能(8C8G, RT &amp;lt; 100ms)&lt;/td&gt;
-      &lt;td&gt;7000QPS&lt;/td&gt;
-      &lt;td&gt;HTTP Open API&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;单机最优连接数(8C/16G)&lt;/td&gt;
-      &lt;td&gt;8000&lt;/td&gt;
-      &lt;td&gt;服务端长轮询连接&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;北上同步延迟（1700QPS）&lt;/td&gt;
-      &lt;td&gt;TP999&amp;lt;500ms&lt;/td&gt;
-      &lt;td&gt;数据在一侧数据中心发生变更后，同步到另一侧的延迟&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;h1 id=&quot;2-系统设计&quot;&gt;2-系统设计&lt;/h1&gt;
-
-&lt;h2 id=&quot;2-1-整体架构&quot;&gt;2-1 整体架构&lt;/h2&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/lion/lion_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Lion 系统采用异地多活架构：北京 &amp;amp; 上海各部署一套数据中心，支持双写，通过自研同步组件（Consistency）保证两个数据中心间数据一致性。业务配置存储主要使用 MySQL, Redis 作为存储介质（ZK 即将下线）。&lt;/p&gt;
-
-&lt;p&gt;用户可以通过管理端（Console）与 HTTP 接口（API）进行配置变更与查询操作，同时 Lion 也支持多语言的 SDK（Java，Node，C++，Golang），便于业务服务进行配置获取与变更监听操作。&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;模块名称&lt;/th&gt;
-      &lt;th&gt;主要功能&lt;/th&gt;
-      &lt;th&gt;备注&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-config&lt;/td&gt;
-      &lt;td&gt;用于 client 获取配置与监听配置变更&lt;/td&gt;
-      &lt;td&gt;client 与 config 使用长轮询通信; config 集群北上多机房部署，支持多集群&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-consistency&lt;/td&gt;
-      &lt;td&gt;不同数据中心间数据同步; 同一数据中心，不同存储介质数据同步&lt;/td&gt;
-      &lt;td&gt;北上双集群部署&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-meta&lt;/td&gt;
-      &lt;td&gt;实现 config, consistency 服务发现功能 consistency 同步数据分区策略控制; 用于 client 获取相关元数据：config 节点列表，黑白名单项目等&lt;/td&gt;
-      &lt;td&gt;弱依赖 mns 实现节点注册发现功能，在 mns 不可用时降级到自研健康检测策略&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-client&lt;/td&gt;
-      &lt;td&gt;与 config 服务交互实现配置获取/监听功能&lt;/td&gt;
-      &lt;td&gt;定时从 meta 获取可用 config 节点列表，并通过长轮询访问 config 服务端; config 服务不可用时，从本地文件获取配置（可能是过期数据）; 支持多语言 sdk: java, node, go, c++&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-api&lt;/td&gt;
-      &lt;td&gt;提供 http open api：用于业务方通过 http 实现配置的变更与查询&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-console&lt;/td&gt;
-      &lt;td&gt;管理端交互，提供配置增删改查功能&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;h2 id=&quot;2-1-配置获取与推送&quot;&gt;2-1 配置获取与推送&lt;/h2&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/lion/lion_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Client 在获取配置时，加载策略依次为：&lt;strong&gt;1. 内存缓存，2. Lion 远程服务端，3. 本地持久化文件&lt;/strong&gt;。在从服务端某个节点加载失败时，会及时切换到其他可用节点，直到超时；之后会降级到本地文件（可能仍是上次获取到的旧值）。&lt;/p&gt;
-
-&lt;p&gt;Config 服务端在收到 Client 获取配置的请求后，依次从：&lt;strong&gt;1. 内存缓存，2. Redis，3. DB&lt;/strong&gt; 中加载配置。配置加载成功之后，需要比较 Client 携带的配置版本号（c_version）与服务端加载到的配置版本号（s_version）：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;如果 c_verison == 0，则说明 Client 首次获取该配置，此时直接返回服务端配置&lt;/li&gt;
-  &lt;li&gt;如果 c_version != 0 且 c_version &amp;lt; s_version，则说明该配置在 Client 上次加载之后又更新过，此时需要将最新配置返回&lt;/li&gt;
-  &lt;li&gt;如果 c_version != 0 且 c_version &amp;gt;= s_version，则说明 Client 本地配置已经是最新值，此时请求被 hang 住，直到该配置被更新或者请求超时（100s）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-2-一致性保障&quot;&gt;2-2 一致性保障&lt;/h2&gt;
-
-&lt;p&gt;Lion 配置存储分为北京/上海两个数据中心，每个数据中心分别有 DB, Redis, ZK(即将下线) 。为了实现异地多活，需要保证北上数据的一致性。&lt;/p&gt;
-
-&lt;p&gt;Lion 采取的是最终一致性，一致性保障由 Consistency 模块维护，整体可以分为两个方面：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;不同数据中心间的一致性&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;同一数据中心内不同存储介质的一致性&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;2-2-1-同步模型&quot;&gt;2-2-1 同步模型&lt;/h3&gt;
-
-&lt;p&gt;为了实现数据最终一致性，lion 对每次配置变更都会记录一条 log，被称为同步日志（sync log）。该 log 模型基本如下：&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;key&lt;/th&gt;
-      &lt;th&gt;release_key&lt;/th&gt;
-      &lt;th&gt;local_db_status&lt;/th&gt;
-      &lt;th&gt;remote_db_status&lt;/th&gt;
-      &lt;th&gt;zk_status&lt;/th&gt;
-      &lt;th&gt;redis_status&lt;/th&gt;
-      &lt;th&gt;status&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;配置唯一标识&lt;/td&gt;
-      &lt;td&gt;配置变更唯一标识&lt;/td&gt;
-      &lt;td&gt;同侧 db 状态：0 未同步，1 同步成功&lt;/td&gt;
-      &lt;td&gt;异地 db 状态:0 未同步，1 同步成功&lt;/td&gt;
-      &lt;td&gt;同侧 zk 状态：0 未同步，1 同步成功&lt;/td&gt;
-      &lt;td&gt;同侧 redis 状态:0 未同步，1 同步成功&lt;/td&gt;
-      &lt;td&gt;本次变更同步状态: 0 未加载，1 已加载未同步，2 同步成功&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;status 字段用于标识同步流程是否全部成功，如果同步失败，则会重试直到同步成功。&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;不管是通过 http api 接口还是管理端变更配置，只会更新同侧的 db，并不会同步更新同侧数据中心内的 zk, redis（提高接口性能）。每次配置变更产生的 log 为：&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;local_db&lt;/th&gt;
-      &lt;th&gt;remote_db&lt;/th&gt;
-      &lt;th&gt;zk&lt;/th&gt;
-      &lt;th&gt;redis&lt;/th&gt;
-      &lt;th&gt;status&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;1&lt;/td&gt;
-      &lt;td&gt;0&lt;/td&gt;
-      &lt;td&gt;0&lt;/td&gt;
-      &lt;td&gt;0&lt;/td&gt;
-      &lt;td&gt;0&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;h3 id=&quot;2-2-2-同步流程&quot;&gt;2-2-2 同步流程&lt;/h3&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/lion/lion_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;同步流程步骤分为：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;log 加载&lt;/strong&gt;：将未同步完成的日志从 db 中加载到内存队列中&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;异地同步&lt;/strong&gt;：优先将 log 批量同步到异地；异地同步成功后将 log hash 到内存队列中&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;本地同步&lt;/strong&gt;：将 log 顺序同步到本地 db, redis, zk 中&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/lion/lion_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;结合 log 中各个同步状态进一步分析：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;本地 db 同步&lt;/strong&gt;：如果本地 db 未同步，则首先同步 db。如果同步成功，则 log.local_db = 1。（对 log 产生侧来说，local_db 默认 1，即默认不同步）&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;异地同步&lt;/strong&gt;：该流程为异步操作，仅仅是&lt;em&gt;将 log 发送到异地并被接收，并在稍后将配置回写到 db, redis, zk&lt;/em&gt;。如果同步成功，则 log.remote_db = 1.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;本地 redis 同步&lt;/strong&gt;：如果同步成功，则 log.local_redis = 1.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;本地 zk 同步&lt;/strong&gt;：如果同步成功，则 log.local_zk = 1.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;3-可用性&quot;&gt;3-可用性&lt;/h2&gt;
-
-&lt;p&gt;承诺 Lion 服务的可用性不低于 99.99%。&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;模块名称&lt;/th&gt;
-      &lt;th&gt;集群分布&lt;/th&gt;
-      &lt;th&gt;外部依赖&lt;/th&gt;
-      &lt;th&gt;内部依赖&lt;/th&gt;
-      &lt;th&gt;RTO&lt;/th&gt;
-      &lt;th&gt;故障时主动切换 SLA&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-consistency&lt;/td&gt;
-      &lt;td&gt;两地多机房&lt;/td&gt;
-      &lt;td&gt;MySQL、S3、专线（弱）、DNS（弱）&lt;/td&gt;
-      &lt;td&gt;lion-meta&lt;/td&gt;
-      &lt;td&gt;120s&lt;/td&gt;
-      &lt;td&gt;0s&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-api&lt;/td&gt;
-      &lt;td&gt;两地多机房&lt;/td&gt;
-      &lt;td&gt;MySQL、S3、Redis（弱）&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
-      &lt;td&gt;120s&lt;/td&gt;
-      &lt;td&gt;0s&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-config&lt;/td&gt;
-      &lt;td&gt;两地多机房&lt;/td&gt;
-      &lt;td&gt;MySQL、S3、Redis（弱）&lt;/td&gt;
-      &lt;td&gt;lion-meta&lt;/td&gt;
-      &lt;td&gt;120s&lt;/td&gt;
-      &lt;td&gt;0s&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-console&lt;/td&gt;
-      &lt;td&gt;两地多机房&lt;/td&gt;
-      &lt;td&gt;MySQL&lt;/td&gt;
-      &lt;td&gt;lion-api&lt;/td&gt;
-      &lt;td&gt;60s&lt;/td&gt;
-      &lt;td&gt;0s&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-meta&lt;/td&gt;
-      &lt;td&gt;两地多机房&lt;/td&gt;
-      &lt;td&gt;MySQL、MNS（弱）&lt;/td&gt;
-      &lt;td&gt; &lt;/td&gt;
-      &lt;td&gt;60s&lt;/td&gt;
-      &lt;td&gt;0s&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;lion-client&lt;/td&gt;
-      &lt;td&gt;-&lt;/td&gt;
-      &lt;td&gt;DNS&lt;/td&gt;
-      &lt;td&gt;lion-config、lion-meta（弱）&lt;/td&gt;
-      &lt;td&gt;T_{断连感知}=120s&lt;/td&gt;
-      &lt;td&gt;3s (timeout)+3s * (0~N) (N:异常 Config 数目)&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/lion/lion_5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;config 服务北上两地多机房部署，支持弹性伸缩：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;对于异常 config 节点，meta 会及时剔除，保证下发给 client 节点列表的可用性&lt;/li&gt;
-  &lt;li&gt;client 在请求 config 服务端获取配置时，优先访问同地域节点；同地域无可用节点时，访问异地节点&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;如果所有 config 节点均不可用，则降级到本地持久化文件&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;config 服务加载配置时，强依赖 db，s3(文件配置)，弱依赖 redis：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;redis 不可用时，对配置获取 &amp;amp; 推送没有影响&lt;/li&gt;
-  &lt;li&gt;db，s3 不可用时，client 无法获取到最新配置（通过 config 内存缓存可以获取到旧配置）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/lion/lion_6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;consistency 服务北上两地多机房部署，支持弹性伸缩：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;同步 log 加载强依赖 db，db 不可用时，同步任务无法执行&lt;/li&gt;
-  &lt;li&gt;consistency 节点异常时，meta 会及时剔除，并更新同步策略（尽可能降低节点变更对同步延迟的影响）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;4-隔离性&quot;&gt;4-隔离性&lt;/h2&gt;
-
-&lt;p&gt;配置隔离可以从两个方面来看：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;配置获取&lt;/strong&gt;：客户端通过长轮询访问 lion-config 获取目标配置&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;配置同步&lt;/strong&gt;：配置变更在北上两地/同一数据中心内保持一致&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;4-1-配置获取&quot;&gt;4-1 配置获取&lt;/h3&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/lion/lion_7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;config 服务支持多集群，不同集群管理特定业务配置。对于一些配置容量大/稳定性要求高的业务，会拆分出独立集群，其他业务共享默认集群。&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;config 集群&lt;/th&gt;
-      &lt;th&gt;集群所属项目&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;zebra&lt;/td&gt;
-      &lt;td&gt;{ds, group-ds}&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;buffalo&lt;/td&gt;
-      &lt;td&gt;{buffalo-reader-task，buffalo-client，buffalo-writer-task}&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;waf&lt;/td&gt;
-      &lt;td&gt;{com.sankuai.sec.waf.manage}&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;default&lt;/td&gt;
-      &lt;td&gt;{others}&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;各个集群&lt;strong&gt;配置管理相互独立，业务流量隔离&lt;/strong&gt;：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;buffalo 配置获取只会访问 buffalo 集群，同时 buffalo 集群只管理 buffalo 相关的配置&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;不过，各个 config 集群依赖的底层存储（redis, db）仍共用一个集群&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;4-2-配置同步&quot;&gt;4-2 配置同步&lt;/h3&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/lion/lion_8.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;由于不同业务对推送延迟的敏感程度不同，因此我们将配置同步分为两种：1. 普通配置，2. 高优先级配置；这两种配置同步流程相互隔离。&lt;/p&gt;
-
-&lt;p&gt;通过将不同配置的同步流程隔离，使得普通配置的堆积并不会对高优先级配置的同步流程产生影响。&lt;/p&gt;
-
-&lt;h3 id=&quot;4-2-1-局限&quot;&gt;4-2-1 局限&lt;/h3&gt;
-
-&lt;p&gt;不管是配置同步还是配置推送，目前都是在业务逻辑层进行隔离，在底层存储方面，所有业务共享一套存储。因此，目前针对业务隔离仍存在一定的局限性，如 db 集群异常时，所有业务方都会受到影响。&lt;/p&gt;
-
-&lt;p&gt;不过，鉴于当前单集群存储容量在中短期内仍能支撑业务增长，并且存储层的可用性也能满足 Lion 的需求，因此短期内仍会保持现有隔离方案。&lt;/p&gt;
-
-&lt;h2 id=&quot;5-可观测性&quot;&gt;5-可观测性&lt;/h2&gt;
-
-&lt;h3 id=&quot;5-1-推送链路&quot;&gt;5-1 推送链路&lt;/h3&gt;
-
-&lt;p&gt;对于每次配置变更的推送情况，Lion 提供了推送链路的功能帮助用户排查配置的推送情况，包括：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;推动成功率，推送延迟，每台机器的推送详情等&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;不过，该功能对 lion-client 版本有所要求（&amp;gt;=0.8.15.4），目前覆盖率 &amp;gt;80%（各版本分布情况）.&lt;/p&gt;
-
-&lt;h3 id=&quot;5-2-数据同步&quot;&gt;5-2 数据同步&lt;/h3&gt;
-
-&lt;p&gt;对于配置同步，有两个关键指标：1. 同步延迟，2. 同步成功率。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;同步延迟的大小与配置大小，配置的变更频率，同步批次大小，同步任务间隔等有关。经过测试，对于小配置（&amp;lt;1KB），在 1700 QPS 下延迟 TP999&amp;lt;500ms，最大延迟 1.8s。&lt;/li&gt;
-  &lt;li&gt;通过一致性大盘可以看到，数据一致性 &amp;gt;99.99%&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;6-faq&quot;&gt;6-FAQ&lt;/h1&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;业务在接入 lion 时，会按照 key 的粒度编码获取配置，如果业务方代码中获取引用了大量 key，是否会导致不同 key 每次都通过 http 访问 config 服务端是否导致耗时增大？&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;如果同一个项目调用了多个 key（&amp;gt;5），那么配置获取粒度会由 key 升级为项目/分组，也就是说会从 config 服务端一次获取整个项目/分组的配置；这样当访问其他 key 时，只需要从本地内存缓存即可获取，减小了配置获取耗时。&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;如果 lion 服务端均不可用，对业务方有何影响？&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;从配置获取来说，在服务端完全不可用时会降级到本地持久化文件，可能会获取到已经失效的配置，并且不会感知到最新的配置变更&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;除了服务端内部一致性，如何保证客户端与服务端间的数据一致性？&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;增量同步：客户端通过长轮询周期性地与服务端通信，请求信息携带了当前客户端配置的最新版本号，服务端通过比较版本号来判断客户端的配置是否过期，如果过期则更新客户端&lt;/li&gt;
-      &lt;li&gt;全量同步：客户端定时全量同步本地配置，此时直接从服务端获取全量配置并更新本地过期配置&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;北上数据同步时，如何保证同一条 log 不会被重复同步?&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;log 通过 status 区分同步状态；同步任务只会加载 status = 0 的记录，确保同一条 log 不会被重复加载&lt;/li&gt;
-      &lt;li&gt;log 被加载后会进行分区，保证不同 consistency 节点不会同步相同的 log&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;如何保证配置变更一定会被同步成功？&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;有三种同步机制：1. log 创建后被立即同步；2. 同步失败后会进行有补扫任务进行再次同步（50次）；3. 北上定时检测机制，对于不一致的数据会重新触发同步流程。&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;北上同步时，如何解决数据冲突？&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;冲突解决方式为：最后写胜出（lrw），以最新版本为主。不过，两地同时写入的概率较低。&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;在上海侧的一次变更，需要多长时间才能推送到北京侧业务机器?&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;北上同步延迟 TP999 &amp;lt; 500ms，我们承诺 99.9% 的配置会在 5s 内会全量推送到所有机器（具体每次配置变更推送延迟可以查看：Lion 推送链路）&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h1 id=&quot;7-未来规划&quot;&gt;7-未来规划&lt;/h1&gt;
-
-&lt;p&gt;中短期来看，Lion 规划主要有：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;提升用户体验：丰富多语言客户端功能，提升MWS易用性&lt;/li&gt;
-  &lt;li&gt;提升系统可观测性：增强配置链路跟踪能力，提升监控能力，&lt;/li&gt;
-  &lt;li&gt;提升容灾能力&lt;/li&gt;
-  &lt;li&gt;提升系统效率：对齐业界同类系统，提高系统支撑能力、提升系统效率&lt;/li&gt;
-  &lt;li&gt;提升平台化能力：增强存储及流量隔离，增强集群监控、运营统计，开放集群拆分&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">本文是在美团内部面向其他团队的分享</summary></entry><entry><title type="html">Linux Kernel: The Virtual Filesystem</title><link href="http://localhost:4000/linux-kernel-virtual-filesystem.html" rel="alternate" type="text/html" title="Linux Kernel: The Virtual Filesystem" /><published>2022-05-21T00:00:00+08:00</published><updated>2022-05-21T00:00:00+08:00</updated><id>http://localhost:4000/linux-kernel-virtual-filesystem</id><content type="html" xml:base="http://localhost:4000/linux-kernel-virtual-filesystem.html">&lt;p&gt;通过所谓的&lt;strong&gt;虚拟文件系统&lt;/strong&gt;的概念，Linux 系统能够支持多种文件系统类型。虚拟文件系统所隐含的思想是把表示多种不同类型的文件系统的共同信息存放在内核中，对文件系统的读写调用，内核都能将其替换成支持本地 Linux 文件系统或者其他文件系统的实际函数。&lt;/p&gt;
-
-&lt;h1 id=&quot;1-虚拟文件系统的作用&quot;&gt;1-虚拟文件系统的作用&lt;/h1&gt;
-
-&lt;p&gt;&lt;strong&gt;虚拟文件系统&lt;/strong&gt;（Virtual FileSystem）也被称为&lt;strong&gt;&lt;em&gt;虚拟文件系统转换&lt;/em&gt;&lt;/strong&gt;（Virtual FileSystem Switch），是一个&lt;strong&gt;&lt;em&gt;内核软件层&lt;/em&gt;&lt;/strong&gt;，&lt;strong&gt;&lt;em&gt;用来处理与 Unix 标准文件系统相关的所有系统调用&lt;/em&gt;&lt;/strong&gt;；能够为各个文件系统提供一个通用的接口。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;VFS 是用户程序与文件系统实现之间的抽象层&lt;/strong&gt;。例如用户输入以下 shell 命令&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# /floppy 是 ms-dos 文件系统，而 /tmp 是 ext2 文件系统&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;cp&lt;/span&gt; /floppy/test /tmp/test
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cp&lt;/code&gt; 程序并不需要操作目录的具体文件系统类型，相反，cp 程序与 VFS 交互。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;a 描述了 VFS 的层次，b 表示 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cp&lt;/code&gt; 应用程序的实现&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;VFS 支持的文件系统可以划分为三种类型：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;磁盘文件系统&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;用于管理本地磁盘分区。比较知名的基于磁盘的文件系统有：Linux 使用的文件系统，Unix 家族文件系统，微软公司文件系统等&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;网络文件系统&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;这些文件系统允许访问属于其他网络计算机的文件系统所包含的文件，常见的有 NFS，Coda，AFS 等&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;特殊文件系统&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;这些文件系统不管理本地或者远程磁盘空间。如 /proc 文件系统就是一种典型的特殊文件系统&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;Unix 目录简易了一棵根目录为 ’/’ 的树，根目录包含在&lt;em&gt;根文件系统&lt;/em&gt;（root filesystem）中。在 Linux 中，&lt;em&gt;根文件系统通常为 Ext2 or Ext3 类型，其他所有的文件系统都可以被“安装”在跟文件系统的子目录中&lt;/em&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;当一个文件系统被安装在某个目录上时，在父文件系统中的目录内容不再是可访问的&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;1-1-通用文件模型&quot;&gt;1-1 通用文件模型&lt;/h2&gt;
-
-&lt;p&gt;VFS 的主要思想在于引入了一个&lt;strong&gt;通用的文件模型&lt;/strong&gt;（common file model），该模型能够表示所有支持的文件系统。&lt;/p&gt;
-
-&lt;p&gt;对于每个具体的文件系统，需要将其物理组织结构转换为虚拟文件系统的通用文件模型。Linux 内核对于每个文件操作必须使用一个指针，指向要访问的具体文件系统的适当函数。&lt;/p&gt;
-
-&lt;p&gt;通用文件模型由以下对象类型组成：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;超级块对象&lt;/strong&gt;（superblock object）&lt;/p&gt;
-
-    &lt;p&gt;&lt;em&gt;用于存放已安装文件系统的有关信息&lt;/em&gt;。对于基于磁盘的文件系统，该类对象通常对应于存放在磁盘上的文件系统控制块（filesystem control block）&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;索引节点对象&lt;/strong&gt;（inode object）&lt;/p&gt;
-
-    &lt;p&gt;&lt;em&gt;用于存放具体文件的一般信息&lt;/em&gt;。对于基于磁盘的文件系统，该类对象通常对应于存放在磁盘上的文件控制块（file control block）。&lt;em&gt;每个索引节点对象都有一个索引节点号，该索引节点号唯一标识文件系统中的文件&lt;/em&gt;。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;文件对象&lt;/strong&gt;（file object）&lt;/p&gt;
-
-    &lt;p&gt;&lt;em&gt;用于存放打开的文件与进程之间进行交互的有关信息&lt;/em&gt;。这类信息仅当进程访问文件期间存在于内核内存中。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;目录项对象&lt;/strong&gt;（dentry object）&lt;/p&gt;
-
-    &lt;p&gt;&lt;em&gt;用于存放目录项（也就是文件的特地名称）与对应文件进行链接的有关信息&lt;/em&gt;。每个磁盘文件系统都以自己的方式将该类信息存放在磁盘上。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;下图简单说明进程怎样与文件进行交互：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;三个不同的进程打开同一个文件，其中两个进程使用硬链接&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;每个进程都有自己的文件对象，但是只需要两个目录项对象（每个硬链接对应一个目录项对象）&lt;/em&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;这两个目录项对象指向同一个索引节点对象&lt;/em&gt;&lt;/li&gt;
-  &lt;li&gt;该索引节点对象标识超级块对象以及普通的磁盘文件&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;为了提高系统性能，最近最常用的目录项对象被存放在&lt;strong&gt;&lt;em&gt;目录项高速缓存&lt;/em&gt;&lt;/strong&gt;（dentry cache）的磁盘高速缓存（disk cache）中，以提高从文件路径名到最后一个路径分量的索引节点的转换效率。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;一般来说，磁盘高速缓存属于软机制，允许内核将原本存放在磁盘上的某些信息保存在 RAM 中，以加速对这些数据的访问&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;1-2-vfs-所处理的系统调用&quot;&gt;1-2 VFS 所处理的系统调用&lt;/h2&gt;
-
-&lt;p&gt;下图列出了 VFS 处理的系统调用，涉及文件系统，普通文件，目录文件，符号链接文件等。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;VFS 属于内核层，处理应用程序的系统调用&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;select() poll()&lt;/code&gt;：等待一组文件描述符上发生的事情&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;read() write() readv() writev() sendfile()&lt;/code&gt;：进行文件 IO 操作&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mmap() mmap2()&lt;/code&gt;：处理文件内存映射&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;VFS 是应用程序与具体文件系统之间的一层。不过，&lt;strong&gt;&lt;em&gt;在某些情况下一个文件操作可能由 VFS 本身执行，不需要调用底层函数&lt;/em&gt;&lt;/strong&gt;。例如，当进程关闭打开的文件时，并不需要涉及磁盘上相应文件，因此 VFS 只需要释放对应的文件对象即可。&lt;/p&gt;
-
-&lt;p&gt;从某种意义上来说，VFS 可以被看作普通的文件系统，在必要时依赖某种具体的文件系统。&lt;/p&gt;
-
-&lt;h1 id=&quot;2-vfs-的数据结构&quot;&gt;2-VFS 的数据结构&lt;/h1&gt;
-
-&lt;p&gt;每个 VFS 对象都存放在一个适当的数据结构中，包括对象的属性和&lt;em&gt;指向对象方法表&lt;/em&gt;的指针。&lt;/p&gt;
-
-&lt;h2 id=&quot;2-1-超级块对象&quot;&gt;2-1 超级块对象&lt;/h2&gt;
-
-&lt;p&gt;超级块对象由 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;super_block&lt;/code&gt; 结构组成，部分字段如下：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_8.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;所有的超级块对象都以双向循环链表的形式链接在一起。链表的第一个元素用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;super_blocks&lt;/code&gt; 变量表示，超级块对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;s_list&lt;/code&gt; 字段存放指向链表相邻元素的指针。&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sb_lock&lt;/code&gt; 自旋锁用于避免链表被多个处理器系统同时访问。&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;s_fs_info&lt;/code&gt; 字段指向属于具体文件系统的超级块信息。任何基于磁盘的文件系统都需要访问和更新自己的磁盘分配位图，以便分配或释放磁盘块。为了提高效率，由 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;s_fs_info&lt;/code&gt; 字段所指向的数据被复制到内存，VFS 允许这些文件系统直接对内存超级块的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;s_fs_info&lt;/code&gt; 字段进行操作，无需访问磁盘。&lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;不过这种方法可能会导致 VFS 超级块与磁盘上的超级块不同步，因此通过引入 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;s_dirt&lt;/code&gt; 标志来表示该超级块是否是脏的，以便及时更新磁盘上的数据。&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;Linux 通过周期性地将所有脏的超级块回写磁盘来减少不一致的风险&lt;/p&gt;
-
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;超级块的操作方法由数据结构 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;super_operations&lt;/code&gt; 结构表示，该结构的起始地址存放在超级块的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;s_op&lt;/code&gt; 字段中&lt;/p&gt;
-
-    &lt;p&gt;每一个具体的文件系统可以定义自己的超级块操作。当 VFS 需要调用其中一个操作时，如 read_inode()，执行操作如下：&lt;/p&gt;
-
-    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;n&quot;&gt;sb&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s_op&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read_inode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; 
-  &lt;span class=&quot;c1&quot;&gt;// sb 存放涉及的超级块对象地址；super_operation 表的 read_inode 字段存放对应函数的地址&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;2-1-1-超级块操作方法&quot;&gt;2-1-1 超级块操作方法&lt;/h3&gt;
-
-&lt;p&gt;超级块操作表 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;super_operation&lt;/code&gt; 中一些比较常见的方法：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;alloc_inode(sb)&lt;/code&gt;：为索引节点对象分配空间，包括具体文件系统的数据所需空间&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;destroy_inode(inode)&lt;/code&gt;: 撤销索引节点对象，包括具体文件系统的数据&lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;read_inode(inode)&lt;/code&gt;: 用磁盘上的数据填充以参数传递过来的索引节点对象的字段&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;索引节点对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_ino&lt;/code&gt; 字段标识从磁盘上要读取的具体文件系统的索引节点&lt;/p&gt;
-
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dirty_inode(inode)&lt;/code&gt;: 当索引节点被修改时调用&lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;write_inode(inode)&lt;/code&gt;: 通过传递参数指定的索引节点对象内容更新一个文件系统的索引节点&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;索引节点对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_ino&lt;/code&gt; 字段标识所涉及的磁盘上文件系统的索引节点&lt;/p&gt;
-
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;put_inode(inode)&lt;/code&gt;: 释放索引节点时调用，同时减少该节点引用计数器值&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;drop_inode(inode)&lt;/code&gt;: 当最后一个用户释放该索引节点时调用；该索引节点将会被撤消&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;delete_inode(inode)&lt;/code&gt;: 撤消索引节点时调用；删除内存中的 VFS 索引节点和磁盘上的文件数据及元数据&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-2-索引节点对象&quot;&gt;2-2 索引节点对象&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;文件系统处理文件所需要的所有信息都存放在一个名为索引节点的数据结构中&lt;/strong&gt;。内存中的索引节点对象由一个 inode 数据结构组成。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;文件名可以随意更改，但是&lt;strong&gt;&lt;em&gt;对文件来说，索引节点时唯一的，并且随着文件的存在而存在&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_9.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_10.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_11.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_hash&lt;/code&gt;: 用于散列表的指针&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_list&lt;/code&gt;: 用于描述索引节点当前状态的链表的指针&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_sb_list&lt;/code&gt;: 用于超级块的索引节点链表的指针&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_dentry&lt;/code&gt;: 引用索引节点的目录项对象链表的头&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_ino&lt;/code&gt;: 索引节点号&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_count&lt;/code&gt;: 引用计数器&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_nlink&lt;/code&gt;: 硬链接数目&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_state&lt;/code&gt;: 索引节点的状态标志
-    &lt;ul&gt;
-      &lt;li&gt;如果 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_state&lt;/code&gt; 的值为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;I_DIRTY_SYNC&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;I_DIRTY_DATASYNC&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;I_DIRTY_PAGES&lt;/code&gt; ，则表明该索引节点是脏的，对应的磁盘索引节点必须更新&lt;/li&gt;
-      &lt;li&gt;如果 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_state&lt;/code&gt; 字段的值为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;I_LOCK&lt;/code&gt;，表明对应的索引节点对象处于 IO 传输中；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;I_FREEING&lt;/code&gt; 表示索引节点对象正在被释放；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;I_CLEAR&lt;/code&gt; 表示索引节点对象的内容不再有意义；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;I_NEW&lt;/code&gt; 表示索引节点对象已经分配，但是还没用磁盘索引节点读取来的数据填充&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_size&lt;/code&gt;: 文件的字节数&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_blocks&lt;/code&gt;: 文件的块数&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_op&lt;/code&gt;: 索引节点的操作&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_sb&lt;/code&gt;: 指向超级块对象的指针&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;&lt;em&gt;每个索引节点对象都会复制磁盘索引节点包含的一些数据&lt;/em&gt;&lt;/strong&gt;，如分配给文件的磁盘块数。&lt;/p&gt;
-
-&lt;p&gt;每个索引节点对象总是处于下列双向循环链表中的某个链表中（链表相邻元素的指针存放在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_list&lt;/code&gt; 字段中）：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;有效未使用的索引节点链表&lt;/strong&gt;：这些索引节点当前未被任何进程使用，且不为脏，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_count&lt;/code&gt; 字段为 0；链表首尾元素由变量 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;inode_unused&lt;/code&gt; 引用。该链表用作磁盘高速缓存。&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;正在使用的索引节点链表&lt;/strong&gt;：这些索引节点当前正在被某些进程使用，且不为脏，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_count&lt;/code&gt; 字段为正数；链表的首尾元素由变量 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;inode_in_use&lt;/code&gt; 引用。&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;脏索引节点的链表&lt;/strong&gt;：链表的首尾元素由相应的超级块对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;s_dirty&lt;/code&gt; 字段引用。&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;这些链表都是通过适当索引节点对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_list&lt;/code&gt; 字段链接在一起&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;每个索引节点对象也包含在文件系统(per-filesystem)的双向循环链表中，链表的头存放在超级块对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;s_inodes&lt;/code&gt; 字段中；索引节点对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_sb_list&lt;/code&gt; 字段存放了指向链表相邻元素的指针。&lt;/p&gt;
-
-&lt;p&gt;索引节点对象也存放在一个被称为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;inode_hashtable&lt;/code&gt; 的散列表中。散链表加快了对索引节点的搜索。&lt;/p&gt;
-
-&lt;h3 id=&quot;2-2-1-索引节点操作方法&quot;&gt;2-2-1 索引节点操作方法&lt;/h3&gt;
-
-&lt;p&gt;与索引节点对象关联的方法也被称为&lt;strong&gt;索引节点操作&lt;/strong&gt;，由 &lt;strong&gt;inode_operation&lt;/strong&gt; 结构来表示，存放在索引节点对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_op&lt;/code&gt; 字段中。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;create(dir, dentry, mode, nameidata)&lt;/code&gt;: 在某一目录下，为目录项对象相关的普通文件创建一个新的磁盘索引节点&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lookup(dir, dentry, nameidata)&lt;/code&gt;: 为包含在一个目录项对象中的文件名对应的索引节点查找目录&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;link(old_dentry, dir, new_dentry)&lt;/code&gt;: 创建一个名为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;new_dentry&lt;/code&gt; 的新的硬链接，指向 dir 目录下名为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;old_dentry&lt;/code&gt; 的文件&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;unlink(dir, dentry)&lt;/code&gt;: 从一个目录中删除目录项对象所指定文件的硬链接&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;symlink(dir, dentry, mode)&lt;/code&gt;: 在某个目录下，为与目录项对象相关的目录创建一个新的索引节点&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mkdir(dir, dentry, mode)&lt;/code&gt;: 在某个目录下，为与目录项对象相关的目录创建一个新的索引节点&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rmdir(dir, dentry)&lt;/code&gt;: 从一个目录删除子目录，子目录的名称包含在目录项对象中&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-3-文件对象&quot;&gt;2-3 文件对象&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;文件对象描述进程如何与一个打开的文件进行交互&lt;/strong&gt;。文件对象是在文件被打开时创建的，由一个 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;file&lt;/code&gt; 结构表示。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;em&gt;文件对象在磁盘上没有对应的映像&lt;/em&gt;，因此 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;file&lt;/code&gt; 结构中没有设置 dirty 字段来表示文件对象是否被修改&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_12.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;存放在文件对象中的主要信息是&lt;strong&gt;&lt;em&gt;文件指针&lt;/em&gt;&lt;/strong&gt;，即文件当前的位置，下个操作将在该位置执行。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;em&gt;由于几个进程可能同时访问同一文件，因此文件指针必须存放在文件对象而不是索引节点对象中&lt;/em&gt;&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;文件对象通过一个名为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;filp&lt;/code&gt; 的 slab 高速缓存分配，可分配的文件对象数目存在上限，因此&lt;strong&gt;&lt;em&gt;系统可同时访问的文件数目也存在上限&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;正在使用中的文件对象包含在具体文件系统的超级块的链表中，每个超级块对象把文件对象链表的头存放在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;s_files&lt;/code&gt; 字段中。因此，属于不同文件系统的文件对象包含在不同的链表中。文件对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;f_list&lt;/code&gt; 字段用于指向链表的前后元素。&lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;f_count&lt;/code&gt; 字段为引用计数器，用于记录使用文件对象的进程数。&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;当内核本身使用该文件对象时，也需要增加计数器的值&lt;/p&gt;
-
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;当 VFS 代表进程必须打开一个文件时，调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get_empty_filp()&lt;/code&gt; 函数分配一个新的文件对象。该函数调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;kmem_cache_alloc()&lt;/code&gt; 从 filp 高速缓存中获得一个空闲的文件对象，之后初始化该对象的字段。&lt;/p&gt;
-
-&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;memset&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;sizeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;INIT_LIST_HEAD&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f_ep_links&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;spin_lock_init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f_ep_lock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;atomic_set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f_uid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fsuid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f_gid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fsgid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f_owner&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lock&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RW_LOCK_UNLOCKED&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;INIT_LIST_HEAD&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f_maxcount&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INT_MAX&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;之前说过，每个文件系统都有其自己的文件操作集合，用于执行文件读写等操作。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;当内核将一个索引节点从磁盘装入内存时，就会把指向这些文件操作的指针存放在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;file_operatrions&lt;/code&gt; 结构中，而该结构的地址存放在索引节点对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_fop&lt;/code&gt; 字段中。&lt;/li&gt;
-  &lt;li&gt;当进程打开文件时，VFS 就用存放在索引节点中的这个地址初始化新文件对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;f_op&lt;/code&gt; 字段，使得后续对该文件的操作能够调用这些函数。&lt;/li&gt;
-  &lt;li&gt;如果有需要，VFS 随后可以通过在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;f_op&lt;/code&gt; 字段存放一个新值来修改文件操作的集合。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;2-3-1-文件对象操作方法&quot;&gt;2-3-1 文件对象操作方法&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;llseek(file, offset, origin)&lt;/code&gt;: 更新文件指针&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;read(file, fuf, count, offset)&lt;/code&gt;: 从文件的 offset 处开始读取 count 个字节，然后增加 offset 的值&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;aio_read(req, buf, len, pos)&lt;/code&gt;: 异步 IO 读取操作&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;write(file, buf, count, offset)&lt;/code&gt;: 从文件的 offset 处开始写入 count 个字节，然后增加 offset 的值&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;aio_write(req, buf, len, pos)&lt;/code&gt;: 异步 IO 写入操作&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mmap(file, vma)&lt;/code&gt;: 执行文件的内存映射，并将映射放入进程的地址空间&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;open(inode, file)&lt;/code&gt;: 通过创建一个新的文件对象来打开一个文件，并将其连接到对应的索引节点对象&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;flush(file)&lt;/code&gt;: 当打开的文件引用被关闭时调用&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fsync(file, dentry, flag)&lt;/code&gt;: 将文件所缓存的全部数据写入磁盘&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;aio_fsync(req, flag)&lt;/code&gt;: 异步 IO 刷新操作&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lock(file, cmd, file_lock)&lt;/code&gt;: 对 file 文件申请一个锁&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-4-目录项对象&quot;&gt;2-4 目录项对象&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;VFS 把每个目录看作由若干子目录和文件组成的一个普通文件&lt;/strong&gt;。当一个目录项被读入内存，VFS 就会将其转换成基于 dentry 结构的一个目录项对象。&lt;/p&gt;
-
-&lt;p&gt;对于进程查找的路径名中的每个分量，内核都会为其创建一个目录项对象。&lt;strong&gt;&lt;em&gt;目录项对象将每个路径分量与其对应的索引节点联系起来&lt;/em&gt;&lt;/strong&gt;。如在查找路径名 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/tmp/test&lt;/code&gt; 时，内核为根目录 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/&lt;/code&gt; 创建一个目录项对象，为根目录下的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tmp&lt;/code&gt; 项创建一个第二级目录项对象，为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/tmp&lt;/code&gt; 目录下的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;test&lt;/code&gt; 项创建一个第三级目录项对象。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;与文件对象一样，目录项对象在磁盘上也没有对应的映像，因此 dentry 结构不包含指出该对象已被修改的字段&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;目录项对象存放名为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dentry_cache&lt;/code&gt; 的 slab 高速缓存中；目录项对象的创建和删除是通过调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;kmem_cache_alloc()&lt;/code&gt; 和 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;kmem_cache_free()&lt;/code&gt; 实现的。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_13.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_14.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_count&lt;/code&gt;: 目录项对象的引用计数器&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_flag&lt;/code&gt;: 目录项高速缓存标志&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_inode&lt;/code&gt;: 与文件名关联的索引节点&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_parent&lt;/code&gt;: 父目录的目录项对象&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_child&lt;/code&gt;: 对目录而言，用于同一父目录中的目录项链表的指针&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_subdirs&lt;/code&gt;: 对目录而言，子目录项链表的头&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_name&lt;/code&gt;: 文件名&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;每个目录项对西那个可以处于以下四种状态之一：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;空闲状态&lt;/strong&gt;（free）&lt;/p&gt;
-
-    &lt;p&gt;&lt;em&gt;该状态的目录项对象不包含有效信息，且还没被 VFS 使用&lt;/em&gt;。对应的内存区由 slab 分配器进行分配&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;未使用状态&lt;/strong&gt;（unused）&lt;/p&gt;
-
-    &lt;p&gt;&lt;em&gt;该状态的目录项对象还没被内核使用&lt;/em&gt;。引用计数器 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_count&lt;/code&gt; 值为 0，但是其 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_inode&lt;/code&gt; 字段指向关联的索引节点。目录项对象包含有效的信息，但是为了在必要时回收内存，对应内容可能会被丢失。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;正在使用状态&lt;/strong&gt;（in use）&lt;/p&gt;
-
-    &lt;p&gt;&lt;em&gt;该状态的目录项对象正在被内核使用&lt;/em&gt;。引用计数器 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_count&lt;/code&gt; 值为正数，其 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_inode&lt;/code&gt; 字段指向关联的索引节点对象。目录项对象包含有效的信息，且不能被丢弃。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;负状态&lt;/strong&gt;（negative）&lt;/p&gt;
-
-    &lt;p&gt;&lt;em&gt;与目录项关联的索引节点不存在&lt;/em&gt;，可能是因为&lt;em&gt;相应的磁盘节点已经被删除&lt;/em&gt;，或者是因为&lt;em&gt;目录项对象是通过解析一个不存在文件的路径名创建的&lt;/em&gt;。目录项对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_inode&lt;/code&gt; 字段为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NULL&lt;/code&gt;，但是该对象仍被保存在目录项高速缓存中，以便后续对同一个文件目录名的查找操作能快速完成。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;2-4-1-目录项对象操作方法&quot;&gt;2-4-1 目录项对象操作方法&lt;/h3&gt;
-
-&lt;p&gt;与目录项对象关联的方法称为&lt;strong&gt;目录项操作&lt;/strong&gt;，由 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dentry_operation&lt;/code&gt; 结构表示，该结构的地址存放在目录项对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_op&lt;/code&gt; 字段中。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_revalidate(dentry, nameidata)&lt;/code&gt;: 把目录项对象转换为一个文件路径名之前，判断该目录项对象是否仍然有效。&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_delete(dentry)&lt;/code&gt;: 当对目录项对象的最后一个引用被删除时，调用该方法。&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_release(dentry)&lt;/code&gt;: 当要释放一个目录项对象时（放入 slab 分配器），调用该方法。&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_iput(dentry, ino)&lt;/code&gt;: 当一个目录项对象变为负状态使调用（即丢弃对应的索引节点）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;2-5-目录项高速缓存&quot;&gt;2-5 目录项高速缓存&lt;/h2&gt;
-
-&lt;p&gt;由于从磁盘读入一个目录项并构造相应的目录项对象需要花费一定的时间，因此在完成对目录项对象的操作之后，并不会立即丢弃，而是将其保留在内存中。为了最大限度地提高处理这些目录项对象的效率，Linux 使用&lt;strong&gt;目录项高速缓存&lt;/strong&gt;，该缓存由两种类型的数据结构组成：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;一个处于正在使用，未使用或负状态的目录项对象的集合&lt;/strong&gt;
-    &lt;ul&gt;
-      &lt;li&gt;所有未使用的目录项对象存放在一个“最近最少使用（LRU）”的双向链表中&lt;/li&gt;
-      &lt;li&gt;
-        &lt;p&gt;正在使用的目录项对象被保存在一个双向链表中，该链表由索引对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_dentry&lt;/code&gt; 字段引用；目录项对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_alias&lt;/code&gt; 字段存放链表中相邻元素的地址&lt;/p&gt;
-
-        &lt;blockquote&gt;
-          &lt;p&gt;&lt;em&gt;每个索引节点对象可能与多个硬链接关联&lt;/em&gt;，因此需要一个链表&lt;/p&gt;
-
-        &lt;/blockquote&gt;
-      &lt;/li&gt;
-      &lt;li&gt;当指向文件的最后一个硬链接被删除之后，一个正在被使用的目录项对象可能变成负状态。此时，该目录项对象被移动到未使用目录项对象组成的 LRU 链表中&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;一个能够快速获取与给定的文件名和目录名对应的目录项对象的散列表&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;如果目标目录项对象不存在缓存中，那么散列函数范围空值&lt;/p&gt;
-
-      &lt;ul&gt;
-        &lt;li&gt;散列表是由数组实现，数组中的每个元素是一个指向链表的指针。目录项对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;d_hash&lt;/code&gt; 字段包含指向具有相同散列值的链表中的相邻元素&lt;/li&gt;
-      &lt;/ul&gt;
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;目录项高速缓存还相当于&lt;strong&gt;索引节点高速缓存&lt;/strong&gt;（inode cache）的控制器。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;在内核内存中，不会丢弃与未使用目录项相关的索引节点，因此这些索引节点对象仍保存在 RAM 中，并且能够通过相应的目录项快速引用&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dcache_lock&lt;/code&gt; 自旋锁用于保护目录项高速缓存数据结构避免被多个处理器同时访问。&lt;/p&gt;
-
-&lt;h2 id=&quot;2-6-与进程相关的文件&quot;&gt;2-6 与进程相关的文件&lt;/h2&gt;
-
-&lt;p&gt;之前提到，&lt;em&gt;每个进程都有自己当前的工作目录与根目录&lt;/em&gt;，这仅仅是进程与文件系统交互所必须维护的数据中的两个例子。类型 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fs_struct&lt;/code&gt; 数据结构维护了&lt;strong&gt;进程与文件系统交互所需要的数据&lt;/strong&gt;；&lt;em&gt;每个进程描述符的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fs&lt;/code&gt; 字段指向该结构&lt;/em&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_15.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;count&lt;/code&gt;: 共享这个表的进程个数&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lock&lt;/code&gt;: 用于表中字段的读写自旋锁&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;root&lt;/code&gt;: 根目录的目录项&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pwd&lt;/code&gt;: 当前工作目录的目录项&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;除了 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fs_struct&lt;/code&gt;，还有另一个结构 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;files_struct&lt;/code&gt;，用于表示进程当前打开的文件。&lt;em&gt;进程描述符的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;files&lt;/code&gt; 字段存放了该表的地址&lt;/em&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_16.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fd&lt;/code&gt;: 指向文件对象的指针数组；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;max_fds&lt;/code&gt;: 指向该数组的长度&lt;/li&gt;
-  &lt;li&gt;通常，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fd&lt;/code&gt; 字段指向 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;files_struct&lt;/code&gt; 结构的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fd_array&lt;/code&gt; 字段，该字段包含 32 个文件对象指针。如果进程打开的文件数大于 32，内核就分配一个新的，更大的文件指针数组，并将地址存放在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fd&lt;/code&gt; 字段中，内核同时更新 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;max_fds&lt;/code&gt; 字段的值&lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;对于 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fd&lt;/code&gt; 数组中有元素的每个文件来说，&lt;strong&gt;数组的索引就是文件描述符（file descriptor）&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fd&lt;/code&gt; 数组的&lt;em&gt;第一个元素（index = 0）通常是进程的标准输入文件&lt;/em&gt;，&lt;em&gt;第二个元素（index = 1）是进程的标准输出文件，第三个元素（index = 2）是进程的标准错误文件&lt;/em&gt;。如下图所示：&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_17.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;Unix 进程将文件描述符作为主文件标识符。&lt;em&gt;两个文件描述符可以指向同一个打开的文件&lt;/em&gt;，即数组中的两个元素可能指向同一个文件对象。&lt;/li&gt;
-  &lt;li&gt;进程不能使用多于 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;NR_OPEN&lt;/code&gt;（一般为 1048576）个文件描述符。&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;open_fds&lt;/code&gt;: 指向打开文件描述符的指针。&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;open_fds_init&lt;/code&gt;: 文件描述符的初始集合。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;使用文件对象&lt;/strong&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;当内核开始使用一个文件对象时，调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fget()&lt;/code&gt; 函数：这个函数接收文件描述符 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fd&lt;/code&gt; 作为参数，返回 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;current→files→fd[fd]&lt;/code&gt; 中的地址，即对应文件对象的地址；同时使文件对象引用计数器 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;f_count&lt;/code&gt; 值 +1。如果没有文件与 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fd&lt;/code&gt; 对应，则 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fget()&lt;/code&gt; 返回 NULL。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;释放文件对象&lt;/strong&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;当内核完成对文件对象的使用后，调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fput()&lt;/code&gt; 函数：该函数将文件对象的地址作为参数，并减少文件对象引用计数器 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;f_count&lt;/code&gt; 的值。如果 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;f_count&lt;/code&gt; 的值变成 0，则该该函数调用文件操作的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;release&lt;/code&gt; 方法，减少索引节点对象的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i_write count&lt;/code&gt; 字段的值，并将文件对象从超级块链表中移除，释放文件对象给 slab 分配器，最后减少相关的文件系统描述符的目录项对象的引用计数器的值。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;3-文件系统类型&quot;&gt;3-文件系统类型&lt;/h1&gt;
-
-&lt;p&gt;Linux 内核支持多种不同的文件系统。有一些特殊的文件系统在 Linux 内核设计中具有重要作用。&lt;/p&gt;
-
-&lt;h2 id=&quot;3-1-特殊文件系统&quot;&gt;3-1 特殊文件系统&lt;/h2&gt;
-
-&lt;p&gt;当网络和磁盘文件系统能够使用户处理存放在内核之外的信息时，特殊文件系统可以为系统管理员和程序员提供一种容易的方式来&lt;strong&gt;&lt;em&gt;操作内核的数据结构并实现操作系统的特殊特征&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;特殊文件系统提供给系统管理员使用，网络和磁盘文件系统提供给普通用户使用&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;常用的特殊文件系统如下：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_18.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_19.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;注意，有几个文件系统没有固定的安装点&lt;/p&gt;
-
-  &lt;ul&gt;
-    &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bdedv&lt;/code&gt; 块设备；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pipefs&lt;/code&gt; 管道；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;shm&lt;/code&gt; IPC 共享线性区；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sockfs&lt;/code&gt; 套接字；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;usbfs&lt;/code&gt; USB 设备；&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tmpfs&lt;/code&gt; 临时文件（如果不被交换出去就保持在 RAM 中）&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;strong&gt;特殊文件系统不局限于物理块设备&lt;/strong&gt;。不过，内核给每个安装的特殊文件系统分配一个虚拟的块设备，其主设备号为 0，次设备号具有任意值（不同特殊文件系统的值不同）。&lt;/p&gt;
-
-&lt;h2 id=&quot;3-2-文件系统类型注册&quot;&gt;3-2 文件系统类型注册&lt;/h2&gt;
-
-&lt;p&gt;VFS 需要对代码已经在内核中的所有文件系统的类型进行跟踪，需要进行文件系统类型注册来实现。&lt;/p&gt;
-
-&lt;p&gt;每个注册的文件系统使用类型为 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;file_system_type&lt;/code&gt; 对象来表示，该对象结构如下：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_20.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;所有文件系统类型的对象都插入到一个单向链表中，该链表由自旋锁保护避免同时访问。&lt;/p&gt;
-
-&lt;p&gt;在系统初始化期间，调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;register_filesystem()&lt;/code&gt; 函数来注册编译时指定的每个文件系统；该函数把相应的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;file_system_type&lt;/code&gt; 对象插入到文件系统类型的链表中。&lt;/p&gt;
-
-&lt;h1 id=&quot;4-文件系统处理&quot;&gt;4-文件系统处理&lt;/h1&gt;
-
-&lt;p&gt;与其他 Unix 系统一样，Linux 也使用系统的&lt;strong&gt;根文件系统（system’s root filesystem）&lt;/strong&gt;：&lt;em&gt;由内核在引导阶段直接安装，并拥有系统初始化脚本及最基本的系统程序&lt;/em&gt;。&lt;/p&gt;
-
-&lt;p&gt;其他文件系统要么由初始化脚本安装，要么由用户直接安装在已经安装的文件系统的目录上。&lt;/p&gt;
-
-&lt;p&gt;作为一个目录树，每个文件系统都拥有自己的根目录（root directory）。安装文件系统的目录称之为&lt;strong&gt;安装点（mount point）&lt;/strong&gt;。&lt;strong&gt;&lt;em&gt;对于已经安装的文件系统属于安装点目录的一个子文件系统&lt;/em&gt;&lt;/strong&gt;，如 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/proc&lt;/code&gt; 虚拟文件系统是系统的根文件系统的子文件系统。&lt;/p&gt;
-
-&lt;h2 id=&quot;4-1-命名空间&quot;&gt;4-1 命名空间&lt;/h2&gt;
-
-&lt;p&gt;在 Linux 中，每个进程可以拥有自己的已安装文件系统树，被称为进程的&lt;strong&gt;命名空间&lt;/strong&gt;（namespace）。通常大多数进程共享同一个命名空间，即位于系统的根文件系统且被 init 进程使用的已安装的文件系统树。&lt;/p&gt;
-
-&lt;h1 id=&quot;5-路径名查找&quot;&gt;5-路径名查找&lt;/h1&gt;
-
-&lt;p&gt;当进程需要识别一个文件时，就将文件路径名传递给某个 VFS 系统调用（如 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;open()&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mkdir()&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rename()&lt;/code&gt; 等），VFS 会将路径名导出对应的索引节点。&lt;/p&gt;
-
-&lt;p&gt;路径名查找的标准流程是&lt;strong&gt;分析路径名并把它拆分成一个文件名序列，除了最后一个文件名以外，其余所有文件名肯定都是目录&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;如果路径名的第一个字符是 “/”，则该路径名是绝对路径，需要从 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;current→fs→root&lt;/code&gt;（进程根目录）所标识的目录开始搜索&lt;/li&gt;
-  &lt;li&gt;否则，该路径名是相对路径，需要从 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;current→fs→pwd&lt;/code&gt;（进程当前目录）所标识的目录开始搜索&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;在对初始目录的索引节点进行处理时，需要检查与第一个名字&lt;strong&gt;匹配的目录项，获得相应的索引节点&lt;/strong&gt;；之后，&lt;strong&gt;从磁盘读取包含那个索引节点的目录文件&lt;/strong&gt;，并检查与第二个名字匹配的目录项，以获得相应的索引节点。对包含在路径中的每个名字，该过程反复执行。&lt;/p&gt;
-
-&lt;p&gt;目录项高速缓存能够加速上述解析流程，因为最近最常使用的目录项对象保被缓存在内存中，每个&lt;strong&gt;目录项对象使得特定目录中的一个文件名与它相应的索引节点联系起来&lt;/strong&gt;。因此，可以避免在路径分析过程中从磁盘读取中间目录。&lt;/p&gt;
-
-&lt;p&gt;路径名查找由 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;path_look_up()&lt;/code&gt; 函数执行，接收三个参数：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;name&lt;/code&gt;: 指向要解析的文件路径名的指针&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;flags&lt;/code&gt;: 标志，表示将会如何访问查找到的文件&lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nd&lt;/code&gt;: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nameidata&lt;/code&gt; 数据结构的地址，存放了查找操作的结果&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;当 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;path_lookup()&lt;/code&gt; 返回时，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nd&lt;/code&gt; 指向的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nameidata&lt;/code&gt; 结构用与路径名查找操作有关的数据填充&lt;/p&gt;
-
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nameidata&lt;/code&gt; 结构如下：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_21.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dentry&lt;/code&gt; 与 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;mnt&lt;/code&gt; 分别指向所解析的&lt;strong&gt;&lt;em&gt;最后一个路径分量的目录项对象和已经安装文件系统对象&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;这两个字段表示给定的路径文件&lt;/p&gt;
-
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;flags&lt;/code&gt; 字段的取值有：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/linux_kernel/chapter_12/lk_22.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="Operating-System" /><summary type="html">通过所谓的虚拟文件系统的概念，Linux 系统能够支持多种文件系统类型。虚拟文件系统所隐含的思想是把表示多种不同类型的文件系统的共同信息存放在内核中，对文件系统的读写调用，内核都能将其替换成支持本地 Linux 文件系统或者其他文件系统的实际函数。</summary></entry></feed>
+&lt;p&gt;断言既可以知道程序的代码开发，也可以用来判断程序的正确性。我们可以将断言插入代码中，以确保程序运行时的行为与我们的理解一致&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">脚手架</summary></entry></feed>
