@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "Kafka: Kafka 配置"
+title: "Kafka: Configure Kafka"
 category: "system-design"
 author: "kkzhang"
 ---

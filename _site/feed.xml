@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-05-07T23:19:02+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Kafka: Kafka 配置</title><link href="http://localhost:4000/kafka-in-action-2.html" rel="alternate" type="text/html" title="Kafka: Kafka 配置" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-2</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-2.html">&lt;h1 id=&quot;1-broker-配置&quot;&gt;1. Broker 配置&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-05-07T23:22:23+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Kafka: Configure Kafka</title><link href="http://localhost:4000/kafka-in-action-2.html" rel="alternate" type="text/html" title="Kafka: Configure Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-2</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-2.html">&lt;h1 id=&quot;1-broker-配置&quot;&gt;1. Broker 配置&lt;/h1&gt;
 
 &lt;h2 id=&quot;11-numpartitions&quot;&gt;1.1 &lt;strong&gt;num.partitions&lt;/strong&gt;&lt;/h2&gt;
 
@@ -183,7 +183,7 @@
 
     &lt;/blockquote&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. Broker 配置</summary></entry><entry><title type="html">Kafka: 初识 Kafka</title><link href="http://localhost:4000/kafka-in-action-1.html" rel="alternate" type="text/html" title="Kafka: 初识 Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-1</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-1.html">&lt;h1 id=&quot;11-发布订阅消息系统&quot;&gt;1.1 发布订阅消息系统&lt;/h1&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. Broker 配置</summary></entry><entry><title type="html">Kafka: Meet Kafka</title><link href="http://localhost:4000/kafka-in-action-1.html" rel="alternate" type="text/html" title="Kafka: Meet Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-1</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-1.html">&lt;h1 id=&quot;11-发布订阅消息系统&quot;&gt;1.1 发布订阅消息系统&lt;/h1&gt;
 
 &lt;p&gt;发布订阅消息系统的一个特点是，消息的发送者不会直接把消息发送给接收者。&lt;strong&gt;发送者以某种方式对消息进行分类，接收者订阅它们，以便接收特定类型的消息&lt;/strong&gt;。&lt;/p&gt;
 
@@ -361,7 +361,7 @@
 
     &lt;p&gt;通过横向扩展生产者，消费者及 Broker，使得 Kafka 在处理大量消息时可以保证亚秒级延迟。&lt;/p&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1.1 发布订阅消息系统</summary></entry><entry><title type="html">Kafka: Kafka 生产者</title><link href="http://localhost:4000/kafka-in-action-3.html" rel="alternate" type="text/html" title="Kafka: Kafka 生产者" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-3</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-3.html">&lt;h1 id=&quot;1-生产者概述&quot;&gt;1. 生产者概述&lt;/h1&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1.1 发布订阅消息系统</summary></entry><entry><title type="html">Kafka: Writing Messages to Kafka</title><link href="http://localhost:4000/kafka-in-action-3.html" rel="alternate" type="text/html" title="Kafka: Writing Messages to Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-3</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-3.html">&lt;h1 id=&quot;1-生产者概述&quot;&gt;1. 生产者概述&lt;/h1&gt;
 
 &lt;p&gt;需要往 Kafka 写消息的场景有：&lt;/p&gt;
 
