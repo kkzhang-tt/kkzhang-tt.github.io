@@ -26,7 +26,7 @@ author: "kkzhang"
 
 不同的使用场景对生产者 API 的使用和配置都会有直接影响。
 
-![]({{site.baseurl}}/images/kafka/chapter_2/1.png)
+![]({{site.baseurl}}/images/kafka/chapter_3/1.png)
 
 上图展示了向 Kafka 发送消息的主要步骤：
 
