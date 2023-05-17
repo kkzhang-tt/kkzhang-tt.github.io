@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Kafka: Reading Data from Kafka</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.1" />
+<meta property="og:title" content="Kafka: Reading Data from Kafka" />
+<meta name="author" content="kkzhang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="1. KafkaConsumer 概念" />
+<meta property="og:description" content="1. KafkaConsumer 概念" />
+<link rel="canonical" href="http://localhost:4000/kafka-in-action-4.html" />
+<meta property="og:url" content="http://localhost:4000/kafka-in-action-4.html" />
+<meta property="og:site_name" content="Find a needle in haystack" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-05-14T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Kafka: Reading Data from Kafka" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"kkzhang"},"headline":"Kafka: Reading Data from Kafka","dateModified":"2023-05-14T00:00:00+08:00","@type":"BlogPosting","datePublished":"2023-05-14T00:00:00+08:00","description":"1. KafkaConsumer 概念","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/kafka-in-action-4.html"},"url":"http://localhost:4000/kafka-in-action-4.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Find a needle in haystack" /><link rel="shortcut icon" type="image/x-icon" href="/logo.ico" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/">..</a><article>
+  <p class="post-meta">
+    <time datetime="2023-05-14 00:00:00 +0800">2023-05-14</time>
+  </p>
+  
+  <h1><p style="color:blue;">Kafka: Reading Data from Kafka</p></h1>
+
+  <h1 id="1-kafkaconsumer-概念">1. KafkaConsumer 概念</h1>
+
+<h2 id="11-消费者与消费者组">1.1 消费者与消费者组</h2>
+
+<p>Kafka 消费者从属于<strong>消费者群组（Consumer Group）</strong>。一个群组里的消费者订阅的是同一个主题，每个消费者消费该主题的一部分分区消息。
+<img src="/images/kafka/chapter_4/1.png" alt="" /></p>
+
+<p><img src="/images/kafka/chapter_4/2.png" alt="" /></p>
+
+<p><img src="/images/kafka/chapter_4/3.png" alt="" /></p>
+
+<p><img src="/images/kafka/chapter_4/4.png" alt="" /></p>
+
+<p>如上所示，主题 Topic 1 有 4 个分区，消费者群组 Consumer Group 1 订阅该主题：</p>
+
+<ol>
+  <li>消费者群组中只有一个消费者 C1，该消费者将接收 4 个分区的消息</li>
+  <li>消费者群组中添加一个消费者 C2，则 C1, C2 分别接收 2 个分区的消息</li>
+  <li>如果群组中有 4 个消费者，则每个消费者分别接收 1 个分区的消息</li>
+  <li>如果群组中的消费者继续增加，超过了主题分区的数量，那么会有一部分消费者被闲置，无法接收任何分区的消息</li>
+</ol>
+
+<p>通过<strong>往消费者群组中添加消费者，是横向扩展消费能力的主要方式</strong>。但是，<strong>消费者的数量不要超过分区数</strong>，不然会有部份消费者无法消费消息。</p>
+
+<ul>
+  <li>单个消费者有时候无法跟上数据生产的速度，此时可以增加消费者数目，让每个消费者分担部份分区的消息</li>
+  <li>群组中的每个消费者只承担部份分区的消费</li>
+</ul>
+
+<p>同时，Kafka 还支持多个消费组订阅同一个主题，每个消费组都可以接收全部主题消息，且互不影响。</p>
+
+<ul>
+  <li>该设计适用于多个不同的应用程序订阅同一个主题的场景</li>
+</ul>
+
+<p><img src="/images/kafka/chapter_4/5.png" alt="" /></p>
+
+<p><strong>不管是往消费组中添加消费者，还是新增新的消费组，都不会对 Kafka 的性能造成负面影响</strong>。</p>
+
+<h2 id="12-消费者群组与分区再均衡">1.2 消费者群组与分区再均衡</h2>
+
+<h3 id="121-rebalance">1.2.1 Rebalance</h3>
+
+<p>主题分区所有权由一个消费者转移到另一个消费者，被称为<strong>再均衡</strong>。</p>
+
+<p>以下场景会发生再均衡操作：</p>
+
+<ul>
+  <li><strong>新的消费者加入群组</strong>：新增的消费者会读取原本属于其他消费者的分区消息</li>
+  <li><strong>消费者（关闭或者发生崩溃）离开群组</strong>：该消费者负责的分区将由其他消费者处理</li>
+  <li><strong>主题分区发生变化</strong>：由管理员新增或者删除分区</li>
+</ul>
+
+<p>再均衡可以使得消费者群组具有更好的可用性与伸缩性，但是<strong>再均衡期间，消费者将无法消费消息</strong>，使得整个群组短时间不可用。</p>
+
+<blockquote>
+  <p>需要避免不必要的再均衡操作</p>
+
+</blockquote>
+
+<h3 id="122-consumer-group">1.2.2 Consumer Group</h3>
+
+<p>消费者通过向<strong>被指派</strong>为<strong>群组协调器</strong>（group coordinator ）的 Broker 发送心跳（heartbeats）来维持<strong>消费者与群组的从属关系</strong>以及<strong>消费者与分区的所有权关系</strong>。</p>
+
+<blockquote>
+  <p>不同的消费者群组可以有不同的群组协调器</p>
+
+  <ul>
+    <li>如果消费者在指定时间间隔内正常发送心跳，则会被认为是活跃的</li>
+    <li>如果消费者停止发送心跳的时间较长，会话过期，群组协调器就会认为消费者已经死亡，触发再均衡</li>
+  </ul>
+</blockquote>
+
+<p><strong>消费者会在消息轮询或者提交消息偏移量时发送心跳</strong>。</p>
+
+<p>消费者退出群组分为两种场景：</p>
+
+<ol>
+  <li><strong><em>消费者崩溃退出</em></strong>
+    <ul>
+      <li>消费者崩溃，并停止读取消息。协调器并不会立即触发再均衡，而是等待几秒，确认消费者已经死亡，之后再均衡</li>
+    </ul>
+  </li>
+  <li><strong><em>消费者主动退出</em></strong>
+    <ul>
+      <li>消费者会通知协调器其将要离开群组，那么协调器就会立即触发一次再均衡</li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+  <p>在 0.10.1 版本中，Kafka 引入一个独立的心跳线程，可以在消息轮询间隙发送心跳；使得发送心跳的频率与消息轮询的频率（与处理消息花费的时间有关）相互独立。</p>
+
+</blockquote>
+
+<h3 id="123-分区分配过程">1.2.3 分区分配过程</h3>
+
+<ol>
+  <li>当消费者加入群组时，会向群组协调器发送一个 JoinGroup 的请求。
+    <ul>
+      <li>第一个加入群组的消费者会成为群组的 Leader</li>
+    </ul>
+  </li>
+  <li>群组 Leader 从协调器获得群组的成员列表
+    <ul>
+      <li>最近向协调器发送过心跳，被认为是活跃的消费者列表</li>
+    </ul>
+  </li>
+  <li>群组 Leader 为每个消费者分配分区子集
+    <ul>
+      <li>分配策略可以自定义实现，也可以使用 Kafka 内置策略</li>
+    </ul>
+  </li>
+  <li>群组 Leader 把分配结果发送给群组协调器</li>
+  <li>协调器将这些信息发送给所有消费者
+    <ul>
+      <li>每个消费者只能看到自己的分配结果；群组 Leader 知道所有分配结果</li>
+    </ul>
+  </li>
+  <li>再均衡发生时，重复上述流程</li>
+</ol>
+
+<h1 id="2-创建-kafka-消费者">2. 创建 Kafka 消费者</h1>
+
+<p>创建 KafkaConsumer 对象也需要 3 个必要属性：</p>
+
+<ul>
+  <li>bootstrap.servers：指定 Kafka 集群连接字符串</li>
+  <li>key.deserializer, value.deserializer：反序列化器，用于将字节数组转换成 java 对象</li>
+  <li>grop.id：指定了消费者属于哪个消费者组（非必需）；如果不指定，则不属于任何消费者组</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Properties</span> <span class="n">props</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Properties</span><span class="o">();</span>
+<span class="n">props</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"bootstrap.servers"</span><span class="o">,</span> <span class="s">"broker1:9092,broker2:9092"</span><span class="o">);</span>
+<span class="n">props</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"group.id"</span><span class="o">,</span> <span class="s">"CountryCounter"</span><span class="o">);</span>
+<span class="n">props</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"key.deserializer"</span><span class="o">,</span>
+  <span class="s">"org.apache.kafka.common.serialization.StringDeserializer"</span><span class="o">);</span>
+<span class="n">props</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"value.deserializer"</span><span class="o">,</span>
+  <span class="s">"org.apache.kafka.common.serialization.StringDeserializer"</span><span class="o">);</span>
+<span class="nc">KafkaConsumer</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">consumer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">KafkaConsumer</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span>
+<span class="nc">String</span><span class="o">&gt;(</span><span class="n">props</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h1 id="3-订阅主题">3. 订阅主题</h1>
+
+<p>使用 <code class="language-plaintext highlighter-rouge">subcribe()</code> 方法订阅主题：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 1. 订阅单个主题</span>
+<span class="n">consumer</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="nc">Collections</span><span class="o">.</span><span class="na">singletonList</span><span class="o">(</span><span class="s">"customerCountries"</span><span class="o">));</span>
+<span class="c1">// 2. 通过正则表达式订阅多个主题</span>
+<span class="c1">// 当有新的主题添加时，立即触发 rebalance，消费者就可以消费新的主题</span>
+<span class="n">consumer</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="s">"test.*"</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h1 id="4-轮询">4. 轮询</h1>
+
+<p>消息轮询方法不仅能够获取消息，还包含其他操作：<strong>群组协调，分区 Rebalance，发送心跳</strong>等。</p>
+
+<ul>
+  <li>当首次调用消费者的 poll 方法时，会查找群组协调器，加入群组，并接收被分配的分区</li>
+  <li>如果发生了 Rebalance，也需要在轮询过程中处理</li>
+  <li>心跳发送也是在轮询过程中发送的</li>
+</ul>
+
+<blockquote>
+  <p>我们需要确保轮询期间的操作尽快结束</p>
+
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="o">{</span>
+    <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">ConsumerRecords</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">ConsumerRecord</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">record</span> <span class="o">:</span> <span class="n">records</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">"topic = %s, partition = %s, offset = %d,
+               customer = %s, country = %s\n"</span><span class="o">,</span>
+               <span class="n">record</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">partition</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">offset</span><span class="o">(),</span>
+               <span class="n">record</span><span class="o">.</span><span class="na">key</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">());</span>
+            <span class="kt">int</span> <span class="n">updatedCount</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">custCountryMap</span><span class="o">.</span><span class="na">countainsValue</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">()))</span> <span class="o">{</span>
+                <span class="n">updatedCount</span> <span class="o">=</span> <span class="n">custCountryMap</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">())</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="n">custCountryMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">(),</span> <span class="n">updatedCount</span><span class="o">)</span>
+            <span class="nc">JSONObject</span> <span class="n">json</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JSONObject</span><span class="o">(</span><span class="n">custCountryMap</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">json</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="mi">4</span><span class="o">))</span>
+        <span class="o">}</span>
+<span class="o">}</span>
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Consumer 必须持续轮训 Kafka Broker，否则会被认为已经死亡，触发 Rebalance。</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">poll()</code> 方法返回记录列表，包含：主题信息，分区信息，偏移量，记录的 key-value 对</li>
+  <li><code class="language-plaintext highlighter-rouge">close()</code> 方法用于关闭消费者，除了关闭网络连接，也会触发一次 Rebalance（而不是等待消费者协调器去判断是否仍存活）</li>
+</ul>
+
+<p><strong>在一个消费者群组中，无法让一个线程运行多个消费者，也无法让多个线程共享一个消费者。安全起见，需要让一个线程运行一个消费者</strong>。</p>
+
+<h1 id="5-消费者配置">5. 消费者配置</h1>
+
+<ol>
+  <li>
+    <p><strong>fetch.min.bytes</strong></p>
+
+    <p>该参数指定了从 Broker 获取消息记录时的最小字节数。</p>
+
+    <ul>
+      <li>Broker 收到消费者请求时，如果当前可用数据量小于该值，则会等待有足够多的数据时才返回</li>
+      <li>适当调大该值，可以降低 Broker 负载：Broker 不需要频繁处理请求</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>fetch.max.wait.ms</strong></p>
+
+    <p>该参数用于指定 Broker 最长等待时间。</p>
+
+    <ul>
+      <li>当请求的数据量得不到满足时，最多等待该参数指定的时间</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>max.partition.fetch.bytes</strong></p>
+
+    <p>该参数指定 Broker 从每个分区返回给消费者的最大字节数。</p>
+
+    <ul>
+      <li>该参数值的设置需要考虑消费者处理数据的时间。消费者需要频繁调用 <code class="language-plaintext highlighter-rouge">poll()</code> 方法来维持会话，如果返回的数据量过多，数据处理时间较长，可能无法及时进行下次 <code class="language-plaintext highlighter-rouge">poll()</code> 导致会话过期。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>session.timeout.ms</strong></p>
+
+    <p>消费者于 Broker 之间会话过期时间，默认 3 秒。</p>
+
+    <ul>
+      <li>如果消费者在该时间范围内没有向 Broker 发送心跳，则会被认为已经死亡，触发 Rebalance</li>
+      <li>该参数表明消费者可以多长时间不发送心跳；另一个参数 heartbeat.interval.ms 则指定了 <code class="language-plaintext highlighter-rouge">poll()</code> 方法发送心跳的频率。这两个参数通常配合使用，heartbeat.interval.ms 一般为 session.timeout.ms 的 1/3</li>
+      <li>该参数值如果设置的比较小，有利于更快监测和恢复崩溃的节点，但是可能会导致非预期内的 Rebalance</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>auto.offset.reset</strong></p>
+
+    <p>该参数指定了消费者在读取一个<strong>没有偏移量</strong>的分区或者<strong>偏移量无效</strong>的情况下的处理方式</p>
+
+    <ul>
+      <li>默认是 latest: 从最新记录处开始重新消费</li>
+      <li>earliest: 从分区起始位置开始重新消费</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>enable.auto.commit</strong></p>
+
+    <p>该参数用于配置消费者是否自动提交偏移量，默认 true.</p>
+
+    <ul>
+      <li>如果设置为自动提交，可以配置 auto.commit.interval.ms 用来控制提交间隔</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>partition.assignment.strategy</strong></p>
+
+    <p>用于指定分区分配给消费者的策略。默认有两种策略：</p>
+
+    <ol>
+      <li>
+        <p><strong>Range</strong></p>
+
+        <p>把主题若干连续分区分配给消费者。假设有 5 个分区，2 个消费者，那么其中一个消费者被分配 [0,1,2] 分区，另一被分配 [3,4] 分区</p>
+      </li>
+      <li>
+        <p><strong>RoundRobin</strong></p>
+
+        <p>把主题的所有分区逐个分配给消费者。假设有 5 个分区，2 个消费者，那么其中一个消费者被分配 [0,2,4] 分区，另一被分配 [1,3] 分区</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>max.poll.records</strong></p>
+
+    <p>用于控制单次 <code class="language-plaintext highlighter-rouge">poll()</code> 调用能够返回的消息数量。</p>
+  </li>
+  <li>
+    <p><strong>receive.buffer.bytes &amp; send.buffer.bytes</strong></p>
+
+    <p>用于设置 Sockets 在读写数据时用到的 TCP 缓冲区大小。</p>
+
+    <ul>
+      <li>默认为操作系统的默认值</li>
+      <li>如果消费者或者生产者与 Broker 位于不同的数据中心，可以适当提高缓冲区大小，因为网络通信延迟会比较高</li>
+    </ul>
+  </li>
+</ol>
+
+<h1 id="6-提交偏移量">6. 提交偏移量</h1>
+
+<p>当调用 <code class="language-plaintext highlighter-rouge">poll()</code> 方法时，会返回已经写入 Kafka Broker 但是消费者还未读取的记录。</p>
+
+<blockquote>
+  <p>Kafka 消费消息不需要得到消费者的确认，相反，消费者可以追踪消息在分区的位置（偏移量）</p>
+
+</blockquote>
+
+<p><strong>更新分区当前位置的操作被称为提交偏移量</strong>。</p>
+
+<p><strong>消费者如何提交偏移量？</strong></p>
+
+<ul>
+  <li>消费者通过往 <strong>__consumer_offsets</strong> 特殊主题发送消息，消息中包含每个分区的偏移量</li>
+</ul>
+
+<p><strong>偏移量的用途？</strong></p>
+
+<ul>
+  <li>如果消费者一直稳定运行消费，那么偏移量没有什么用处</li>
+  <li>如果发生 Rebalance（消费者崩溃或者有新的消费者加入群组），那么消费者可能会被分配新的分区。为了能够继续按照之前的位置继续消费，<strong>消费者需要读取每个分区最后提交的偏移量，然后从偏移量的位置继续处理</strong>。</li>
+</ul>
+
+<p><strong>发生 Rebalance 时，提交的偏移量可能带来的影响？</strong></p>
+
+<ol>
+  <li>
+    <p>如果最近一次提交的偏移量小于消费者处理的最后一个消息的偏移量，那么两个偏移量之间的消息会被重复消费</p>
+
+    <p><img src="/images/kafka/chapter_4/6.png" alt="" /></p>
+  </li>
+  <li>
+    <p>如果最近一次提交的偏移量大于消费者处理的最后一个消息的偏移量，那么两个偏移量之间的消息会被丢失</p>
+
+    <p><img src="/images/kafka/chapter_4/7.png" alt="" /></p>
+  </li>
+</ol>
+
+<p>Kafka 提供了多种方式用来提交偏移量。</p>
+
+<h2 id="61-自动提交">6.1 自动提交</h2>
+
+<p>如果配置 enable.auto.commit=true，那么默认每隔 5 秒，<strong>消费者会自动把 <code class="language-plaintext highlighter-rouge">poll()</code> 返回的最大偏移量提交</strong>。</p>
+
+<blockquote>
+  <p>可以设置 auto.commit.interval.ms 参数调整提交间隔</p>
+
+</blockquote>
+
+<p>自动提交是在 <code class="language-plaintext highlighter-rouge">poll()</code> 中处理的</p>
+
+<ul>
+  <li>当消费者每次轮询时，都会检查是否该提交偏移量了；如果可以提交，则将上一次 <code class="language-plaintext highlighter-rouge">poll()</code> 返回的最大偏移量进行提交</li>
+</ul>
+
+<p>自动提交偏移量可能带来的影响</p>
+
+<ol>
+  <li>
+    <p>上次提交之后发生 Rebalance，导致<strong>消息被重复处理</strong></p>
+
+    <p>假设提交间隔为 5s，如果在上次提交之后的 3s 发生 Rebalance，新的消费者会从最后一次提交的偏移量位置开始消费，那么这 3s 内的消息会被重复消费。</p>
+
+    <blockquote>
+      <p><em>这种情况不能完全避免</em></p>
+
+    </blockquote>
+  </li>
+  <li>
+    <p>自动提交时，上次轮询的消息未被处理完，如果消费者之后发生崩溃，可能会导致消息丢失</p>
+
+    <p>每次调用 <code class="language-plaintext highlighter-rouge">poll()</code> 时都会检查是否提交上次返回的最大偏移量，但是并不知道上次返回的消息是否全部被处理完成。因此，需要确保再次调用 <code class="language-plaintext highlighter-rouge">poll()</code> 时，之前的消息已经被处理完。</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">close()</code> 调用也会自动提交偏移量</p>
+
+</blockquote>
+
+<h2 id="62-提交当前偏移量">6.2 提交当前偏移量</h2>
+
+<p>如果配置 auto.commit.offset=false，可以<strong>使用 <code class="language-plaintext highlighter-rouge">commitSync()</code> 方法手动提交当前偏移量</strong>。</p>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">commitSync()</code> 会提交 <code class="language-plaintext highlighter-rouge">poll()</code> 返回的最新偏移量，提交成功则返回，否则抛出异常。</p>
+
+</blockquote>
+
+<blockquote>
+  <p>只要没有发生不可恢复的错误，<code class="language-plaintext highlighter-rouge">commitSync()</code> 会一直重试直到成功。</p>
+
+</blockquote>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">commitSync()</code> 是同步方法，在 Broker 响应之前，会一直阻塞。</p>
+
+</blockquote>
+
+<p>在调用 <code class="language-plaintext highlighter-rouge">commitSync()</code> 提交最新偏移量之前，需要确保 <code class="language-plaintext highlighter-rouge">poll()</code> 返回的消息被处理完成；否则，如果发生 Rebalance，仍会有消息丢失的风险。</p>
+
+<p>下面是处理完消息之后手动提交偏移量的代码：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">ConsumerRecords</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+    <span class="k">for</span> <span class="o">(</span><span class="nc">ConsumerRecord</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">record</span> <span class="o">:</span> <span class="n">records</span><span class="o">)</span>
+    <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"topic = %s, partition = %s, offset =
+          %d, customer = %s, country = %s\n"</span><span class="o">,</span>
+             <span class="n">record</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">partition</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">offset</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">key</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">());</span>
+<span class="o">}</span> <span class="k">try</span> <span class="o">{</span>
+		<span class="c1">// 手动提交偏移量</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="na">commitSync</span><span class="o">();</span>
+  <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">CommitFailedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"commit failed"</span><span class="o">,</span> <span class="n">e</span><span class="o">)</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="63-异步提交">6.3 异步提交</h2>
+
+<p>由于 <code class="language-plaintext highlighter-rouge">commitSync()</code> 方法会使得消费者被阻塞，使得整体tun tu lia</p>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">commitAsync()</code> 提交之后，不会等待 Broker 的响应；并且，该方法不会重试提交</p>
+
+</blockquote>
+
+<p>不过，这种方式在发生 Rebalance 之后可能会导致消息被重复消费。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">ConsumerRecords</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+    <span class="k">for</span> <span class="o">(</span><span class="nc">ConsumerRecord</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">record</span> <span class="o">:</span> <span class="n">records</span><span class="o">)</span>
+    <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"topic = %s, partition = %s,
+        offset = %d, customer = %s, country = %s\n"</span><span class="o">,</span>
+        <span class="n">record</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">partition</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">offset</span><span class="o">(),</span>
+        <span class="n">record</span><span class="o">.</span><span class="na">key</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">());</span>
+<span class="o">}</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="na">commitAsync</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">commitAsync()</code> 支持回调（当 Broker 响应时被触发），可以在回调方法中进行异常重试。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">ConsumerRecords</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+    <span class="k">for</span> <span class="o">(</span><span class="nc">ConsumerRecord</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">record</span> <span class="o">:</span> <span class="n">records</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"topic = %s, partition = %s,
+        offset = %d, customer = %s, country = %s\n"</span><span class="o">,</span>
+        <span class="n">record</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">partition</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">offset</span><span class="o">(),</span>
+        <span class="n">record</span><span class="o">.</span><span class="na">key</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="n">consumer</span><span class="o">.</span><span class="na">commitAsync</span><span class="o">(</span><span class="k">new</span> <span class="nc">OffsetCommitCallback</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onComplete</span><span class="o">(</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">TopicPartition</span><span class="o">,</span>
+        <span class="nc">OffsetAndMetadata</span><span class="o">&gt;</span> <span class="n">offsets</span><span class="o">,</span> <span class="nc">Exception</span> <span class="n">exception</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">e</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+                <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"Commit failed for offsets {}"</span><span class="o">,</span> <span class="n">offsets</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+<span class="o">}</span> <span class="o">});</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="64-同步与异步提交组合">6.4 同步与异步提交组合</h2>
+
+<p>组合使用 <code class="language-plaintext highlighter-rouge">commitSync()</code> 与 <code class="language-plaintext highlighter-rouge">commitAsync()</code> ，确保在消费者关闭前提交成功。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="o">{</span>
+    <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">ConsumerRecords</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">ConsumerRecord</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">record</span> <span class="o">:</span> <span class="n">records</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"topic = %s, partition = %s, offset = %d,
+            customer = %s, country = %s\n"</span><span class="o">,</span>
+            <span class="n">record</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">partition</span><span class="o">(),</span>
+            <span class="n">record</span><span class="o">.</span><span class="na">offset</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">key</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">());</span>
+			<span class="o">}</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="na">commitAsync</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"Unexpected error"</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="na">commitSync</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="65-提交特定的偏移量">6.5 提交特定的偏移量</h2>
+
+<p><code class="language-plaintext highlighter-rouge">commitSync()</code> 与 <code class="language-plaintext highlighter-rouge">commitAsync()</code> 方法只能提交 <code class="language-plaintext highlighter-rouge">poll()</code> 返回消息的最大偏移量，如果想要提交该批次中间的偏移量，可以将分区及偏移量作为参数传入。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">TopicPartition</span><span class="o">,</span> <span class="nc">OffsetAndMetadata</span><span class="o">&gt;</span> <span class="n">currentOffsets</span> <span class="o">=</span>
+        <span class="k">new</span> <span class="nc">HashMap</span><span class="o">&lt;&gt;();</span>
+    <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="o">....</span>
+    <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">ConsumerRecords</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">ConsumerRecord</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">record</span> <span class="o">:</span> <span class="n">records</span><span class="o">)</span>
+        <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"topic = %s, partition = %s, offset = %d,
+            customer = %s, country = %s\n"</span><span class="o">,</span>
+            <span class="n">record</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">partition</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">offset</span><span class="o">(),</span>
+            <span class="n">record</span><span class="o">.</span><span class="na">key</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">());</span>
+            <span class="n">currentOffsets</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="k">new</span> <span class="nc">TopicPartition</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span>
+            <span class="n">record</span><span class="o">.</span><span class="na">partition</span><span class="o">()),</span> <span class="k">new</span>
+            <span class="nc">OffsetAndMetadata</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">offset</span><span class="o">()+</span><span class="mi">1</span><span class="o">,</span> <span class="s">"no metadata"</span><span class="o">));</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">count</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>
+								<span class="c1">// 提交特定的偏移量</span>
+                <span class="n">consumer</span><span class="o">.</span><span class="na">commitAsync</span><span class="o">(</span><span class="n">currentOffsets</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+            <span class="n">count</span><span class="o">++;</span>
+		<span class="o">}</span> 
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h1 id="7-rebalance-监听器">7. Rebalance 监听器</h1>
+
+<p>消费者在退出或者 Rebalance 之前可能需要做一些清理工作，如关闭文件，数据库连接等。消费者在调用 <code class="language-plaintext highlighter-rouge">subscribe()</code> 监听主题时，可以传入 <code class="language-plaintext highlighter-rouge">ConsumerRebalanceListener</code> 实例对 Rebalance 操作进行监听。</p>
+
+<p><code class="language-plaintext highlighter-rouge">ConsumerRebalanceListener</code> 接口有两个方法需要实现：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 该方法会在 Rebalance 之前，消费者停止读取消息之后调用</span>
+<span class="c1">// 如果在此时提交偏移量，那么新的消费者就可以知道上一次消费的位置</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">onPartitionsRevoked</span><span class="o">(</span><span class="nc">Collection</span><span class="o">&lt;</span><span class="nc">TopicPartition</span><span class="o">&gt;</span> <span class="n">partitions</span><span class="o">)</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 该方法会在 Rebalance 之后，消费者开始读取消息之前调用</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">onPartitionsAssigned</span><span class="o">(</span><span class="nc">Collection</span><span class="o">&lt;</span><span class="nc">TopicPartition</span><span class="o">&gt;</span> <span class="n">partitions</span><span class="o">)</span>
+</code></pre></div></div>
+
+<p>监听示例：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">TopicPartition</span><span class="o">,</span> <span class="nc">OffsetAndMetadata</span><span class="o">&gt;</span> <span class="n">currentOffsets</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HashMap</span><span class="o">&lt;&gt;();</span>
+
+<span class="kd">private</span> <span class="kd">class</span> <span class="nc">HandleRebalance</span> <span class="kd">implements</span> <span class="nc">ConsumerRebalanceListener</span> <span class="o">{</span>
+		
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onPartitionsAssigned</span><span class="o">(</span><span class="nc">Collection</span><span class="o">&lt;</span><span class="nc">TopicPartition</span><span class="o">&gt;</span> <span class="n">partitions</span><span class="o">)</span> <span class="o">{}</span>
+
+		<span class="c1">// 在失去分区所有权之前，提交已经处理过的消息偏移量，而非最大偏移量</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onPartitionsRevoked</span><span class="o">(</span><span class="nc">Collection</span><span class="o">&lt;</span><span class="nc">TopicPartition</span><span class="o">&gt;</span> <span class="n">partitions</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Lost partitions in rebalance. Committing current offsets:"</span> <span class="o">+</span> <span class="n">currentOffsets</span><span class="o">);</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="na">commitSync</span><span class="o">(</span><span class="n">currentOffsets</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span> 
+
+<span class="k">try</span> <span class="o">{</span>
+		<span class="n">consumer</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="n">topics</span><span class="o">,</span> <span class="k">new</span> <span class="nc">HandleRebalance</span><span class="o">());</span>
+    <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">ConsumerRecords</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">records</span> <span class="o">=</span>
+          <span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">ConsumerRecord</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">record</span> <span class="o">:</span> <span class="n">records</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"topic = %s, partition = %s, offset = %d,
+             customer = %s, country = %s\n"</span><span class="o">,</span>
+             <span class="n">record</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">partition</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">offset</span><span class="o">(),</span>
+             <span class="n">record</span><span class="o">.</span><span class="na">key</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">());</span>
+             <span class="n">currentOffsets</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="k">new</span> <span class="nc">TopicPartition</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span>
+             <span class="n">record</span><span class="o">.</span><span class="na">partition</span><span class="o">()),</span> <span class="k">new</span>
+             <span class="nc">OffsetAndMetadata</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">offset</span><span class="o">()+</span><span class="mi">1</span><span class="o">,</span> <span class="s">"no metadata"</span><span class="o">));</span>
+					<span class="o">}</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="na">commitAsync</span><span class="o">(</span><span class="n">currentOffsets</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">WakeupException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// ignore, we're closing</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">"Unexpected error"</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="na">commitSync</span><span class="o">(</span><span class="n">currentOffsets</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Closed consumer and we are done"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h1 id="8-从特定偏移量处开始消费">8. 从特定偏移量处开始消费</h1>
+
+<p><code class="language-plaintext highlighter-rouge">poll()</code> 方法可以从分区的最新偏移量处开始消费消息，如果想从分区的起始位置开始消费，可以使用 <code class="language-plaintext highlighter-rouge">seekToBeginning(TopicPartition tp)</code> 方法；如果想从分区的末尾位置开始消费，可以使用 <code class="language-plaintext highlighter-rouge">seekToEnd(TopicPartition tp)</code> 方法。</p>
+
+<p>同时，Kafka 还提供 <code class="language-plaintext highlighter-rouge">seek(TopicPartition partition, long offset)</code> 方法从特定偏移量处开始消费。</p>
+
+<blockquote>
+  <p>seek() 方法只是用来更新当前正在消费的位置</p>
+
+</blockquote>
+
+<p>下面示例使用 <code class="language-plaintext highlighter-rouge">ConsumerRebalanceLister</code> 与 <code class="language-plaintext highlighter-rouge">seek()</code> 方法实现在分区分配时，从本地 DB 中获取特定的 Offset 并消费。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SaveOffsetsOnRebalance</span> <span class="kd">implements</span> <span class="nc">ConsumerRebalanceListener</span> <span class="o">{</span>
+      <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onPartitionsRevoked</span><span class="o">(</span><span class="nc">Collection</span><span class="o">&lt;</span><span class="nc">TopicPartition</span><span class="o">&gt;</span> <span class="n">partitions</span><span class="o">)</span> <span class="o">{</span>
+          <span class="n">commitDBTransaction</span><span class="o">();</span>
+			<span class="o">}</span>
+      <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onPartitionsAssigned</span><span class="o">(</span><span class="nc">Collection</span><span class="o">&lt;</span><span class="nc">TopicPartition</span><span class="o">&gt;</span> <span class="n">partitions</span><span class="o">)</span> <span class="o">{</span>
+	        <span class="k">for</span><span class="o">(</span><span class="nc">TopicPartition</span> <span class="nl">partition:</span> <span class="n">partitions</span><span class="o">)</span>
+	            <span class="n">consumer</span><span class="o">.</span><span class="na">seek</span><span class="o">(</span><span class="n">partition</span><span class="o">,</span> <span class="n">getOffsetFromDB</span><span class="o">(</span><span class="n">partition</span><span class="o">));</span>
+			<span class="o">}</span> 
+<span class="o">}</span>
+
+<span class="n">consumer</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="n">topics</span><span class="o">,</span> <span class="k">new</span> <span class="nc">SaveOffsetOnRebalance</span><span class="o">(</span><span class="n">consumer</span><span class="o">));</span>
+<span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+
+<span class="c1">// 更新各个 Partition 的消费位点</span>
+<span class="k">for</span> <span class="o">(</span><span class="nc">TopicPartition</span> <span class="nl">partition:</span> <span class="n">consumer</span><span class="o">.</span><span class="na">assignment</span><span class="o">())</span>
+  <span class="n">consumer</span><span class="o">.</span><span class="na">seek</span><span class="o">(</span><span class="n">partition</span><span class="o">,</span> <span class="n">getOffsetFromDB</span><span class="o">(</span><span class="n">partition</span><span class="o">));</span>
+
+<span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">ConsumerRecords</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+    <span class="k">for</span> <span class="o">(</span><span class="nc">ConsumerRecord</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">record</span> <span class="o">:</span> <span class="n">records</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">processRecord</span><span class="o">(</span><span class="n">record</span><span class="o">);</span>
+        <span class="n">storeRecordInDB</span><span class="o">(</span><span class="n">record</span><span class="o">);</span>
+        <span class="n">storeOffsetInDB</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">partition</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">offset</span><span class="o">());</span>
+    <span class="o">}</span>
+    <span class="n">commitDBTransaction</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h1 id="9-如何退出">9. 如何退出</h1>
+
+<p>目前的消费者示例中，消费者都是在无限循环中，如果要退出循环，需要通过<strong>另一个线程</strong>调用 <code class="language-plaintext highlighter-rouge">consumer.wakeup()</code> 方法。</p>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">consumer.wakeup()</code> 是消费者唯一一个可以从其他线程安全调用的方法</p>
+
+</blockquote>
+
+<p>调用 <code class="language-plaintext highlighter-rouge">consumer.wakeup()</code> 可以退出 <code class="language-plaintext highlighter-rouge">poll()</code>，并抛出 <code class="language-plaintext highlighter-rouge">WakeupException</code> 异常。</p>
+
+<blockquote>
+  <p>如果在调用 <code class="language-plaintext highlighter-rouge">consumer.wakeup()</code> 时，消费者线程并没有等待轮询，那么异常将会在下一次调用 <code class="language-plaintext highlighter-rouge">poll()</code> 时抛出</p>
+
+</blockquote>
+
+<p>需要注意，在消费者退出之前，有必要调用 <code class="language-plaintext highlighter-rouge">consumer.close()</code> 方法，该方法会提交还未提交的信息，并向群组协调器发送离开群组的消息，触发 Rebalance。</p>
+
+<h1 id="10-独立消费者">10. 独立消费者</h1>
+
+<p>如果一个消费者只是想从主题的所有分区或者特定分区读取消息，并不需要消费者组和 Rebalance。这样的话就不需要订阅主题，取而代之的是<strong>为自己分配分区</strong>。</p>
+
+<blockquote>
+  <p>订阅主题（并加入消费者群组），为自己分配分区两件事不能同时执行</p>
+
+</blockquote>
+
+<p>消费者为自己分配分区并消费消息的示例：</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">List</span><span class="o">&lt;</span><span class="nc">PartitionInfo</span><span class="o">&gt;</span> <span class="n">partitionInfos</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span> <span class="n">partitionInfos</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">partitionsFor</span><span class="o">(</span><span class="s">"topic"</span><span class="o">);</span> 
+<span class="k">if</span> <span class="o">(</span><span class="n">partitionInfos</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">for</span> <span class="o">(</span><span class="nc">PartitionInfo</span> <span class="n">partition</span> <span class="o">:</span> <span class="n">partitionInfos</span><span class="o">)</span>
+      <span class="n">partitions</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">TopicPartition</span><span class="o">(</span><span class="n">partition</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span> <span class="n">partition</span><span class="o">.</span><span class="na">partition</span><span class="o">()));</span>
+			<span class="n">consumer</span><span class="o">.</span><span class="na">assign</span><span class="o">(</span><span class="n">partitions</span><span class="o">);</span> 
+
+	<span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+	    <span class="nc">ConsumerRecords</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="n">records</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="mi">1000</span><span class="o">);</span>
+	    <span class="k">for</span> <span class="o">(</span><span class="nc">ConsumerRecord</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="nl">record:</span> <span class="n">records</span><span class="o">)</span> <span class="o">{</span>
+	        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"topic = %s, partition = %s, offset = %d,
+	          customer = %s, country = %s\n"</span><span class="o">,</span>
+	          <span class="n">record</span><span class="o">.</span><span class="na">topic</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">partition</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">offset</span><span class="o">(),</span>
+	          <span class="n">record</span><span class="o">.</span><span class="na">key</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">());</span>
+			<span class="o">}</span>
+	    <span class="n">consumer</span><span class="o">.</span><span class="na">commitSync</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>

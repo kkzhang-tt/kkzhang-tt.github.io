@@ -1,367 +1,1100 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-05-07T23:23:07+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Kafka: Configure Kafka</title><link href="http://localhost:4000/kafka-in-action-2.html" rel="alternate" type="text/html" title="Kafka: Configure Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-2</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-2.html">&lt;h1 id=&quot;1-broker-配置&quot;&gt;1. Broker 配置&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-05-17T23:44:31+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Kafka: Kafka Internals</title><link href="http://localhost:4000/kafka-in-action-5.html" rel="alternate" type="text/html" title="Kafka: Kafka Internals" /><published>2023-05-17T00:00:00+08:00</published><updated>2023-05-17T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-5</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-5.html">&lt;h1 id=&quot;1-集群成员关系&quot;&gt;1. 集群成员关系&lt;/h1&gt;
 
-&lt;h2 id=&quot;11-numpartitions&quot;&gt;1.1 &lt;strong&gt;num.partitions&lt;/strong&gt;&lt;/h2&gt;
-
-&lt;p&gt;指定了主题分区数。Kafka 集群通过分区对主题进行横向扩展，当有新的 Broker 加入集群时，可以通过分区实现负载均衡。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;不过，并不强制要求分区数大于 Broker 数。&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;在进行分区数量选择时，需要考虑以下几点：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Kafka 使用 Zookeeper 维护集群成员信息&lt;/strong&gt;。&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;主题的吞吐量&lt;/li&gt;
-  &lt;li&gt;消费者从单个分区读取数据的吞吐量&lt;/li&gt;
-  &lt;li&gt;生产者往单个分区写入数据的吞吐量&lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;每个 Broker 包含的分区个数，可用的磁盘空间与网络带宽&lt;/p&gt;
+    &lt;p&gt;Broker 启动时，通过&lt;strong&gt;创建临时节点&lt;/strong&gt;将自己的唯一 ID 注册到 Zookeeper&lt;/p&gt;
 
     &lt;blockquote&gt;
-      &lt;p&gt;单个 Broker 所承载的分区个数是有限的：分区越多，占用内存越多，分区 Leader 选举的时间越长&lt;/p&gt;
+      &lt;p&gt;每个 Broker 都有唯一标识符号，可以在配置文件中指定，也可以自动生成。
+  注册路径:  /brokers/ids&lt;/p&gt;
 
     &lt;/blockquote&gt;
   &lt;/li&gt;
-  &lt;li&gt;如果消息是按照 Key 写入各个分区的，那么新增分区会比较麻烦&lt;/li&gt;
+  &lt;li&gt;不同的 Kafka 组件通过订阅注册路径，可以在 Broker 加入或者退出集群时获得通知&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;在 Broker 宕机或者网络分区时，与 Zookeeper 断开连接，那么启动时创建的临时节点就会被自动删除。同时，监听 Broker 列表的 Kafka 组件就会收到 Broker 被移除的通知。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;虽然 Broker 注册的临时节点会被清除，但是其 ID 会继续保存在其他数据结构中（如主题的副本列表中）。在 Broker 关闭之后，如果&lt;strong&gt;使用相同的 ID 启动一个新的 Broker，它会立即加入集群，并拥有与旧 Broker 相同的分区与主题&lt;/strong&gt;。&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;11-logretentionms&quot;&gt;1.1 log.retention.ms&lt;/h2&gt;
+&lt;h1 id=&quot;2-控制器&quot;&gt;2. 控制器&lt;/h1&gt;
 
-&lt;p&gt;数据被保留的时间；对应的有 log.retention.minutes, log.retention.hours.&lt;/p&gt;
+&lt;p&gt;控制器也是一个 Broker，除了具有一般 Broker 的功能，还负责分区 Leader 的选举。&lt;/p&gt;
 
-&lt;h2 id=&quot;13-logretentionbytes&quot;&gt;1.3 log.retention.bytes&lt;/h2&gt;
-
-&lt;p&gt;数据被保留的大小；该参数作用在每个分区上&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;如果同时指定了数据保留的时间与大小参数，那么只要任意一个参数满足，数据就会被删除&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;14-logsegmentbytes&quot;&gt;1.4 log.segment.bytes&lt;/h2&gt;
-
-&lt;p&gt;当消息到达 Broker 时，会被追加到分区的当前日志片段（segment）上。当日志片段大小达到了 log.segment.bytes 时，当前日志片段就会被关闭，新的日志片段会被打开。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;被关闭的日志片段，就开始等待过期&lt;/strong&gt;。如果日志片段一直没被关闭，就不会过期。上面的 log.retention.ms/bytes 日志过期参数需要在日志片段关闭之后才有效。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;该参数值越小，会导致越频繁地开启与关闭文件，降低磁盘效率&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;15-logsegmentms&quot;&gt;1.5 log.segment.ms&lt;/h2&gt;
-
-&lt;p&gt;日志片段被关闭的时间。&lt;/p&gt;
-
-&lt;p&gt;如果同时指定了 log.segment.ms/bytes 两个参数，那么日志片段会在大小/时间达到上限时被关闭。&lt;/p&gt;
-
-&lt;h2 id=&quot;16-messagemaxbytes&quot;&gt;1.6 message.max.bytes&lt;/h2&gt;
-
-&lt;p&gt;用来限制单个消息的大小。如果生产者发送的消息大于该值，那么消息不会被接收，并且 Broker 会返回错误消息。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;如果该值越大，那么请求处理耗时就越大。同时，会增加磁盘写入块的大小，影响 IO 吞吐量。&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h1 id=&quot;2-硬件&quot;&gt;2. 硬件&lt;/h1&gt;
-
-&lt;p&gt;Kafka 本身对硬件没什么要求，但是如果对系统性能比较关注，可以注意以下几点：&lt;/p&gt;
-
-&lt;h2 id=&quot;21-磁盘吞吐量&quot;&gt;2.1 磁盘吞吐量&lt;/h2&gt;
-
-&lt;p&gt;生产者客户端的性能受服务端磁盘吞吐量的影响。生产者在发送完消息之后，一般会等待服务端将消息保存在磁盘上，磁盘写入越快，客户端生成消息的延迟就越低。&lt;/p&gt;
-
-&lt;h2 id=&quot;22-磁盘容量&quot;&gt;2.2 磁盘容量&lt;/h2&gt;
-
-&lt;p&gt;磁盘容量大小取决于需要保存的消息数量，同时也受集群复制策略的影响。&lt;/p&gt;
-
-&lt;h2 id=&quot;23-内存&quot;&gt;2.3 内存&lt;/h2&gt;
-
-&lt;p&gt;除了磁盘性能，服务端可用内存容量也是影响客户端性能的主要因素。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;磁盘影响生产者，而内存影响消费者&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;一般情况下，消费者从分区尾部读取消息，如果有生产者存在，就紧跟在生产者后面。此时，&lt;strong&gt;消费者读取的消息会直接放在系统的页面缓存里&lt;/strong&gt;，比磁盘上重新读取性能更高。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;运行 Kafka 的 JVM 不需要太大的缓存，剩余的系统内存可以直接用作页面缓存，或者缓存正在使用中的日志片段&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;24-网络&quot;&gt;2.4 网络&lt;/h2&gt;
-
-&lt;p&gt;网络吞吐量决定了 Kafka 能够处理的最大数据流量。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;网络吞吐量与磁盘存储是制约 Kafka 扩展规模的主要因素&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;25-cpu&quot;&gt;2.5 CPU&lt;/h2&gt;
-
-&lt;p&gt;Kafka 对计算处理能力要求较低，主要用在消息批量压缩与解压过程中。&lt;/p&gt;
-
-&lt;h1 id=&quot;3-kafka-集群&quot;&gt;3. Kafka 集群&lt;/h1&gt;
-
-&lt;p&gt;使用 Kafka 集群可以为客户端提供高性能与高可用性：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;可以跨服务器进行负载均衡&lt;/li&gt;
-  &lt;li&gt;使用复制功能避免单点故障造成的数据丢失&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_2/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;31-broker-数量&quot;&gt;3.1 Broker 数量&lt;/h2&gt;
-
-&lt;p&gt;一个 Kafka 集群需要多少个 Broker 数量取决于下面几个因素：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Kafka 使用 Zookeeper 的临时节点来选举控制器&lt;/strong&gt;：&lt;/p&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;需要多少磁盘空间保存数据&lt;/p&gt;
-
-    &lt;p&gt;单个 Broker 有多少可用空间，副本的复制系数多少&lt;/p&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;集群初始化选举&lt;/em&gt;&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Broker 集群中第一个启动的 Broker 通过在 Zookeeper 上创建临时节点（&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/controller&lt;/code&gt;）使自己成为控制器&lt;/li&gt;
+      &lt;li&gt;其他 Broker 在启动时，也尝试创建这个临时节点，但是会收到“节点已存在”异常，从而意识到集群控制器节点已经存在（集群已经存在控制器）&lt;/li&gt;
+      &lt;li&gt;其他 Broker 在控制器节点上创建 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;watch&lt;/code&gt; 对象（用于接收节点变更通知）&lt;/li&gt;
+    &lt;/ul&gt;
   &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;集群处理请求的能力&lt;/p&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;控制器异常再次触发选举&lt;/em&gt;&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;如果控制器被关闭或者与 Zookeeper 断开连接，Zookeeper 临时节点（&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/controller&lt;/code&gt;）消失；其他 Broker 通过 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;watch&lt;/code&gt; 对象收到节点消失的通知，因此尝试让自己成为新的控制器&lt;/li&gt;
+      &lt;li&gt;同样，第一个在 Zookeeper 上成功创建控制器节点的 Broker 成为新的控制器，其他 Broker 在新的控制器节点上再次创建 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;watch&lt;/code&gt; 对象&lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;每个新选出的控制器通过 Zookeeper 的递增操作获得一个全新的，数值更大的 &lt;strong&gt;Controller Epoch&lt;/strong&gt;. 其他 Broker 在知道当前的 Controller Epoch 之后，会忽略旧控制器发出的包含旧 Epoch 的消息&lt;/p&gt;
 
-    &lt;p&gt;需要考虑网络吞吐量，磁盘吞吐量，系统内存容量因素&lt;/p&gt;
+        &lt;blockquote&gt;
+          &lt;p&gt;&lt;strong&gt;控制器通过 epoch 来避免“脑裂”（集群中同时存在两个控制器）&lt;/strong&gt;&lt;/p&gt;
+
+        &lt;/blockquote&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;h2 id=&quot;32-操作系统调优&quot;&gt;3.2 操作系统调优&lt;/h2&gt;
-
-&lt;p&gt;默认操作系统配置已经能够满足大部分应用程序的运行需求，不过可以优化一些参数进一步提升性能，这些参数主要与虚拟内存，网络子系统，存储日志的磁盘挂载点有关。&lt;/p&gt;
-
-&lt;h3 id=&quot;321-虚拟内存&quot;&gt;3.2.1 虚拟内存&lt;/h3&gt;
-
-&lt;p&gt;为了提高系统吞吐量，应该尽量避免内存交换。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;内存页与磁盘之间的交换对 Kafka 各方面性能都有影响。Kafka 大量使用系统页面缓存，如果虚拟内存被交换到磁盘，说明没有多余的内存分配给页面缓存了。&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;一种优化方式是，不设置任何交换分区，避免内存交换。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;奸笑 vm.swappiness 参数&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;另一种优化方式是，调整内核对脏页的处理方式。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;减小 vm.dirty_background_ratio 参数，增大 vm.dirty_ratio 参数&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;322-磁盘&quot;&gt;3.2.2 磁盘&lt;/h3&gt;
-
-&lt;p&gt;除了合适的磁盘硬件设备，文件系统是影响性能的另一个重要因素。&lt;/p&gt;
-
-&lt;p&gt;XFS 批量磁盘写入具有更高的效率，提高整体的 IO 吞吐量，为 Kafka 提供更好的性能。&lt;/p&gt;
-
-&lt;h3 id=&quot;323-网络&quot;&gt;3.2.3 网络&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;控制器负责分区 Leader 管理：&lt;/strong&gt;&lt;/p&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;调整分配给 Socket 读写缓冲区的内存大小&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;参数 net.core.wmem_default, net.core.rmem_default.&lt;/p&gt;
-
-    &lt;/blockquote&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Broker 离开集群&lt;/em&gt;&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;控制器通过 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;watch&lt;/code&gt; Broker 在 Zookeeper 上注册的路径，可以在 Broker 离开集群时收到通知；需要对失去 Leader 的分区进行 Leader 选举&lt;/li&gt;
+      &lt;li&gt;控制器遍历分区，&lt;em&gt;选择分区副本列表中的下一个副本作为新的分区 Leader&lt;/em&gt;&lt;/li&gt;
+      &lt;li&gt;控制器向包含新 Leader 或者现有 Follower 的 Broker 发送消息：包含分区 Leader 与 Follower 信息&lt;/li&gt;
+      &lt;li&gt;新 Leader 开始处理生产者与消费者的请求，Follower 从 Leader 处开始复制消息&lt;/li&gt;
+    &lt;/ul&gt;
   &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;调整 TCP Socket 读写缓冲区&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;参数 net.ipv4.tcp_wmem, net.ipv4.tcp_rmem&lt;/p&gt;
-
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. Broker 配置</summary></entry><entry><title type="html">Kafka: Meet Kafka</title><link href="http://localhost:4000/kafka-in-action-1.html" rel="alternate" type="text/html" title="Kafka: Meet Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-1</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-1.html">&lt;h1 id=&quot;11-发布订阅消息系统&quot;&gt;1.1 发布订阅消息系统&lt;/h1&gt;
-
-&lt;p&gt;发布订阅消息系统的一个特点是，消息的发送者不会直接把消息发送给接收者。&lt;strong&gt;发送者以某种方式对消息进行分类，接收者订阅它们，以便接收特定类型的消息&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;发布订阅系统一般有一个 Broker：发布消息的中心点。&lt;/p&gt;
-
-&lt;h1 id=&quot;12-kafka-登场&quot;&gt;1.2 Kafka 登场&lt;/h1&gt;
-
-&lt;p&gt;Kafka 一般被称为“分布式提交日志”或者“分布式流平台”。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;在数据库中，提交日志用来提供事务的持久化记录，可以通过回放这些日志还重建系统状态。&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;Kafka 的数据是按照一定顺序持久化保存的，可以按需读取。同时，Kafka 的数据分布在整个系统中，具有数据故障保护，性能伸缩的能力。&lt;/p&gt;
-
-&lt;h2 id=&quot;121-消息与批次&quot;&gt;1.2.1 消息与批次&lt;/h2&gt;
-
-&lt;p&gt;Kafka 的数据单元被称为“消息”。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;消息由字节数据组成，因此消息内容没有特殊的含义或格式。&lt;/li&gt;
-  &lt;li&gt;消息有一个可选元数据，被称为“键”。键也是一个字节数组，没有特殊含义。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;当消息以一种可控的方式写入不同的分区时，会使用键，保证相同键的消息被写到相同的分区上。&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;“批次”是一组消息，这些消息属于同一个主题与分区。将消息按照批次写入到 Kafka，可以减少网络开销，有效提高效率。不过，批次大小需要在消息延迟与吞吐量之间进行权衡：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;批次越大，单位时间内处理的消息就越多；相应的，单个消息的延迟就越大&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;批次数据会被压缩，以提升传输与存储能力，但需要更多的计算处理&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;122-模式&quot;&gt;1.2.2 模式&lt;/h2&gt;
-
-&lt;p&gt;对 Kafka 的来说，消息只是一些字节数组，难以理解，因此希望可以结构化定义消息内容。&lt;/p&gt;
-
-&lt;p&gt;消息模式（Schema）有多种选项，如 JSON，XML；不过它们缺乏强类型处理能力，版本之间的兼容性也不好。&lt;/p&gt;
-
-&lt;p&gt;最常用的 Kafka 消息模式是 Apache Avro：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;紧凑的序列化格式&lt;/li&gt;
-  &lt;li&gt;模式与消息体分开；当模式发生变化时，不需要重新生成代码&lt;/li&gt;
-  &lt;li&gt;支持强类型与模式进化，向前向后均兼容&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;数据格式的一致性，消除了消息读写操作之间的耦合性&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;123-主题与分区&quot;&gt;1.2.3 主题与分区&lt;/h2&gt;
-
-&lt;p&gt;消息通过主题（Topic）进行分类，主题可以被分为若干个分区（Partition）。消息以追加（Append）的方式写入分区，然后以先入先出的顺序读取。&lt;/p&gt;
-
-&lt;p&gt;一个主题通常有多个分区，因此&lt;strong&gt;无法保证在主题范围内消息的有序性，但是可以保证消息在单个分区内有序&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;如下所示，消息被追加到每个分区的尾部：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;很多时候，人们会把一个主题的数据看作&lt;strong&gt;流&lt;/strong&gt;，而不管主题中包含多少个分区。流可以看作一组从生产者移动到消费者的数据。&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;124-生产者与消费者&quot;&gt;1.2.4 生产者与消费者&lt;/h2&gt;
-
-&lt;p&gt;Kafka 的生产者分为两种类型：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;生产者&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;生产者创建消息：一般情况下，消息会被发送到特定的主题，默认会把消息均衡地分布到主题的各个分区上（具体被分配到哪个分区并不重要）。&lt;/p&gt;
-
-    &lt;p&gt;不过，也可以为消息指定分区，通过消息键与分区器将其映射到指定的分区。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;消费者&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;消费者读取消息：可以订阅一个或者多个主题，并按照消息生成的顺序读取它们。&lt;/p&gt;
-
-    &lt;p&gt;消费者通过检查消息偏移量（Offset）来判断消息是否已经被读取过。&lt;strong&gt;消费者把每个分区最后读取的消息偏移量保存在 Zookeeper 或者 Kafka 上&lt;/strong&gt;，以保证在消费者重启之后可以从之前的位置继续消费。&lt;/p&gt;
-
-    &lt;p&gt;偏移量是消息的元数据，是一个不断递增的整数值。在 Kafka 创建消息时，会设置其偏移量。&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;在给定的分区内，消息的偏移量是唯一的&lt;/p&gt;
-
-    &lt;/blockquote&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Broker 加入集群&lt;/em&gt;&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;当新的 Broker 加入集群时，控制器会监测其 Broker ID 是否包含现有的分区副本&lt;/li&gt;
+      &lt;li&gt;如果包含，则将变更通知发送给新加入的 Broker 及其他 Broker，之后新加入的 Broker 上的分区副本就从 Leader 副本开始复制消息&lt;/li&gt;
+    &lt;/ul&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;消费者是消费者群组的一部分；消费者群组保证每个分区只会被一个消费者读取，消费者与分区之间的映射关系被称为消费者对分区的所有权关系。通过这种方式，消费者可以消费包含大量消息的主题，并且当一个消费者失效时，其他消费者可以接管失效消费者的工作。&lt;/p&gt;
+&lt;h1 id=&quot;3-复制&quot;&gt;3. 复制&lt;/h1&gt;
 
-&lt;p&gt;如下所示，消费者群组与分区的关系：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;多副本机制可以使得 Kafka 在个别节点失效时，仍能保证可用性与持久性&lt;/strong&gt;。&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;Kafka 使用主题来组织数据，每个主题包含多个分区，每个分区包含多个副本。副本被分配在 Broker 上，每个 Broker 可以保存成百上千个副本。&lt;/p&gt;
 
-&lt;h2 id=&quot;125-broker-与集群&quot;&gt;1.2.5 Broker 与集群&lt;/h2&gt;
-
-&lt;p&gt;一个独立的 Kafka 服务器被称为 Broker。&lt;/p&gt;
+&lt;p&gt;有两种类型的副本：&lt;/p&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;Broker 接收生产者的消息，为消息设置偏移量，并将消息保存到磁盘&lt;/li&gt;
-  &lt;li&gt;Broker 对消费者读取分区的请求，返回已经提交到磁盘上的消息&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;&lt;em&gt;Leader 副本&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;每个分区都有一个 Leader 副本。&lt;/p&gt;
+
+    &lt;p&gt;为了保证数据一致性，所有生产者与消费者的请求都会由 Leader 副本处理。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;&lt;em&gt;Follower 副本&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;Leader 副本外的其他副本都是 Follower 副本。&lt;/p&gt;
+
+    &lt;p&gt;Follower 副本不会处理来自客户端的请求，唯一的任务就是从 Leader 副本处复制消息，与 Leader 副本保持一致，以便在 Leader 副本不可用时从中选举出新的 Leader。&lt;/p&gt;
+  &lt;/li&gt;
 &lt;/ol&gt;
 
+&lt;p&gt;Leader 副本还需要判断哪些 Follower 副本的状态与自己是保持一致的。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Follower 副本为了与 Leader 保持一致，向 Leader 发送获取数据的请求（与消费者获取数据请求方式一样）；Leader 返回消息及对应偏移量&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Leader 副本通过检查每个 Follower 请求的最新偏移量，可以判断 Follower 的复制进度&lt;/em&gt;
+    &lt;ul&gt;
+      &lt;li&gt;如果 Follower 在 10s 内没有请求任何消息，或者虽然在请求消息，但是 10s 内没有请求最新数据，那么该 Follower 会被认为是&lt;strong&gt;不同步的（out of sync）&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;如果 Follower 持续请求最新消息，则被认为是&lt;strong&gt;同步的（in-sync）&lt;/strong&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
 &lt;blockquote&gt;
-  &lt;p&gt;单个 Broker 可以处理上千个分区以及每秒百万级的消息量&lt;/p&gt;
+  &lt;p&gt;在 Leader 副本失效后，只有同步的副本才可能被选为新的 Leader&lt;/p&gt;
 
 &lt;/blockquote&gt;
 
-&lt;p&gt;Broker 是集群的组成部分，每个集群都有一个 Broker 同时充当&lt;strong&gt;集群控制器&lt;/strong&gt;的角色。&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Follower 副本正常不活跃的时间或者在被认为不同步的时间通过参数 replica.lag.time.max.ms 控制&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;首选 Leader&lt;/strong&gt;：创建主题时选定的 Leader 就是分区的首选 Leader。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;分区副本列表中第一个副本一般就是首选 Leader&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;4-处理请求&quot;&gt;4. 处理请求&lt;/h1&gt;
+
+&lt;p&gt;Broker 的大部分工作就是处理客户端，分区副本和控制器发送给分区 Leader 的请求。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Broker 按照请求到达的顺序进行处理&lt;/strong&gt;：&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;集群控制器自动从集群的活跃成员中选出来&lt;/li&gt;
-  &lt;li&gt;集群控制器负责集群管理工作，如将分区分配给 Broker，监控 Broker 等&lt;/li&gt;
+  &lt;li&gt;每个监听端口上运行一个 Acceptor 线程，该线程会为请求创建一个连接，并交给 Processor 线程处理&lt;/li&gt;
+  &lt;li&gt;Processor 线程从客户端获取请求消息，把它们放到请求队列，然后从响应队列获取响应消息，发送给客户端&lt;/li&gt;
+  &lt;li&gt;请求消息被放入请求队列后，会由 IO 线程负责处理&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;在集群中，一个分区从属一个 Broker，该 Broker 被称为该分区的 Leader。同时，可以对分区进行复制，分区副本可以被分配给多个 Broker。&lt;strong&gt;复制机制为分区提供了消息冗余&lt;/strong&gt;，如果 Leader 失效，其他 Broker 可以接管领导权；相关的生产者及消费者都需要迁移到新的 Leader。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_5/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Broker 中的消息可以通过一些参数设置保留时间，过期的消息会被删除。&lt;/p&gt;
-
-&lt;h2 id=&quot;126-多集群&quot;&gt;1.2.6 多集群&lt;/h2&gt;
-
-&lt;p&gt;有以下需求时，可以使用多集群：&lt;/p&gt;
+&lt;p&gt;所有请求都有如下标准头：&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;数据类型分离&lt;/li&gt;
-  &lt;li&gt;安全需求隔离&lt;/li&gt;
-  &lt;li&gt;多数据中心（容灾恢复）&lt;/li&gt;
+  &lt;li&gt;Request type&lt;/li&gt;
+  &lt;li&gt;Request version：Broker 可以处理不同版本客户端的请求&lt;/li&gt;
+  &lt;li&gt;Correlation ID：请求消息的唯一标识（响应中也会携带）&lt;/li&gt;
+  &lt;li&gt;Client ID：客户端标识&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;在多数据中心内部署多个集群时，可以通过 MirrorMaker 工具实现集群间数据复制功能。&lt;/p&gt;
+&lt;h2 id=&quot;41-元数据请求&quot;&gt;4.1 元数据请求&lt;/h2&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;元数据请求包含了客户端感兴趣的主题列表，可以请求&lt;strong&gt;任意 Broker&lt;/strong&gt;。Broker 的响应中包含了请求主题包含的分区，每个分区的副本信息，以及副本 Leader 信息。&lt;/p&gt;
 
-&lt;h1 id=&quot;13-why-kafka&quot;&gt;1.3 Why Kafka?&lt;/h1&gt;
+&lt;p&gt;客户端一般会把这些元数据信息缓存本地，并定时刷新，之后直接往目标 Broker 上发送生产请求或者获取请求。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;生产请求及获取请求必须发送给分区的 Leader 副本&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_5/2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;42-生产请求&quot;&gt;4.2 生产请求&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;生产请求必须要发送给分区的 Leader 副本&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Leader 副本的位置信息由元数据请求返回&lt;/li&gt;
+  &lt;li&gt;如果请求的 Broker 不包含对应分区的 Leader 副本，那么就会响应给客户端“非分区 Leader”的异常&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;包含 Leader 副本的 Broker 在收到生产请求时，会对请求做一些验证：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;是否有权限写入主题&lt;/li&gt;
+  &lt;li&gt;请求中的 acks 值是否有效（0，1 or al）&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;如果 acks = all，是否有足够多的同步副本保证消息能够被安全写入&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;如果同步（in-sync）副本数量不足，Broker 可以拒绝新消息&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;之后，Broker 会将消息写入本地磁盘。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;在 Linux 系统上，消息会被写入到文件系统缓存中，并不保证何时会被刷新到磁盘上&lt;/li&gt;
+  &lt;li&gt;Kafka 不会一直等待数据写到磁盘上，反而&lt;strong&gt;通过数据复制功能保证消息的持久性&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;消息在被写入分区的 Leader 副本之后，Broker 再次检查 acks 配置参数&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;如果 acks = 0/1，那么 Broker 立即返回响应&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;如果 acks = all，那么请求会被保存到一个被称为 &lt;em&gt;purgatory&lt;/em&gt; 的缓冲区中，直到所有的 Follower 副本都复制了消息，Leader 才会响应客户端&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;从生产者角度看，acks = 0 那么生产者在将消息发送出去之后，完全不需要等待 Broker 的响应；acks = 1 生产者会等待 Leader 副本写入成功；acks = all 生产者会等待所有同步副本都写入成功&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;42-获取请求&quot;&gt;4.2 获取请求&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;获取请求必须要发送给分区的 Leader 副本&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;Leader 副本在收到获取请求后，会检查请求是否有效：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;偏移量在指定分区上是否存在
+    &lt;ul&gt;
+      &lt;li&gt;如果偏移量不存在（可能是数据已经被删除），那么将会返回给客户端一个错误&lt;/li&gt;
+      &lt;li&gt;如果偏移量存在，则 Broker 按照指定的数量上限读取消息，并返回给客户端&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;客户端在发送获取请求时，除了需要指定获取的分区及偏移量，还需&lt;em&gt;要指定 Broker 最多从一个分区内可以返回多少数据量，以防止返回过多数据导致客户端内存耗尽。&lt;/em&gt;同时，也可以指定返回数据的下限，可以在 Broker 数据量较少的情况下减少回传次数，降低开销。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Kafka 比较知名的是，使用&lt;strong&gt;零拷贝（Zero-Copy）技术向客户端发送消息&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Kafka 直接把消息从文件（更确切的说是 Linux 文件系统缓存）发送到网络通道，不需要经过任何中间缓冲区。相比于其他数据库系统，在发送给客户端之前，需要先将数据缓存在本地&lt;/li&gt;
+  &lt;li&gt;这项技术&lt;em&gt;避免了字节复制（降低 CPU 消耗），也不需要管理内存缓存，提高系统性能&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;客户端在请求 Leader 副本获取消息时，&lt;strong&gt;只能获取已经被写入所有同步（in-sync）副本的消息&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;也就是说，Leader 副本上的数据并不是都可以被消费&lt;/li&gt;
+  &lt;li&gt;除了消费者，Follower 副本同样也只能获取已经被写入所有同步副本的消息&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;这么做的目的是为了&lt;strong&gt;确保数据一致性&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;如果消息还未被同步，那么当 Leader 崩溃后，新的 Leader 可能会丢失数据。从消费者的角度来说，前后消费的数据可能不一致。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_5/3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;消费者只能看到高水位之上的消息；&lt;em&gt;参考 In-Sync Replicas 机制（副本同步机制）&lt;/em&gt;&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;相应的，如果 Broker 之间复制消息较慢，也会导致消费者消费消息的延迟增大。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;replica.lag.time.max.ms 参数可以配置消息复制的最大延迟&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;43-其他请求&quot;&gt;4.3 其他请求&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Broker 之间请求，如控制器发送给 Leader 副本及 Follower 副本的请求&lt;/li&gt;
+  &lt;li&gt;Offset 请求，如客户端提交 Offset，拉取 Offset 请求&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;5-物理存储&quot;&gt;5. 物理存储&lt;/h1&gt;
+
+&lt;p&gt;&lt;strong&gt;分区是 Kafka 基本存储单元&lt;/strong&gt;。一个分区无法在多个 Broker 间再拆分，也无法在同一个 Broker 上的多个磁盘间再细分。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在配置 Kafka 的时候，需要指定用于存储分区的目录清单：log.dirs&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;51-分区分配&quot;&gt;5.1 分区分配&lt;/h2&gt;
+
+&lt;p&gt;在进行分区分配时，期望达到以下目标（用以&lt;strong&gt;&lt;em&gt;提高容灾能力&lt;/em&gt;&lt;/strong&gt;）：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Broker 间均匀分配分区副本（Follower + Leader）&lt;/li&gt;
+  &lt;li&gt;每个分区的副本分配在不同的 Broker 上
+    &lt;ul&gt;
+      &lt;li&gt;如果为 Broker 指定了机架信息，那么每个分区副本尽量分配在不同机架的 Broker 上&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;假设需要在 m 个 Broker 上分配 n 个分区，且分区复制系数为 k。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;轮询将分区的 Leader 副本分配在 Broker 上&lt;/li&gt;
+  &lt;li&gt;轮询将分区的 Follower 副本分配在 Broker 上&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在轮询分配时，需要尽量保证上述目标&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_5/4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在将分区副本分配到 Broker 上之后，需要为分区副本分配存储目录，分配规则为：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;比较每个目录下的分区数量，新分区副本会被分配到分区数量最小的目录下面&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;如果新添加一个磁盘，那么新的分区都会分配到该磁盘下&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;52-文件管理&quot;&gt;5.2 文件管理&lt;/h2&gt;
+
+&lt;p&gt;Kafka 不会一直保留数据，也不会等到所有的消费者都消费之后再删除数据。&lt;strong&gt;通过配置主题数据保留的期限与数据量大小&lt;/strong&gt;，来进行管理：满足配置的期限或者大小，就可以清除相应数据。&lt;/p&gt;
+
+&lt;p&gt;如果一个分区的数据保留在一个文件中，那么这个文件可能会变得特别大，在进行数据查找与删除时会比较耗时。&lt;/p&gt;
+
+&lt;p&gt;因此，&lt;strong&gt;Kafka 将分区划分成多个片段（Segment）&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;默认片段大小为 1GB 或 一周的数据&lt;/li&gt;
+  &lt;li&gt;Broker 在往分区写入数据时，如果当前片段达到上限，则关闭当前文件，并打开新的文件&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;当前正在写入数据的片段被称为&lt;strong&gt;活跃片段（Active Segment）&lt;/strong&gt;；活跃片段永远不会被删除。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Broker 会为每个片段打开一个句柄（包括已经关闭的片段），如果片段过多的话可能会导致文件句柄过多&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;53-文件格式&quot;&gt;5.3 文件格式&lt;/h2&gt;
+
+&lt;p&gt;Kafka 将消息的&lt;em&gt;键，值，偏移量，消息大小，校验和，消息格式版本号，压缩算法，时间戳&lt;/em&gt;保存在磁盘文件。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;保存在磁盘上的数据格式与从生产者发送过来，或者发送给消费者的消息格式是一样的，不需要对消息进行再次压缩，解压操作。因此，&lt;strong&gt;Kafka 可以使用零复制（Zero-Copy）技术将消息发送给消费者（磁盘存储与网络传输格式均相同）&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;如果生产者发送的是压缩消息，那么同一个批次的消息会被压缩，被当成“&lt;strong&gt;&lt;em&gt;包装消息&lt;/em&gt;&lt;/strong&gt;（Wrapper Message）”发送。消费者对包装消息解压，可以看到整个批次的消息，每个消息都有自己的偏移量及时间戳。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_5/5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;消息 Offset 生成时机&lt;/p&gt;
+
+    &lt;p&gt;Kafka 消息的 offset 是在消息被写入 Kafka 分区时生成的。具体来说，当 Producer 发送消息到 Kafka 时，Kafka 会为每条消息分配一个唯一的 offset，并将消息写入对应的分区中。每个分区的消息都有一个单独的连续的 offset 序列。&lt;/p&gt;
+
+    &lt;p&gt;消息的 offset 是由 Kafka 服务器自动分配的，并且在消息被成功写入分区后才会生成。因此，offset 的生成时机可以分为两个阶段：&lt;/p&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;生产者发送消息：当生产者发送消息到 Kafka Broker 时，Broker 会为消息分配一个 offset，并将消息写入对应的分区。这是 offset 的生成的第一个阶段，也是 offset 的初次分配。&lt;/li&gt;
+      &lt;li&gt;消息成功写入分区：当消息成功写入分区后，offset 的生成完成。此时，消费者可以通过指定对应分区的 offset 来消费该消息。&lt;/li&gt;
+    &lt;/ol&gt;
+
+    &lt;p&gt;需要注意的是，offset 是按照分区粒度生成的，每个分区都有独立的 offset 序列。不同分区的消息具有不同的 offset 值，并且每个分区的 offset 是连续递增的，从而保证了消息在分区内的顺序性。&lt;/p&gt;
+
+    &lt;p&gt;消费者在消费消息时，可以通过指定分区和 offset 来定位和消费特定的消息。消费者可以跟踪已消费的消息的 offset，并定期提交这些 offset，以便在 Consumer 重启或故障恢复时能够从之前的消费位置继续消费。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;54-索引&quot;&gt;5.4 索引&lt;/h2&gt;
+
+&lt;p&gt;为了更快定位到消费者请求的偏移量，Kafka 为每个分区维护了一个索引。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;索引把偏移量映射到片段（Segment）文件及偏移量在文件中的位置&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;如果索引出现损坏，Kafka 会通过重新读取消息并录制偏移量及位置来生成新的索引。&lt;/p&gt;
+
+&lt;h2 id=&quot;55-压缩&quot;&gt;5.5 压缩&lt;/h2&gt;
+
+&lt;p&gt;通常，Kafka 会根据设置的时间保留数据，把过期的数据清理掉。&lt;/p&gt;
+
+&lt;p&gt;但是，有些场景需要保留最新的数据，旧的数据可以被清理。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;一个应用程序使用 Kafka 保存自己的状态，每次状态变化时，都将最新状态写入 Kafka。如果程序崩溃，可以从 Kafka 中读取最新消息来恢复。此时，应用程序只关心崩溃前的最新状态，而运行过程中的状态并不关心。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Kafka 通过配置主题的保留策略来满足上述场景：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Delete&lt;/em&gt;&lt;/strong&gt;：&lt;em&gt;早于保留时间的事件会被删除&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;Compact&lt;/em&gt;&lt;/strong&gt;：&lt;em&gt;只保留每个 Key 的最新值&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;这种压缩清理的策略需要消息中既包含 key，也包含 value，才可以使用&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;压缩清理操作只针对已经关闭的片段&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;56-压缩原理&quot;&gt;5.6 压缩原理&lt;/h2&gt;
+
+&lt;p&gt;每个日志片段可以分为两部分：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_5/6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;ol&gt;
   &lt;li&gt;
-    &lt;p&gt;多个生产者&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;干净的（Clean）&lt;/strong&gt;&lt;/p&gt;
 
-    &lt;p&gt;支持多个生产者往单个主题或者多个主题发送消息，适合从多个系统中收集数据&lt;/p&gt;
+    &lt;p&gt;这部分消息之前被清理过，每个键只保留之前清理过程中的最新值。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;多个消费者&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;污浊的（Dirty）&lt;/strong&gt;&lt;/p&gt;
 
-    &lt;p&gt;支持多个消费者从一个消息流上读取数据，且消费者之间互不影响。同时，消费者群组内的消费者共享消息流，并且保证对于整个群组，每个消息只被处理一次。&lt;/p&gt;
+    &lt;p&gt;这部分消息是之前清理之后写入的&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;如果启用压缩清理功能，Broker 会启动多个清理线程执行清理任务。清理线程会选择污浊率高的分区进行清理（污浊消息占分区总消息的大小）。&lt;/p&gt;
+
+&lt;p&gt;清理线程创建一个 Map，并从片段的干净部份开始遍历，比对消息。清理前后的分区片段数据如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_5/7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;57-删除消息&quot;&gt;5.7 删除消息&lt;/h2&gt;
+
+&lt;p&gt;为了将消息从 Kafka 中删除，&lt;em&gt;生产者需要发送一个包含该 Key，且 Value 为 NULL 的消息&lt;/em&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;清理线程发现该消息时，先进行常规清理，只保留 Value 为 NULL 的消息；该消息被称为&lt;strong&gt;墓碑消息&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;墓碑消息会被保留一段时间（时间可配置）；在这期间，消费者仍可消费该消息&lt;/li&gt;
+  &lt;li&gt;墓碑消息过期之后，清理线程会将其清除&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. 集群成员关系</summary></entry><entry><title type="html">Kafka: Reading Data from Kafka</title><link href="http://localhost:4000/kafka-in-action-4.html" rel="alternate" type="text/html" title="Kafka: Reading Data from Kafka" /><published>2023-05-14T00:00:00+08:00</published><updated>2023-05-14T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-4</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-4.html">&lt;h1 id=&quot;1-kafkaconsumer-概念&quot;&gt;1. KafkaConsumer 概念&lt;/h1&gt;
+
+&lt;h2 id=&quot;11-消费者与消费者组&quot;&gt;1.1 消费者与消费者组&lt;/h2&gt;
+
+&lt;p&gt;Kafka 消费者从属于&lt;strong&gt;消费者群组（Consumer Group）&lt;/strong&gt;。一个群组里的消费者订阅的是同一个主题，每个消费者消费该主题的一部分分区消息。
+&lt;img src=&quot;/images/kafka/chapter_4/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_4/2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_4/3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_4/4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;如上所示，主题 Topic 1 有 4 个分区，消费者群组 Consumer Group 1 订阅该主题：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;消费者群组中只有一个消费者 C1，该消费者将接收 4 个分区的消息&lt;/li&gt;
+  &lt;li&gt;消费者群组中添加一个消费者 C2，则 C1, C2 分别接收 2 个分区的消息&lt;/li&gt;
+  &lt;li&gt;如果群组中有 4 个消费者，则每个消费者分别接收 1 个分区的消息&lt;/li&gt;
+  &lt;li&gt;如果群组中的消费者继续增加，超过了主题分区的数量，那么会有一部分消费者被闲置，无法接收任何分区的消息&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;通过&lt;strong&gt;往消费者群组中添加消费者，是横向扩展消费能力的主要方式&lt;/strong&gt;。但是，&lt;strong&gt;消费者的数量不要超过分区数&lt;/strong&gt;，不然会有部份消费者无法消费消息。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;单个消费者有时候无法跟上数据生产的速度，此时可以增加消费者数目，让每个消费者分担部份分区的消息&lt;/li&gt;
+  &lt;li&gt;群组中的每个消费者只承担部份分区的消费&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;同时，Kafka 还支持多个消费组订阅同一个主题，每个消费组都可以接收全部主题消息，且互不影响。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;该设计适用于多个不同的应用程序订阅同一个主题的场景&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_4/5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;不管是往消费组中添加消费者，还是新增新的消费组，都不会对 Kafka 的性能造成负面影响&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;12-消费者群组与分区再均衡&quot;&gt;1.2 消费者群组与分区再均衡&lt;/h2&gt;
+
+&lt;h3 id=&quot;121-rebalance&quot;&gt;1.2.1 Rebalance&lt;/h3&gt;
+
+&lt;p&gt;主题分区所有权由一个消费者转移到另一个消费者，被称为&lt;strong&gt;再均衡&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;以下场景会发生再均衡操作：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;新的消费者加入群组&lt;/strong&gt;：新增的消费者会读取原本属于其他消费者的分区消息&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;消费者（关闭或者发生崩溃）离开群组&lt;/strong&gt;：该消费者负责的分区将由其他消费者处理&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;主题分区发生变化&lt;/strong&gt;：由管理员新增或者删除分区&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;再均衡可以使得消费者群组具有更好的可用性与伸缩性，但是&lt;strong&gt;再均衡期间，消费者将无法消费消息&lt;/strong&gt;，使得整个群组短时间不可用。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;需要避免不必要的再均衡操作&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;122-consumer-group&quot;&gt;1.2.2 Consumer Group&lt;/h3&gt;
+
+&lt;p&gt;消费者通过向&lt;strong&gt;被指派&lt;/strong&gt;为&lt;strong&gt;群组协调器&lt;/strong&gt;（group coordinator ）的 Broker 发送心跳（heartbeats）来维持&lt;strong&gt;消费者与群组的从属关系&lt;/strong&gt;以及&lt;strong&gt;消费者与分区的所有权关系&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;不同的消费者群组可以有不同的群组协调器&lt;/p&gt;
+
+  &lt;ul&gt;
+    &lt;li&gt;如果消费者在指定时间间隔内正常发送心跳，则会被认为是活跃的&lt;/li&gt;
+    &lt;li&gt;如果消费者停止发送心跳的时间较长，会话过期，群组协调器就会认为消费者已经死亡，触发再均衡&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;消费者会在消息轮询或者提交消息偏移量时发送心跳&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;消费者退出群组分为两种场景：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;消费者崩溃退出&lt;/em&gt;&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;消费者崩溃，并停止读取消息。协调器并不会立即触发再均衡，而是等待几秒，确认消费者已经死亡，之后再均衡&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;消费者主动退出&lt;/em&gt;&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;消费者会通知协调器其将要离开群组，那么协调器就会立即触发一次再均衡&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在 0.10.1 版本中，Kafka 引入一个独立的心跳线程，可以在消息轮询间隙发送心跳；使得发送心跳的频率与消息轮询的频率（与处理消息花费的时间有关）相互独立。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;123-分区分配过程&quot;&gt;1.2.3 分区分配过程&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;当消费者加入群组时，会向群组协调器发送一个 JoinGroup 的请求。
+    &lt;ul&gt;
+      &lt;li&gt;第一个加入群组的消费者会成为群组的 Leader&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;群组 Leader 从协调器获得群组的成员列表
+    &lt;ul&gt;
+      &lt;li&gt;最近向协调器发送过心跳，被认为是活跃的消费者列表&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;群组 Leader 为每个消费者分配分区子集
+    &lt;ul&gt;
+      &lt;li&gt;分配策略可以自定义实现，也可以使用 Kafka 内置策略&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;群组 Leader 把分配结果发送给群组协调器&lt;/li&gt;
+  &lt;li&gt;协调器将这些信息发送给所有消费者
+    &lt;ul&gt;
+      &lt;li&gt;每个消费者只能看到自己的分配结果；群组 Leader 知道所有分配结果&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;再均衡发生时，重复上述流程&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;2-创建-kafka-消费者&quot;&gt;2. 创建 Kafka 消费者&lt;/h1&gt;
+
+&lt;p&gt;创建 KafkaConsumer 对象也需要 3 个必要属性：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;bootstrap.servers：指定 Kafka 集群连接字符串&lt;/li&gt;
+  &lt;li&gt;key.deserializer, value.deserializer：反序列化器，用于将字节数组转换成 java 对象&lt;/li&gt;
+  &lt;li&gt;grop.id：指定了消费者属于哪个消费者组（非必需）；如果不指定，则不属于任何消费者组&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nc&quot;&gt;Properties&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;props&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Properties&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;bootstrap.servers&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;broker1:9092,broker2:9092&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;group.id&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;CountryCounter&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;key.deserializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;&quot;org.apache.kafka.common.serialization.StringDeserializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;value.deserializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;&quot;org.apache.kafka.common.serialization.StringDeserializer&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;KafkaConsumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;KafkaConsumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;props&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;3-订阅主题&quot;&gt;3. 订阅主题&lt;/h1&gt;
+
+&lt;p&gt;使用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;subcribe()&lt;/code&gt; 方法订阅主题：&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// 1. 订阅单个主题&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Collections&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;singletonList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;customerCountries&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 2. 通过正则表达式订阅多个主题&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 当有新的主题添加时，立即触发 rebalance，消费者就可以消费新的主题&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;test.*&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;4-轮询&quot;&gt;4. 轮询&lt;/h1&gt;
+
+&lt;p&gt;消息轮询方法不仅能够获取消息，还包含其他操作：&lt;strong&gt;群组协调，分区 Rebalance，发送心跳&lt;/strong&gt;等。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;当首次调用消费者的 poll 方法时，会查找群组协调器，加入群组，并接收被分配的分区&lt;/li&gt;
+  &lt;li&gt;如果发生了 Rebalance，也需要在轮询过程中处理&lt;/li&gt;
+  &lt;li&gt;心跳发送也是在轮询过程中发送的&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;我们需要确保轮询期间的操作尽快结束&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;ConsumerRecords&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ConsumerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;debug&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;topic = %s, partition = %s, offset = %d,
+               customer = %s, country = %s\n&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+               &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt;
+               &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+            &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;updatedCount&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;custCountryMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;countainsValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;updatedCount&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;custCountryMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;custCountryMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;updatedCount&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;nc&quot;&gt;JSONObject&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;JSONObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;custCountryMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Consumer 必须持续轮训 Kafka Broker，否则会被认为已经死亡，触发 Rebalance。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 方法返回记录列表，包含：主题信息，分区信息，偏移量，记录的 key-value 对&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;close()&lt;/code&gt; 方法用于关闭消费者，除了关闭网络连接，也会触发一次 Rebalance（而不是等待消费者协调器去判断是否仍存活）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;在一个消费者群组中，无法让一个线程运行多个消费者，也无法让多个线程共享一个消费者。安全起见，需要让一个线程运行一个消费者&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;5-消费者配置&quot;&gt;5. 消费者配置&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;fetch.min.bytes&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;该参数指定了从 Broker 获取消息记录时的最小字节数。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Broker 收到消费者请求时，如果当前可用数据量小于该值，则会等待有足够多的数据时才返回&lt;/li&gt;
+      &lt;li&gt;适当调大该值，可以降低 Broker 负载：Broker 不需要频繁处理请求&lt;/li&gt;
+    &lt;/ul&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;基于磁盘的数据存储&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;fetch.max.wait.ms&lt;/strong&gt;&lt;/p&gt;
 
-    &lt;p&gt;消息被保存到磁盘上，并且每个主题可以设置单独的保存规则，以满足不同消费者的需求。&lt;/p&gt;
+    &lt;p&gt;该参数用于指定 Broker 最长等待时间。&lt;/p&gt;
 
-    &lt;p&gt;数据持久化可以保证消息不丢失，允许消费者非实时地读取消息。&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;当请求的数据量得不到满足时，最多等待该参数指定的时间&lt;/li&gt;
+    &lt;/ul&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;伸缩性&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;max.partition.fetch.bytes&lt;/strong&gt;&lt;/p&gt;
 
-    &lt;p&gt;为了支持大量数据处理，Broker 集群支持灵活扩展。&lt;/p&gt;
+    &lt;p&gt;该参数指定 Broker 从每个分区返回给消费者的最大字节数。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;该参数值的设置需要考虑消费者处理数据的时间。消费者需要频繁调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 方法来维持会话，如果返回的数据量过多，数据处理时间较长，可能无法及时进行下次 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 导致会话过期。&lt;/li&gt;
+    &lt;/ul&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;高性能&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;session.timeout.ms&lt;/strong&gt;&lt;/p&gt;
 
-    &lt;p&gt;通过横向扩展生产者，消费者及 Broker，使得 Kafka 在处理大量消息时可以保证亚秒级延迟。&lt;/p&gt;
+    &lt;p&gt;消费者于 Broker 之间会话过期时间，默认 3 秒。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;如果消费者在该时间范围内没有向 Broker 发送心跳，则会被认为已经死亡，触发 Rebalance&lt;/li&gt;
+      &lt;li&gt;该参数表明消费者可以多长时间不发送心跳；另一个参数 heartbeat.interval.ms 则指定了 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 方法发送心跳的频率。这两个参数通常配合使用，heartbeat.interval.ms 一般为 session.timeout.ms 的 1/3&lt;/li&gt;
+      &lt;li&gt;该参数值如果设置的比较小，有利于更快监测和恢复崩溃的节点，但是可能会导致非预期内的 Rebalance&lt;/li&gt;
+    &lt;/ul&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1.1 发布订阅消息系统</summary></entry><entry><title type="html">Kafka: Writing Messages to Kafka</title><link href="http://localhost:4000/kafka-in-action-3.html" rel="alternate" type="text/html" title="Kafka: Writing Messages to Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-3</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-3.html">&lt;h1 id=&quot;1-生产者概述&quot;&gt;1. 生产者概述&lt;/h1&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;auto.offset.reset&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;该参数指定了消费者在读取一个&lt;strong&gt;没有偏移量&lt;/strong&gt;的分区或者&lt;strong&gt;偏移量无效&lt;/strong&gt;的情况下的处理方式&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;默认是 latest: 从最新记录处开始重新消费&lt;/li&gt;
+      &lt;li&gt;earliest: 从分区起始位置开始重新消费&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;enable.auto.commit&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;该参数用于配置消费者是否自动提交偏移量，默认 true.&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;如果设置为自动提交，可以配置 auto.commit.interval.ms 用来控制提交间隔&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;partition.assignment.strategy&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;用于指定分区分配给消费者的策略。默认有两种策略：&lt;/p&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;strong&gt;Range&lt;/strong&gt;&lt;/p&gt;
+
+        &lt;p&gt;把主题若干连续分区分配给消费者。假设有 5 个分区，2 个消费者，那么其中一个消费者被分配 [0,1,2] 分区，另一被分配 [3,4] 分区&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;strong&gt;RoundRobin&lt;/strong&gt;&lt;/p&gt;
+
+        &lt;p&gt;把主题的所有分区逐个分配给消费者。假设有 5 个分区，2 个消费者，那么其中一个消费者被分配 [0,2,4] 分区，另一被分配 [1,3] 分区&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;max.poll.records&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;用于控制单次 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 调用能够返回的消息数量。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;receive.buffer.bytes &amp;amp; send.buffer.bytes&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;用于设置 Sockets 在读写数据时用到的 TCP 缓冲区大小。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;默认为操作系统的默认值&lt;/li&gt;
+      &lt;li&gt;如果消费者或者生产者与 Broker 位于不同的数据中心，可以适当提高缓冲区大小，因为网络通信延迟会比较高&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;6-提交偏移量&quot;&gt;6. 提交偏移量&lt;/h1&gt;
+
+&lt;p&gt;当调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 方法时，会返回已经写入 Kafka Broker 但是消费者还未读取的记录。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Kafka 消费消息不需要得到消费者的确认，相反，消费者可以追踪消息在分区的位置（偏移量）&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;更新分区当前位置的操作被称为提交偏移量&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;消费者如何提交偏移量？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;消费者通过往 &lt;strong&gt;__consumer_offsets&lt;/strong&gt; 特殊主题发送消息，消息中包含每个分区的偏移量&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;偏移量的用途？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;如果消费者一直稳定运行消费，那么偏移量没有什么用处&lt;/li&gt;
+  &lt;li&gt;如果发生 Rebalance（消费者崩溃或者有新的消费者加入群组），那么消费者可能会被分配新的分区。为了能够继续按照之前的位置继续消费，&lt;strong&gt;消费者需要读取每个分区最后提交的偏移量，然后从偏移量的位置继续处理&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;发生 Rebalance 时，提交的偏移量可能带来的影响？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;如果最近一次提交的偏移量小于消费者处理的最后一个消息的偏移量，那么两个偏移量之间的消息会被重复消费&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_4/6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;如果最近一次提交的偏移量大于消费者处理的最后一个消息的偏移量，那么两个偏移量之间的消息会被丢失&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_4/7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Kafka 提供了多种方式用来提交偏移量。&lt;/p&gt;
+
+&lt;h2 id=&quot;61-自动提交&quot;&gt;6.1 自动提交&lt;/h2&gt;
+
+&lt;p&gt;如果配置 enable.auto.commit=true，那么默认每隔 5 秒，&lt;strong&gt;消费者会自动把 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 返回的最大偏移量提交&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;可以设置 auto.commit.interval.ms 参数调整提交间隔&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;自动提交是在 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 中处理的&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;当消费者每次轮询时，都会检查是否该提交偏移量了；如果可以提交，则将上一次 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 返回的最大偏移量进行提交&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;自动提交偏移量可能带来的影响&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;上次提交之后发生 Rebalance，导致&lt;strong&gt;消息被重复处理&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;假设提交间隔为 5s，如果在上次提交之后的 3s 发生 Rebalance，新的消费者会从最后一次提交的偏移量位置开始消费，那么这 3s 内的消息会被重复消费。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;&lt;em&gt;这种情况不能完全避免&lt;/em&gt;&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;自动提交时，上次轮询的消息未被处理完，如果消费者之后发生崩溃，可能会导致消息丢失&lt;/p&gt;
+
+    &lt;p&gt;每次调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 时都会检查是否提交上次返回的最大偏移量，但是并不知道上次返回的消息是否全部被处理完成。因此，需要确保再次调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 时，之前的消息已经被处理完。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;close()&lt;/code&gt; 调用也会自动提交偏移量&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;62-提交当前偏移量&quot;&gt;6.2 提交当前偏移量&lt;/h2&gt;
+
+&lt;p&gt;如果配置 auto.commit.offset=false，可以&lt;strong&gt;使用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitSync()&lt;/code&gt; 方法手动提交当前偏移量&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitSync()&lt;/code&gt; 会提交 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 返回的最新偏移量，提交成功则返回，否则抛出异常。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;只要没有发生不可恢复的错误，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitSync()&lt;/code&gt; 会一直重试直到成功。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitSync()&lt;/code&gt; 是同步方法，在 Broker 响应之前，会一直阻塞。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;在调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitSync()&lt;/code&gt; 提交最新偏移量之前，需要确保 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 返回的消息被处理完成；否则，如果发生 Rebalance，仍会有消息丢失的风险。&lt;/p&gt;
+
+&lt;p&gt;下面是处理完消息之后手动提交偏移量的代码：&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;ConsumerRecords&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ConsumerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;topic = %s, partition = %s, offset =
+          %d, customer = %s, country = %s\n&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+             &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;c1&quot;&gt;// 手动提交偏移量&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitSync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;CommitFailedException&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;commit failed&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;63-异步提交&quot;&gt;6.3 异步提交&lt;/h2&gt;
+
+&lt;p&gt;由于 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitSync()&lt;/code&gt; 方法会使得消费者被阻塞，使得整体tun tu lia&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitAsync()&lt;/code&gt; 提交之后，不会等待 Broker 的响应；并且，该方法不会重试提交&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;不过，这种方式在发生 Rebalance 之后可能会导致消息被重复消费。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;ConsumerRecords&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ConsumerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;topic = %s, partition = %s,
+        offset = %d, customer = %s, country = %s\n&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitAsync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitAsync()&lt;/code&gt; 支持回调（当 Broker 响应时被触发），可以在回调方法中进行异常重试。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;ConsumerRecords&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ConsumerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;topic = %s, partition = %s,
+        offset = %d, customer = %s, country = %s\n&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitAsync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;OffsetCommitCallback&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onComplete&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;OffsetAndMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;offsets&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exception&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Commit failed for offsets {}&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;offsets&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;});&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;64-同步与异步提交组合&quot;&gt;6.4 同步与异步提交组合&lt;/h2&gt;
+
+&lt;p&gt;组合使用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitSync()&lt;/code&gt; 与 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitAsync()&lt;/code&gt; ，确保在消费者关闭前提交成功。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;ConsumerRecords&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ConsumerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;topic = %s, partition = %s, offset = %d,
+            customer = %s, country = %s\n&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+			&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitAsync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Unexpected error&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitSync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;65-提交特定的偏移量&quot;&gt;6.5 提交特定的偏移量&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitSync()&lt;/code&gt; 与 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;commitAsync()&lt;/code&gt; 方法只能提交 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 返回消息的最大偏移量，如果想要提交该批次中间的偏移量，可以将分区及偏移量作为参数传入。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;OffsetAndMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;currentOffsets&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;HashMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;....&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;ConsumerRecords&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ConsumerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;topic = %s, partition = %s, offset = %d,
+            customer = %s, country = %s\n&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;currentOffsets&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt;
+            &lt;span class=&quot;nc&quot;&gt;OffsetAndMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;no metadata&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+								&lt;span class=&quot;c1&quot;&gt;// 提交特定的偏移量&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitAsync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;currentOffsets&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++;&lt;/span&gt;
+		&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;7-rebalance-监听器&quot;&gt;7. Rebalance 监听器&lt;/h1&gt;
+
+&lt;p&gt;消费者在退出或者 Rebalance 之前可能需要做一些清理工作，如关闭文件，数据库连接等。消费者在调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;subscribe()&lt;/code&gt; 监听主题时，可以传入 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ConsumerRebalanceListener&lt;/code&gt; 实例对 Rebalance 操作进行监听。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ConsumerRebalanceListener&lt;/code&gt; 接口有两个方法需要实现：&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// 该方法会在 Rebalance 之前，消费者停止读取消息之后调用&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 如果在此时提交偏移量，那么新的消费者就可以知道上一次消费的位置&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onPartitionsRevoked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Collection&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// 该方法会在 Rebalance 之后，消费者开始读取消息之前调用&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onPartitionsAssigned&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Collection&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;监听示例：&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;OffsetAndMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;currentOffsets&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;HashMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;HandleRebalance&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ConsumerRebalanceListener&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+		
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onPartitionsAssigned&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Collection&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;
+
+		&lt;span class=&quot;c1&quot;&gt;// 在失去分区所有权之前，提交已经处理过的消息偏移量，而非最大偏移量&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onPartitionsRevoked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Collection&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Lost partitions in rebalance. Committing current offsets:&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;currentOffsets&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitSync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;currentOffsets&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; 
+
+&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;topics&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;HandleRebalance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;ConsumerRecords&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ConsumerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;printf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;topic = %s, partition = %s, offset = %d,
+             customer = %s, country = %s\n&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+             &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt;
+             &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+             &lt;span class=&quot;n&quot;&gt;currentOffsets&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt;
+             &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt;
+             &lt;span class=&quot;nc&quot;&gt;OffsetAndMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;no metadata&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+					&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitAsync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;currentOffsets&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;WakeupException&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// ignore, we're closing&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Unexpected error&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitSync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;currentOffsets&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Closed consumer and we are done&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;8-从特定偏移量处开始消费&quot;&gt;8. 从特定偏移量处开始消费&lt;/h1&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 方法可以从分区的最新偏移量处开始消费消息，如果想从分区的起始位置开始消费，可以使用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;seekToBeginning(TopicPartition tp)&lt;/code&gt; 方法；如果想从分区的末尾位置开始消费，可以使用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;seekToEnd(TopicPartition tp)&lt;/code&gt; 方法。&lt;/p&gt;
+
+&lt;p&gt;同时，Kafka 还提供 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;seek(TopicPartition partition, long offset)&lt;/code&gt; 方法从特定偏移量处开始消费。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;seek() 方法只是用来更新当前正在消费的位置&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;下面示例使用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ConsumerRebalanceLister&lt;/code&gt; 与 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;seek()&lt;/code&gt; 方法实现在分区分配时，从本地 DB 中获取特定的 Offset 并消费。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SaveOffsetsOnRebalance&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ConsumerRebalanceListener&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onPartitionsRevoked&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Collection&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;commitDBTransaction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+			&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onPartitionsAssigned&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Collection&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+	        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;partition:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+	            &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;seek&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getOffsetFromDB&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+			&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;subscribe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;topics&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SaveOffsetOnRebalance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// 更新各个 Partition 的消费位点&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;partition:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;assignment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;seek&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getOffsetFromDB&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nc&quot;&gt;ConsumerRecords&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ConsumerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;processRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;storeRecordInDB&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;storeOffsetInDB&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;commitDBTransaction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;9-如何退出&quot;&gt;9. 如何退出&lt;/h1&gt;
+
+&lt;p&gt;目前的消费者示例中，消费者都是在无限循环中，如果要退出循环，需要通过&lt;strong&gt;另一个线程&lt;/strong&gt;调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;consumer.wakeup()&lt;/code&gt; 方法。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;consumer.wakeup()&lt;/code&gt; 是消费者唯一一个可以从其他线程安全调用的方法&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;consumer.wakeup()&lt;/code&gt; 可以退出 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt;，并抛出 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;WakeupException&lt;/code&gt; 异常。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;如果在调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;consumer.wakeup()&lt;/code&gt; 时，消费者线程并没有等待轮询，那么异常将会在下一次调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;poll()&lt;/code&gt; 时抛出&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;需要注意，在消费者退出之前，有必要调用 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;consumer.close()&lt;/code&gt; 方法，该方法会提交还未提交的信息，并向群组协调器发送离开群组的消息，触发 Rebalance。&lt;/p&gt;
+
+&lt;h1 id=&quot;10-独立消费者&quot;&gt;10. 独立消费者&lt;/h1&gt;
+
+&lt;p&gt;如果一个消费者只是想从主题的所有分区或者特定分区读取消息，并不需要消费者组和 Rebalance。这样的话就不需要订阅主题，取而代之的是&lt;strong&gt;为自己分配分区&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;订阅主题（并加入消费者群组），为自己分配分区两件事不能同时执行&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;消费者为自己分配分区并消费消息的示例：&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nc&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;PartitionInfo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitionInfos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitionInfos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partitionsFor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;topic&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;partitionInfos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;PartitionInfo&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partition&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partitionInfos&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;partitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TopicPartition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()));&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;assign&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;partitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; 
+
+	&lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+	    &lt;span class=&quot;nc&quot;&gt;ConsumerRecords&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;poll&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+	    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;ConsumerRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;record:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;records&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+	        &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;topic = %s, partition = %s, offset = %d,
+	          customer = %s, country = %s\n&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+	          &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;topic&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;partition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt;
+	          &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+			&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+	    &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitSync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. KafkaConsumer 概念</summary></entry><entry><title type="html">Kafka: Writing Messages to Kafka</title><link href="http://localhost:4000/kafka-in-action-3.html" rel="alternate" type="text/html" title="Kafka: Writing Messages to Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-3</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-3.html">&lt;h1 id=&quot;1-生产者概述&quot;&gt;1. 生产者概述&lt;/h1&gt;
 
 &lt;p&gt;需要往 Kafka 写消息的场景有：&lt;/p&gt;
 
@@ -386,7 +1119,7 @@
 
 &lt;p&gt;不同的使用场景对生产者 API 的使用和配置都会有直接影响。&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_2/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_3/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;上图展示了向 Kafka 发送消息的主要步骤：&lt;/p&gt;
 
@@ -720,7 +1453,370 @@
 				&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Utils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;murmur2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keyBytes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;numPartitions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
 	&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. 生产者概述</summary></entry><entry><title type="html">Lion: Multi-Region Data Synchronization</title><link href="http://localhost:4000/multi-region-data-synchronization.html" rel="alternate" type="text/html" title="Lion: Multi-Region Data Synchronization" /><published>2023-03-12T00:00:00+08:00</published><updated>2023-03-12T00:00:00+08:00</updated><id>http://localhost:4000/multi-region-data-synchronization</id><content type="html" xml:base="http://localhost:4000/multi-region-data-synchronization.html">&lt;h1 id=&quot;1文档概述&quot;&gt;1、文档概述&lt;/h1&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. 生产者概述</summary></entry><entry><title type="html">Kafka: Meet Kafka</title><link href="http://localhost:4000/kafka-in-action-1.html" rel="alternate" type="text/html" title="Kafka: Meet Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-1</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-1.html">&lt;h1 id=&quot;11-发布订阅消息系统&quot;&gt;1.1 发布订阅消息系统&lt;/h1&gt;
+
+&lt;p&gt;发布订阅消息系统的一个特点是，消息的发送者不会直接把消息发送给接收者。&lt;strong&gt;发送者以某种方式对消息进行分类，接收者订阅它们，以便接收特定类型的消息&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;发布订阅系统一般有一个 Broker：发布消息的中心点。&lt;/p&gt;
+
+&lt;h1 id=&quot;12-kafka-登场&quot;&gt;1.2 Kafka 登场&lt;/h1&gt;
+
+&lt;p&gt;Kafka 一般被称为“分布式提交日志”或者“分布式流平台”。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在数据库中，提交日志用来提供事务的持久化记录，可以通过回放这些日志还重建系统状态。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Kafka 的数据是按照一定顺序持久化保存的，可以按需读取。同时，Kafka 的数据分布在整个系统中，具有数据故障保护，性能伸缩的能力。&lt;/p&gt;
+
+&lt;h2 id=&quot;121-消息与批次&quot;&gt;1.2.1 消息与批次&lt;/h2&gt;
+
+&lt;p&gt;Kafka 的数据单元被称为“消息”。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;消息由字节数据组成，因此消息内容没有特殊的含义或格式。&lt;/li&gt;
+  &lt;li&gt;消息有一个可选元数据，被称为“键”。键也是一个字节数组，没有特殊含义。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;当消息以一种可控的方式写入不同的分区时，会使用键，保证相同键的消息被写到相同的分区上。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;“批次”是一组消息，这些消息属于同一个主题与分区。将消息按照批次写入到 Kafka，可以减少网络开销，有效提高效率。不过，批次大小需要在消息延迟与吞吐量之间进行权衡：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;批次越大，单位时间内处理的消息就越多；相应的，单个消息的延迟就越大&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;批次数据会被压缩，以提升传输与存储能力，但需要更多的计算处理&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;122-模式&quot;&gt;1.2.2 模式&lt;/h2&gt;
+
+&lt;p&gt;对 Kafka 的来说，消息只是一些字节数组，难以理解，因此希望可以结构化定义消息内容。&lt;/p&gt;
+
+&lt;p&gt;消息模式（Schema）有多种选项，如 JSON，XML；不过它们缺乏强类型处理能力，版本之间的兼容性也不好。&lt;/p&gt;
+
+&lt;p&gt;最常用的 Kafka 消息模式是 Apache Avro：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;紧凑的序列化格式&lt;/li&gt;
+  &lt;li&gt;模式与消息体分开；当模式发生变化时，不需要重新生成代码&lt;/li&gt;
+  &lt;li&gt;支持强类型与模式进化，向前向后均兼容&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;数据格式的一致性，消除了消息读写操作之间的耦合性&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;123-主题与分区&quot;&gt;1.2.3 主题与分区&lt;/h2&gt;
+
+&lt;p&gt;消息通过主题（Topic）进行分类，主题可以被分为若干个分区（Partition）。消息以追加（Append）的方式写入分区，然后以先入先出的顺序读取。&lt;/p&gt;
+
+&lt;p&gt;一个主题通常有多个分区，因此&lt;strong&gt;无法保证在主题范围内消息的有序性，但是可以保证消息在单个分区内有序&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;如下所示，消息被追加到每个分区的尾部：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;很多时候，人们会把一个主题的数据看作&lt;strong&gt;流&lt;/strong&gt;，而不管主题中包含多少个分区。流可以看作一组从生产者移动到消费者的数据。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;124-生产者与消费者&quot;&gt;1.2.4 生产者与消费者&lt;/h2&gt;
+
+&lt;p&gt;Kafka 的生产者分为两种类型：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;生产者&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;生产者创建消息：一般情况下，消息会被发送到特定的主题，默认会把消息均衡地分布到主题的各个分区上（具体被分配到哪个分区并不重要）。&lt;/p&gt;
+
+    &lt;p&gt;不过，也可以为消息指定分区，通过消息键与分区器将其映射到指定的分区。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;消费者&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;消费者读取消息：可以订阅一个或者多个主题，并按照消息生成的顺序读取它们。&lt;/p&gt;
+
+    &lt;p&gt;消费者通过检查消息偏移量（Offset）来判断消息是否已经被读取过。&lt;strong&gt;消费者把每个分区最后读取的消息偏移量保存在 Zookeeper 或者 Kafka 上&lt;/strong&gt;，以保证在消费者重启之后可以从之前的位置继续消费。&lt;/p&gt;
+
+    &lt;p&gt;偏移量是消息的元数据，是一个不断递增的整数值。在 Kafka 创建消息时，会设置其偏移量。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;在给定的分区内，消息的偏移量是唯一的&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;消费者是消费者群组的一部分；消费者群组保证每个分区只会被一个消费者读取，消费者与分区之间的映射关系被称为消费者对分区的所有权关系。通过这种方式，消费者可以消费包含大量消息的主题，并且当一个消费者失效时，其他消费者可以接管失效消费者的工作。&lt;/p&gt;
+
+&lt;p&gt;如下所示，消费者群组与分区的关系：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;125-broker-与集群&quot;&gt;1.2.5 Broker 与集群&lt;/h2&gt;
+
+&lt;p&gt;一个独立的 Kafka 服务器被称为 Broker。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Broker 接收生产者的消息，为消息设置偏移量，并将消息保存到磁盘&lt;/li&gt;
+  &lt;li&gt;Broker 对消费者读取分区的请求，返回已经提交到磁盘上的消息&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;单个 Broker 可以处理上千个分区以及每秒百万级的消息量&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Broker 是集群的组成部分，每个集群都有一个 Broker 同时充当&lt;strong&gt;集群控制器&lt;/strong&gt;的角色。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;集群控制器自动从集群的活跃成员中选出来&lt;/li&gt;
+  &lt;li&gt;集群控制器负责集群管理工作，如将分区分配给 Broker，监控 Broker 等&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在集群中，一个分区从属一个 Broker，该 Broker 被称为该分区的 Leader。同时，可以对分区进行复制，分区副本可以被分配给多个 Broker。&lt;strong&gt;复制机制为分区提供了消息冗余&lt;/strong&gt;，如果 Leader 失效，其他 Broker 可以接管领导权；相关的生产者及消费者都需要迁移到新的 Leader。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Broker 中的消息可以通过一些参数设置保留时间，过期的消息会被删除。&lt;/p&gt;
+
+&lt;h2 id=&quot;126-多集群&quot;&gt;1.2.6 多集群&lt;/h2&gt;
+
+&lt;p&gt;有以下需求时，可以使用多集群：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;数据类型分离&lt;/li&gt;
+  &lt;li&gt;安全需求隔离&lt;/li&gt;
+  &lt;li&gt;多数据中心（容灾恢复）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在多数据中心内部署多个集群时，可以通过 MirrorMaker 工具实现集群间数据复制功能。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;13-why-kafka&quot;&gt;1.3 Why Kafka?&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;多个生产者&lt;/p&gt;
+
+    &lt;p&gt;支持多个生产者往单个主题或者多个主题发送消息，适合从多个系统中收集数据&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;多个消费者&lt;/p&gt;
+
+    &lt;p&gt;支持多个消费者从一个消息流上读取数据，且消费者之间互不影响。同时，消费者群组内的消费者共享消息流，并且保证对于整个群组，每个消息只被处理一次。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;基于磁盘的数据存储&lt;/p&gt;
+
+    &lt;p&gt;消息被保存到磁盘上，并且每个主题可以设置单独的保存规则，以满足不同消费者的需求。&lt;/p&gt;
+
+    &lt;p&gt;数据持久化可以保证消息不丢失，允许消费者非实时地读取消息。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;伸缩性&lt;/p&gt;
+
+    &lt;p&gt;为了支持大量数据处理，Broker 集群支持灵活扩展。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;高性能&lt;/p&gt;
+
+    &lt;p&gt;通过横向扩展生产者，消费者及 Broker，使得 Kafka 在处理大量消息时可以保证亚秒级延迟。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1.1 发布订阅消息系统</summary></entry><entry><title type="html">Kafka: Configure Kafka</title><link href="http://localhost:4000/kafka-in-action-2.html" rel="alternate" type="text/html" title="Kafka: Configure Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-2</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-2.html">&lt;h1 id=&quot;1-broker-配置&quot;&gt;1. Broker 配置&lt;/h1&gt;
+
+&lt;h2 id=&quot;11-numpartitions&quot;&gt;1.1 &lt;strong&gt;num.partitions&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;指定了主题分区数。Kafka 集群通过分区对主题进行横向扩展，当有新的 Broker 加入集群时，可以通过分区实现负载均衡。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;不过，并不强制要求分区数大于 Broker 数。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;在进行分区数量选择时，需要考虑以下几点：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;主题的吞吐量&lt;/li&gt;
+  &lt;li&gt;消费者从单个分区读取数据的吞吐量&lt;/li&gt;
+  &lt;li&gt;生产者往单个分区写入数据的吞吐量&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;每个 Broker 包含的分区个数，可用的磁盘空间与网络带宽&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;单个 Broker 所承载的分区个数是有限的：分区越多，占用内存越多，分区 Leader 选举的时间越长&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;如果消息是按照 Key 写入各个分区的，那么新增分区会比较麻烦&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;11-logretentionms&quot;&gt;1.1 log.retention.ms&lt;/h2&gt;
+
+&lt;p&gt;数据被保留的时间；对应的有 log.retention.minutes, log.retention.hours.&lt;/p&gt;
+
+&lt;h2 id=&quot;13-logretentionbytes&quot;&gt;1.3 log.retention.bytes&lt;/h2&gt;
+
+&lt;p&gt;数据被保留的大小；该参数作用在每个分区上&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;如果同时指定了数据保留的时间与大小参数，那么只要任意一个参数满足，数据就会被删除&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;14-logsegmentbytes&quot;&gt;1.4 log.segment.bytes&lt;/h2&gt;
+
+&lt;p&gt;当消息到达 Broker 时，会被追加到分区的当前日志片段（segment）上。当日志片段大小达到了 log.segment.bytes 时，当前日志片段就会被关闭，新的日志片段会被打开。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;被关闭的日志片段，就开始等待过期&lt;/strong&gt;。如果日志片段一直没被关闭，就不会过期。上面的 log.retention.ms/bytes 日志过期参数需要在日志片段关闭之后才有效。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;该参数值越小，会导致越频繁地开启与关闭文件，降低磁盘效率&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;15-logsegmentms&quot;&gt;1.5 log.segment.ms&lt;/h2&gt;
+
+&lt;p&gt;日志片段被关闭的时间。&lt;/p&gt;
+
+&lt;p&gt;如果同时指定了 log.segment.ms/bytes 两个参数，那么日志片段会在大小/时间达到上限时被关闭。&lt;/p&gt;
+
+&lt;h2 id=&quot;16-messagemaxbytes&quot;&gt;1.6 message.max.bytes&lt;/h2&gt;
+
+&lt;p&gt;用来限制单个消息的大小。如果生产者发送的消息大于该值，那么消息不会被接收，并且 Broker 会返回错误消息。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;如果该值越大，那么请求处理耗时就越大。同时，会增加磁盘写入块的大小，影响 IO 吞吐量。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;2-硬件&quot;&gt;2. 硬件&lt;/h1&gt;
+
+&lt;p&gt;Kafka 本身对硬件没什么要求，但是如果对系统性能比较关注，可以注意以下几点：&lt;/p&gt;
+
+&lt;h2 id=&quot;21-磁盘吞吐量&quot;&gt;2.1 磁盘吞吐量&lt;/h2&gt;
+
+&lt;p&gt;生产者客户端的性能受服务端磁盘吞吐量的影响。生产者在发送完消息之后，一般会等待服务端将消息保存在磁盘上，磁盘写入越快，客户端生成消息的延迟就越低。&lt;/p&gt;
+
+&lt;h2 id=&quot;22-磁盘容量&quot;&gt;2.2 磁盘容量&lt;/h2&gt;
+
+&lt;p&gt;磁盘容量大小取决于需要保存的消息数量，同时也受集群复制策略的影响。&lt;/p&gt;
+
+&lt;h2 id=&quot;23-内存&quot;&gt;2.3 内存&lt;/h2&gt;
+
+&lt;p&gt;除了磁盘性能，服务端可用内存容量也是影响客户端性能的主要因素。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;磁盘影响生产者，而内存影响消费者&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;一般情况下，消费者从分区尾部读取消息，如果有生产者存在，就紧跟在生产者后面。此时，&lt;strong&gt;消费者读取的消息会直接放在系统的页面缓存里&lt;/strong&gt;，比磁盘上重新读取性能更高。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;运行 Kafka 的 JVM 不需要太大的缓存，剩余的系统内存可以直接用作页面缓存，或者缓存正在使用中的日志片段&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;24-网络&quot;&gt;2.4 网络&lt;/h2&gt;
+
+&lt;p&gt;网络吞吐量决定了 Kafka 能够处理的最大数据流量。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;网络吞吐量与磁盘存储是制约 Kafka 扩展规模的主要因素&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;25-cpu&quot;&gt;2.5 CPU&lt;/h2&gt;
+
+&lt;p&gt;Kafka 对计算处理能力要求较低，主要用在消息批量压缩与解压过程中。&lt;/p&gt;
+
+&lt;h1 id=&quot;3-kafka-集群&quot;&gt;3. Kafka 集群&lt;/h1&gt;
+
+&lt;p&gt;使用 Kafka 集群可以为客户端提供高性能与高可用性：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;可以跨服务器进行负载均衡&lt;/li&gt;
+  &lt;li&gt;使用复制功能避免单点故障造成的数据丢失&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_2/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;31-broker-数量&quot;&gt;3.1 Broker 数量&lt;/h2&gt;
+
+&lt;p&gt;一个 Kafka 集群需要多少个 Broker 数量取决于下面几个因素：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;需要多少磁盘空间保存数据&lt;/p&gt;
+
+    &lt;p&gt;单个 Broker 有多少可用空间，副本的复制系数多少&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;集群处理请求的能力&lt;/p&gt;
+
+    &lt;p&gt;需要考虑网络吞吐量，磁盘吞吐量，系统内存容量因素&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;32-操作系统调优&quot;&gt;3.2 操作系统调优&lt;/h2&gt;
+
+&lt;p&gt;默认操作系统配置已经能够满足大部分应用程序的运行需求，不过可以优化一些参数进一步提升性能，这些参数主要与虚拟内存，网络子系统，存储日志的磁盘挂载点有关。&lt;/p&gt;
+
+&lt;h3 id=&quot;321-虚拟内存&quot;&gt;3.2.1 虚拟内存&lt;/h3&gt;
+
+&lt;p&gt;为了提高系统吞吐量，应该尽量避免内存交换。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;内存页与磁盘之间的交换对 Kafka 各方面性能都有影响。Kafka 大量使用系统页面缓存，如果虚拟内存被交换到磁盘，说明没有多余的内存分配给页面缓存了。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;一种优化方式是，不设置任何交换分区，避免内存交换。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;奸笑 vm.swappiness 参数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;另一种优化方式是，调整内核对脏页的处理方式。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;减小 vm.dirty_background_ratio 参数，增大 vm.dirty_ratio 参数&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;322-磁盘&quot;&gt;3.2.2 磁盘&lt;/h3&gt;
+
+&lt;p&gt;除了合适的磁盘硬件设备，文件系统是影响性能的另一个重要因素。&lt;/p&gt;
+
+&lt;p&gt;XFS 批量磁盘写入具有更高的效率，提高整体的 IO 吞吐量，为 Kafka 提供更好的性能。&lt;/p&gt;
+
+&lt;h3 id=&quot;323-网络&quot;&gt;3.2.3 网络&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;调整分配给 Socket 读写缓冲区的内存大小&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;参数 net.core.wmem_default, net.core.rmem_default.&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;调整 TCP Socket 读写缓冲区&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;参数 net.ipv4.tcp_wmem, net.ipv4.tcp_rmem&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. Broker 配置</summary></entry><entry><title type="html">Lion: Multi-Region Data Synchronization</title><link href="http://localhost:4000/multi-region-data-synchronization.html" rel="alternate" type="text/html" title="Lion: Multi-Region Data Synchronization" /><published>2023-03-12T00:00:00+08:00</published><updated>2023-03-12T00:00:00+08:00</updated><id>http://localhost:4000/multi-region-data-synchronization</id><content type="html" xml:base="http://localhost:4000/multi-region-data-synchronization.html">&lt;h1 id=&quot;1文档概述&quot;&gt;1、文档概述&lt;/h1&gt;
 
 &lt;h2 id=&quot;11项目背景&quot;&gt;1.1 项目背景&lt;/h2&gt;
 
@@ -2568,166 +3664,4 @@ A：全量一致性检测成本太高，且从 Lion 现状来看，实时同步 
 
 &lt;h1 id=&quot;结论价格如何配置资源&quot;&gt;结论：价格如何配置资源&lt;/h1&gt;
 
-&lt;p&gt;在市场经济中，价格是配置稀缺资源的机制。对于经济中的每种物品来说，价格确保供给与需求达到平衡。均衡价格决定了买者选择购买多少这种物品，以及卖者选择生产多少这种物品。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="economics" /><summary type="html">供给与需求是使市场经济运行的力量，它们决定了每种物品的产量及出售价格。</summary></entry><entry><title type="html">编程珠玑: 算法设计技术</title><link href="http://localhost:4000/programming-pearls-8.html" rel="alternate" type="text/html" title="编程珠玑: 算法设计技术" /><published>2022-06-19T00:00:00+08:00</published><updated>2022-06-19T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-8</id><content type="html" xml:base="http://localhost:4000/programming-pearls-8.html">&lt;h2 id=&quot;问题描述&quot;&gt;问题描述&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;输入&lt;/strong&gt;：具有 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;n&lt;/code&gt; 个浮点数的向量 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x&lt;/code&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;输出&lt;/strong&gt;：输入向量的任意连续子向量的最大和。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;示例&lt;/strong&gt;：输入向量 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x&lt;/code&gt; 为 [31, -41, 59, 26, -53, 58, 97, -93, -23, 84]，那么该程序输出为 x[2…6] 的总和。&lt;/p&gt;
-
-&lt;h2 id=&quot;分析&quot;&gt;分析&lt;/h2&gt;
-
-&lt;p&gt;当所有数都是正数时，问题比较简单，此时最大子向量就是整个输入向量。&lt;/p&gt;
-
-&lt;p&gt;当输入向量中含有负数时，是否应该包含某个负数并期望旁边的正数会弥补它呢？&lt;/p&gt;
-
-&lt;p&gt;为了使问题定义更加完整，假设所有的输入都是负数时，最大子向量为空向量，总和为 0.&lt;/p&gt;
-
-&lt;h2 id=&quot;on3-算法&quot;&gt;O(n^3) 算法&lt;/h2&gt;
-
-&lt;p&gt;该问题最直接的解法是对所有满足 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;0 ≤ i ≤ j &amp;lt; n&lt;/code&gt; 的 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;(i, j)&lt;/code&gt; 整数对进行迭代。对每个整数对，都需要计算 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[i, j]&lt;/code&gt; 的总和，并判断此时该和是否是迄今为止最大的和。&lt;/p&gt;
-
-&lt;p&gt;代码比较简单，但是运行速度很慢。&lt;/p&gt;
-
-&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-		&lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// sum is sum of x[i...j]&lt;/span&gt;
-		&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-			&lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-		&lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;on2-算法&quot;&gt;O(n^2) 算法&lt;/h2&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;我们注意到，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[i...j]&lt;/code&gt; 的总和与前面已经计算出的总和 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[i...j-1]&lt;/code&gt; 相关，利用该关系可以得到第一个平方算法。&lt;/p&gt;
-
-    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
- &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
- 	&lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// sum is sum of x[i...j]&lt;/span&gt;
- 	&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
- 		&lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
- 		&lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;另一种平方算法是提前计算 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[0...i]&lt;/code&gt; 各个数累加的和。&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cumarr[i]&lt;/code&gt; 表示 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[0...i]&lt;/code&gt; 中各个数的累加和，则 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x[i..j]&lt;/code&gt; 的累加和可以通过 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cumarr[j] - cumarr[i-1]&lt;/code&gt; 得到。&lt;/p&gt;
-
-    &lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;n&quot;&gt;cumarr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
- &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
- 	&lt;span class=&quot;n&quot;&gt;cumarr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cumarr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
- &lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
- &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
- 	&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
- 		&lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cumarr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;cumarr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// sum is sum of x[i...j]&lt;/span&gt;
- 		&lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;分治算法onlogn&quot;&gt;分治算法：O(nlogn)&lt;/h2&gt;
-
-&lt;p&gt;前面讨论的算法考虑了所有的子向量，并计算每个子向量中的所有数的和。由于存在 O(n^2) 个子向量，因此至少需要 O(n^2) 的运行时间。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;分治法原理&lt;/strong&gt;：&lt;em&gt;要解决规模为 n 的问题，可以递归地解决两个规模近似为 n/2 的子问题，然后对它们的答案进行合并可以得到整个问题的答案&lt;/em&gt;。&lt;/p&gt;
-
-&lt;p&gt;在本问题中，我们将大小为 n 的向量分解为两个大小近似的子向量 a, b，之后递归地找出 a, b 中的最大子向量 ma, mb。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;整个向量的最大子向量为 ma：子向量在 a 中&lt;/li&gt;
-  &lt;li&gt;整个向量的最大子向量为 mb：子向量在 b 中&lt;/li&gt;
-  &lt;li&gt;整个向量的最大子向量为 mc：子向量跨越 a, b 之间的边界&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;maxsum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// zero elements&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// one element&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;
-	&lt;span class=&quot;c1&quot;&gt;// find max crossing to left&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;lmax&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-		&lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-		&lt;span class=&quot;n&quot;&gt;lmax&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lmax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-	&lt;span class=&quot;c1&quot;&gt;// find max crossing to right&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;rmax&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-		&lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-		&lt;span class=&quot;n&quot;&gt;rmax&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rmax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lmax&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rmax&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;maxsum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;maxsum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;扫描算法on&quot;&gt;扫描算法：O(n)&lt;/h2&gt;
-
-&lt;p&gt;扫描算法是从数组的最左端（x[0]）开始扫描，一直到最右端（x[n-1]），并记下所遇到的总和最大的子向量。&lt;/p&gt;
-
-&lt;p&gt;假设已经解决了 x[0…i-1] 的问题，如何将其扩展为包含 x[i] 的问题？&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;类似分治算法原理：前 i 个元素中，最大总和的子向量要么在前 i-1 个元素中（maxsofar），要么其结束位置为 i（maxendinghere）&lt;/p&gt;
-
-    &lt;table&gt;
-      &lt;thead&gt;
-        &lt;tr&gt;
-          &lt;th&gt; &lt;/th&gt;
-          &lt;th&gt;maxsofar&lt;/th&gt;
-          &lt;th&gt; &lt;/th&gt;
-          &lt;th&gt;maxendinghere&lt;/th&gt;
-        &lt;/tr&gt;
-      &lt;/thead&gt;
-      &lt;tbody&gt;
-        &lt;tr&gt;
-          &lt;td&gt; &lt;/td&gt;
-          &lt;td&gt; &lt;/td&gt;
-          &lt;td&gt; &lt;/td&gt;
-          &lt;td&gt;i&lt;/td&gt;
-        &lt;/tr&gt;
-      &lt;/tbody&gt;
-    &lt;/table&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;language-c highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;maxendinghere&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-	&lt;span class=&quot;c1&quot;&gt;// maxendinghere 一开始为结束位置为 x-1 的最大子向量的和，此处将其更新为结束位置为 i 的最大子向量的和&lt;/span&gt;
-	&lt;span class=&quot;c1&quot;&gt;// 如果加上 x[i] 之后仍然为正值，那么 maxendinghere 则加上 x[i]；否则将 maxendinghere 设置为 0（空向量）&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;maxendinghere&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;maxendinghere&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;maxsofar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;maxendinghere&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;原理&quot;&gt;原理&lt;/h2&gt;
-
-&lt;p&gt;上述几个算法给出了几个重要的算法设计技术：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;保存状态，避免重复计算：动态规划&lt;/li&gt;
-  &lt;li&gt;分治算法&lt;/li&gt;
-  &lt;li&gt;扫描算法&lt;/li&gt;
-  &lt;li&gt;将信息预处理至数据结构中&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">问题描述</summary></entry><entry><title type="html">编程珠玑: 编程小事</title><link href="http://localhost:4000/programming-pearls-5.html" rel="alternate" type="text/html" title="编程珠玑: 编程小事" /><published>2022-06-11T00:00:00+08:00</published><updated>2022-06-11T00:00:00+08:00</updated><id>http://localhost:4000/programming-pearls-5</id><content type="html" xml:base="http://localhost:4000/programming-pearls-5.html">&lt;h3 id=&quot;脚手架&quot;&gt;脚手架&lt;/h3&gt;
-
-&lt;p&gt;使用脚手架更方便地访问函数；最简单的脚手架是命令行技术&lt;/p&gt;
-
-&lt;h3 id=&quot;编码&quot;&gt;编码&lt;/h3&gt;
-
-&lt;p&gt;首先使用伪代码构建程序框架，然后将伪代码翻译成要实现的语言&lt;/p&gt;
-
-&lt;h3 id=&quot;测试&quot;&gt;测试&lt;/h3&gt;
-
-&lt;p&gt;在脚手架中对组件进行测试；通过脚手架对程序进行自动化测试&lt;/p&gt;
-
-&lt;h3 id=&quot;调试&quot;&gt;调试&lt;/h3&gt;
-
-&lt;p&gt;不管是脚手架还是真实运行环境，调试工作总是很困难的&lt;/p&gt;
-
-&lt;h3 id=&quot;计时&quot;&gt;计时&lt;/h3&gt;
-
-&lt;p&gt;对程序执行时间进行计时，确保程序能够达到我们预期的性能&lt;/p&gt;
-
-&lt;h3 id=&quot;断言的艺术&quot;&gt;断言的艺术&lt;/h3&gt;
-
-&lt;p&gt;断言既可以知道程序的代码开发，也可以用来判断程序的正确性。我们可以将断言插入代码中，以确保程序运行时的行为与我们的理解一致&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="algrithom" /><summary type="html">脚手架</summary></entry></feed>
+&lt;p&gt;在市场经济中，价格是配置稀缺资源的机制。对于经济中的每种物品来说，价格确保供给与需求达到平衡。均衡价格决定了买者选择购买多少这种物品，以及卖者选择生产多少这种物品。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="economics" /><summary type="html">供给与需求是使市场经济运行的力量，它们决定了每种物品的产量及出售价格。</summary></entry></feed>

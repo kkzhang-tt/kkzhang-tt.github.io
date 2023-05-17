@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Kafka: Kafka Internals</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.1" />
+<meta property="og:title" content="Kafka: Kafka Internals" />
+<meta name="author" content="kkzhang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="1. 集群成员关系" />
+<meta property="og:description" content="1. 集群成员关系" />
+<link rel="canonical" href="http://localhost:4000/kafka-in-action-5.html" />
+<meta property="og:url" content="http://localhost:4000/kafka-in-action-5.html" />
+<meta property="og:site_name" content="Find a needle in haystack" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-05-17T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Kafka: Kafka Internals" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"kkzhang"},"headline":"Kafka: Kafka Internals","dateModified":"2023-05-17T00:00:00+08:00","@type":"BlogPosting","datePublished":"2023-05-17T00:00:00+08:00","description":"1. 集群成员关系","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/kafka-in-action-5.html"},"url":"http://localhost:4000/kafka-in-action-5.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Find a needle in haystack" /><link rel="shortcut icon" type="image/x-icon" href="/logo.ico" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/">..</a><article>
+  <p class="post-meta">
+    <time datetime="2023-05-17 00:00:00 +0800">2023-05-17</time>
+  </p>
+  
+  <h1><p style="color:blue;">Kafka: Kafka Internals</p></h1>
+
+  <h1 id="1-集群成员关系">1. 集群成员关系</h1>
+
+<p><strong>Kafka 使用 Zookeeper 维护集群成员信息</strong>。</p>
+
+<ul>
+  <li>
+    <p>Broker 启动时，通过<strong>创建临时节点</strong>将自己的唯一 ID 注册到 Zookeeper</p>
+
+    <blockquote>
+      <p>每个 Broker 都有唯一标识符号，可以在配置文件中指定，也可以自动生成。
+  注册路径:  /brokers/ids</p>
+
+    </blockquote>
+  </li>
+  <li>不同的 Kafka 组件通过订阅注册路径，可以在 Broker 加入或者退出集群时获得通知</li>
+  <li>
+    <p>在 Broker 宕机或者网络分区时，与 Zookeeper 断开连接，那么启动时创建的临时节点就会被自动删除。同时，监听 Broker 列表的 Kafka 组件就会收到 Broker 被移除的通知。</p>
+
+    <blockquote>
+      <p>虽然 Broker 注册的临时节点会被清除，但是其 ID 会继续保存在其他数据结构中（如主题的副本列表中）。在 Broker 关闭之后，如果<strong>使用相同的 ID 启动一个新的 Broker，它会立即加入集群，并拥有与旧 Broker 相同的分区与主题</strong>。</p>
+
+    </blockquote>
+  </li>
+</ul>
+
+<h1 id="2-控制器">2. 控制器</h1>
+
+<p>控制器也是一个 Broker，除了具有一般 Broker 的功能，还负责分区 Leader 的选举。</p>
+
+<p><strong>Kafka 使用 Zookeeper 的临时节点来选举控制器</strong>：</p>
+
+<ol>
+  <li><strong><em>集群初始化选举</em></strong>
+    <ul>
+      <li>Broker 集群中第一个启动的 Broker 通过在 Zookeeper 上创建临时节点（<code class="language-plaintext highlighter-rouge">/controller</code>）使自己成为控制器</li>
+      <li>其他 Broker 在启动时，也尝试创建这个临时节点，但是会收到“节点已存在”异常，从而意识到集群控制器节点已经存在（集群已经存在控制器）</li>
+      <li>其他 Broker 在控制器节点上创建 <code class="language-plaintext highlighter-rouge">watch</code> 对象（用于接收节点变更通知）</li>
+    </ul>
+  </li>
+  <li><strong><em>控制器异常再次触发选举</em></strong>
+    <ul>
+      <li>如果控制器被关闭或者与 Zookeeper 断开连接，Zookeeper 临时节点（<code class="language-plaintext highlighter-rouge">/controller</code>）消失；其他 Broker 通过 <code class="language-plaintext highlighter-rouge">watch</code> 对象收到节点消失的通知，因此尝试让自己成为新的控制器</li>
+      <li>同样，第一个在 Zookeeper 上成功创建控制器节点的 Broker 成为新的控制器，其他 Broker 在新的控制器节点上再次创建 <code class="language-plaintext highlighter-rouge">watch</code> 对象</li>
+      <li>
+        <p>每个新选出的控制器通过 Zookeeper 的递增操作获得一个全新的，数值更大的 <strong>Controller Epoch</strong>. 其他 Broker 在知道当前的 Controller Epoch 之后，会忽略旧控制器发出的包含旧 Epoch 的消息</p>
+
+        <blockquote>
+          <p><strong>控制器通过 epoch 来避免“脑裂”（集群中同时存在两个控制器）</strong></p>
+
+        </blockquote>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>控制器负责分区 Leader 管理：</strong></p>
+
+<ol>
+  <li><strong><em>Broker 离开集群</em></strong>
+    <ul>
+      <li>控制器通过 <code class="language-plaintext highlighter-rouge">watch</code> Broker 在 Zookeeper 上注册的路径，可以在 Broker 离开集群时收到通知；需要对失去 Leader 的分区进行 Leader 选举</li>
+      <li>控制器遍历分区，<em>选择分区副本列表中的下一个副本作为新的分区 Leader</em></li>
+      <li>控制器向包含新 Leader 或者现有 Follower 的 Broker 发送消息：包含分区 Leader 与 Follower 信息</li>
+      <li>新 Leader 开始处理生产者与消费者的请求，Follower 从 Leader 处开始复制消息</li>
+    </ul>
+  </li>
+  <li><strong><em>Broker 加入集群</em></strong>
+    <ul>
+      <li>当新的 Broker 加入集群时，控制器会监测其 Broker ID 是否包含现有的分区副本</li>
+      <li>如果包含，则将变更通知发送给新加入的 Broker 及其他 Broker，之后新加入的 Broker 上的分区副本就从 Leader 副本开始复制消息</li>
+    </ul>
+  </li>
+</ol>
+
+<h1 id="3-复制">3. 复制</h1>
+
+<p><strong>多副本机制可以使得 Kafka 在个别节点失效时，仍能保证可用性与持久性</strong>。</p>
+
+<p>Kafka 使用主题来组织数据，每个主题包含多个分区，每个分区包含多个副本。副本被分配在 Broker 上，每个 Broker 可以保存成百上千个副本。</p>
+
+<p>有两种类型的副本：</p>
+
+<ol>
+  <li>
+    <p><strong><em>Leader 副本</em></strong></p>
+
+    <p>每个分区都有一个 Leader 副本。</p>
+
+    <p>为了保证数据一致性，所有生产者与消费者的请求都会由 Leader 副本处理。</p>
+  </li>
+  <li>
+    <p><strong><em>Follower 副本</em></strong></p>
+
+    <p>Leader 副本外的其他副本都是 Follower 副本。</p>
+
+    <p>Follower 副本不会处理来自客户端的请求，唯一的任务就是从 Leader 副本处复制消息，与 Leader 副本保持一致，以便在 Leader 副本不可用时从中选举出新的 Leader。</p>
+  </li>
+</ol>
+
+<p>Leader 副本还需要判断哪些 Follower 副本的状态与自己是保持一致的。</p>
+
+<ul>
+  <li>Follower 副本为了与 Leader 保持一致，向 Leader 发送获取数据的请求（与消费者获取数据请求方式一样）；Leader 返回消息及对应偏移量</li>
+  <li><em>Leader 副本通过检查每个 Follower 请求的最新偏移量，可以判断 Follower 的复制进度</em>
+    <ul>
+      <li>如果 Follower 在 10s 内没有请求任何消息，或者虽然在请求消息，但是 10s 内没有请求最新数据，那么该 Follower 会被认为是<strong>不同步的（out of sync）</strong></li>
+      <li>如果 Follower 持续请求最新消息，则被认为是<strong>同步的（in-sync）</strong></li>
+    </ul>
+  </li>
+</ul>
+
+<blockquote>
+  <p>在 Leader 副本失效后，只有同步的副本才可能被选为新的 Leader</p>
+
+</blockquote>
+
+<blockquote>
+  <p>Follower 副本正常不活跃的时间或者在被认为不同步的时间通过参数 replica.lag.time.max.ms 控制</p>
+
+</blockquote>
+
+<p><strong>首选 Leader</strong>：创建主题时选定的 Leader 就是分区的首选 Leader。</p>
+
+<blockquote>
+  <p>分区副本列表中第一个副本一般就是首选 Leader</p>
+
+</blockquote>
+
+<h1 id="4-处理请求">4. 处理请求</h1>
+
+<p>Broker 的大部分工作就是处理客户端，分区副本和控制器发送给分区 Leader 的请求。</p>
+
+<p><strong>Broker 按照请求到达的顺序进行处理</strong>：</p>
+
+<ul>
+  <li>每个监听端口上运行一个 Acceptor 线程，该线程会为请求创建一个连接，并交给 Processor 线程处理</li>
+  <li>Processor 线程从客户端获取请求消息，把它们放到请求队列，然后从响应队列获取响应消息，发送给客户端</li>
+  <li>请求消息被放入请求队列后，会由 IO 线程负责处理</li>
+</ul>
+
+<p><img src="/images/kafka/chapter_5/1.png" alt="" /></p>
+
+<p>所有请求都有如下标准头：</p>
+
+<ul>
+  <li>Request type</li>
+  <li>Request version：Broker 可以处理不同版本客户端的请求</li>
+  <li>Correlation ID：请求消息的唯一标识（响应中也会携带）</li>
+  <li>Client ID：客户端标识</li>
+</ul>
+
+<h2 id="41-元数据请求">4.1 元数据请求</h2>
+
+<p>元数据请求包含了客户端感兴趣的主题列表，可以请求<strong>任意 Broker</strong>。Broker 的响应中包含了请求主题包含的分区，每个分区的副本信息，以及副本 Leader 信息。</p>
+
+<p>客户端一般会把这些元数据信息缓存本地，并定时刷新，之后直接往目标 Broker 上发送生产请求或者获取请求。</p>
+
+<blockquote>
+  <p>生产请求及获取请求必须发送给分区的 Leader 副本</p>
+
+</blockquote>
+
+<p><img src="/images/kafka/chapter_5/2.png" alt="" /></p>
+
+<h2 id="42-生产请求">4.2 生产请求</h2>
+
+<p><strong>生产请求必须要发送给分区的 Leader 副本</strong>。</p>
+
+<ul>
+  <li>Leader 副本的位置信息由元数据请求返回</li>
+  <li>如果请求的 Broker 不包含对应分区的 Leader 副本，那么就会响应给客户端“非分区 Leader”的异常</li>
+</ul>
+
+<p>包含 Leader 副本的 Broker 在收到生产请求时，会对请求做一些验证：</p>
+
+<ul>
+  <li>是否有权限写入主题</li>
+  <li>请求中的 acks 值是否有效（0，1 or al）</li>
+  <li>
+    <p>如果 acks = all，是否有足够多的同步副本保证消息能够被安全写入</p>
+
+    <blockquote>
+      <p>如果同步（in-sync）副本数量不足，Broker 可以拒绝新消息</p>
+
+    </blockquote>
+  </li>
+</ul>
+
+<p>之后，Broker 会将消息写入本地磁盘。</p>
+
+<ul>
+  <li>在 Linux 系统上，消息会被写入到文件系统缓存中，并不保证何时会被刷新到磁盘上</li>
+  <li>Kafka 不会一直等待数据写到磁盘上，反而<strong>通过数据复制功能保证消息的持久性</strong></li>
+</ul>
+
+<p>消息在被写入分区的 Leader 副本之后，Broker 再次检查 acks 配置参数</p>
+
+<ul>
+  <li>如果 acks = 0/1，那么 Broker 立即返回响应</li>
+  <li><strong>如果 acks = all，那么请求会被保存到一个被称为 <em>purgatory</em> 的缓冲区中，直到所有的 Follower 副本都复制了消息，Leader 才会响应客户端</strong></li>
+</ul>
+
+<blockquote>
+  <p>从生产者角度看，acks = 0 那么生产者在将消息发送出去之后，完全不需要等待 Broker 的响应；acks = 1 生产者会等待 Leader 副本写入成功；acks = all 生产者会等待所有同步副本都写入成功</p>
+
+</blockquote>
+
+<h2 id="42-获取请求">4.2 获取请求</h2>
+
+<p><strong>获取请求必须要发送给分区的 Leader 副本</strong>。</p>
+
+<p>Leader 副本在收到获取请求后，会检查请求是否有效：</p>
+
+<ul>
+  <li>偏移量在指定分区上是否存在
+    <ul>
+      <li>如果偏移量不存在（可能是数据已经被删除），那么将会返回给客户端一个错误</li>
+      <li>如果偏移量存在，则 Broker 按照指定的数量上限读取消息，并返回给客户端</li>
+    </ul>
+  </li>
+</ul>
+
+<blockquote>
+  <p>客户端在发送获取请求时，除了需要指定获取的分区及偏移量，还需<em>要指定 Broker 最多从一个分区内可以返回多少数据量，以防止返回过多数据导致客户端内存耗尽。</em>同时，也可以指定返回数据的下限，可以在 Broker 数据量较少的情况下减少回传次数，降低开销。</p>
+
+</blockquote>
+
+<p>Kafka 比较知名的是，使用<strong>零拷贝（Zero-Copy）技术向客户端发送消息</strong>。</p>
+
+<ul>
+  <li>Kafka 直接把消息从文件（更确切的说是 Linux 文件系统缓存）发送到网络通道，不需要经过任何中间缓冲区。相比于其他数据库系统，在发送给客户端之前，需要先将数据缓存在本地</li>
+  <li>这项技术<em>避免了字节复制（降低 CPU 消耗），也不需要管理内存缓存，提高系统性能</em></li>
+</ul>
+
+<p>客户端在请求 Leader 副本获取消息时，<strong>只能获取已经被写入所有同步（in-sync）副本的消息</strong>。</p>
+
+<ul>
+  <li>也就是说，Leader 副本上的数据并不是都可以被消费</li>
+  <li>除了消费者，Follower 副本同样也只能获取已经被写入所有同步副本的消息</li>
+</ul>
+
+<p>这么做的目的是为了<strong>确保数据一致性</strong>。</p>
+
+<ul>
+  <li>如果消息还未被同步，那么当 Leader 崩溃后，新的 Leader 可能会丢失数据。从消费者的角度来说，前后消费的数据可能不一致。</li>
+</ul>
+
+<p><img src="/images/kafka/chapter_5/3.png" alt="" /></p>
+
+<blockquote>
+  <p>消费者只能看到高水位之上的消息；<em>参考 In-Sync Replicas 机制（副本同步机制）</em></p>
+
+</blockquote>
+
+<p>相应的，如果 Broker 之间复制消息较慢，也会导致消费者消费消息的延迟增大。</p>
+
+<blockquote>
+  <p>replica.lag.time.max.ms 参数可以配置消息复制的最大延迟</p>
+
+</blockquote>
+
+<h2 id="43-其他请求">4.3 其他请求</h2>
+
+<ul>
+  <li>Broker 之间请求，如控制器发送给 Leader 副本及 Follower 副本的请求</li>
+  <li>Offset 请求，如客户端提交 Offset，拉取 Offset 请求</li>
+</ul>
+
+<h1 id="5-物理存储">5. 物理存储</h1>
+
+<p><strong>分区是 Kafka 基本存储单元</strong>。一个分区无法在多个 Broker 间再拆分，也无法在同一个 Broker 上的多个磁盘间再细分。</p>
+
+<blockquote>
+  <p>在配置 Kafka 的时候，需要指定用于存储分区的目录清单：log.dirs</p>
+
+</blockquote>
+
+<h2 id="51-分区分配">5.1 分区分配</h2>
+
+<p>在进行分区分配时，期望达到以下目标（用以<strong><em>提高容灾能力</em></strong>）：</p>
+
+<ul>
+  <li>Broker 间均匀分配分区副本（Follower + Leader）</li>
+  <li>每个分区的副本分配在不同的 Broker 上
+    <ul>
+      <li>如果为 Broker 指定了机架信息，那么每个分区副本尽量分配在不同机架的 Broker 上</li>
+    </ul>
+  </li>
+</ul>
+
+<p>假设需要在 m 个 Broker 上分配 n 个分区，且分区复制系数为 k。</p>
+
+<ol>
+  <li>轮询将分区的 Leader 副本分配在 Broker 上</li>
+  <li>轮询将分区的 Follower 副本分配在 Broker 上</li>
+</ol>
+
+<blockquote>
+  <p>在轮询分配时，需要尽量保证上述目标</p>
+
+</blockquote>
+
+<p><img src="/images/kafka/chapter_5/4.png" alt="" /></p>
+
+<p>在将分区副本分配到 Broker 上之后，需要为分区副本分配存储目录，分配规则为：</p>
+
+<ul>
+  <li>比较每个目录下的分区数量，新分区副本会被分配到分区数量最小的目录下面</li>
+</ul>
+
+<blockquote>
+  <p>如果新添加一个磁盘，那么新的分区都会分配到该磁盘下</p>
+
+</blockquote>
+
+<h2 id="52-文件管理">5.2 文件管理</h2>
+
+<p>Kafka 不会一直保留数据，也不会等到所有的消费者都消费之后再删除数据。<strong>通过配置主题数据保留的期限与数据量大小</strong>，来进行管理：满足配置的期限或者大小，就可以清除相应数据。</p>
+
+<p>如果一个分区的数据保留在一个文件中，那么这个文件可能会变得特别大，在进行数据查找与删除时会比较耗时。</p>
+
+<p>因此，<strong>Kafka 将分区划分成多个片段（Segment）</strong>。</p>
+
+<ul>
+  <li>默认片段大小为 1GB 或 一周的数据</li>
+  <li>Broker 在往分区写入数据时，如果当前片段达到上限，则关闭当前文件，并打开新的文件</li>
+</ul>
+
+<p>当前正在写入数据的片段被称为<strong>活跃片段（Active Segment）</strong>；活跃片段永远不会被删除。</p>
+
+<blockquote>
+  <p>Broker 会为每个片段打开一个句柄（包括已经关闭的片段），如果片段过多的话可能会导致文件句柄过多</p>
+
+</blockquote>
+
+<h2 id="53-文件格式">5.3 文件格式</h2>
+
+<p>Kafka 将消息的<em>键，值，偏移量，消息大小，校验和，消息格式版本号，压缩算法，时间戳</em>保存在磁盘文件。</p>
+
+<blockquote>
+  <p>保存在磁盘上的数据格式与从生产者发送过来，或者发送给消费者的消息格式是一样的，不需要对消息进行再次压缩，解压操作。因此，<strong>Kafka 可以使用零复制（Zero-Copy）技术将消息发送给消费者（磁盘存储与网络传输格式均相同）</strong>。</p>
+
+</blockquote>
+
+<p>如果生产者发送的是压缩消息，那么同一个批次的消息会被压缩，被当成“<strong><em>包装消息</em></strong>（Wrapper Message）”发送。消费者对包装消息解压，可以看到整个批次的消息，每个消息都有自己的偏移量及时间戳。</p>
+
+<p><img src="/images/kafka/chapter_5/5.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p>消息 Offset 生成时机</p>
+
+    <p>Kafka 消息的 offset 是在消息被写入 Kafka 分区时生成的。具体来说，当 Producer 发送消息到 Kafka 时，Kafka 会为每条消息分配一个唯一的 offset，并将消息写入对应的分区中。每个分区的消息都有一个单独的连续的 offset 序列。</p>
+
+    <p>消息的 offset 是由 Kafka 服务器自动分配的，并且在消息被成功写入分区后才会生成。因此，offset 的生成时机可以分为两个阶段：</p>
+
+    <ol>
+      <li>生产者发送消息：当生产者发送消息到 Kafka Broker 时，Broker 会为消息分配一个 offset，并将消息写入对应的分区。这是 offset 的生成的第一个阶段，也是 offset 的初次分配。</li>
+      <li>消息成功写入分区：当消息成功写入分区后，offset 的生成完成。此时，消费者可以通过指定对应分区的 offset 来消费该消息。</li>
+    </ol>
+
+    <p>需要注意的是，offset 是按照分区粒度生成的，每个分区都有独立的 offset 序列。不同分区的消息具有不同的 offset 值，并且每个分区的 offset 是连续递增的，从而保证了消息在分区内的顺序性。</p>
+
+    <p>消费者在消费消息时，可以通过指定分区和 offset 来定位和消费特定的消息。消费者可以跟踪已消费的消息的 offset，并定期提交这些 offset，以便在 Consumer 重启或故障恢复时能够从之前的消费位置继续消费。</p>
+  </li>
+</ul>
+
+<h2 id="54-索引">5.4 索引</h2>
+
+<p>为了更快定位到消费者请求的偏移量，Kafka 为每个分区维护了一个索引。</p>
+
+<p><strong>索引把偏移量映射到片段（Segment）文件及偏移量在文件中的位置</strong>。</p>
+
+<p>如果索引出现损坏，Kafka 会通过重新读取消息并录制偏移量及位置来生成新的索引。</p>
+
+<h2 id="55-压缩">5.5 压缩</h2>
+
+<p>通常，Kafka 会根据设置的时间保留数据，把过期的数据清理掉。</p>
+
+<p>但是，有些场景需要保留最新的数据，旧的数据可以被清理。</p>
+
+<ul>
+  <li>一个应用程序使用 Kafka 保存自己的状态，每次状态变化时，都将最新状态写入 Kafka。如果程序崩溃，可以从 Kafka 中读取最新消息来恢复。此时，应用程序只关心崩溃前的最新状态，而运行过程中的状态并不关心。</li>
+</ul>
+
+<p>Kafka 通过配置主题的保留策略来满足上述场景：</p>
+
+<ul>
+  <li><strong><em>Delete</em></strong>：<em>早于保留时间的事件会被删除</em></li>
+  <li><strong><em>Compact</em></strong>：<em>只保留每个 Key 的最新值</em></li>
+</ul>
+
+<blockquote>
+  <p>这种压缩清理的策略需要消息中既包含 key，也包含 value，才可以使用</p>
+
+</blockquote>
+
+<blockquote>
+  <p>压缩清理操作只针对已经关闭的片段</p>
+
+</blockquote>
+
+<h2 id="56-压缩原理">5.6 压缩原理</h2>
+
+<p>每个日志片段可以分为两部分：</p>
+
+<p><img src="/images/kafka/chapter_5/6.png" alt="" /></p>
+
+<ol>
+  <li>
+    <p><strong>干净的（Clean）</strong></p>
+
+    <p>这部分消息之前被清理过，每个键只保留之前清理过程中的最新值。</p>
+  </li>
+  <li>
+    <p><strong>污浊的（Dirty）</strong></p>
+
+    <p>这部分消息是之前清理之后写入的</p>
+  </li>
+</ol>
+
+<p>如果启用压缩清理功能，Broker 会启动多个清理线程执行清理任务。清理线程会选择污浊率高的分区进行清理（污浊消息占分区总消息的大小）。</p>
+
+<p>清理线程创建一个 Map，并从片段的干净部份开始遍历，比对消息。清理前后的分区片段数据如下：</p>
+
+<p><img src="/images/kafka/chapter_5/7.png" alt="" /></p>
+
+<h2 id="57-删除消息">5.7 删除消息</h2>
+
+<p>为了将消息从 Kafka 中删除，<em>生产者需要发送一个包含该 Key，且 Value 为 NULL 的消息</em>。</p>
+
+<ul>
+  <li>清理线程发现该消息时，先进行常规清理，只保留 Value 为 NULL 的消息；该消息被称为<strong>墓碑消息</strong></li>
+  <li>墓碑消息会被保留一段时间（时间可配置）；在这期间，消费者仍可消费该消息</li>
+  <li>墓碑消息过期之后，清理线程会将其清除</li>
+</ul>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>
