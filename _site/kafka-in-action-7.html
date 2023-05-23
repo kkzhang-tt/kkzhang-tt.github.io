@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Kafka: Cross-Cluster Data Mirroring</title><!-- Begin Jekyll SEO tag v2.7.1 -->
+<meta name="generator" content="Jekyll v3.9.1" />
+<meta property="og:title" content="Kafka: Cross-Cluster Data Mirroring" />
+<meta name="author" content="kkzhang" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="我们把 Kafka 集群间的数据复制叫做镜像（mirroring）。Kafka 内置的跨集群复制工具是 MirrorMaker。" />
+<meta property="og:description" content="我们把 Kafka 集群间的数据复制叫做镜像（mirroring）。Kafka 内置的跨集群复制工具是 MirrorMaker。" />
+<link rel="canonical" href="http://localhost:4000/kafka-in-action-7.html" />
+<meta property="og:url" content="http://localhost:4000/kafka-in-action-7.html" />
+<meta property="og:site_name" content="Find a needle in haystack" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-05-20T00:00:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Kafka: Cross-Cluster Data Mirroring" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"kkzhang"},"headline":"Kafka: Cross-Cluster Data Mirroring","dateModified":"2023-05-20T00:00:00+08:00","@type":"BlogPosting","datePublished":"2023-05-20T00:00:00+08:00","description":"我们把 Kafka 集群间的数据复制叫做镜像（mirroring）。Kafka 内置的跨集群复制工具是 MirrorMaker。","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/kafka-in-action-7.html"},"url":"http://localhost:4000/kafka-in-action-7.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Find a needle in haystack" /><link rel="shortcut icon" type="image/x-icon" href="/logo.ico" />
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head><body a="light">
+    <main class="page-content" aria-label="Content">
+      <div class="w">
+        <a href="/">..</a><article>
+  <p class="post-meta">
+    <time datetime="2023-05-20 00:00:00 +0800">2023-05-20</time>
+  </p>
+  
+  <h1><p style="color:blue;">Kafka: Cross-Cluster Data Mirroring</p></h1>
+
+  <p>我们把 Kafka 集群间的数据复制叫做<strong>镜像（mirroring）</strong>。Kafka 内置的跨集群复制工具是 <strong>MirrorMaker</strong>。</p>
+
+<h1 id="1-跨集群镜像的使用场景">1. 跨集群镜像的使用场景</h1>
+
+<ol>
+  <li>
+    <p>区域集群与中心集群</p>
+
+    <p>一个公司会有多个数据中心，分布在不同的地域，每个数据中心都有自己的 Kafka 集群。有些应用程序只需要与本地 Kafka 集群通信，有些需要访问多个数据中心的数据，需要把其他数据中心的集群数据镜像到一个中心集群上。</p>
+  </li>
+  <li>
+    <p>冗余（<em>DR</em>）</p>
+
+    <p>作为 Kafka 主集群备份，当主集群不可用时，将客户端流量路由到备份集群。</p>
+  </li>
+</ol>
+
+<h1 id="2-多集群架构">2. 多集群架构</h1>
+
+<h2 id="21-跨数据中心通信的情况">2.1 跨数据中心通信的情况</h2>
+
+<ol>
+  <li>
+    <p>高延迟</p>
+
+    <p>Kafka 集群间通信延迟随着距离增加而增大</p>
+  </li>
+  <li>
+    <p>有限的带宽</p>
+
+    <p>数据中心广域网带宽资源一般比较有限</p>
+  </li>
+  <li>
+    <p>高成本</p>
+
+    <p>集群间通信成本更高</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>Kafka 服务端与客户端是按照单个数据中心进行设计，调优的，不建议跨多个数据中心部署 Kafka 集群。多数情况下，需要尽量避免向远程数据中心生成消息，如果必须这么做，需要接受高延迟的问题，并且客户端需要进行重试，增大缓冲区等来应对网络分区的风险。</p>
+
+</blockquote>
+
+<p>对于跨数据中心通信的需求，建议在每个数据中心部署一个 Kafka 集群，并在集群间复制数据，而不是让应用程序通过广域网访问。</p>
+
+<p>对于跨数据中心通信，有一些架构设计原则：</p>
+
+<ul>
+  <li><strong><em>每个数据中心至少一个集群</em></strong></li>
+  <li><strong><em>每两个数据中心间数据复制要做到每个消息只复制一次</em></strong>（除非异常重试）</li>
+  <li><strong><em>如果有可能，尽量从远程数据中心读取数据，而不是向远程数据中心写数据</em></strong></li>
+</ul>
+
+<h2 id="22-hub--spoke-架构">2.2 Hub &amp; Spoke 架构</h2>
+
+<p>这种架构适合一个中心 Kafka 集群对应多个本地集群的情况。</p>
+
+<p><img src="/images/kafka/chapter_7/1.png" alt="" /></p>
+
+<p>如果只有一个本地集群，那么系统就剩两个集群：Leader 集群与 Follower 集群。</p>
+
+<p><img src="/images/kafka/chapter_7/2.png" alt="" /></p>
+
+<p>Hub &amp; Spoke 架构的优势：</p>
+
+<ul>
+  <li>数据只会在本地数据中心生成，且每个数据中心的数据只会被镜像到中央数据中心一次</li>
+  <li>只处理单个数据中心数据的应用程序可以部署在本地数据中心内，需要处理多个数据中心数据的应用程序需要部署在中央数据中心内</li>
+  <li>数据单向复制，且消费者总是从同一个集群中读取数据，因此易于部署，监控</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>数据访问具有局限性：一个数据中心的应用程序无法访问另一个数据中心的数据。</li>
+</ul>
+
+<p>采用这种架构时，每个数据中心的数据都需要被镜像到中央数据中心上。</p>
+
+<h2 id="23-双活架构">2.3 双活架构</h2>
+
+<p>当两个或者多个数据中心需要共享数据且每个数据中心都可以生产和读取数据时，可以采用<strong>双活（active-active）架构</strong>。</p>
+
+<p><img src="/images/kafka/chapter_7/3.png" alt="" /></p>
+
+<p>这种架构的优势：</p>
+
+<ul>
+  <li>就近提供服务，性能较好</li>
+  <li>冗余 &amp; 弹性：每个数据中心提供全量数据，当一个数据中心不可用时，可以把用户重定向到另一个数据中心</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>需要解决数据冲突，数据一致性，数据回环复制等问题</li>
+</ul>
+
+<h2 id="24-主备架构">2.4 主备架构</h2>
+
+<p>有时候，使用多个集群只是为了灾备。</p>
+
+<ul>
+  <li>两个集群包含相同的数据，平常只使用其中一个集群。当提供服务的集群不可用时，可以使用备份集群</li>
+</ul>
+
+<p><img src="/images/kafka/chapter_7/4.png" alt="" /></p>
+
+<p>主备架构的优势：</p>
+
+<ul>
+  <li>易于实现：不需要担心数据冲突等问题</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>资源占用：大部分时间内，备份集群什么工作都不会处理</li>
+</ul>
+
+<h1 id="3-mirrormaker">3. MirrorMaker</h1>
+
+<p>Kafka 提供了一个简单的工具，用于在两个数据中心间镜像数据，这个工具是 MirrorMaker。</p>
+
+<ul>
+  <li>MirrorMaker 包含一组消费者，同属一个消费者群组，用于从主题上读取数据</li>
+  <li>MirrorMaker 包哈一个单独的生产者</li>
+</ul>
+
+<p>镜像流程：</p>
+
+<ul>
+  <li>MirrorMaker 为每个消费者分配一个线程，消费者从源主题分区上读取数据</li>
+  <li>消费者通过公共的生产者将数据发送到目标集群上，并等待目标集群的确认</li>
+  <li>目标集群确认后，消费者再通知源集群提交这些消息的偏移量（保证不丢失消息，但是可能会少量重复）</li>
+</ul>
+
+<p><img src="/images/kafka/chapter_7/5.png" alt="" /></p>
+
+
+</article>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "Kafka: Reliable Data Delivery
+title: "Kafka: Reliable Data Delivery"
 category: "system-design"
 author: "kkzhang"
 ---

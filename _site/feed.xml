@@ -1,4 +1,399 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-05-17T23:44:31+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Kafka: Kafka Internals</title><link href="http://localhost:4000/kafka-in-action-5.html" rel="alternate" type="text/html" title="Kafka: Kafka Internals" /><published>2023-05-17T00:00:00+08:00</published><updated>2023-05-17T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-5</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-5.html">&lt;h1 id=&quot;1-集群成员关系&quot;&gt;1. 集群成员关系&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-05-23T23:55:31+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Find a needle in haystack</title><subtitle></subtitle><author><name>kkzhang</name></author><entry><title type="html">Kafka: Cross-Cluster Data Mirroring</title><link href="http://localhost:4000/kafka-in-action-7.html" rel="alternate" type="text/html" title="Kafka: Cross-Cluster Data Mirroring" /><published>2023-05-20T00:00:00+08:00</published><updated>2023-05-20T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-7</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-7.html">&lt;p&gt;我们把 Kafka 集群间的数据复制叫做&lt;strong&gt;镜像（mirroring）&lt;/strong&gt;。Kafka 内置的跨集群复制工具是 &lt;strong&gt;MirrorMaker&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;1-跨集群镜像的使用场景&quot;&gt;1. 跨集群镜像的使用场景&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;区域集群与中心集群&lt;/p&gt;
+
+    &lt;p&gt;一个公司会有多个数据中心，分布在不同的地域，每个数据中心都有自己的 Kafka 集群。有些应用程序只需要与本地 Kafka 集群通信，有些需要访问多个数据中心的数据，需要把其他数据中心的集群数据镜像到一个中心集群上。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;冗余（&lt;em&gt;DR&lt;/em&gt;）&lt;/p&gt;
+
+    &lt;p&gt;作为 Kafka 主集群备份，当主集群不可用时，将客户端流量路由到备份集群。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;2-多集群架构&quot;&gt;2. 多集群架构&lt;/h1&gt;
+
+&lt;h2 id=&quot;21-跨数据中心通信的情况&quot;&gt;2.1 跨数据中心通信的情况&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;高延迟&lt;/p&gt;
+
+    &lt;p&gt;Kafka 集群间通信延迟随着距离增加而增大&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;有限的带宽&lt;/p&gt;
+
+    &lt;p&gt;数据中心广域网带宽资源一般比较有限&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;高成本&lt;/p&gt;
+
+    &lt;p&gt;集群间通信成本更高&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Kafka 服务端与客户端是按照单个数据中心进行设计，调优的，不建议跨多个数据中心部署 Kafka 集群。多数情况下，需要尽量避免向远程数据中心生成消息，如果必须这么做，需要接受高延迟的问题，并且客户端需要进行重试，增大缓冲区等来应对网络分区的风险。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;对于跨数据中心通信的需求，建议在每个数据中心部署一个 Kafka 集群，并在集群间复制数据，而不是让应用程序通过广域网访问。&lt;/p&gt;
+
+&lt;p&gt;对于跨数据中心通信，有一些架构设计原则：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;每个数据中心至少一个集群&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;每两个数据中心间数据复制要做到每个消息只复制一次&lt;/em&gt;&lt;/strong&gt;（除非异常重试）&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;em&gt;如果有可能，尽量从远程数据中心读取数据，而不是向远程数据中心写数据&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;22-hub--spoke-架构&quot;&gt;2.2 Hub &amp;amp; Spoke 架构&lt;/h2&gt;
+
+&lt;p&gt;这种架构适合一个中心 Kafka 集群对应多个本地集群的情况。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_7/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;如果只有一个本地集群，那么系统就剩两个集群：Leader 集群与 Follower 集群。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_7/2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Hub &amp;amp; Spoke 架构的优势：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;数据只会在本地数据中心生成，且每个数据中心的数据只会被镜像到中央数据中心一次&lt;/li&gt;
+  &lt;li&gt;只处理单个数据中心数据的应用程序可以部署在本地数据中心内，需要处理多个数据中心数据的应用程序需要部署在中央数据中心内&lt;/li&gt;
+  &lt;li&gt;数据单向复制，且消费者总是从同一个集群中读取数据，因此易于部署，监控&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;缺点：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;数据访问具有局限性：一个数据中心的应用程序无法访问另一个数据中心的数据。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;采用这种架构时，每个数据中心的数据都需要被镜像到中央数据中心上。&lt;/p&gt;
+
+&lt;h2 id=&quot;23-双活架构&quot;&gt;2.3 双活架构&lt;/h2&gt;
+
+&lt;p&gt;当两个或者多个数据中心需要共享数据且每个数据中心都可以生产和读取数据时，可以采用&lt;strong&gt;双活（active-active）架构&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_7/3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;这种架构的优势：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;就近提供服务，性能较好&lt;/li&gt;
+  &lt;li&gt;冗余 &amp;amp; 弹性：每个数据中心提供全量数据，当一个数据中心不可用时，可以把用户重定向到另一个数据中心&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;缺点：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;需要解决数据冲突，数据一致性，数据回环复制等问题&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;24-主备架构&quot;&gt;2.4 主备架构&lt;/h2&gt;
+
+&lt;p&gt;有时候，使用多个集群只是为了灾备。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;两个集群包含相同的数据，平常只使用其中一个集群。当提供服务的集群不可用时，可以使用备份集群&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_7/4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;主备架构的优势：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;易于实现：不需要担心数据冲突等问题&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;缺点：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;资源占用：大部分时间内，备份集群什么工作都不会处理&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;3-mirrormaker&quot;&gt;3. MirrorMaker&lt;/h1&gt;
+
+&lt;p&gt;Kafka 提供了一个简单的工具，用于在两个数据中心间镜像数据，这个工具是 MirrorMaker。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;MirrorMaker 包含一组消费者，同属一个消费者群组，用于从主题上读取数据&lt;/li&gt;
+  &lt;li&gt;MirrorMaker 包哈一个单独的生产者&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;镜像流程：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;MirrorMaker 为每个消费者分配一个线程，消费者从源主题分区上读取数据&lt;/li&gt;
+  &lt;li&gt;消费者通过公共的生产者将数据发送到目标集群上，并等待目标集群的确认&lt;/li&gt;
+  &lt;li&gt;目标集群确认后，消费者再通知源集群提交这些消息的偏移量（保证不丢失消息，但是可能会少量重复）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_7/5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">我们把 Kafka 集群间的数据复制叫做镜像（mirroring）。Kafka 内置的跨集群复制工具是 MirrorMaker。</summary></entry><entry><title type="html">Kafka: Reliable Data Delivery</title><link href="http://localhost:4000/kafka-in-action-6.html" rel="alternate" type="text/html" title="Kafka: Reliable Data Delivery" /><published>2023-05-18T00:00:00+08:00</published><updated>2023-05-18T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-6</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-6.html">&lt;h1 id=&quot;1-可靠性保证&quot;&gt;1. 可靠性保证&lt;/h1&gt;
+
+&lt;p&gt;Kafka 可以作出如下保证：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;分区消息的有序性&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;如果消息 B 在消息 A 之后写入同一个分区，那么消息 B 的偏移量一定比 A 的偏移量大，并且消费者会先读取消息 A，再读取消息 B&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;只有当消息被写入分区的所有同步（in-sync）副本时（并不一定刷到磁盘上），才会被认为是已经提交的（committed）&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;生产者可以选择不同类型的确认机制，如消息被完全提交时的确认，消息被写入 Leader 副本时的确认，消息被发送到网络时的确认&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;只要还存在活跃副本，那么&lt;strong&gt;&lt;em&gt;已经提交的消息&lt;/em&gt;&lt;/strong&gt;就不会丢失&lt;/li&gt;
+  &lt;li&gt;消费者&lt;strong&gt;&lt;em&gt;只能消费已经提交的消息&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;上述机制可以用来构建可靠的系统，但是仅仅依赖上述机制无法保证系统完全可靠。我们需要在消息存储的可靠性，低延迟，高吞吐量，可用性，一致性等方面作出权衡。&lt;/p&gt;
+
+&lt;h1 id=&quot;2-复制&quot;&gt;2. 复制&lt;/h1&gt;
+
+&lt;p&gt;&lt;strong&gt;Kafka 的复制机制与分区多副本架构是 Kafka 可靠性保证的核心&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;多副本机制可以保证在 Kafka 发生崩溃时，仍能保证消息的持久性&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Kafka 主题被划分为多个分区。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;分区是基本的数据块，分区存储在单个磁盘上&lt;/li&gt;
+  &lt;li&gt;Kafka 可以保证分区里的消息是有序的&lt;/li&gt;
+  &lt;li&gt;分区可以是在线的（available），也可以是离线的（unavailable）&lt;/li&gt;
+  &lt;li&gt;每个分区可以有多个副本，其中一个副本是 Leader 副本，其他副本是 Follower 副本
+    &lt;ol&gt;
+      &lt;li&gt;所有的消息都直接发送给 Leader 副本，或者直接从 Leader 副本中读取消息&lt;/li&gt;
+      &lt;li&gt;Follower 副本只需要与 Leader 保持同步，并及时从 Leader 复制最新的消息&lt;/li&gt;
+      &lt;li&gt;当 Leader 副本不可用时，其中一个同步副本会称为新的 Leader&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Leader 副本是同步（in-sync）副本，对于 Follower 副本来说，需要满足以下条件才会被认为是同步的：
+    &lt;ol&gt;
+      &lt;li&gt;&lt;em&gt;与 Zookeeper 之间存在活跃会话，并在 6s 内（可配置）向 Zookeeper 发送过心跳&lt;/em&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;em&gt;10s 内（可配置）从 Leader 副本处获取过消息&lt;/em&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;em&gt;10s 内（可配置）从 Leader 副本处获取过最新消息&lt;/em&gt;&lt;/li&gt;
+    &lt;/ol&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;如果 Follower 副本不能满足以上要求任意一条，那么将会被认为是不同步的（out of sync）。如与 Zookeeper 断开连接，或不再获取消息，或消息滞后了 10s 以上&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+
+    &lt;p&gt;一个不同步的副本通过与 Zookeeper 重新建立连接，并且从 Leader 副本处获取最新消息，可以重新变成同步的。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;滞后的同步副本会导致生产者与消费者变慢&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;在消息被提交(committed)之前，客户端会等待所有的同步副本复制消息&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;非同步副本虽然也同样滞后，但是并不会对性能产生任何影响&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;因为不再关心其是否接收到消息&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;同步（in-sync）副本数目越少，丢失数据的风险越大&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;3-broker-配置&quot;&gt;3. Broker 配置&lt;/h1&gt;
+
+&lt;p&gt;Broker 有 3 个配置参数会影响消息存储的可靠性。&lt;/p&gt;
+
+&lt;h2 id=&quot;31-复制系数&quot;&gt;3.1 复制系数&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;replication.factor&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;复制系数为 N，可以保证在 N-1 个 Broker 失效时，仍然可以向主题写入数据或者从主题读取数据&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;更高的复制系数带来更高的可用性，可靠性&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;同时，&lt;strong&gt;复制系数 N 需要至少 N 个 Broker，且有 N 个数据副本。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;需要占用 N 倍的磁盘空间&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;因此，我们需要在可用性与硬件存储之间作出权衡。&lt;/p&gt;
+
+&lt;h2 id=&quot;32-不完全的-leader-选举&quot;&gt;3.2 不完全的 Leader 选举&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;unclean.leader.election.enable 默认为 true&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;当分区 Leader 不可用时，一个同步（in-sync）副本会被选举成新的 Leader。如果选举过程中没有丢失数据，即&lt;strong&gt;已经提交（committed）的消息存在所有的同步（in-sync）副本上，那么这个选举就是完全的（clean）&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;如果分区 Leader 不可用时，所有副本都是不同步的，此时应当如何处理？参考以下场景：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;假设分区有 3 个副本，其中两个 Follower 副本不可用（如 Broker 崩溃）。如果生产者继续往分区 Leader 写入消息，那么所有的消息都会被提交，因为只存在 Leader 副本这一个同步副本。如果一段时间后 Leader 副本也不可用了，同时 Follower 副本重新可用。&lt;/li&gt;
+  &lt;li&gt;假设分区有 3 个副本，其中两个 Follower 副本不同步（如网络延迟导致复制滞后）。Leader 仍在继续接收消息；如果此时 Leader 不可用，那么另外两个 Follower 副本不可能变成同步的。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;对于上述场景，我们需要作出选择：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;&lt;em&gt;不同步的 Follower 副本不能被选举为新 Leader ⇒ 可用性降低&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;在分区旧 Leader 副本恢复之前，分区不可用，不可用时间不确定&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;&lt;em&gt;不同步的 Follower 副本可以被选举为新 Leader ⇒ 数据不一致风险&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;那么在这个 Follower 副本变得不可用之后，所有写入旧 Leader 副本的消息全部丢失，导致数据不一致（从消费者的角度来看，消费的消息可能会比较混乱）&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;33-最少同步副本&quot;&gt;3.3 最少同步副本&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;min.insync.replicas&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;在上面的场景描述中，假设一个分区有 3 个副本，那么可能会出现只有一个同步副本的情况。如果该副本不可用，我们需要在可用性与一致性之间作出选择。&lt;/p&gt;
+
+&lt;p&gt;如果要确保已提交（committed）的消息不止写入一个同步副本，那么可以把最少同步副本设为较大的值。对于 3 个副本的分区，可以设置 &lt;em&gt;min.insync.replicas = 2，这样至少需要存在两个同步副本，才能向分区写入数据&lt;/em&gt;。&lt;/p&gt;
+
+&lt;p&gt;如果可用的的同步副本数小于 min.insync.replicas 值，那么 &lt;em&gt;Broker 就会拒绝生产者的写入请求；消费者可以继续读取已经提交的消息。&lt;/em&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;此时分区变成只读状态&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;4-在可靠的系统中使用生产者&quot;&gt;4. 在可靠的系统中使用生产者&lt;/h1&gt;
+
+&lt;p&gt;除了对 Broker 进行配置，也需要对生产者进行可靠性方面的配置，否则仍有数据丢失的风险。&lt;/p&gt;
+
+&lt;p&gt;举例如下：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;假设分区副本数为 3，禁用不完全选举，参数 acks = 1&lt;/p&gt;
+
+    &lt;p&gt;生产者将消息发送给 Leader 副本，Leader 写入成功，但是 Follower 副本还未复制该消息。Leader 向生产者返回消息写入成功的响应，随后崩溃。此时消息仍未同步到 Follower 副本，并且 Follower 副本仍被认为是同步的。当其中一个 Follower 副本被选举成新的 Leader 后，之前生产者发送的消息将丢失，并且生产者认为该消息是写入成功的；不过消费者看不到这条丢失的消息（Follower 副本未收到，那么该消息不被认为是已经提交的）。但是从生产者角度来看，确实丢失了消息&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;假设分区副本数为 3，禁用不完全选举，参数 acks = all&lt;/p&gt;
+
+    &lt;p&gt;生产者发送消息给 Leader 副本，但是由于 Leader 不可用，返回 “Leader not Available” 异常。生产者没有对异常进行处理，也没有重试，那么消息将丢失（不过这并不算 Broker 的可靠性问题）&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;因此，当使用生产者时，我们需要配置恰当的 acks 参数，并正确处理异常。&lt;/p&gt;
+
+&lt;h2 id=&quot;41-发送确认&quot;&gt;4.1 发送确认&lt;/h2&gt;
+
+&lt;p&gt;生产者可以选择 3 中确认模式：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;acks = 0&lt;/p&gt;
+
+    &lt;p&gt;如果生产者能够通过网络把消息发出去，那就认为消息已经成功写入 Broker。&lt;/p&gt;
+
+    &lt;p&gt;这种模式下，消息吞吐量非常高，但是很大可能会丢失消息。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;acks = 1&lt;/p&gt;
+
+    &lt;p&gt;Leader 副本在收到消息并写入分区数据文件（不一定刷新到磁盘上）时，会返回确认或者错误响应。&lt;/p&gt;
+
+    &lt;p&gt;如果发生正常的 Leader 选举，那么生产者会收到一条 LeaderNotAvailableException 异常。在这种模式下，仍可能会丢失消息：消息成功写入 Leader 副本，但是未及时同步到 Follower 副本，随后 Leader 崩溃。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;acks = all&lt;/p&gt;
+
+    &lt;p&gt;Leader 副本在返回给生产者确认或者错误的响应之前，会等待所有同步副本都收到消息。&lt;/p&gt;
+
+    &lt;p&gt;配合 min.insync.replica 参数，可以决定在返回给生产者之前至少有多少个副本能够收到消息。&lt;/p&gt;
+
+    &lt;p&gt;这个模式最安全，但是吞吐量会降低。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;42-错误处理&quot;&gt;4.2 错误处理&lt;/h2&gt;
+
+&lt;p&gt;通常，为了让生产者不丢失消息，最好让生产者在遇到可重试的错误时进行重试。但是，重试会带啦消息重复的风险。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;重试 + 错误处理可以保证每个消息“至少被保存一次”&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;生产者内置的重试机制可以处理大部份异常，但是对于不可重试的错误来说，仍需要开发人员手动处理。&lt;/p&gt;
+
+&lt;h1 id=&quot;5-在可靠的系统中使用消费者&quot;&gt;5. 在可靠的系统中使用消费者&lt;/h1&gt;
+
+&lt;p&gt;只有已经被提交的消息（写入所有同步副本的数据）才对消费者可见，意味着消费者消费的消息具备一致性。为了保证消费的可靠性，消费者需要做的就是跟踪哪些消息已经被消费过，哪些还未被消费。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;从分区读取数据时，消费者会获取一批消息，检查这批消息的最大偏移量，然后从这个偏移量处开始消费另一批消息。&lt;/li&gt;
+  &lt;li&gt;如果一个消费者退出，另一个消费者需要知道从哪个位置开始继续处理。如果前一个消费者提交了偏移量，但是消息并未全部消费完，那么可能会造成消息丢失。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;区分已提交消息与已提交偏移量：
+已提交消息：已经被写入所有同步副本，并且对消费者可见的消息
+已提交偏移量：消费者发送给 Kafka 的偏移量，用于确认它已经收到并且处理好的消息位置&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;51-消费者的可靠性配置&quot;&gt;5.1 消费者的可靠性配置&lt;/h2&gt;
+
+&lt;p&gt;为了保证消费者行为的可靠性，需要关注以下参数：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;group.id：如果两个消费者的 group.id 相同，并且订阅了同一个主题，那么每个消费者只会消费主题分区的一个子集。如果想要消费者看到所有消息，需要为其设置唯一的 group.id&lt;/li&gt;
+  &lt;li&gt;auto.offset.reset：在消费者没有偏移量可以提交时，或者请求的偏移量不存在时，消费者应当如何做；有 earliest 与 latest 两种方式&lt;/li&gt;
+  &lt;li&gt;enable.auto.commit：消费者提交偏移量的模式：自动提交与手动提交&lt;/li&gt;
+  &lt;li&gt;auto.com mit.interval.ms：如果配置了自动提交的模式，可以通过该参数配置提交的频率&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;52-显示提交偏移量&quot;&gt;5.2 显示提交偏移量&lt;/h2&gt;
+
+&lt;p&gt;为了提高消费者的可靠性，我们需要注意以下几点。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;总是在消息处理完之后再提交&lt;/li&gt;
+  &lt;li&gt;提交频率是性能与重复消息数量之间的权衡&lt;/li&gt;
+  &lt;li&gt;确保对提交的偏移量有清晰的认知&lt;/li&gt;
+  &lt;li&gt;再均衡&lt;/li&gt;
+  &lt;li&gt;消费者可能需要重试&lt;/li&gt;
+  &lt;li&gt;消费者可能需要维护状态&lt;/li&gt;
+  &lt;li&gt;长时间处理：注意消费者需要一直保持轮询&lt;/li&gt;
+  &lt;li&gt;仅一次传递：需要外部系统支持&lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. 可靠性保证</summary></entry><entry><title type="html">Kafka: Kafka Internals</title><link href="http://localhost:4000/kafka-in-action-5.html" rel="alternate" type="text/html" title="Kafka: Kafka Internals" /><published>2023-05-17T00:00:00+08:00</published><updated>2023-05-17T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-5</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-5.html">&lt;h1 id=&quot;1-集群成员关系&quot;&gt;1. 集群成员关系&lt;/h1&gt;
 
 &lt;p&gt;&lt;strong&gt;Kafka 使用 Zookeeper 维护集群成员信息&lt;/strong&gt;。&lt;/p&gt;
 
@@ -1094,7 +1489,185 @@
 	    &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;commitSync&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
   &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. KafkaConsumer 概念</summary></entry><entry><title type="html">Kafka: Writing Messages to Kafka</title><link href="http://localhost:4000/kafka-in-action-3.html" rel="alternate" type="text/html" title="Kafka: Writing Messages to Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-3</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-3.html">&lt;h1 id=&quot;1-生产者概述&quot;&gt;1. 生产者概述&lt;/h1&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. KafkaConsumer 概念</summary></entry><entry><title type="html">Kafka: Meet Kafka</title><link href="http://localhost:4000/kafka-in-action-1.html" rel="alternate" type="text/html" title="Kafka: Meet Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-1</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-1.html">&lt;h1 id=&quot;11-发布订阅消息系统&quot;&gt;1.1 发布订阅消息系统&lt;/h1&gt;
+
+&lt;p&gt;发布订阅消息系统的一个特点是，消息的发送者不会直接把消息发送给接收者。&lt;strong&gt;发送者以某种方式对消息进行分类，接收者订阅它们，以便接收特定类型的消息&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;发布订阅系统一般有一个 Broker：发布消息的中心点。&lt;/p&gt;
+
+&lt;h1 id=&quot;12-kafka-登场&quot;&gt;1.2 Kafka 登场&lt;/h1&gt;
+
+&lt;p&gt;Kafka 一般被称为“分布式提交日志”或者“分布式流平台”。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在数据库中，提交日志用来提供事务的持久化记录，可以通过回放这些日志还重建系统状态。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Kafka 的数据是按照一定顺序持久化保存的，可以按需读取。同时，Kafka 的数据分布在整个系统中，具有数据故障保护，性能伸缩的能力。&lt;/p&gt;
+
+&lt;h2 id=&quot;121-消息与批次&quot;&gt;1.2.1 消息与批次&lt;/h2&gt;
+
+&lt;p&gt;Kafka 的数据单元被称为“消息”。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;消息由字节数据组成，因此消息内容没有特殊的含义或格式。&lt;/li&gt;
+  &lt;li&gt;消息有一个可选元数据，被称为“键”。键也是一个字节数组，没有特殊含义。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;当消息以一种可控的方式写入不同的分区时，会使用键，保证相同键的消息被写到相同的分区上。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;“批次”是一组消息，这些消息属于同一个主题与分区。将消息按照批次写入到 Kafka，可以减少网络开销，有效提高效率。不过，批次大小需要在消息延迟与吞吐量之间进行权衡：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;批次越大，单位时间内处理的消息就越多；相应的，单个消息的延迟就越大&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;批次数据会被压缩，以提升传输与存储能力，但需要更多的计算处理&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;122-模式&quot;&gt;1.2.2 模式&lt;/h2&gt;
+
+&lt;p&gt;对 Kafka 的来说，消息只是一些字节数组，难以理解，因此希望可以结构化定义消息内容。&lt;/p&gt;
+
+&lt;p&gt;消息模式（Schema）有多种选项，如 JSON，XML；不过它们缺乏强类型处理能力，版本之间的兼容性也不好。&lt;/p&gt;
+
+&lt;p&gt;最常用的 Kafka 消息模式是 Apache Avro：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;紧凑的序列化格式&lt;/li&gt;
+  &lt;li&gt;模式与消息体分开；当模式发生变化时，不需要重新生成代码&lt;/li&gt;
+  &lt;li&gt;支持强类型与模式进化，向前向后均兼容&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;数据格式的一致性，消除了消息读写操作之间的耦合性&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;123-主题与分区&quot;&gt;1.2.3 主题与分区&lt;/h2&gt;
+
+&lt;p&gt;消息通过主题（Topic）进行分类，主题可以被分为若干个分区（Partition）。消息以追加（Append）的方式写入分区，然后以先入先出的顺序读取。&lt;/p&gt;
+
+&lt;p&gt;一个主题通常有多个分区，因此&lt;strong&gt;无法保证在主题范围内消息的有序性，但是可以保证消息在单个分区内有序&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;如下所示，消息被追加到每个分区的尾部：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;很多时候，人们会把一个主题的数据看作&lt;strong&gt;流&lt;/strong&gt;，而不管主题中包含多少个分区。流可以看作一组从生产者移动到消费者的数据。&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;124-生产者与消费者&quot;&gt;1.2.4 生产者与消费者&lt;/h2&gt;
+
+&lt;p&gt;Kafka 的生产者分为两种类型：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;生产者&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;生产者创建消息：一般情况下，消息会被发送到特定的主题，默认会把消息均衡地分布到主题的各个分区上（具体被分配到哪个分区并不重要）。&lt;/p&gt;
+
+    &lt;p&gt;不过，也可以为消息指定分区，通过消息键与分区器将其映射到指定的分区。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;消费者&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;消费者读取消息：可以订阅一个或者多个主题，并按照消息生成的顺序读取它们。&lt;/p&gt;
+
+    &lt;p&gt;消费者通过检查消息偏移量（Offset）来判断消息是否已经被读取过。&lt;strong&gt;消费者把每个分区最后读取的消息偏移量保存在 Zookeeper 或者 Kafka 上&lt;/strong&gt;，以保证在消费者重启之后可以从之前的位置继续消费。&lt;/p&gt;
+
+    &lt;p&gt;偏移量是消息的元数据，是一个不断递增的整数值。在 Kafka 创建消息时，会设置其偏移量。&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;在给定的分区内，消息的偏移量是唯一的&lt;/p&gt;
+
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;消费者是消费者群组的一部分；消费者群组保证每个分区只会被一个消费者读取，消费者与分区之间的映射关系被称为消费者对分区的所有权关系。通过这种方式，消费者可以消费包含大量消息的主题，并且当一个消费者失效时，其他消费者可以接管失效消费者的工作。&lt;/p&gt;
+
+&lt;p&gt;如下所示，消费者群组与分区的关系：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;125-broker-与集群&quot;&gt;1.2.5 Broker 与集群&lt;/h2&gt;
+
+&lt;p&gt;一个独立的 Kafka 服务器被称为 Broker。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Broker 接收生产者的消息，为消息设置偏移量，并将消息保存到磁盘&lt;/li&gt;
+  &lt;li&gt;Broker 对消费者读取分区的请求，返回已经提交到磁盘上的消息&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;单个 Broker 可以处理上千个分区以及每秒百万级的消息量&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;Broker 是集群的组成部分，每个集群都有一个 Broker 同时充当&lt;strong&gt;集群控制器&lt;/strong&gt;的角色。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;集群控制器自动从集群的活跃成员中选出来&lt;/li&gt;
+  &lt;li&gt;集群控制器负责集群管理工作，如将分区分配给 Broker，监控 Broker 等&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在集群中，一个分区从属一个 Broker，该 Broker 被称为该分区的 Leader。同时，可以对分区进行复制，分区副本可以被分配给多个 Broker。&lt;strong&gt;复制机制为分区提供了消息冗余&lt;/strong&gt;，如果 Leader 失效，其他 Broker 可以接管领导权；相关的生产者及消费者都需要迁移到新的 Leader。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Broker 中的消息可以通过一些参数设置保留时间，过期的消息会被删除。&lt;/p&gt;
+
+&lt;h2 id=&quot;126-多集群&quot;&gt;1.2.6 多集群&lt;/h2&gt;
+
+&lt;p&gt;有以下需求时，可以使用多集群：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;数据类型分离&lt;/li&gt;
+  &lt;li&gt;安全需求隔离&lt;/li&gt;
+  &lt;li&gt;多数据中心（容灾恢复）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在多数据中心内部署多个集群时，可以通过 MirrorMaker 工具实现集群间数据复制功能。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;13-why-kafka&quot;&gt;1.3 Why Kafka?&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;多个生产者&lt;/p&gt;
+
+    &lt;p&gt;支持多个生产者往单个主题或者多个主题发送消息，适合从多个系统中收集数据&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;多个消费者&lt;/p&gt;
+
+    &lt;p&gt;支持多个消费者从一个消息流上读取数据，且消费者之间互不影响。同时，消费者群组内的消费者共享消息流，并且保证对于整个群组，每个消息只被处理一次。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;基于磁盘的数据存储&lt;/p&gt;
+
+    &lt;p&gt;消息被保存到磁盘上，并且每个主题可以设置单独的保存规则，以满足不同消费者的需求。&lt;/p&gt;
+
+    &lt;p&gt;数据持久化可以保证消息不丢失，允许消费者非实时地读取消息。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;伸缩性&lt;/p&gt;
+
+    &lt;p&gt;为了支持大量数据处理，Broker 集群支持灵活扩展。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;高性能&lt;/p&gt;
+
+    &lt;p&gt;通过横向扩展生产者，消费者及 Broker，使得 Kafka 在处理大量消息时可以保证亚秒级延迟。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1.1 发布订阅消息系统</summary></entry><entry><title type="html">Kafka: Writing Messages to Kafka</title><link href="http://localhost:4000/kafka-in-action-3.html" rel="alternate" type="text/html" title="Kafka: Writing Messages to Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-3</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-3.html">&lt;h1 id=&quot;1-生产者概述&quot;&gt;1. 生产者概述&lt;/h1&gt;
 
 &lt;p&gt;需要往 Kafka 写消息的场景有：&lt;/p&gt;
 
@@ -1453,185 +2026,7 @@
 				&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Math&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Utils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;murmur2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keyBytes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;numPartitions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
 	&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. 生产者概述</summary></entry><entry><title type="html">Kafka: Meet Kafka</title><link href="http://localhost:4000/kafka-in-action-1.html" rel="alternate" type="text/html" title="Kafka: Meet Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-1</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-1.html">&lt;h1 id=&quot;11-发布订阅消息系统&quot;&gt;1.1 发布订阅消息系统&lt;/h1&gt;
-
-&lt;p&gt;发布订阅消息系统的一个特点是，消息的发送者不会直接把消息发送给接收者。&lt;strong&gt;发送者以某种方式对消息进行分类，接收者订阅它们，以便接收特定类型的消息&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;发布订阅系统一般有一个 Broker：发布消息的中心点。&lt;/p&gt;
-
-&lt;h1 id=&quot;12-kafka-登场&quot;&gt;1.2 Kafka 登场&lt;/h1&gt;
-
-&lt;p&gt;Kafka 一般被称为“分布式提交日志”或者“分布式流平台”。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;在数据库中，提交日志用来提供事务的持久化记录，可以通过回放这些日志还重建系统状态。&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;Kafka 的数据是按照一定顺序持久化保存的，可以按需读取。同时，Kafka 的数据分布在整个系统中，具有数据故障保护，性能伸缩的能力。&lt;/p&gt;
-
-&lt;h2 id=&quot;121-消息与批次&quot;&gt;1.2.1 消息与批次&lt;/h2&gt;
-
-&lt;p&gt;Kafka 的数据单元被称为“消息”。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;消息由字节数据组成，因此消息内容没有特殊的含义或格式。&lt;/li&gt;
-  &lt;li&gt;消息有一个可选元数据，被称为“键”。键也是一个字节数组，没有特殊含义。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;当消息以一种可控的方式写入不同的分区时，会使用键，保证相同键的消息被写到相同的分区上。&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;“批次”是一组消息，这些消息属于同一个主题与分区。将消息按照批次写入到 Kafka，可以减少网络开销，有效提高效率。不过，批次大小需要在消息延迟与吞吐量之间进行权衡：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;批次越大，单位时间内处理的消息就越多；相应的，单个消息的延迟就越大&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;批次数据会被压缩，以提升传输与存储能力，但需要更多的计算处理&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;122-模式&quot;&gt;1.2.2 模式&lt;/h2&gt;
-
-&lt;p&gt;对 Kafka 的来说，消息只是一些字节数组，难以理解，因此希望可以结构化定义消息内容。&lt;/p&gt;
-
-&lt;p&gt;消息模式（Schema）有多种选项，如 JSON，XML；不过它们缺乏强类型处理能力，版本之间的兼容性也不好。&lt;/p&gt;
-
-&lt;p&gt;最常用的 Kafka 消息模式是 Apache Avro：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;紧凑的序列化格式&lt;/li&gt;
-  &lt;li&gt;模式与消息体分开；当模式发生变化时，不需要重新生成代码&lt;/li&gt;
-  &lt;li&gt;支持强类型与模式进化，向前向后均兼容&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;数据格式的一致性，消除了消息读写操作之间的耦合性&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;123-主题与分区&quot;&gt;1.2.3 主题与分区&lt;/h2&gt;
-
-&lt;p&gt;消息通过主题（Topic）进行分类，主题可以被分为若干个分区（Partition）。消息以追加（Append）的方式写入分区，然后以先入先出的顺序读取。&lt;/p&gt;
-
-&lt;p&gt;一个主题通常有多个分区，因此&lt;strong&gt;无法保证在主题范围内消息的有序性，但是可以保证消息在单个分区内有序&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;如下所示，消息被追加到每个分区的尾部：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;很多时候，人们会把一个主题的数据看作&lt;strong&gt;流&lt;/strong&gt;，而不管主题中包含多少个分区。流可以看作一组从生产者移动到消费者的数据。&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;124-生产者与消费者&quot;&gt;1.2.4 生产者与消费者&lt;/h2&gt;
-
-&lt;p&gt;Kafka 的生产者分为两种类型：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;生产者&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;生产者创建消息：一般情况下，消息会被发送到特定的主题，默认会把消息均衡地分布到主题的各个分区上（具体被分配到哪个分区并不重要）。&lt;/p&gt;
-
-    &lt;p&gt;不过，也可以为消息指定分区，通过消息键与分区器将其映射到指定的分区。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;消费者&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;消费者读取消息：可以订阅一个或者多个主题，并按照消息生成的顺序读取它们。&lt;/p&gt;
-
-    &lt;p&gt;消费者通过检查消息偏移量（Offset）来判断消息是否已经被读取过。&lt;strong&gt;消费者把每个分区最后读取的消息偏移量保存在 Zookeeper 或者 Kafka 上&lt;/strong&gt;，以保证在消费者重启之后可以从之前的位置继续消费。&lt;/p&gt;
-
-    &lt;p&gt;偏移量是消息的元数据，是一个不断递增的整数值。在 Kafka 创建消息时，会设置其偏移量。&lt;/p&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;在给定的分区内，消息的偏移量是唯一的&lt;/p&gt;
-
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;消费者是消费者群组的一部分；消费者群组保证每个分区只会被一个消费者读取，消费者与分区之间的映射关系被称为消费者对分区的所有权关系。通过这种方式，消费者可以消费包含大量消息的主题，并且当一个消费者失效时，其他消费者可以接管失效消费者的工作。&lt;/p&gt;
-
-&lt;p&gt;如下所示，消费者群组与分区的关系：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;125-broker-与集群&quot;&gt;1.2.5 Broker 与集群&lt;/h2&gt;
-
-&lt;p&gt;一个独立的 Kafka 服务器被称为 Broker。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;Broker 接收生产者的消息，为消息设置偏移量，并将消息保存到磁盘&lt;/li&gt;
-  &lt;li&gt;Broker 对消费者读取分区的请求，返回已经提交到磁盘上的消息&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;单个 Broker 可以处理上千个分区以及每秒百万级的消息量&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;p&gt;Broker 是集群的组成部分，每个集群都有一个 Broker 同时充当&lt;strong&gt;集群控制器&lt;/strong&gt;的角色。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;集群控制器自动从集群的活跃成员中选出来&lt;/li&gt;
-  &lt;li&gt;集群控制器负责集群管理工作，如将分区分配给 Broker，监控 Broker 等&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;在集群中，一个分区从属一个 Broker，该 Broker 被称为该分区的 Leader。同时，可以对分区进行复制，分区副本可以被分配给多个 Broker。&lt;strong&gt;复制机制为分区提供了消息冗余&lt;/strong&gt;，如果 Leader 失效，其他 Broker 可以接管领导权；相关的生产者及消费者都需要迁移到新的 Leader。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Broker 中的消息可以通过一些参数设置保留时间，过期的消息会被删除。&lt;/p&gt;
-
-&lt;h2 id=&quot;126-多集群&quot;&gt;1.2.6 多集群&lt;/h2&gt;
-
-&lt;p&gt;有以下需求时，可以使用多集群：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;数据类型分离&lt;/li&gt;
-  &lt;li&gt;安全需求隔离&lt;/li&gt;
-  &lt;li&gt;多数据中心（容灾恢复）&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;在多数据中心内部署多个集群时，可以通过 MirrorMaker 工具实现集群间数据复制功能。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/kafka/chapter_1/4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;13-why-kafka&quot;&gt;1.3 Why Kafka?&lt;/h1&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;多个生产者&lt;/p&gt;
-
-    &lt;p&gt;支持多个生产者往单个主题或者多个主题发送消息，适合从多个系统中收集数据&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;多个消费者&lt;/p&gt;
-
-    &lt;p&gt;支持多个消费者从一个消息流上读取数据，且消费者之间互不影响。同时，消费者群组内的消费者共享消息流，并且保证对于整个群组，每个消息只被处理一次。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;基于磁盘的数据存储&lt;/p&gt;
-
-    &lt;p&gt;消息被保存到磁盘上，并且每个主题可以设置单独的保存规则，以满足不同消费者的需求。&lt;/p&gt;
-
-    &lt;p&gt;数据持久化可以保证消息不丢失，允许消费者非实时地读取消息。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;伸缩性&lt;/p&gt;
-
-    &lt;p&gt;为了支持大量数据处理，Broker 集群支持灵活扩展。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;高性能&lt;/p&gt;
-
-    &lt;p&gt;通过横向扩展生产者，消费者及 Broker，使得 Kafka 在处理大量消息时可以保证亚秒级延迟。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1.1 发布订阅消息系统</summary></entry><entry><title type="html">Kafka: Configure Kafka</title><link href="http://localhost:4000/kafka-in-action-2.html" rel="alternate" type="text/html" title="Kafka: Configure Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-2</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-2.html">&lt;h1 id=&quot;1-broker-配置&quot;&gt;1. Broker 配置&lt;/h1&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>kkzhang</name></author><category term="system-design" /><summary type="html">1. 生产者概述</summary></entry><entry><title type="html">Kafka: Configure Kafka</title><link href="http://localhost:4000/kafka-in-action-2.html" rel="alternate" type="text/html" title="Kafka: Configure Kafka" /><published>2023-05-07T00:00:00+08:00</published><updated>2023-05-07T00:00:00+08:00</updated><id>http://localhost:4000/kafka-in-action-2</id><content type="html" xml:base="http://localhost:4000/kafka-in-action-2.html">&lt;h1 id=&quot;1-broker-配置&quot;&gt;1. Broker 配置&lt;/h1&gt;
 
 &lt;h2 id=&quot;11-numpartitions&quot;&gt;1.1 &lt;strong&gt;num.partitions&lt;/strong&gt;&lt;/h2&gt;
 
@@ -3191,477 +3586,4 @@ A：全量一致性检测成本太高，且从 Lion 现状来看，实时同步 
 
     &lt;p&gt;以基金为主，暂时少量投入，长期持有，整体不亏不盈。&lt;/p&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="annual-summary" /><summary type="html">来上海三年多，第一次（2023-01-15）见到那么大的雪</summary></entry><entry><title type="html">供给，需求与政府政策</title><link href="http://localhost:4000/principles-of-economics-3.html" rel="alternate" type="text/html" title="供给，需求与政府政策" /><published>2022-10-22T00:00:00+08:00</published><updated>2022-10-22T00:00:00+08:00</updated><id>http://localhost:4000/principles-of-economics-3</id><content type="html" xml:base="http://localhost:4000/principles-of-economics-3.html">&lt;h1 id=&quot;价格控制&quot;&gt;价格控制&lt;/h1&gt;
-
-&lt;p&gt;在一个没有政府管制的竞争市场上，冰淇淋的价格将自发调整，使得供求达到平衡：均衡价格时，买者想买的冰淇淋数目等于卖者想卖的冰淇淋数目。&lt;/p&gt;
-
-&lt;p&gt;不过，政府可以对冰淇淋的价格进行控制：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;价格上限&lt;/strong&gt;：出售一种物品的法定最高价格&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;价格下限&lt;/strong&gt;：出售一种物品的法定最低价格&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;价格上限对市场的影响&quot;&gt;价格上限对市场的影响&lt;/h2&gt;
-
-&lt;p&gt;假设在没有政府干预的情况下，冰淇淋的均衡价格为 3 美元。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;非限制性价格上限&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;假设价格上限为 4 美元，此时均衡价格低于价格上限，那么该价格上限是非限制性的，&lt;strong&gt;价格上限对价格或者销售量没有影响&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/images/economics/chap6/eco_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;限制性价格上限&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;假设价格上限为 2 美元，此时均衡价格高于价格上限，那么该价格上限是限制性的。&lt;/p&gt;
-
-    &lt;p&gt;这种情况下，&lt;strong&gt;供给小于需求，冰淇淋出现短缺&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/images/economics/chap6/eco_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-    &lt;p&gt;当由于价格上限而导致短缺时，一些配给机制会出现：&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;购买者排长队，愿意提前来并等候的人可以买到冰淇淋&lt;/li&gt;
-      &lt;li&gt;卖者根据自己的偏好来配给冰淇淋&lt;/li&gt;
-    &lt;/ul&gt;
-
-    &lt;blockquote&gt;
-      &lt;p&gt;设置价格上限的动机是为了帮助买者，但是并不是所有买者都能从中受益，存在一些买者根本买不到冰淇淋&lt;/p&gt;
-
-    &lt;/blockquote&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;结论：&lt;strong&gt;当政府对竞争市场实行限制性价格上限时，就产生了物品短缺，而且卖者必须在大量潜在买者中配给稀缺商品&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;在自由市场中，价格用来配给商品&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;h2 id=&quot;价格下限对市场的影响&quot;&gt;价格下限对市场的影响&lt;/h2&gt;
-
-&lt;p&gt;假设在没有政府干预的情况下，冰淇淋的均衡价格为 3 美元。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;非限制性价格下限&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;假设价格下限为 2 美元，低于均衡价格，此时价格下限没有限制作用；市场力量自然地使价格向均衡价格移动。&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/images/economics/chap6/eco_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;限制性价格下限&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;假设价格下限为 4 美元，高于均衡价格，此时价格下限存在限制性约束。&lt;/p&gt;
-
-    &lt;p&gt;这种情况下，&lt;strong&gt;供给大于需求，冰淇淋出现过剩&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/images/economics/chap6/eco_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-    &lt;p&gt;价格下限引发的过剩也会导致不合意的配给机制：&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;买者由于个人偏好可以选择产品&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;对价格控制的评价&quot;&gt;对价格控制的评价&lt;/h2&gt;
-
-&lt;p&gt;在经济学中，价格时隐藏在供给曲线和需求曲线背后的千百万企业和消费者决策的结果，价格有平衡供求从而协调经济活动的关键作用。&lt;em&gt;当决策者通过法令确定价格时，就模糊了正常情况下指引社会资源配置的信号&lt;/em&gt;。&lt;/p&gt;
-
-&lt;p&gt;价格控制的目标往往是帮助穷人，但是&lt;strong&gt;往往会损害哪些它本想帮助的人&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;租金控制可以保持低租金，但是无法鼓励房东修缮住房，并使找房变得困难&lt;/li&gt;
-  &lt;li&gt;最低工资可以增加一些工人的收入，但是也会使其他工人成为失业者&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;税收&quot;&gt;税收&lt;/h1&gt;
-
-&lt;p&gt;当政府对一种物品征税时，谁实际上承担了税收负担？买者？卖者？还是两者共同承担？&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;税收归宿&lt;/strong&gt;（tax incidence）是指税收负担如何在组成市场的不同人之间分配。&lt;/p&gt;
-
-&lt;h2 id=&quot;向卖者征税对市场的影响&quot;&gt;向卖者征税对市场的影响&lt;/h2&gt;
-
-&lt;p&gt;假设政府规定，向冰淇淋卖者卖出的每个冰淇淋征收 0.5 美元的税收。那么将如何影响卖者和买者？&lt;/p&gt;
-
-&lt;p&gt;可以按照分析供求的三个步骤：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;确定该法律影响的是供给曲线还是需求曲线&lt;/li&gt;
-  &lt;li&gt;确定曲线移动的方向&lt;/li&gt;
-  &lt;li&gt;考察这种移动如何影响均衡价格和数量&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/economics/chap6/eco_5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;第一步：税收对卖者产生直接影响，因此使&lt;strong&gt;供给曲线移动&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;第二步：对卖者征税提高了生产和销售冰淇淋的成本，因此征税减少了每一种价格下的供给量，使&lt;strong&gt;供给曲线左移（或者说上移）&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;供给曲线移动幅度：在每一种供给量下，卖者必须将价格提高 0.5 美元，以便弥补税收的影响。因此，供给曲线从 S1 向上移动到 S2，&lt;strong&gt;移动幅度正好是税收量&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;第三步：在新平衡下，冰淇淋价格由 3 美元上升为 3.3 美元；均衡数量由 100 个减少到 90 个。卖者的销售量减少了，买者的购买量也减少了，因此&lt;strong&gt;税收缩小了冰淇淋市场的规模&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;回到税收归宿问题，谁支付了税收？&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;买者：购买价格增加了 0.3 美元&lt;/li&gt;
-  &lt;li&gt;卖者：销售价格虽然为 3.3 美元，但是交税后的有效价格为 3.3 - 0.5 = 2.8 美元，比之前的 3 美元少了 0.2 美元&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;因此，我们可以得出两个结论：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;税收抑制了市场活动&lt;/strong&gt;：物品在新均衡的销售量减少了&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;买者与卖者分摊了税收负担&lt;/strong&gt;：在新均衡时，买者支付更多，卖者得到更少&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;向买者征税对市场的影响&quot;&gt;向买者征税对市场的影响&lt;/h2&gt;
-
-&lt;p&gt;假设政府规定，向冰淇淋买者购买的每个冰淇淋征收 0.5 美元的税收。那么将如何影响卖者和买者？&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/economics/chap6/eco_6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;仍然按照三个步骤分析：&lt;/p&gt;
-
-&lt;p&gt;第一步：向买者征税，直接影响需求，使得&lt;strong&gt;需求曲线移动&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;第二步：征税使买者在每一价格下的冰淇淋的需求量减少，使得需&lt;strong&gt;求曲线向左移动（或者说向下移动）&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;需求曲线移动幅度：买者关注的是包括税收在内的总成本，因此在每一种需求量下，市场价格必须降低 0.5 美元，以弥补税收的影响。因此，税收使需求曲线从 D1 向下移动到 D2，移动幅度正好是税收量（0.5 美元）。&lt;/p&gt;
-
-&lt;p&gt;第三步：在新平衡下，均衡价格由 3 美元下降到 2.8 美元；均衡数量由 100 下降到 90，冰淇淋市场规模缩小。同时，买者与卖者分摊了税收负担。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;买者：购买成本 2.8 + 0.5 = 3.3 美元&lt;/li&gt;
-  &lt;li&gt;卖者：销售价格由 3 美元降低到 2.8 美元&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;结论：&lt;strong&gt;对卖者征税和对买者征税使相同的：在新均衡下，买者和卖者共同承担了税收负担&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;弹性与税收归宿&quot;&gt;弹性与税收归宿&lt;/h2&gt;
-
-&lt;p&gt;对物品征税时，由卖者与买者共同分摊税收负担，但是如何准确划分？&lt;/p&gt;
-
-&lt;p&gt;税收负担更多地落在缺乏弹性的市场一方身上：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;当供给比需求更富有弹性时，税收更多地由消费者承担&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/images/economics/chap6/eco_7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;当需求比供给更富有弹性时，税收更多地由生产者承担&lt;/strong&gt;&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/images/economics/chap6/eco_8.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;总结&quot;&gt;总结&lt;/h1&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;价格上限是某种物品与服务的法定最高价格；价格下限是某种物品与服务的法定最低价格&lt;/li&gt;
-  &lt;li&gt;当政府对一种物品征收税收时，该物品的均衡数量减少，市场规模缩小&lt;/li&gt;
-  &lt;li&gt;税收归宿并不取决于向卖者征税还是向买者征税；税收归宿取决于供给和需求的价格弹性，税收负担更多地落在缺乏弹性的市场一方&lt;/li&gt;
-&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="economics" /><summary type="html">价格控制</summary></entry><entry><title type="html">供给与需求的市场力量</title><link href="http://localhost:4000/principles-of-economics-2.html" rel="alternate" type="text/html" title="供给与需求的市场力量" /><published>2022-07-21T00:00:00+08:00</published><updated>2022-07-21T00:00:00+08:00</updated><id>http://localhost:4000/principles-of-economics-2</id><content type="html" xml:base="http://localhost:4000/principles-of-economics-2.html">&lt;p&gt;&lt;strong&gt;供给&lt;/strong&gt;与&lt;strong&gt;需求&lt;/strong&gt;是使市场经济运行的力量，它们决定了每种物品的产量及出售价格。&lt;/p&gt;
-
-&lt;h1 id=&quot;市场与竞争&quot;&gt;市场与竞争&lt;/h1&gt;
-
-&lt;p&gt;供给与需求这两个术语是指人们在&lt;strong&gt;竞争市场&lt;/strong&gt;上相互交易时的行为。&lt;/p&gt;
-
-&lt;h2 id=&quot;什么是市场&quot;&gt;什么是市场&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;市场&lt;/strong&gt;（market）是&lt;em&gt;由某种物品或者服务的买者与卖者组成的一个群体&lt;/em&gt;。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;买者决定了产品的需求&lt;/li&gt;
-  &lt;li&gt;卖者决定了产品的供给&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;市场有多种形式：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;组织健全的市场&lt;/strong&gt;：如农产品市场上，买者与卖者在特定的时间与地点聚集在一起，同时市场上还有一些拍卖者协助确定价格并安排销售&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;没有组织的市场&lt;/strong&gt;：如某个小镇的冰淇淋市场，买者与卖者并没有在特定时间聚集在一起，冰淇淋卖者分散在各个地方并提供略有差异的产品，各个卖者标出冰淇淋价格，而各个买者决定在每个店中买多少冰淇淋&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;什么是竞争&quot;&gt;什么是竞争&lt;/h2&gt;
-
-&lt;p&gt;大多数市场是高度竞争的。以冰淇淋市场为例，每个买者都知道有一些卖者可供选择，并且每个卖者也认识到其提供的产品与其他卖者提供的产品是相似的。因此，冰淇淋价格并不是由任何一个买者或者卖者决定的。确切地说，&lt;strong&gt;&lt;em&gt;冰淇淋的价格和销售量是由所有买者和卖者通过在市场上相互交易而共同决定的&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;竞争市场&lt;/strong&gt;（competitive market）：&lt;em&gt;有许多买者和卖者，以至于每个人对市场价格的影响都微乎其微的市场&lt;/em&gt;。&lt;/p&gt;
-
-&lt;p&gt;完全竞争市场是竞争市场的最高形式，该市场必须具备两个特征：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;可供销售的物品是完全相同的&lt;/li&gt;
-  &lt;li&gt;买者与卖者人数众多，以至于没有任何一个买者和卖者可以影响市场价格&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;在完全竞争市场中，买者和卖者必须接受市场决定的价格，被称为价格接受者。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;垄断市场&lt;/strong&gt;：一些市场只有一个卖者，而这个卖者决定市场价格。&lt;/p&gt;
-
-&lt;h1 id=&quot;需求&quot;&gt;需求&lt;/h1&gt;
-
-&lt;h2 id=&quot;需求曲线价格与需求量之间的关系&quot;&gt;需求曲线：价格与需求量之间的关系&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;需求量&lt;/strong&gt;（quantity demanded）：买者愿意并且能够购买的一种物品的数量。&lt;/p&gt;
-
-&lt;p&gt;需求量由很多因素决定，其中最主要的因素是物品的&lt;strong&gt;价格&lt;/strong&gt;。&lt;em&gt;在其他条件不变时，一种物品的价格上升，则对该物品的需求量减少；一种物品的价格下降，则对该物品的需求量降低&lt;/em&gt;，被称为&lt;strong&gt;需求定理&lt;/strong&gt;（law of demand）。&lt;/p&gt;
-
-&lt;p&gt;把价格与需求联系在一起的曲线被称为&lt;strong&gt;需求曲线&lt;/strong&gt;（demand curve）。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;市场需求与个人需求&quot;&gt;市场需求与个人需求&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;市场需&lt;/strong&gt;求是&lt;em&gt;所有人对某个特定物品或服务的需求总和&lt;/em&gt;。同样，市场需求曲线表示在所有影响消费者购买数量的其他因素不变时，一种物品的需求总量与该物品价格的关系。&lt;/p&gt;
-
-&lt;h2 id=&quot;需求曲线的移动&quot;&gt;需求曲线的移动&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;&lt;em&gt;如果某种因素改变了既定价格下的需求量，需求曲线就会移动&lt;/em&gt;&lt;/strong&gt;（之前我们假设其他因素保持不变）。例如：假如研究发现经常吃冰淇淋有助于身体健康，那么这个发现会增加对冰淇淋的需求。在现有价格下，买者会购买更多的冰淇淋，因此需求曲线就会移动。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;使每一种价格水平下的需求量增加的任何变动，都会使需求曲线向右移动，称之为&lt;strong&gt;需求增加&lt;/strong&gt;。&lt;/li&gt;
-  &lt;li&gt;使每一种价格水平下的需求量减少的任何变动，都会使需求曲线向左移动，称之为&lt;strong&gt;需求减少&lt;/strong&gt;。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;有许多因素会导致需求曲线移动：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;收入&lt;/li&gt;
-  &lt;li&gt;相关物品价格&lt;/li&gt;
-  &lt;li&gt;爱好&lt;/li&gt;
-  &lt;li&gt;预期&lt;/li&gt;
-  &lt;li&gt;购买者数量&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
-
-&lt;p&gt;需求曲线表示在&lt;strong&gt;其他&lt;/strong&gt;所有影响买者的&lt;strong&gt;变量保持不变&lt;/strong&gt;的情况下，一种&lt;strong&gt;物品的价格变动时，该物品的需求量会发生什么变动&lt;/strong&gt;。当这些&lt;strong&gt;变量&lt;/strong&gt;中的一个&lt;strong&gt;变动&lt;/strong&gt;时，&lt;strong&gt;需求曲线会发生移动&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;变量&lt;/th&gt;
-      &lt;th&gt;变量的变动将导致&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;价格&lt;/td&gt;
-      &lt;td&gt;沿着需求曲线变动&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;收入，相关物品价格，爱好，预期，买者数量&lt;/td&gt;
-      &lt;td&gt;使需求曲线移动&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;h1 id=&quot;供给&quot;&gt;供给&lt;/h1&gt;
-
-&lt;h2 id=&quot;供给曲线价格与供给量之间的关系&quot;&gt;供给曲线：价格与供给量之间的关系&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;供给量&lt;/strong&gt;（quantity supplied）：卖者愿意并且能够出售的该种物品的数量。&lt;/p&gt;
-
-&lt;p&gt;决定供给量的因素有很多，价格仍然起着主要作用。价格与供给量之间的关系被称为&lt;strong&gt;供给定理&lt;/strong&gt;（law of supply）：&lt;em&gt;在其他条件不变时，一种物品价格上升，该物品供给量增加；一种物品价格下降，该物品供给量减少&lt;/em&gt;。&lt;/p&gt;
-
-&lt;p&gt;把价格与供给量联系在一起的曲线被称为&lt;strong&gt;供给曲线&lt;/strong&gt;（supply curve）。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;市场供给与个人供给&quot;&gt;市场供给与个人供给&lt;/h2&gt;
-
-&lt;p&gt;与市场需求一样，市场供给是所有卖者供给的总和。&lt;/p&gt;
-
-&lt;h2 id=&quot;供给曲线移动&quot;&gt;供给曲线移动&lt;/h2&gt;
-
-&lt;p&gt;供给曲线是假设其他条件不变时，价格与供给量之间的关系；但是当其他因素发生变化时，供给曲线将发生移动。例如，糖的价格下降了，会增加冰淇淋的供给：在任何一种既定价格水平下，卖者愿意生产更多的冰淇淋，冰淇淋的供给曲线向右移动。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;在既定价格水平下，使供给量增加的任何一种变动（如，糖价格下降），都会使供给曲线向右移动，称之为&lt;strong&gt;供给增加&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;在既定价格水平下，使供给量减少的任何一种变动，都会使供给曲线左移，称之为&lt;strong&gt;供给减少&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;有许多变量会使供给曲线发生移动，包括：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;投入品价格&lt;/li&gt;
-  &lt;li&gt;技术&lt;/li&gt;
-  &lt;li&gt;预期&lt;/li&gt;
-  &lt;li&gt;卖者数量&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;总结-1&quot;&gt;总结&lt;/h2&gt;
-
-&lt;p&gt;供给曲线表示在&lt;strong&gt;其他&lt;/strong&gt;所有影响卖者的&lt;strong&gt;变量保持不变&lt;/strong&gt;的情况下，一种物品&lt;strong&gt;价格变动&lt;/strong&gt;时，该物品的供给量会发生什么变动。当这些&lt;strong&gt;变量&lt;/strong&gt;中的一个&lt;strong&gt;变动&lt;/strong&gt;时，&lt;strong&gt;供给曲线就会发生移动&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;变量&lt;/th&gt;
-      &lt;th&gt;变量的变动将导致&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;价格&lt;/td&gt;
-      &lt;td&gt;沿着供给曲线的变动&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;技术，投入品价格，预期，卖者数量&lt;/td&gt;
-      &lt;td&gt;使供给曲线移动&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;h1 id=&quot;供给与需求的结合&quot;&gt;供给与需求的结合&lt;/h1&gt;
-
-&lt;h2 id=&quot;均衡&quot;&gt;均衡&lt;/h2&gt;
-
-&lt;p&gt;市场价格达到使供给量与需求量相等的水平时的状态被称为&lt;strong&gt;均衡状态&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;均衡价格&lt;/strong&gt;：使供给与需求平衡的价格；&lt;strong&gt;均衡数量&lt;/strong&gt;：均衡价格下的供给量与需求量。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;供给曲线与需求曲线相交于一点，该点被称为市场的均衡。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;在均衡价格时，买者愿意并且能够购买的物品数量正好与卖者愿意并且能够卖出的数量相等&lt;/em&gt;。均衡价格有时候也会被称为&lt;strong&gt;市场出清价格&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;买者与卖者的行为自然而然地使市场向供给与需求的均衡变动。当市场价格不等于均衡价格时，物品会表现为过剩或者短缺，并使市场达到均衡为止。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;过剩&lt;/strong&gt;：&lt;em&gt;供给量大于需求量&lt;/em&gt;&lt;/p&gt;
-
-    &lt;p&gt;当市场价格高于均衡价格时，会使得供给量大于需求量，此时物品就会出现过剩。&lt;/p&gt;
-
-    &lt;p&gt;卖者对过剩的反应时降低其价格。当价格下降时，会使需求量增加，供给减少。&lt;/p&gt;
-
-    &lt;p&gt;这种变化表现为沿着供给与需求曲线的变动，而不是曲线的移动。价格会持续下降，最终市场达到均衡。&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;短缺&lt;/strong&gt;：&lt;em&gt;需求量大于供给量&lt;/em&gt;&lt;/p&gt;
-
-    &lt;p&gt;当市场价格低于均衡价格时，会使得需求量大于供给量，此时物品就会出现短缺。&lt;/p&gt;
-
-    &lt;p&gt;由于太多的买者抢购太少的物品，卖者可以提高物品价格。当价格提高时，引起需求减少，供给增加。&lt;/p&gt;
-
-    &lt;p&gt;这种变化表现为沿着供给和需求曲线移动，并推动市场走向均衡。&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-    &lt;p&gt;在大多数自由市场上，价格最终都要变动到其均衡水平，过剩与短缺都只是暂时的。&lt;em&gt;任何物品的价格都会自发调整，使该物品的供给与需求达到平衡&lt;/em&gt;，被称为&lt;strong&gt;供求定理&lt;/strong&gt;（law of supply and demand）。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;分析均衡变动的步骤&quot;&gt;分析均衡变动的步骤&lt;/h2&gt;
-
-&lt;p&gt;当分析某个事件如何影响一个市场上的均衡时，按照三个步骤进行：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;确定该事件是使供给曲线移动还是时需求曲线移动&lt;/strong&gt;（或者两者均移动）&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;确定曲线移动的方向&lt;/strong&gt;（左还是右）&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;用供求图来说明这种移动如何改变均衡价格与均衡数量&lt;/strong&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;例由需求移动引起的市场均衡变动&quot;&gt;例：由需求移动引起的市场均衡变动&lt;/h3&gt;
-
-&lt;p&gt;假设某年夏季天气特别炎热，这种情况如何影响冰淇淋市场？&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;天气炎热改变了需求曲线，人们在既定价格下想要购买更多的冰淇淋。供给曲线不会变，因为天气并不直接影响销售企业&lt;/li&gt;
-  &lt;li&gt;由于既定价格下需求增多，所以需求曲线向右移动&lt;/li&gt;
-  &lt;li&gt;在原有价格下，需求 &amp;gt; 供给（因为需求增多，而不是供给减少），引起短缺，因此卖家提高冰淇淋价格，达到新的均衡。&lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;整体来看，&lt;strong&gt;&lt;em&gt;天气炎热提高了冰淇淋价格，增加了冰淇淋的销售量&lt;/em&gt;&lt;/strong&gt;。&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_8.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3 id=&quot;曲线的移动与沿着曲线的移动&quot;&gt;曲线的移动与沿着曲线的移动&lt;/h3&gt;
-
-&lt;p&gt;我们注意到，当天气炎热时，冰淇淋需求增加，并使其价格上升；尽管供给曲线不变，但是供给数量增加了。这种情况下，我们称为，&lt;strong&gt;“供给量”增加，但是“供给不变”&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;供给是指供给曲线的位置，供给量是指供给者希望出售的数量&lt;/p&gt;
-
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;供给曲线的移动&lt;/strong&gt;被称为“&lt;strong&gt;供给变动&lt;/strong&gt;”，&lt;strong&gt;需求曲线的移动&lt;/strong&gt;被称为“&lt;strong&gt;需求变动&lt;/strong&gt;”&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;沿着固定的供给曲线变动&lt;/strong&gt;被称为“&lt;strong&gt;供给量的变动&lt;/strong&gt;”，&lt;strong&gt;沿着固定需求曲线的变动&lt;/strong&gt;被称为“&lt;strong&gt;需求量的变动&lt;/strong&gt;”&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;例由供给移动引起的市场均衡变动&quot;&gt;例：由供给移动引起的市场均衡变动&lt;/h3&gt;
-
-&lt;p&gt;假设在另一个夏季，台风摧毁了部分甘蔗田，使得糖的价格上升，这个事件如何影响冰淇淋市场？&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;糖作为冰淇淋的投入品，其价格上升影响了供给曲线，企业在既定价格下减少冰淇淋的供给。需求曲线没变。&lt;/li&gt;
-  &lt;li&gt;供给曲线向左移动&lt;/li&gt;
-  &lt;li&gt;在原有价格下，供给 &amp;lt; 需求（因为供给减少，而不是需求增多），引起短缺，因此卖家提高冰淇淋价格，达到新的均衡。&lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;整体来看，糖的价格上升，导致冰淇淋的价格上升，但是销售量减少了&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/images/economics/chap4/eco_9.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h2 id=&quot;当供给或需求移动时价格和数量将如何变化&quot;&gt;当供给或需求移动时，价格和数量将如何变化？&lt;/h2&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt; &lt;/th&gt;
-      &lt;th&gt;供给未变&lt;/th&gt;
-      &lt;th&gt;供给增加&lt;/th&gt;
-      &lt;th&gt;供给减少&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;需求未变&lt;/td&gt;
-      &lt;td&gt;价格相同 数量相同&lt;/td&gt;
-      &lt;td&gt;价格下降 数量增加&lt;/td&gt;
-      &lt;td&gt;价格上升 数量减少&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;需求增加&lt;/td&gt;
-      &lt;td&gt;价格上升 数量增加&lt;/td&gt;
-      &lt;td&gt;数量增加 价格不定&lt;/td&gt;
-      &lt;td&gt;价格上升 数量不定&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;需求减少&lt;/td&gt;
-      &lt;td&gt;价格下降 数量减少&lt;/td&gt;
-      &lt;td&gt;价格下降 数量不定&lt;/td&gt;
-      &lt;td&gt;价格不定 数量减少&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;h1 id=&quot;结论价格如何配置资源&quot;&gt;结论：价格如何配置资源&lt;/h1&gt;
-
-&lt;p&gt;在市场经济中，价格是配置稀缺资源的机制。对于经济中的每种物品来说，价格确保供给与需求达到平衡。均衡价格决定了买者选择购买多少这种物品，以及卖者选择生产多少这种物品。&lt;/p&gt;</content><author><name>kkzhang</name></author><category term="economics" /><summary type="html">供给与需求是使市场经济运行的力量，它们决定了每种物品的产量及出售价格。</summary></entry></feed>
+&lt;/ol&gt;</content><author><name>kkzhang</name></author><category term="annual-summary" /><summary type="html">来上海三年多，第一次（2023-01-15）见到那么大的雪</summary></entry></feed>
