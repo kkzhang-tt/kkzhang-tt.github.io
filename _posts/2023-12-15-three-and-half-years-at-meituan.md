@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title: "Three and half years at Meituan"
+title: "美团三年半"
 category: "summary"
 author: "kkzhang"
 ---
